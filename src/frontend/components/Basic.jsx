@@ -199,87 +199,28 @@ export default function Basic() {
         variant="h4"
         component="h1"
       >
-        Heading 1
+        Murakami Visualizations
       </Typography>
       <Typography className={classes.sub1a} variant="subtitle1" component="p">
         Plura mihi bona sunt, inclinet, amari petere vellent. Cras mattis iudicium purus sit amet fermentum.
       </Typography>
       <Typography className={classes.sub1} variant="subtitle1" component="p">
-        <LockIcon color="primary" fontSize="inherit" /> Ullamco laboris nisi ut aliquid ex ea commodi consequat.
+        More about Murakamki ullamco laboris nisi ut aliquid ex ea commodi consequat.
+      </Typography>
+      <Typography className={classes.sub1} variant="subtitle1" component="p">
       </Typography>
       <Box mt={2} mb={2}>
         <Divider />
       </Box>
       <Box mt={2} mb={6}>
-        <Typography className={classes.h6} variant="h6">
-          Phasellus laoreet lorem vel dolor tempus vehicula?
-        </Typography>
-        <Typography
-          className={classes.sub1}
-          variant="subtitle1"
-          component="p"
-          gutterBottom
-        >
-          Ambitioni dedisse scripsisse iudicaretur.
-        </Typography>
-        <FormControl fullWidth>
-          <TextField
-            id="standard-multiline-static"
-            label="Describe it"
-            multiline
-            value={description}
-            onChange={handleDescriptionChange}
-            rowsMax="4"
-            required
-          />
-        </FormControl>
-      </Box>
-      <Box mt={2} mb={6}>
-        <Typography className={classes.h6} variant="h6" gutterBottom>
-          Helpful information
-        </Typography>
-        <Typography
-          className={classes.sub1}
-          variant="subtitle1"
-          component="p"
-          gutterBottom
-        >
-          Attachments tu quoque, Brute, fili mi, nihil timor populi, nihil!
-        </Typography>
-        {renderLinks()}
-        <FormControl>
-          {renderFiles()}
-          <input
-            accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt"
-            className={classes.input}
-            id="upload-file"
-            type="file"
-            onChange={handleUploadChange}
-          />
-          <label htmlFor="upload-file">
-            <Button
-              aria-label="upload file"
-              component="span"
-              startIcon={<FolderIcon />}
-              variant="text"
-            >
-              {files.length === 0 ? 'Add files' : 'Add another file'}
-            </Button>
-          </label>
-        </FormControl>
-      </Box>
-      <Box mt={2} mb={6}>
-        <Grid container direction="row" alignItems="center" justify="center">
-          <Grid className={classes.centerText} item xs={6}>
-            <Button onClick={uploadForm}>Submit</Button>
-          </Grid>
-          <Grid className={classes.centerText} item xs={6}>
+        <Grid container spacing={2} direction="row" alignItems="center" justify="center">
+          <Grid className={classes.centerText} item xs={2}>
             <Button
               variant="contained"
               color="primary"
               component={RouterLink}
               to={{
-                pathname: '/share',
+                pathname: '/login',
                 state: {
                   links,
                   files,
@@ -287,7 +228,20 @@ export default function Basic() {
                 },
               }}
             >
-              Add Detail
+              Log in
+            </Button>
+          </Grid>
+          <Grid className={classes.centerText} item xs={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              component={RouterLink}
+              to={{
+                pathname: '/dashboard',
+                state: {},
+              }}
+            >
+              Sample site
             </Button>
           </Grid>
         </Grid>
