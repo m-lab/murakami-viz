@@ -1,7 +1,7 @@
 {
-  "name": "koa-react-template",
+  "name": "murakami-viz",
   "version": "0.1.0",
-  "description": "A dynamic standalone webapp for submitting a form.",
+  "description": "A visualization service of results from Murakami tests.",
   "license": "AGPL-3.0-or-later",
   "contributors": [
     "Josh King <josh@throneless.tech",
@@ -15,12 +15,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/throneless-tech/fixme.git"
+    "url": "git+https://github.com/throneless-tech/murakami-viz.git"
   },
   "bugs": {
-    "url": "https://github.com/throneless-tech/issues"
+    "url": "https://github.com/throneless-tech/murakami-viz/issues"
   },
-  "homepage": "https://github.com/throneless-tech#readme",
+  "homepage": "https://github.com/throneless-tech/murakami-viz#readme",
   "main": "./dist/backend/index.js",
   "files": [
     "/dist"

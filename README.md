@@ -1,5 +1,5 @@
-# Koa React Form Template
-A form template using Koa and React.
+# Murakami vizualizations
+A visualization service of Murakami tests using Koa and React.
 
 ## Requirements
 * [Node.js](https://nodejs.org) of version `>=10`
@@ -21,7 +21,7 @@ src/worker   # The standalone worker
 ```
 
 ## Configuration
-Koa React Form Template is configured via variables either specified in the environment or defined in a `.env` file (see `env.example` for an example configuration that may be edited and copied to `.env`).
+Murakami visualization is configured via variables either specified in the environment or defined in a `.env` file (see `env.example` for an example configuration that may be edited and copied to `.env`).
 
 The backend parses the following configuration variables:
 ```
@@ -68,4 +68,4 @@ The backend exposes the following HTTP API:
 ## License
 [<img src="https://www.gnu.org/graphics/agplv3-155x51.png" alt="AGPLv3" >](http://www.gnu.org/licenses/agpl-3.0.html)
 
-Koa React Form Template is a free software project licensed under the GNU Affero General Public License v3.0 (AGPLv3) by [Throneless Tech](https://throneless.tech).
+Murakami visualization is a free software project licensed under the GNU Affero General Public License v3.0 (AGPLv3) by [Throneless Tech](https://throneless.tech).
