@@ -7,7 +7,7 @@ const startWorker = () => {
     console.debug('Worker processed job:', job.data);
     let data;
     try {
-      data = await createTicket(job.data);
+      //     data = await createTicket(job.data);
     } catch (err) {
       console.error(`Failed to create ticket and archive url: ${err}`);
     }

@@ -53,17 +53,17 @@ function validatePassword(value, previous) {
   return password;
 }
 
-function validateUrl(value, previous) {
-  const url = value ? value : previous;
-  Joi.assert(url, Joi.string().uri());
-  return url;
-}
-
-function validateToken(value, previous) {
-  const token = value ? value : previous;
-  Joi.assert(token, Joi.string());
-  return token;
-}
+//function validateUrl(value, previous) {
+//  const url = value ? value : previous;
+//  Joi.assert(url, Joi.string().uri());
+//  return url;
+//}
+//
+//function validateToken(value, previous) {
+//  const token = value ? value : previous;
+//  Joi.assert(token, Joi.string());
+//  return token;
+//}
 
 function validateLoglevel(value, previous) {
   const level = value ? value : previous;

@@ -2,8 +2,9 @@
 // import { validateData, fieldsToSchema } from 'FIXME/fields/src/validation';
 import { UnprocessableError } from '../../common/errors.js';
 
+// eslint-disable-next-line no-unused-vars
 export function validate(data) {
-  const schema = 'test'; // fieldsToSchema(FieldsV1);
+  //const schema = 'test'; // fieldsToSchema(FieldsV1);
   let errors = 'test'; // validateData(schema, data);
   if (Array.isArray(errors) && errors.length) {
     errors = JSON.stringify(errors);

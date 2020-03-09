@@ -1,4 +1,3 @@
-
 import figlet from 'figlet';
 import { createServer } from 'http';
 import config from './config.js';
@@ -40,6 +39,9 @@ ${bigName}
   })
   .catch(err => {
     setImmediate(() => {
-      console.error('Unable to run the server because of the following error: ', err);
+      console.error(
+        'Unable to run the server because of the following error: ',
+        err,
+      );
     });
   });

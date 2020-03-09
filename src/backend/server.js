@@ -61,7 +61,7 @@ export default function configServer(config) {
   server.context.onerror = errorHandler;
 
   // If we're running behind Cloudflare, set the access parameters.
-  if (!!config.cfaccess_url) {
+  if (!config.cfaccess_url) {
     server.use(cloudflareAccess(config.cfaccess_url, config.cfaccess_audience));
     if (!config.isDev && !config.isTest) {
       server.use(async (ctx, next) => {
