@@ -1,32 +1,6 @@
+import { Command } from 'commander';
 import Joi from 'joi';
 import dotenv from 'dotenv';
-import { ServerError } from '../common/errors.js';
-
-/**
- * Generate a validation schema using Joi to check the type of your environment variables
- */
-const envSchema = Joi.object({
-  NODE_ENV: Joi.string().allow(['development', 'production', 'test']),
-  ADMIN_USERNAME: Joi.string()
-    .alphanum()
-    .min(3)
-    .max(32),
-  ADMIN_PASSWORD: Joi.string()
-    .alphanum()
-    .min(12)
-    .max(32)
-    .required(),
-  CFACCESS_AUDIENCE: Joi.string(),
-  CFACCESS_URL: Joi.string().uri(),
-  PORT: Joi.number(),
-  REDIS_HOST: Joi.string(),
-  REDIS_PORT: Joi.number(),
-  SECRETS: Joi.string().required(),
-  WORKER_QUEUE: Joi.string(),
-})
-  .with('FIXME_CFACCESS_AUDIENCE', 'FIXME_CFACCESS_URL')
-  .unknown()
-  .required();
 
 /**
  * Optionally load environment from a .env file.
@@ -34,35 +8,173 @@ const envSchema = Joi.object({
 
 dotenv.config();
 
-/**
- * Validate the env variables using Joi.validate()
- */
-const { error, value: envVars } = Joi.validate(process.env, envSchema);
-if (error) {
-  throw new ServerError('Config validation error', error);
-}
-
-export default {
-  env: envVars.NODE_ENV,
-  isTest: envVars.NODE_ENV === 'test',
-  isDev: envVars.NODE_ENV === 'development',
-  secrets: envVars.FIXME_SECRETS,
+const defaults = {
+  loglevel: process.env.MURAKAMI_LOG_LEVEL || 'error',
+  secrets: process.env.MURAKAMI_SECRETS,
   admin: {
-    user: envVars.FIXME_ADMIN_USERNAME || 'admin',
-    password: envVars.FIXME_ADMIN_PASSWORD,
-  },
-  cfaccess: {
-    audience: envVars.FIXME_CFACCESS_AUDIENCE,
-    url: envVars.FIXME_CFACCESS_URL,
+    user: process.env.MURAKAMI_ADMIN_USERNAME || 'admin',
+    password: process.env.MURAKAMI_ADMIN_PASSWORD,
   },
   redis: {
-    host: envVars.FIXME_REDIS_HOST || 'localhost',
-    port: envVars.FIXME_REDIS_PORT || 6379,
+    host: process.env.MURAKAMI_REDIS_HOST || 'localhost',
+    port: process.env.MURAKAMI_REDIS_PORT || '6379',
   },
   server: {
-    port: envVars.FIXME_PORT || 3000,
+    port: process.env.MURAKAMI_PORT || '3000',
   },
   worker: {
-    queue: envVars.FIXME_WORKER_QUEUE || '0',
+    queue: process.env.MURAKAMI_WORKER_QUEUE || '0',
   },
 };
+
+function validateUser(value, previous) {
+  const user = value ? value : previous;
+  Joi.assert(
+    user,
+    Joi.string()
+      .alphanum()
+      .min(3)
+      .max(32)
+      .required(),
+  );
+  return user;
+}
+
+function validatePassword(value, previous) {
+  const password = value ? value : previous;
+  Joi.assert(
+    password,
+    Joi.string()
+      .alphanum()
+      .min(10)
+      .max(64)
+      .required(),
+  );
+  return password;
+}
+
+function validateUrl(value, previous) {
+  const url = value ? value : previous;
+  Joi.assert(url, Joi.string().uri());
+  return url;
+}
+
+function validateToken(value, previous) {
+  const token = value ? value : previous;
+  Joi.assert(token, Joi.string());
+  return token;
+}
+
+function validateLoglevel(value, previous) {
+  const level = value ? value : previous;
+  Joi.assert(
+    level,
+    Joi.string()
+      .allow(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
+      .required(),
+  );
+  return level;
+}
+
+function validateHost(value, previous) {
+  const host = value ? value : previous;
+  Joi.assert(host, Joi.string().required());
+  return host;
+}
+
+function validatePort(value, previous) {
+  const port = value ? parseInt(value) : parseInt(previous);
+  Joi.assert(
+    port,
+    Joi.number()
+      .port()
+      .required(),
+  );
+  return port;
+}
+
+function validateArray(value, previous) {
+  const strings = value ? value : previous;
+  const array = strings.split(',');
+  Joi.assert(
+    array,
+    Joi.array()
+      .items(Joi.string())
+      .required(),
+  );
+  return strings;
+}
+
+function validateQueueId(value, previous) {
+  const id = value ? value : previous;
+  Joi.assert(Joi.string().required());
+  return id;
+}
+
+class Config extends Command {
+  constructor(args) {
+    super(args);
+    const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
+    Joi.string()
+      .allow(['development', 'production', 'test'])
+      .required()
+      .validate(env);
+    this.isDev = env === 'development';
+    this.isTest = env === 'test';
+    this.isProd = env === 'production';
+  }
+}
+
+const program = new Config();
+
+export default program
+  .description(process.env.npm_package_description)
+  .version(process.env.npm_package_version)
+  .option(
+    '--username <username>',
+    'Admin username',
+    validateUser,
+    defaults.admin.user,
+  )
+  .option(
+    '--password <password>',
+    'Admin password',
+    validatePassword,
+    defaults.admin.password,
+  )
+  .option(
+    '-p, --port <number>',
+    'Port for Cunei to listen on',
+    validatePort,
+    defaults.server.port,
+  )
+  .option(
+    '-l, --log_level <level>',
+    'Logging verbosity',
+    validateLoglevel,
+    defaults.loglevel,
+  )
+  .option(
+    '-s, --secrets <string>',
+    'Session secret(s)',
+    validateArray,
+    defaults.secrets,
+  )
+  .option(
+    '-q, --queue <name>',
+    'Default worker queue ID',
+    validateQueueId,
+    defaults.worker.queue,
+  )
+  .option(
+    '--redis_host <host>',
+    'Redis host',
+    validateHost,
+    defaults.redis.host,
+  )
+  .option(
+    '--redis_port <port>',
+    'Redis port',
+    validatePort,
+    defaults.redis.port,
+  );

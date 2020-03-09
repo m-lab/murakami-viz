@@ -47,6 +47,8 @@ const useStyles = makeStyles(() => ({
 
 const Basic = lazy(() => import('./Basic.jsx'));
 const Loading = lazy(() => import('./Loading.jsx'));
+const Login = lazy(() => import('./Login.jsx'));
+const Admin = lazy(() => import('./Admin.jsx'));
 const Share = lazy(() => import('./Share.jsx'));
 const ThankYou = lazy(() => import('./ThankYou.jsx'));
 
@@ -57,12 +59,12 @@ export default function App() {
       <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Container className={classes.container} maxWidth="sm">
+          <Container className={classes.container}>
             <Switch>
-              <Route exact path="/">
-                <Basic />
-              </Route>
+              <Route exact path="/" render={props => <Basic {...props} />} />
               <Route path="/share" render={props => <Share {...props} />} />
+              <Route path="/login" render={props => <Login {...props} />} />
+              <Route path="/admin" render={props => <Admin {...props} />} />
               <Route
                 path="/thankyou"
                 render={props => <ThankYou {...props} />}

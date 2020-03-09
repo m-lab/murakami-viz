@@ -1,6 +1,6 @@
 import { Worker } from 'bullmq';
 import config from './config.js';
-import { createTicket } from './fixme/fixme.js';
+// import { createTicket } from './fixme/fixme.js';
 
 const startWorker = () => {
   const job = async job => {
@@ -11,9 +11,7 @@ const startWorker = () => {
     } catch (err) {
       console.error(`Failed to create ticket and archive url: ${err}`);
     }
-    console.debug(
-      `Data submitted successfully: ${data}`,
-    );
+    console.debug(`Data submitted successfully: ${data}`);
   };
 
   const worker = new Worker(config.worker.queue, job, {

@@ -81,9 +81,15 @@ export default function controller(users) {
    *
    * @param {Object} ctx - Koa context object
    */
-  router.get('/logout', ctx => {
-    ctx.logout();
-    ctx.redirect('/');
+  router.get('/logout', async ctx => {
+    if (ctx.isAuthenticated()) {
+      await ctx.logout();
+      ctx.session = null;
+      ctx.redirect('/');
+    } else {
+      ctx.body = { success: false };
+      ctx.throw(401, 'Logout failed.');
+    }
   });
 
   /**

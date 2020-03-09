@@ -25,17 +25,17 @@ Murakami visualization is configured via variables either specified in the envir
 
 The backend parses the following configuration variables:
 ```
-FIXME_PORT        # The port that the backend is listening on (default: 3000)
-FIXME_REDIS_HOST  # The host for the Redis instance (default: localhost)
-FIXME_REDIS_PORT  # The port for Redis (default: 6379)
+MURAKAMI_PORT        # The port that the backend is listening on (default: 3000)
+MURAKAMI_REDIS_HOST  # The host for the Redis instance (default: localhost)
+MURAKAMI_REDIS_PORT  # The port for Redis (default: 6379)
 ```
 The worker parses the following configuration variables:
 ```
-FIXME_REDIS_HOST   # The host for the Redis instance (default: localhost)
-FIXME_REDIS_PORT   # The port for Redis (default: 6379)
-FIXME_WORKER_QUEUE # The ID for the default queue the worker is processing (default: 0)
-FIXME_URL   # The URL for the instance's API
-FIXME_TOKEN # The authentication token for the instance
+MURAKAMI_REDIS_HOST   # The host for the Redis instance (default: localhost)
+MURAKAMI_REDIS_PORT   # The port for Redis (default: 6379)
+MURAKAMI_WORKER_QUEUE # The ID for the default queue the worker is processing (default: 0)
+MURAKAMI_URL   # The URL for the instance's API
+MURAKAMI_TOKEN # The authentication token for the instance
 ```
 Additionally, we use the semi-standard `NODE_ENV` variable for defining test, staging, and production environments as well as [llog](https://github.com/mateodelnorte/llog) for setting logging verbosity.
 
@@ -51,7 +51,7 @@ npm run build
 ```
 And start the running processes (with necessary environment variables if not defined in `.env`):
 ```
-FIXME_URL="https://example.com/api/v1" FIXME_TOKEN="mytoken" npm run start
+MURAKAMI_URL="https://example.com/api/v1" MURAKAMI_TOKEN="mytoken" npm run start
 ```
 Additionally, components can be built or started individually using for example `npm run build:backend`, `npm run start:worker`, etc.
 
