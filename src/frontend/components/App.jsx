@@ -10,10 +10,10 @@ import { StylesProvider, ThemeProvider } from '@material-ui/styles';
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#3701b3',
+      main: '#333333',
     },
     secondary: {
-      main: '#11cb5f',
+      main: '#aaaaaa',
     },
     text: {
       primary: '#4A4A4A',
@@ -63,7 +63,10 @@ export default function App() {
           <Container className={classes.container}>
             <Switch>
               <Route exact path="/" render={props => <Basic {...props} />} />
-              <Route path="/dashboard" render={props => <Dashboard {...props} />} />
+              <Route
+                path="/dashboard"
+                render={props => <Dashboard {...props} />}
+              />
               <Route path="/share" render={props => <Share {...props} />} />
               <Route path="/login" render={props => <Login {...props} />} />
               <Route path="/admin" render={props => <Admin {...props} />} />
