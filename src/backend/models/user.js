@@ -16,8 +16,8 @@ export default class User {
     // Just in case we add other methods, but right now only 1 user
     return {
       id: 1,
-      username: config.admin.user,
-      password: config.admin.password,
+      username: config.username,
+      password: config.password,
     };
   }
 
@@ -31,8 +31,8 @@ export default class User {
     // Just in case we add other methods, but right now only 1 user
     return {
       id: 1,
-      username: config.admin.user,
-      password: config.admin.password,
+      username: config.username,
+      password: config.password,
     };
   }
 
@@ -44,8 +44,8 @@ export default class User {
     return [
       {
         id: 1,
-        username: config.admin.user,
-        password: config.admin.password,
+        username: config.username,
+        password: config.password,
       },
     ];
   }
