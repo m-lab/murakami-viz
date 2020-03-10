@@ -1,6 +1,7 @@
 import React from 'react';
+import {PrerenderedComponent} from "react-prerendered-component";
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { lazy, LazyBoundary } from 'react-imported-component';
+import { imported, lazy, LazyBoundary } from 'react-imported-component';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 import { makeStyles, createMuiTheme } from '@material-ui/core/styles';

@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import Plot from 'react-plotly.js';
 
 const drawerWidth = 240;
 
@@ -71,6 +72,33 @@ export default function Dashboard() {
           {/* Chart */}
           <Grid container spacing={3}>
             <Grid item xs={12}>
+              <Plot
+                data={[
+                  {
+                    x: [1, 2, 3],
+                    y: [2, 6, 3],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'rgb(235, 64, 52)'},
+                  },
+                  {
+                    x: [1, 2, 3],
+                    y: [6, 3, 9],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'rgb(52, 235, 107)'},
+                  },
+                  {
+                    x: [1, 2, 3],
+                    y: [3, 10, 4],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'rgb(38, 146, 163)'},
+                  },
+                  {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+                ]}
+                layout={ {width: 600, height: 400, title: 'Speed Tests'} }
+              />
             </Grid>
             <Grid item xs={12}>
             </Grid>
