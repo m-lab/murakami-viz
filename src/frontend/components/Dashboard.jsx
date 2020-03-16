@@ -7,7 +7,10 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import Plot from 'react-plotly.js';
+//import Plot from 'react-plotly.js';
+//import Plotly from 'plotly.js';
+import createPlotlyComponent from 'react-plotly.js/factory';
+const Plot = createPlotlyComponent(Plotly);
 
 const drawerWidth = 240;
 
@@ -79,29 +82,28 @@ export default function Dashboard() {
                     y: [2, 6, 3],
                     type: 'scatter',
                     mode: 'lines+markers',
-                    marker: {color: 'rgb(235, 64, 52)'},
+                    marker: { color: 'rgb(235, 64, 52)' },
                   },
                   {
                     x: [1, 2, 3],
                     y: [6, 3, 9],
                     type: 'scatter',
                     mode: 'lines+markers',
-                    marker: {color: 'rgb(52, 235, 107)'},
+                    marker: { color: 'rgb(52, 235, 107)' },
                   },
                   {
                     x: [1, 2, 3],
                     y: [3, 10, 4],
                     type: 'scatter',
                     mode: 'lines+markers',
-                    marker: {color: 'rgb(38, 146, 163)'},
+                    marker: { color: 'rgb(38, 146, 163)' },
                   },
-                  {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+                  { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
                 ]}
-                layout={ {width: 600, height: 400, title: 'Speed Tests'} }
+                layout={{ width: 600, height: 400, title: 'Speed Tests' }}
               />
             </Grid>
-            <Grid item xs={12}>
-            </Grid>
+            <Grid item xs={12} />
           </Grid>
         </Container>
       </main>
