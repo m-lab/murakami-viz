@@ -131,6 +131,7 @@
     "react-plotly.js": "^2.4.0",
     "react-prerendered-component": "^1.2.4",
     "react-router-dom": "^5.1.2",
+    "react-tabs": "^3.1.0",
     "request-promise-native": "^1.0.8",
     "uuid": "3.3.2"
   },
