@@ -9,18 +9,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const defaults = {
-  loglevel: process.env.TEMPLATE_LOG_LEVEL || 'error',
-  secrets: process.env.TEMPLATE_SECRETS,
+  loglevel: process.env.MURAKAMI_VIZ_LOG_LEVEL || 'error',
+  secrets: process.env.MURAKAMI_VIZ_SECRETS,
   admin: {
-    user: process.env.TEMPLATE_ADMIN_USERNAME || 'admin',
-    password: process.env.TEMPLATE_ADMIN_PASSWORD,
+    user: process.env.MURAKAMI_VIZ_ADMIN_USERNAME || 'admin',
+    password: process.env.MURAKAMI_VIZ_ADMIN_PASSWORD,
   },
   cfaccess: {
-    audience: process.env.TEMPLATE_CFACCESS_AUDIENCE,
-    url: process.env.TEMPLATE_CFACCESS_URL,
+    audience: process.env.MURAKAMI_VIZ_CFACCESS_AUDIENCE,
+    url: process.env.MURAKAMI_VIZ_CFACCESS_URL,
   },
   server: {
-    port: process.env.TEMPLATE_PORT || '3000',
+    port: process.env.MURAKAMI_VIZ_PORT || '3000',
   },
 };
 
