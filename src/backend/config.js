@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 import dotenv from 'dotenv';
 
 /**
@@ -9,21 +9,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const defaults = {
-  loglevel: process.env.MURAKAMI_LOG_LEVEL || 'error',
-  secrets: process.env.MURAKAMI_SECRETS,
+  loglevel: process.env.TEMPLATE_LOG_LEVEL || 'error',
+  secrets: process.env.TEMPLATE_SECRETS,
   admin: {
-    user: process.env.MURAKAMI_ADMIN_USERNAME || 'admin',
-    password: process.env.MURAKAMI_ADMIN_PASSWORD,
+    user: process.env.TEMPLATE_ADMIN_USERNAME || 'admin',
+    password: process.env.TEMPLATE_ADMIN_PASSWORD,
   },
-  redis: {
-    host: process.env.MURAKAMI_REDIS_HOST || 'localhost',
-    port: process.env.MURAKAMI_REDIS_PORT || '6379',
+  cfaccess: {
+    audience: process.env.TEMPLATE_CFACCESS_AUDIENCE,
+    url: process.env.TEMPLATE_CFACCESS_URL,
   },
   server: {
-    port: process.env.MURAKAMI_PORT || '3000',
-  },
-  worker: {
-    queue: process.env.MURAKAMI_WORKER_QUEUE || '0',
+    port: process.env.TEMPLATE_PORT || '3000',
   },
 };
 
@@ -53,29 +50,30 @@ function validatePassword(value, previous) {
   return password;
 }
 
-//function validateUrl(value, previous) {
-//  const url = value ? value : previous;
-//  Joi.assert(url, Joi.string().uri());
-//  return url;
-//}
-//
-//function validateToken(value, previous) {
-//  const token = value ? value : previous;
-//  Joi.assert(token, Joi.string());
-//  return token;
-//}
+function validateUrl(value, previous) {
+  const url = value ? value : previous;
+  Joi.assert(url, Joi.string().uri());
+  return url;
+}
+
+function validateToken(value, previous) {
+  const token = value ? value : previous;
+  Joi.assert(token, Joi.string());
+  return token;
+}
 
 function validateLoglevel(value, previous) {
   const level = value ? value : previous;
   Joi.assert(
     level,
     Joi.string()
-      .allow(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
+      .allow('trace', 'debug', 'info', 'warn', 'error', 'fatal')
       .required(),
   );
   return level;
 }
 
+// eslint-disable-next-line no-unused-vars
 function validateHost(value, previous) {
   const host = value ? value : previous;
   Joi.assert(host, Joi.string().required());
@@ -105,23 +103,26 @@ function validateArray(value, previous) {
   return strings;
 }
 
-function validateQueueId(value, previous) {
-  const id = value ? value : previous;
-  Joi.assert(Joi.string().required());
-  return id;
-}
-
 class Config extends Command {
   constructor(args) {
     super(args);
     const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
     Joi.string()
-      .allow(['development', 'production', 'test'])
+      .allow('development', 'production', 'test')
       .required()
       .validate(env);
     this.isDev = env === 'development';
     this.isTest = env === 'test';
     this.isProd = env === 'production';
+  }
+
+  parse(args) {
+    super.parse(args);
+    if (!this.cfaccess_url != !this.cfaccess_audience) {
+      throw new Error(
+        'If using Cloudflare Access both the URL and the Audience must be specified.',
+      );
+    }
   }
 }
 
@@ -144,7 +145,7 @@ export default program
   )
   .option(
     '-p, --port <number>',
-    'Port for Cunei to listen on',
+    'Port for the app to listen on',
     validatePort,
     defaults.server.port,
   )
@@ -154,6 +155,7 @@ export default program
     validateLoglevel,
     defaults.loglevel,
   )
+  .option('--no-proxy', 'Disable support for proxy headers')
   .option(
     '-s, --secrets <string>',
     'Session secret(s)',
@@ -161,20 +163,14 @@ export default program
     defaults.secrets,
   )
   .option(
-    '-q, --queue <name>',
-    'Default worker queue ID',
-    validateQueueId,
-    defaults.worker.queue,
+    '--cfaccess_url <url>',
+    'Cloudflare Access URL',
+    validateUrl,
+    defaults.cfaccess.url,
   )
   .option(
-    '--redis_host <host>',
-    'Redis host',
-    validateHost,
-    defaults.redis.host,
-  )
-  .option(
-    '--redis_port <port>',
-    'Redis port',
-    validatePort,
-    defaults.redis.port,
+    '--cfaccess_audience <token>',
+    'Cloudflare Access Audience',
+    validateToken,
+    defaults.cfaccess.audience,
   );

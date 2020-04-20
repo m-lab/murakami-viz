@@ -10,11 +10,26 @@ const theme = createMuiTheme({
     secondary: {
       main: '#aaaaaa',
     },
+    text: {
+      primary: '#4A4A4A',
+    },
     error: {
       main: red.A400,
     },
     background: {
       default: '#fff',
+    },
+  },
+  overrides: {
+    MuiFormControlLabel: {
+      root: {
+        marginBottom: '16px',
+      },
+      label: {
+        fontSize: '14px',
+        lineHeight: '18px',
+        color: '#4A4A4A',
+      },
     },
   },
 });

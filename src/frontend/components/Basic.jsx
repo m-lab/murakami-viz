@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles } from '@material-ui/core/styles';
-import FolderIcon from '@material-ui/icons/Folder';
 import LinkIcon from '@material-ui/icons/Link';
 import { Link as RouterLink } from 'react-router-dom';
-import FormControl from '@material-ui/core/FormControl';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AddIcon from '@material-ui/icons/Add';
 import ImageIcon from '@material-ui/icons/Image';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import MovieIcon from '@material-ui/icons/Movie';
 import MusicVideoIcon from '@material-ui/icons/MusicVideo';
+import CloseIcon from '@material-ui/icons/Close';
 import List from '@material-ui/core/List';
 import Grid from '@material-ui/core/Grid';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import PropTypes from 'prop-types';
+//import MUICookieConsent from 'material-ui-cookie-consent';
 
 const useStyles = makeStyles(theme => ({
   input: {
@@ -39,6 +44,13 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '20px',
     fontWeight: '700',
     color: '#4A4A4A',
+  },
+  debug: {
+    marginTop: theme.spacing(1),
+    fontSize: '12px',
+    lineHeight: '16px',
+    color: '#4A4A4A',
+    fontFamily: 'monospace',
   },
   sub1: {
     marginTop: theme.spacing(1),
@@ -86,16 +98,32 @@ const validateLink = text => {
   return text === '' || regEx.test(text);
 };
 
-export default function Basic() {
+export default function Basic(props) {
   const classes = useStyles();
   const [links, setLinks] = useState(['']);
   const [files, setFiles] = useState([]);
   const [description, setDescription] = useState('');
+  // eslint-disable-next-line no-unused-vars
+  const [isFormValid, setIsFormValid] = React.useState(true);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [modalText, setModalText] = React.useState('');
+  const [modalDebug, setModalDebug] = React.useState('');
 
   useEffect(() => {
-    //console.log('files!',files);
-  });
+    if (props.location.state) {
+      if (props.location.state.description) {
+        setDescription(props.location.state.description);
+      }
+      if (props.location.state.links) {
+        setLinks(props.location.state.links);
+      }
+      if (props.location.state.files) {
+        setFiles(props.location.state.files);
+      }
+    }
+  }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const handleUploadChange = event => {
     let newArr = [...files];
     newArr = newArr.concat(event.target.files[0]);
@@ -108,7 +136,20 @@ export default function Basic() {
     if (newArr[i + 1] === undefined) {
       newArr[i + 1] = '';
     }
+    // test to see if every link is valid, if not, invalidate the form
+    const allValid = newArr.every(url => validateLink(url));
+    if (!allValid) {
+      setIsFormValid(false);
+    } else {
+      setIsFormValid(true);
+    }
     setLinks(newArr);
+  };
+
+  const handleFileRemove = i => {
+    let newArr = [...files];
+    newArr.splice(i, 1);
+    setFiles(newArr);
   };
 
   const renderLinks = () => {
@@ -117,6 +158,11 @@ export default function Basic() {
         placeholder="Paste link"
         fullWidth
         error={!validateLink(text)}
+        helperText={
+          !validateLink(text)
+            ? "All links need to start with http:// or https:// and can't have a space"
+            : ''
+        }
         data-id={i}
         key={i}
         value={text}
@@ -145,16 +191,34 @@ export default function Basic() {
         <ListItem key={i}>
           <ListItemIcon>{icon}</ListItemIcon>
           <ListItemText primary={file.name} secondary={file.type} />
+          <ListItemIcon>
+            <Box ml={2} mt={0.5}>
+              <IconButton
+                onClick={handleFileRemove.bind(this, i)}
+                color="primary"
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </ListItemIcon>
         </ListItem>
       );
     });
     return <List dense={true}>{listItems}</List>;
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleDescriptionChange = event => {
     setDescription(event.target.value);
   };
 
+  const processError = errorMessage => {
+    let text = `We're sorry your, request didn't go through. Please send the message below to the support team and we'll try to fix things as soon as we can.`;
+    let debug = JSON.stringify(errorMessage);
+    return [text, debug];
+  };
+
+  // eslint-disable-next-line no-unused-vars
   const uploadForm = () => {
     let formData = new FormData();
 
@@ -169,21 +233,26 @@ export default function Basic() {
     );
     formData.append('description', description);
 
-    // TODO: turn the endpoint into an environment variable
-    fetch('/api/v1/fixme', {
+    let status;
+    fetch('/api/v1/items', {
       method: 'POST',
       body: formData,
     })
-      .then(async response => {
-        const res = await response.json();
-        if (!response.ok) {
-          throw Error(`${res.statusCode}: ${res.error}`);
-        }
-        return res;
+      .then(response => {
+        status = response.status;
+        return response.json();
       })
-      .then(success => {
-        console.log('success:', success);
-        return success;
+      .then(data => {
+        if (status === 200 || status === 201) {
+          props.history.push('/thankyou');
+          return data;
+        } else {
+          let [text, debug] = processError(data);
+          setModalText(text);
+          setModalDebug(debug);
+          setOpenModal(true);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         console.error('error:', error);
@@ -192,60 +261,86 @@ export default function Basic() {
   };
 
   return (
-    <Paper className={classes.paper} elevation={0}>
-      <Typography
-        className={classes.h1}
-        color="primary"
-        variant="h4"
-        component="h1"
-      >
-        Murakami Visualizations
-      </Typography>
-      <Typography className={classes.sub1a} variant="subtitle1" component="p">
-        Plura mihi bona sunt, inclinet, amari petere vellent. Cras mattis iudicium purus sit amet fermentum.
-      </Typography>
-      <Typography className={classes.sub1} variant="subtitle1" component="p">
-        More about Murakamki ullamco laboris nisi ut aliquid ex ea commodi consequat.
-      </Typography>
-      <Typography className={classes.sub1} variant="subtitle1" component="p">
-      </Typography>
-      <Box mt={2} mb={2}>
-        <Divider />
-      </Box>
-      <Box mt={2} mb={6}>
-        <Grid container spacing={2} direction="row" alignItems="center" justify="center">
-          <Grid className={classes.centerText} item xs={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              component={RouterLink}
-              to={{
-                pathname: '/login',
-                state: {
-                  links,
-                  files,
-                  description,
-                },
-              }}
-            >
-              Log in
-            </Button>
+    <Container maxWidth="sm">
+      <Paper className={classes.paper} elevation={0}>
+        <Typography
+          className={classes.h1}
+          color="primary"
+          variant="h4"
+          component="h1"
+        >
+          Murakami Visualizations
+        </Typography>
+        <Box mt={2} mb={2}>
+          <Divider />
+        </Box>
+        <Box mt={2} mb={6}>
+          <Grid
+            container
+            spacing={2}
+            direction="row"
+            alignItems="center"
+            justify="center"
+          >
+            <Grid className={classes.centerText} item xs={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                component={RouterLink}
+                to={{
+                  pathname: '/login',
+                  state: {},
+                }}
+              >
+                Log in
+              </Button>
+            </Grid>
+            <Grid className={classes.centerText} item xs={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                component={RouterLink}
+                to={{
+                  pathname: '/dashboard',
+                  state: {},
+                }}
+              >
+                Sample site
+              </Button>
+            </Grid>
           </Grid>
-          <Grid className={classes.centerText} item xs={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              component={RouterLink}
-              to={{
-                pathname: '/dashboard',
-                state: {},
-              }}
-            >
-              Sample site
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-    </Paper>
+        </Box>
+        <Dialog open={openModal} aria-describedby="alert-dialog-description">
+          <DialogContent>
+            <Box p={2}>
+              <DialogContentText id="alert-dialog-description">
+                {modalText}
+              </DialogContentText>
+              <Typography className={classes.debug} component="div">
+                {modalDebug}
+              </Typography>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      </Paper>
+      {/*
+      <MUICookieConsent
+        cookieName="templateCookieConsent"
+        componentType="Snackbar" // default value is Snackbar
+        message="This site uses cookies.... bla bla..."
+      />
+      */}
+    </Container>
   );
 }
+
+Basic.propTypes = {
+  history: PropTypes.object,
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      description: PropTypes.string,
+      files: PropTypes.array,
+      links: PropTypes.array,
+    }),
+  }),
+};

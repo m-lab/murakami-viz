@@ -1,23 +1,18 @@
-import log from 'llog';
-import startWorker from './worker.js';
+#!/usr/bin/env node
 import config from './config.js';
+config.parse(process.argv);
+
+import createWorker from './worker.js';
 
 async function bootstrap() {
-  return startWorker();
+  return createWorker(config);
 }
 
 bootstrap()
-  .then(() =>
-    console.log(
-      `👷 Worker operating over queue ${config.worker.queue} on ${
-        config.redis.host
-      }:${config.redis.port}!`,
-    ),
-  )
+  .then(() => console.log(`👷  Worker running!`))
   .catch(err => {
     setImmediate(() => {
-      log.error('Unable to run worker because of the following error:');
-      log.error(err);
-      throw err;
+      console.error('Unable to run worker because of the following error:');
+      console.error(err);
     });
   });
