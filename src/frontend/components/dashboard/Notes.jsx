@@ -33,6 +33,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import InfoIcon from '@material-ui/icons/Info';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Tooltip from '@material-ui/core/Tooltip';
+import AddNote from '../utils/AddNote.jsx';
 //import Plot from 'react-plotly.js';
 //import Plotly from 'plotly.js';
 import createPlotlyComponent from 'react-plotly.js/factory';
@@ -47,7 +48,7 @@ export default function Notes() {
     <Container>
       <Typography component="h2" variant="h3">
         Notes
-        <Button variant="contained">Add</Button>
+        <AddNote />
       </Typography>
       <List component="nav" aria-label="main mailbox folders">
         <ListItem button>

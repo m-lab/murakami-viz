@@ -27,6 +27,7 @@ import Select from '@material-ui/core/Select';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import InfoIcon from '@material-ui/icons/Info';
+import AddNote from '../utils/AddNote.jsx';
 //import Plot from 'react-plotly.js';
 //import Plotly from 'plotly.js';
 import createPlotlyComponent from 'react-plotly.js/factory';
@@ -136,7 +137,7 @@ export default function Home() {
           <div>Craig, AK 9921</div>
         </Grid>
         <Grid item>
-          <Button variant="contained">Add a note</Button>
+          <AddNote />
         </Grid>
       </Grid>
       <Box mt={5}>
