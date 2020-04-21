@@ -8,6 +8,8 @@ import Box from '@material-ui/core/Box';
 import Home from '../dashboard/Home.jsx';
 import Notes from '../dashboard/Notes.jsx';
 import Users from '../dashboard/Users.jsx';
+import Library from '../dashboard/Library.jsx';
+import About from '../dashboard/About.jsx';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -90,10 +92,10 @@ export default function NavTabs() {
         <Users />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        Library
+        <Library />
       </TabPanel>
       <TabPanel value={value} index={4}>
-        About
+        <About />
       </TabPanel>
     </div>
   );

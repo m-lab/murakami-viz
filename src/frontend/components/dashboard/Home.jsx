@@ -3,6 +3,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Chip from '@material-ui/core/Chip';
 import Container from '@material-ui/core/Container';
 import FormControl from '@material-ui/core/FormControl';
@@ -149,12 +150,10 @@ export default function Home() {
               </Typography>
             </Grid>
             <Grid container item direction="row" alignItems="center" justify="center" spacing={0}>
-              <Grid item>
-                <Button variant="contained">NDT</Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined">Ookla</Button>
-              </Grid>
+              <ButtonGroup color="primary" aria-label="outlined primary button group">
+                <Button>NDT</Button>
+                <Button>Ookla</Button>
+              </ButtonGroup>
             </Grid>
             <Grid container item direction="row" spacing={2}>
               <Grid item className={classes.grid}>
