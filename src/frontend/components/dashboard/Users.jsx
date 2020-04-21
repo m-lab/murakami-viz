@@ -20,24 +20,19 @@ import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 
-function createData(date, subject, description) {
-  return { date, subject, description };
+function createData(name, location, email, role) {
+  return { name, location, email, role };
 }
 
 const rows = [
-  createData('March 2, 2020, 3:58pm', 'Printer Connection Issue', 'Lorem Ipsum...'),
-  createData('March 8, 2020, 6:31pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('Sue Brown', 'Hollis Public Library', 'suebrown@hollisalaska.org', 'Viewer'),
+  createData('Sam Smith', 'Hollis Public Library', 'Lorem Ipsum', 'Editor'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -67,9 +62,10 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'date', numeric: false, disablePadding: true, label: 'Date' },
-  { id: 'subject', numeric: true, disablePadding: false, label: 'Subject' },
-  { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
+  { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
+  { id: 'location', numeric: true, disablePadding: false, label: 'Location' },
+  { id: 'email', numeric: true, disablePadding: false, label: 'Email' },
+  { id: 'role', numeric: true, disablePadding: false, label: 'Role' },
 ];
 
 function EnhancedTableHead(props) {
@@ -161,7 +157,7 @@ const useStyles = makeStyles((theme) => ({
 export default function EnhancedTable() {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('date');
+  const [orderBy, setOrderBy] = React.useState('name');
   const [selected, setSelected] = React.useState([]);
 
   const handleRequestSort = (event, property) => {
@@ -195,7 +191,7 @@ export default function EnhancedTable() {
   return (
     <div className={classes.root}>
       <Typography component="h2" variant="h3">
-        Notes
+        Users
         <Button variant="contained">Add</Button>
       </Typography>
       <Paper className={classes.paper}>
@@ -219,15 +215,16 @@ export default function EnhancedTable() {
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.date)}
+                      onClick={(event) => handleClick(event, row.name)}
                       tabIndex={-1}
-                      key={row.date}
+                      key={row.name}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.date}
+                        {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.subject}</TableCell>
-                      <TableCell align="right">{row.description}</TableCell>
+                      <TableCell align="right">{row.location}</TableCell>
+                      <TableCell align="right">{row.email}</TableCell>
+                      <TableCell align="right">{row.role}</TableCell>
                     </TableRow>
                   );
                 })}

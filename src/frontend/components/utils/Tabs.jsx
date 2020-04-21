@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Home from '../dashboard/Home.jsx';
 import Notes from '../dashboard/Notes.jsx';
+import Users from '../dashboard/Users.jsx';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -86,7 +87,7 @@ export default function NavTabs() {
         <Notes />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Users
+        <Users />
       </TabPanel>
       <TabPanel value={value} index={3}>
         Library
