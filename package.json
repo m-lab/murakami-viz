@@ -97,6 +97,8 @@
     "figlet": "^1.2.4",
     "http-errors": "^1.7.3",
     "jwks-rsa": "^1.8.0",
+    "knex": "^0.21.0",
+    "knex-migrate": "^1.7.4",
     "koa": "2.7.0",
     "koa-404-handler": "0.0.2",
     "koa-better-error-handler": "^3.0.5",
@@ -119,6 +121,8 @@
     "multistream": "^4.0.0",
     "node-fetch": "^2.6.0",
     "passport-local": "^1.0.0",
+    "pg": "^8.0.2",
+    "pg-range": "^1.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -127,6 +131,7 @@
     "react-prerendered-component": "^1.2.4",
     "react-router-dom": "^5.1.2",
     "request-promise-native": "^1.0.8",
+    "sqlite3": "^4.1.1",
     "uuid": "3.3.2"
   },
   "babel": {
