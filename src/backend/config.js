@@ -19,8 +19,18 @@ const defaults = {
     audience: process.env.MURAKAMI_VIZ_CFACCESS_AUDIENCE,
     url: process.env.MURAKAMI_VIZ_CFACCESS_URL,
   },
+  db: {
+    host: process.env.MURAKAMI_VIZ_DB_HOST || 'localhost',
+    port: process.env.MURAKAMI_VIZ_DB_PORT || 5432,
+    database: process.env.MURAKAMI_VIZ_DB_DATABASE || 'murakami',
+    user: process.env.MURAKAMI_VIZ_DB_USERNAME || 'murakami',
+    password: process.env.MURAKAMI_VIZ_DB_PASSWORD,
+    pool_min: process.env.MURAKAMI_VIZ_DB_POOL_MIN || 0,
+    pool_max: process.env.MURAKAMI_VIZ_DB_POOL_MAX || 10,
+    timeout: process.env.MURAKAMI_VIZ_DB_TIMEOUT || 0,
+  },
   server: {
-    port: process.env.MURAKAMI_VIZ_PORT || '3000',
+    port: process.env.MURAKAMI_VIZ_PORT || 3000,
   },
 };
 
@@ -60,6 +70,29 @@ function validateToken(value, previous) {
   const token = value ? value : previous;
   Joi.assert(token, Joi.string());
   return token;
+}
+
+function validatePool(value, previous) {
+  const pool = value ? parseInt(value) : parseInt(previous);
+  Joi.assert(
+    pool,
+    Joi.number()
+      .integer()
+      .min(0)
+      .max(100),
+  );
+  return pool;
+}
+
+function validateTimeout(value, previous) {
+  const timeout = value ? parseInt(value) : parseInt(previous);
+  Joi.assert(
+    timeout,
+    Joi.number()
+      .integer()
+      .min(0),
+  );
+  return timeout;
 }
 
 function validateLoglevel(value, previous) {
@@ -106,14 +139,14 @@ function validateArray(value, previous) {
 class Config extends Command {
   constructor(args) {
     super(args);
-    const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
+    this.env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
     Joi.string()
       .allow('development', 'production', 'test')
       .required()
-      .validate(env);
-    this.isDev = env === 'development';
-    this.isTest = env === 'test';
-    this.isProd = env === 'production';
+      .validate(this.env);
+    this.isDev = this.env === 'development';
+    this.isTest = this.env === 'test';
+    this.isProd = this.env === 'production';
   }
 
   parse(args) {
@@ -123,6 +156,25 @@ class Config extends Command {
         'If using Cloudflare Access both the URL and the Audience must be specified.',
       );
     }
+  }
+
+  get dbUrl() {
+    let userpass;
+    if (this.dbPassword) {
+      userpass = this.dbUser.concat(':', this.dbPassword);
+    } else {
+      userpass = this.dbUser;
+    }
+    const uri =
+      'postgresql://' +
+      userpass +
+      '@' +
+      this.dbHost +
+      ':' +
+      this.dbPort +
+      '/' +
+      this.dbDatabase;
+    return uri;
   }
 }
 
@@ -156,6 +208,39 @@ export default program
     defaults.loglevel,
   )
   .option('--no-proxy', 'Disable support for proxy headers')
+  .option('--db-host <host>', 'Database host', validateHost, defaults.db.host)
+  .option('--db-port <port>', 'Database port', validatePort, defaults.db.port)
+  .option(
+    '--db-pool-min <connections>',
+    'Minimum number of DB pool connections',
+    validatePool,
+    defaults.db.pool_min,
+  )
+  .option(
+    '--db-pool-max <connections>',
+    'Maximum number of DB pool connections',
+    validatePool,
+    defaults.db.pool_max,
+  )
+  .option(
+    '--db-timeout <timeout>',
+    'Database connection timeout in milliseconds',
+    validateTimeout,
+    defaults.db.timeout,
+  )
+  .option(
+    '--db-database <database>',
+    'Database name',
+    validateToken,
+    defaults.db.database,
+  )
+  .option('--db-user <user>', 'Database user', validateUser, defaults.db.user)
+  .option(
+    '--db-password <password>',
+    'Database password',
+    validatePassword,
+    defaults.db.password,
+  )
   .option(
     '-s, --secrets <string>',
     'Session secret(s)',
