@@ -21,6 +21,8 @@ import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import AddNote from '../utils/AddNote.jsx';
+import EditNote from '../utils/EditNote.jsx';
+import ViewNote from '../utils/ViewNote.jsx';
 
 function createData(date, subject, description) {
   return { date, subject, description };
@@ -194,6 +196,32 @@ export default function Notes() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
+  // handle add note
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
+  // handle edit note
+  const [openNote, setNoteOpen] = React.useState(false);
+  const [selectedNoteValue, setSelectedNoteValue] = React.useState();
+
+  const handleNoteClickOpen = () => {
+    setNoteOpen(true)
+  }
+
+  const handleNoteClose = () => {
+    setNoteOpen(false);
+    setSelectedNoteValue(value);
+  }
+
   return (
     <div className={classes.root}>
       <Grid container spacing={2} alignItems="center" justify="flex-start">
@@ -203,7 +231,10 @@ export default function Notes() {
           </Typography>
         </Grid>
         <Grid item>
-          <AddNote />
+          <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+            Add a note
+          </Button>
+          <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
         </Grid>
       </Grid>
       <Paper className={classes.paper}>
@@ -227,7 +258,7 @@ export default function Notes() {
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.date)}
+                      onClick={(event) => handleNoteClickOpen(event, row.date)}
                       tabIndex={-1}
                       key={row.date}
                     >
@@ -236,6 +267,9 @@ export default function Notes() {
                       </TableCell>
                       <TableCell align="right">{row.subject}</TableCell>
                       <TableCell align="right">{row.description}</TableCell>
+                      <TableCell>
+                        <ViewNote selectedValue={selectedNoteValue} open={openNote} onClose={handleNoteClose} />  
+                      </TableCell>
                     </TableRow>
                   );
                 })}

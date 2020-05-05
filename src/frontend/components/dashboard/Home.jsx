@@ -138,6 +138,19 @@ export default function Home() {
     setTest(event.target.value);
   };
 
+  // handle add note
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
   return (
     <React.Fragment>
       <Grid className={classes.header} container spacing={2} alignItems="space-between">
@@ -149,7 +162,10 @@ export default function Home() {
             <div>Craig, AK 9921</div>
           </Grid>
           <Grid item>
-            <AddNote />
+            <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+              Add a note
+            </Button>
+            <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
           </Grid>
         </Grid>
         <Grid container item spacing={1} xs={6}>

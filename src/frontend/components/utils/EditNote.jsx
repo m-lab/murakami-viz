@@ -27,33 +27,34 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function AddNote(props) {
+export default function EditNote(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open } = props;
+  const { onEditClose, selectedEditValue, openEdit } = props;
 
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
+  const handleEditClose = () => {
+    onEditClose(selectedEditValue);
+  }
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"}>
+    <Dialog onClose={handleEditClose} modal={true} open={openEdit} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"}>
       <Grid container spacing={2} alignItems="center" justify="center">
         <Grid item xs={12} sm={7}>
           <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-            <div className={classes.dialogTitleText}>Add a Note</div>
+            <div className={classes.dialogTitleText}>Edit Note</div>
           </DialogTitle>
         </Grid>
         <Grid item xs={12} sm={5}>
-          <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
+          <Button size="small" label="Cancel" primary={true} onClick={handleEditClose} className={classes.cancelButton}>
             Cancel
           </Button>
         </Grid>
       </Grid>
-      <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleClose(); } }>
+      <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleEditClose(); } }>
         <TextField
           className={classes.formField}
           id="note-subject"
           label="Subject"
+          defaultValue="Printer connection issue"
           fullWidth
           variant="outlined"
         />
@@ -61,6 +62,7 @@ export default function AddNote(props) {
           <TextField
             id="note-date"
             label="Date"
+            defaultValue="2020-04-24"
             type="date"
             className={classes.textField}
             InputLabelProps={{
@@ -70,6 +72,7 @@ export default function AddNote(props) {
           <TextField
             id="time"
             label="Time"
+            defaultValue="2020-04-24T09:32"
             type="time"
             className={classes.textField}
             InputLabelProps={{
@@ -81,6 +84,7 @@ export default function AddNote(props) {
           className={classes.formField}
           id="note-description"
           label="Description"
+          defaultValue="Morbi odio eros, volutpat ut pharetra vitae, lobortis sed nibh."
           multiline="true"
           rows="5"
           fullWidth
@@ -94,8 +98,8 @@ export default function AddNote(props) {
   );
 }
 
-AddNote.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
+EditNote.propTypes = {
+  onEditClose: PropTypes.func.isRequired,
+  openEdit: PropTypes.bool.isRequired,
+  selectedEditValue: PropTypes.string.isRequired,
 };
