@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -19,6 +20,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import AddUser from '../utils/AddUser.jsx';
 
 function createData(name, location, email, role) {
   return { name, location, email, role };
@@ -188,12 +190,34 @@ export default function Users() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
+  // handle add user
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
   return (
     <div className={classes.root}>
-      <Typography component="h2" variant="h3">
-        Users
-        <Button variant="contained">Add</Button>
-      </Typography>
+    <Grid container spacing={2} alignItems="center" justify="flex-start">
+      <Grid item>
+        <Typography component="h2" variant="h3">
+          Users
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+          Add
+        </Button>
+        <AddUser selectedValue={selectedValue} open={open} onClose={handleClose} />
+      </Grid>
+    </Grid>
       <Paper className={classes.paper}>
         <TableContainer>
           <Table
