@@ -28,14 +28,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function ViewNote(props) {
   const classes = useStyles();
-  const { onNoteClose, selectedNoteValue, openNote } = props;
+  const { onClose, selectedValue, open } = props;
 
-  const handleNoteClose = () => {
-    onNoteClose(selectedNoteValue);
+  const handleClose = () => {
+    onClose(selectedValue);
   };
 
   return (
-    <Dialog onClose={handleNoteClose} modal={true} open={openNote} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"}>
+    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"}>
       <Grid container spacing={2} alignItems="center" justify="center">
         <Grid item xs={12} sm={7}>
           <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
@@ -43,18 +43,17 @@ export default function ViewNote(props) {
           </DialogTitle>
         </Grid>
         <Grid item xs={12} sm={5}>
-          <Button size="small" label="Cancel" primary={true} onClick={handleNoteClose} className={classes.cancelButton}>
+          <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
             Cancel
           </Button>
         </Grid>
       </Grid>
-
     </Dialog>
   );
 }
 
 ViewNote.propTypes = {
-  onNoteClose: PropTypes.func.isRequired,
-  openNote: PropTypes.bool.isRequired,
-  selectedNoteValue: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  selectedValue: PropTypes.string.isRequired,
 };

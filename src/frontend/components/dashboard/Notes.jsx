@@ -9,17 +9,12 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
 import AddNote from '../utils/AddNote.jsx';
 import EditNote from '../utils/EditNote.jsx';
 import ViewNote from '../utils/ViewNote.jsx';
@@ -31,16 +26,16 @@ function createData(date, subject, description) {
 const rows = [
   createData('March 2, 2020, 3:58pm', 'Printer Connection Issue', 'Lorem Ipsum...'),
   createData('March 8, 2020, 6:31pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('April 27, 2020, 4:12pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('April 13, 2020, 12:38pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('April 13, 2020, 8:41am', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('April 2, 2020, 6:21pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 30, 2020, 2:48pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 26, 2020, 10:32am', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 17, 2020, 8:14am', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 12, 2020, 7:12pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 6, 2020, 3:27pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData('March 1, 2020, 12:01pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
   createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
 ];
 
@@ -72,12 +67,12 @@ function stableSort(array, comparator) {
 
 const headCells = [
   { id: 'date', numeric: false, disablePadding: true, label: 'Date' },
-  { id: 'subject', numeric: true, disablePadding: false, label: 'Subject' },
-  { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
+  { id: 'subject', numeric: false, disablePadding: false, label: 'Subject' },
+  { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort } = props;
+  const { classes, order, orderBy, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -88,7 +83,6 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -116,6 +110,7 @@ EnhancedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
 };
 
 const useToolbarStyles = makeStyles((theme) => ({
@@ -138,13 +133,47 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
+const EnhancedTableToolbar = (props) => {
+  const classes = useToolbarStyles();
+
+  // handle add note
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
+  return (
+    <Toolbar
+      className={clsx(classes.root,)}
+    >
+      <Grid container spacing={2} alignItems="center" justify="flex-start">
+        <Grid item>
+          <Typography component="h2" variant="h3">
+            Notes
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+            Add a note
+          </Button>
+          <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
+        </Grid>
+      </Grid>
+    </Toolbar>
+  );
+};
+
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-  },
-  paper: {
-    width: '100%',
     marginBottom: theme.spacing(2),
+    width: '100%',
   },
   table: {
     minWidth: 750,
@@ -162,11 +191,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Notes() {
+export default function EnhancedTable() {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
-  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -174,92 +204,60 @@ export default function Notes() {
     setOrderBy(property);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-
-    setSelected(newSelected);
+  // handle pagination changes
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
-  // handle add note
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+  // handle view note
   const [open, setOpen] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState();
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (event, row) => {
     setOpen(true);
-  };
-
-  const handleClose = (value) => {
-    setOpen(false);
-    setSelectedValue(value);
-  };
-
-  // handle edit note
-  const [openNote, setNoteOpen] = React.useState(false);
-  const [selectedNoteValue, setSelectedNoteValue] = React.useState();
-
-  const handleNoteClickOpen = () => {
-    setNoteOpen(true)
   }
 
-  const handleNoteClose = () => {
-    setNoteOpen(false);
-    setSelectedNoteValue(value);
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedValue(value);
   }
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={2} alignItems="center" justify="flex-start">
-        <Grid item>
-          <Typography component="h2" variant="h3">
-            Notes
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-            Add a note
-          </Button>
-          <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
-        </Grid>
-      </Grid>
-      <Paper className={classes.paper}>
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .map((row, index) => {
-                  const labelId = `notes-table-${index}`;
+      <EnhancedTableToolbar />
+      <TableContainer>
+        <Table
+          className={classes.table}
+          aria-labelledby="tableTitle"
+          aria-label="enhanced table"
+        >
+          <EnhancedTableHead
+            classes={classes}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            rowCount={rows.length}
+          />
+          <TableBody>
+            {stableSort(rows, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
+                const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
+                return (
+                  <TableRow
                       hover
-                      onClick={(event) => handleNoteClickOpen(event, row.date)}
-                      tabIndex={-1}
+                      onClick={event => {
+                        event.stopPropagation();
+                        handleClickOpen(event, row);
+                      }}
                       key={row.date}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
@@ -268,15 +266,30 @@ export default function Notes() {
                       <TableCell align="right">{row.subject}</TableCell>
                       <TableCell align="right">{row.description}</TableCell>
                       <TableCell>
-                        <ViewNote selectedValue={selectedNoteValue} open={openNote} onClose={handleNoteClose} />  
+                        <ViewNote
+                          selectedValue={selectedValue}
+                          open={open}
+                          onClose={handleClose} />
                       </TableCell>
                     </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                );
+              })}
+            {emptyRows > 0 && (
+              <TableRow style={{ height: emptyRows }}>
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[rowsPerPage]}
+        page={page}
+        onChangePage={handleChangePage}
+      />
     </div>
   );
 }
