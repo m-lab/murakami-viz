@@ -141,7 +141,7 @@ export default function Home() {
   return (
     <React.Fragment>
       <Grid className={classes.header} container spacing={2} alignItems="space-between">
-        <Grid container item direction="column" xs={6}>
+        <Grid container item direction="column" spacing={2} xs={6}>
           <Grid item>
             <Typography component="h1" variant="h3">
               Holis Public Library

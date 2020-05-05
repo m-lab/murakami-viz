@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -19,6 +20,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import AddNote from '../utils/AddNote.jsx';
 
 function createData(date, subject, description) {
   return { date, subject, description };
@@ -194,10 +196,16 @@ export default function Notes() {
 
   return (
     <div className={classes.root}>
-      <Typography component="h2" variant="h3">
-        Notes
-        <Button variant="contained">Add</Button>
-      </Typography>
+      <Grid container spacing={2} alignItems="center" justify="flex-start">
+        <Grid item>
+          <Typography component="h2" variant="h3">
+            Notes
+          </Typography>
+        </Grid>
+        <Grid item>
+          <AddNote />
+        </Grid>
+      </Grid>
       <Paper className={classes.paper}>
         <TableContainer>
           <Table
