@@ -7,23 +7,35 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles(theme => ({
   cancelButton: {
-    marginTop: "30px",
+  },
+  closeButton: {
+    marginTop: "15px",
+    position: "absolute",
+    right: "0",
+    top: "0"
+  },
+  dialog: {
+    position: "relative"
   },
   dialogTitleRoot: {
     marginTop: "30px",
   },
   dialogTitleText: {
     fontSize: "2.25rem",
-    textAlign: "right"
+    textAlign: "center"
   },
   form: {
     padding: "50px",
   },
   formField: {
     marginBottom: "30px",
+  },
+  saveButton: {
+    marginBottom: "0",
   }
 }))
 
@@ -36,19 +48,13 @@ export default function AddNote(props) {
   };
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"}>
-      <Grid container spacing={2} alignItems="center" justify="center">
-        <Grid item xs={12} sm={7}>
-          <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-            <div className={classes.dialogTitleText}>Add a Note</div>
-          </DialogTitle>
-        </Grid>
-        <Grid item xs={12} sm={5}>
-          <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
-            Cancel
-          </Button>
-        </Grid>
-      </Grid>
+    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
+      <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
+        <ClearIcon />
+      </Button>
+      <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Add a Note</div>
+      </DialogTitle>
       <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleClose(); } }>
         <TextField
           className={classes.formField}
@@ -86,9 +92,18 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
         />
-        <Button type="submit" label="Save" className={classes.formField}  variant="contained" primary={true}>
-          Save
-        </Button>
+        <Grid container alignItems="center" justify="space-between">
+          <Grid item>
+            <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
+              Cancel
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary" primary={true}>
+              Save
+            </Button>
+          </Grid>
+        </Grid>
       </form>
     </Dialog>
   );

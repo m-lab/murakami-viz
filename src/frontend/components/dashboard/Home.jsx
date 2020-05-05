@@ -162,7 +162,7 @@ export default function Home() {
             <div>Craig, AK 9921</div>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+            <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
               Add a note
             </Button>
             <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />

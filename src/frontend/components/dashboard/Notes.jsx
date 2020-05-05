@@ -160,7 +160,7 @@ const EnhancedTableToolbar = (props) => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+          <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
             Add a note
           </Button>
           <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
@@ -220,14 +220,14 @@ export default function EnhancedTable() {
   const [open, setOpen] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState();
 
-  const handleClickOpen = (event, row) => {
+  const handleClickOpen = (row) => {
     setOpen(true);
-  }
+  };
 
-  const handleClose = () => {
+  const handleClose = (value) => {
     setOpen(false);
     setSelectedValue(value);
-  }
+  };
 
   return (
     <div className={classes.root}>
@@ -254,10 +254,7 @@ export default function EnhancedTable() {
                 return (
                   <TableRow
                       hover
-                      onClick={event => {
-                        event.stopPropagation();
-                        handleClickOpen(event, row);
-                      }}
+                      onClick={() => {handleClickOpen(row);}}
                       key={row.date}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
@@ -265,12 +262,6 @@ export default function EnhancedTable() {
                       </TableCell>
                       <TableCell align="right">{row.subject}</TableCell>
                       <TableCell align="right">{row.description}</TableCell>
-                      <TableCell>
-                        <ViewNote
-                          selectedValue={selectedValue}
-                          open={open}
-                          onClose={handleClose} />
-                      </TableCell>
                     </TableRow>
                 );
               })}
@@ -290,6 +281,10 @@ export default function EnhancedTable() {
         page={page}
         onChangePage={handleChangePage}
       />
+      <ViewNote
+        selectedValue={selectedValue}
+        open={open}
+        onClose={handleClose} />
     </div>
   );
 }
