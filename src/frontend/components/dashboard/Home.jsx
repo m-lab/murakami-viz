@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import DateFnsUtils from '@date-io/date-fns';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { getMuiTheme, makeStyles, useTheme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Chip from '@material-ui/core/Chip';
 import Container from '@material-ui/core/Container';
+// import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -51,8 +52,11 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '0',
   },
   grid: {
-    border: '1px solid black',
+    // border: '1px solid black',
     padding: '20px',
+  },
+  header: {
+    marginTop: '40px',
   },
   inputLabel: {
     position: 'absolute',
@@ -61,6 +65,9 @@ const useStyles = makeStyles(theme => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
+  upper: {
+    textTransform: 'uppercase'
+  }
 }));
 
 const connections = [
@@ -92,6 +99,9 @@ const MenuProps = {
 export default function Home() {
   const classes = useStyles();
   const theme = useTheme();
+  // const theme = createMuiTheme({
+  //   spacing: 4,
+  // });
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = (date) => {
@@ -130,97 +140,44 @@ export default function Home() {
 
   return (
     <React.Fragment>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <Typography component="h1" variant="h3">
-            Holis Public Library
-          </Typography>
-          <div>Craig, AK 9921</div>
+      <Grid className={classes.header} container spacing={2} alignItems="space-between">
+        <Grid container item direction="column" xs={6}>
+          <Grid item>
+            <Typography component="h1" variant="h3">
+              Holis Public Library
+            </Typography>
+            <div>Craig, AK 9921</div>
+          </Grid>
+          <Grid item>
+            <AddNote />
+          </Grid>
         </Grid>
-        <Grid item>
-          <AddNote />
-        </Grid>
-      </Grid>
-      <Box mt={5}>
-        <Grid container spacing={1} direction="row" xs={12}>
-          <Grid container item direction="column" alignItems="center" spacing={1} xs={6}>
-            <Grid item>
-              <Typography component="div">
+        <Grid container item spacing={1} xs={6}>
+          <Grid container item alignItems="center" direction="row" spacing={1}>
+            <Grid item xs={4}>
+              <Typography component="div" className={classes.upper}>
                 Download Speed
               </Typography>
             </Grid>
-            <Grid container item direction="row" alignItems="center" justify="center" spacing={0}>
+            <Grid container item alignItems="center" justify="center" spacing={0} xs={4}>
               <ButtonGroup color="primary" aria-label="outlined primary button group">
                 <Button>NDT</Button>
                 <Button>Ookla</Button>
               </ButtonGroup>
             </Grid>
-            <Grid container item direction="row" spacing={2}>
-              <Grid item className={classes.grid}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [6, 3, 9],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(52, 235, 107)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5
-                    },
-                    title: false
-                   }}
-                />
-              </Grid>
-              <Grid item className={classes.grid}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [2, 6, 3],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(235, 64, 52)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5
-                    },
-                    title: false
-                   }}
-                />
-              </Grid>
+            <Grid item xs={4}>
+              <Typography component="div">
+                Last Test: March 9, 8:00 a.m.
+              </Typography>
             </Grid>
           </Grid>
-          <Grid container item direction="column" alignItems="center" spacing={1} xs={6}>
-            <Typography component="div">
-              Streaming Media
-            </Typography>
-            <Grid item>
-              <Button variant="contained">DASH</Button>
-            </Grid>
-            <Grid item className={classes.grid}>
+          <Grid container item direction="row" spacing={2} xs={12}>
+            <Grid item className={classes.grid} xs={6}>
               <Plot
                 data={[
                   {
                     x: [1, 2, 3],
-                    y: [12, 7, 2],
+                    y: [6, 3, 9],
                     type: 'scatter',
                     mode: 'lines+markers',
                     marker: { color: 'rgb(52, 235, 107)' },
@@ -240,109 +197,87 @@ export default function Home() {
                  }}
               />
             </Grid>
-          </Grid>
-        </Grid>
-      </Box>
-      <Box mt={5}>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
-          <Grid item xs={12} md={3}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-inline"
-                label="Date range"
-                value={selectedDate}
-                onChange={handleDateChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
+            <Grid item className={classes.grid} xs={6}>
+              <Plot
+                data={[
+                  {
+                    x: [1, 2, 3],
+                    y: [2, 6, 3],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: { color: 'rgb(235, 64, 52)' },
+                  },
+                ]}
+                layout={{
+                  width: 250,
+                  height: 250,
+                  margin: {
+                    l: 20,
+                    r: 20,
+                    b: 20,
+                    t: 20,
+                    pad: 5
+                  },
+                  title: false
+                 }}
               />
-            </MuiPickersUtilsProvider>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">View</FormLabel>
-              <RadioGroup aria-label="view" name="view" value={viewValue} onChange={handleViewChange}>
-                <FormControlLabel
-                className={classes.formControlLabel} value="overall" control={<Radio />} label="Overall" />
-                <FormControlLabel className={classes.formControlLabel} value="day" control={<Radio />} label="Day of the week" />
-                <FormControlLabel className={classes.formControlLabel} value="hour" control={<Radio />} label="Hour of the day" />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
-          <Grid item>
-            <FormControl className={classes.formControl}>
-              <InputLabel id="demo-mutiple-chip-label">Connection</InputLabel>
-              <Select
-                labelId="demo-mutiple-chip-label"
-                id="demo-mutiple-chip"
-                multiple
-                value={connectionType}
-                onChange={handleConnectionChange}
-                input={<Input id="select-multiple-chip" />}
-                renderValue={(selected) => (
-                  <div  className={classes.chips}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value}  className={classes.chip} />
-                    ))}
-                  </div>
-                )}
-                MenuProps={MenuProps}
-              >
-                {connections.map((connection) => (
-                  <MenuItem key={connection} value={connection} style={getStyles(connection, connectionType, theme)}>
-                    {connection}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            </Grid>
           </Grid>
         </Grid>
+      </Grid>
+      <Box mt={5}>
+        <div>
+          <Typography variant="overline" display="block" gutterBottom>
+            Date range
+          </Typography>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="date-picker-inline"
+              label="Date range"
+              value={selectedDate}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+            />
+          </MuiPickersUtilsProvider>
+        </div>
         <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
-          <Grid item xs={12} md={3}>
-            <Typography component="div">
-              Internet Speed
-              <Tooltip title="Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum.">
-                <IconButton aria-label="internet-speed-tip">
-                  <InfoIcon />
-                </IconButton>
-              </Tooltip>
-            </Typography>
-            <FormControl className={classes.formControl}>
-              <InputLabel id="demo-simple-select-placeholder-label-label" className={classes.inputLabel}>
+          <Grid container item direction="column" spacing={4} xs={12} md={2}>
+            <Grid item>
+              <Typography variant="overline" display="block" gutterBottom>
+                Connection
+              </Typography>
+              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+                <Button>Wired</Button>
+                <Button>Wifi</Button>
+              </ButtonGroup>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block" gutterBottom>
                 Test
-                <Tooltip title="Gallia est omnis divisa in partes tres, quarum.">
-                  <IconButton aria-label="test-tip">
-                    <InfoIcon />
-                  </IconButton>
-                </Tooltip>
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-placeholder-label-label"
-                id="demo-simple-select-placeholder-label"
-                value={test}
-                onChange={handleTestChange}
-                displayEmpty
-                 className={classes.selectEmpty}
-              >
-                <MenuItem value={10}>NDT</MenuItem>
-                <MenuItem value={20}>Speedtest</MenuItem>
-                <MenuItem value={30}>DASH</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Metric</FormLabel>
-              <RadioGroup aria-label="view" name="view" value={speedMetricValue} onChange={handleSpeedMetricChange}>
-                <FormControlLabel className={classes.formControlLabel} value="download" control={<Radio />} label="Download Speed" />
-                <FormControlLabel className={classes.formControlLabel} value="upload" control={<Radio />} label="Upload Speed" />
-                <FormControlLabel className={classes.formControlLabel} value="latency" control={<Radio />} label="Latency" />
-              </RadioGroup>
-            </FormControl>
+              </Typography>
+              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+                <Button>NDT</Button>
+                <Button>Ookla</Button>
+              </ButtonGroup>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block" gutterBottom>
+                Metric
+              </Typography>
+              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+                <Button>Download</Button>
+                <Button>Upload</Button>
+                <Button>Latency</Button>
+              </ButtonGroup>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={9}>
+          <Grid item xs={12} md={10}>
             <Plot
               data={[
                 {
@@ -353,49 +288,31 @@ export default function Home() {
                   marker: {color: 'red'},
                 },
               ]}
-              layout={{width: 620, height: 240, title: 'Hollis Public Library'}}
-            />
-          </Grid>
-        </Grid>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
-          <Grid item xs={12} md={3}>
-            <Typography component="div">
-              Streaming Media
-              <Tooltip title="Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum.">
-                <IconButton aria-label="internet-speed-tip">
-                  <InfoIcon />
-                </IconButton>
-              </Tooltip>
-            </Typography>
-            <Typography component="div">
-              Test <br/>
-              DASH
-              <Tooltip title="Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum.">
-                <IconButton aria-label="internet-speed-tip">
-                  <InfoIcon />
-                </IconButton>
-              </Tooltip>
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={9}>
-            <Plot
-              data={[
-                {
-                  x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                  y: [5, 23, 56, 13, 27, 23, 18, 3, 43, 29, 41, 28],
-                  type: 'scatter',
-                  mode: 'lines+markers',
-                  marker: {color: 'red'},
-                },
-              ]}
-              layout={{width: 620, height: 240, title: ''}}
+              layout={{width: 820, height: 440, title: ''}}
             />
           </Grid>
         </Grid>
       </Box>
-      <Box m={2} justify="center">
-        <Button variant="contained">Export</Button>
-      </Box>
+      <Grid container justify="space-between" alignItems="center">
+        <Grid container item spacing={2} xs={12} sm={10}>
+          <Grid item>
+          <Typography variant="overline" display="block" gutterBottom>
+            View
+          </Typography>
+          </Grid>
+          <Grid item>
+            <ButtonGroup color="primary" aria-label="outlined primary button group">
+              <Button>All tests</Button>
+              <Button>By hour</Button>
+              <Button>By day</Button>
+              <Button>By month</Button>
+            </ButtonGroup>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} sm={2}>
+          <Button variant="contained">Export</Button>
+        </Grid>
+      </Grid>
     </React.Fragment>
   )
 }
