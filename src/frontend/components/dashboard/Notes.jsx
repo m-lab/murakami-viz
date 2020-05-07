@@ -1,7 +1,11 @@
+// base imports
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
+import Truncate from 'react-truncate';
+
+// material ui imports
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -15,28 +19,30 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+// modules imports
 import AddNote from '../utils/AddNote.jsx';
 import EditNote from '../utils/EditNote.jsx';
 import ViewNote from '../utils/ViewNote.jsx';
 
-function createData(date, subject, description) {
-  return { date, subject, description };
+function createData(id, date, subject, description) {
+  return { id, date, subject, description };
 }
 
 const rows = [
-  createData('March 2, 2020, 3:58pm', 'Printer Connection Issue', 'Lorem Ipsum...'),
-  createData('March 8, 2020, 6:31pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('April 27, 2020, 4:12pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('April 13, 2020, 12:38pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('April 13, 2020, 8:41am', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('April 2, 2020, 6:21pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 30, 2020, 2:48pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 26, 2020, 10:32am', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 17, 2020, 8:14am', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 12, 2020, 7:12pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 6, 2020, 3:27pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('March 1, 2020, 12:01pm', 'Lorem Ipsum', 'Lorem Ipsum...'),
-  createData('Lorem Ipsum', 'Lorem Ipsum', 'Lorem Ipsum...'),
+  createData(1, 'March 2, 2020, 3:58pm', 'Printer Connection Issue', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(2, 'March 8, 2020, 6:31pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(3, 'April 27, 2020, 4:12pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(4, 'April 13, 2020, 12:38pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(5, 'April 13, 2020, 8:41am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(6, 'April 2, 2020, 6:21pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(7, 'March 30, 2020, 2:48pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(8, 'March 26, 2020, 10:32am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(9, 'March 17, 2020, 8:14am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(10, 'March 12, 2020, 7:12pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(11, 'March 6, 2020, 3:27pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(12, 'March 1, 2020, 12:01pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(13, 'Lorem Ipsum', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -218,15 +224,16 @@ export default function EnhancedTable() {
 
   // handle view note
   const [open, setOpen] = React.useState(false);
+  const [rowIndex, setRowIndex] = React.useState(0);
   const [selectedValue, setSelectedValue] = React.useState();
 
-  const handleClickOpen = (row) => {
+  const handleClickOpen = (index) => {
     setOpen(true);
+    setRowIndex(index);
   };
 
   const handleClose = (value) => {
     setOpen(false);
-    setSelectedValue(value);
   };
 
   return (
@@ -249,19 +256,24 @@ export default function EnhancedTable() {
             {stableSort(rows, getComparator(order, orderBy))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`;
+                const labelId = `data-row-${index}`;
+                row.index = index;
 
                 return (
                   <TableRow
                       hover
-                      onClick={() => {handleClickOpen(row);}}
+                      onClick={() => {handleClickOpen(row.index);}}
                       key={row.date}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
                         {row.date}
                       </TableCell>
-                      <TableCell align="right">{row.subject}</TableCell>
-                      <TableCell align="right">{row.description}</TableCell>
+                      <TableCell>{row.subject}</TableCell>
+                      <TableCell>
+                        <Truncate lines={1} width={300}>
+                          {row.description}
+                        </Truncate>
+                      </TableCell>
                     </TableRow>
                 );
               })}
@@ -282,7 +294,8 @@ export default function EnhancedTable() {
         onChangePage={handleChangePage}
       />
       <ViewNote
-        selectedValue={selectedValue}
+        rowIndex={rowIndex}
+        rows={stableSort(rows, getComparator(order, orderBy))}
         open={open}
         onClose={handleClose} />
     </div>
