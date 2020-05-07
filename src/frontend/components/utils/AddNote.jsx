@@ -99,7 +99,8 @@ export default function AddNote(props) {
             </Button>
           </Grid>
           <Grid item>
-            <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary" primary={true}>
+            <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary"
+              primary={true}>
               Save
             </Button>
           </Grid>

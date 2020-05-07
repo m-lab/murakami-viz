@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
 export default function ViewNote(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, selectedValue, open, rows, rowIndex } = props;
+  const { onClose, selectedValue, open, rows, row } = props;
 
   const handleClose = () => {
     onClose(selectedValue);
@@ -86,12 +86,12 @@ export default function ViewNote(props) {
   };
 
   // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.rowIndex);
+  const [activeStep, setActiveStep] = React.useState(props.row.index);
   const maxSteps = props.rows.length;
 
   React.useEffect(() => {
-      setActiveStep(props.rowIndex);
-  }, [props.rowIndex])
+      setActiveStep(props.row.index);
+  }, [props.row.index])
 
   const handleNext = () => {
     setActiveStep((activeStep) => activeStep + 1);
@@ -131,7 +131,7 @@ export default function ViewNote(props) {
           <Button variant="contained" disableElevation color="primary" onClick={handleClickOpenEdit} className={classes.editButton}>
             Edit
           </Button>
-          <EditNote selectedValue={selectedValueEdit} open={openEdit} onClose={handleCloseEdit} />
+          <EditNote row={props.row} selectedValue={selectedValueEdit} open={openEdit} onClose={handleCloseEdit} />
         </Grid>
       </Grid>
       <Box className={classes.box}>
@@ -164,6 +164,6 @@ ViewNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   selectedValue: PropTypes.string.isRequired,
-  rowIndex: PropTypes.number.isRequired,
+  row: PropTypes.object.isRequired,
   rows: PropTypes.number.isRequired,
 };

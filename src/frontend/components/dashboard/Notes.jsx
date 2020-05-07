@@ -224,12 +224,12 @@ export default function EnhancedTable() {
 
   // handle view note
   const [open, setOpen] = React.useState(false);
-  const [rowIndex, setRowIndex] = React.useState(0);
+  const [row, setRow] = React.useState({index: 0});
   const [selectedValue, setSelectedValue] = React.useState();
 
-  const handleClickOpen = (index) => {
+  const handleClickOpen = (row) => {
     setOpen(true);
-    setRowIndex(index);
+    setRow(row);
   };
 
   const handleClose = (value) => {
@@ -262,7 +262,7 @@ export default function EnhancedTable() {
                 return (
                   <TableRow
                       hover
-                      onClick={() => {handleClickOpen(row.index);}}
+                      onClick={() => {handleClickOpen(row);}}
                       key={row.date}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
@@ -294,7 +294,7 @@ export default function EnhancedTable() {
         onChangePage={handleChangePage}
       />
       <ViewNote
-        rowIndex={rowIndex}
+        row={row}
         rows={stableSort(rows, getComparator(order, orderBy))}
         open={open}
         onClose={handleClose} />
