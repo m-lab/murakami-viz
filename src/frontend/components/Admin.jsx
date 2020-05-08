@@ -60,7 +60,7 @@ export default function Dashboard() {
           >
             Dashboard
           </Typography>
-          <IconButton color="inherit" href="/logout">
+          <IconButton color="inherit" href="/api/v1/logout">
             <ExitToAppIcon />
           </IconButton>
         </Toolbar>
@@ -71,8 +71,7 @@ export default function Dashboard() {
           {/* Chart */}
           <Grid container spacing={3}>
             <Grid item xs={12}>
-            </Grid>
-            <Grid item xs={12}>
+              <h1>Admin interface here.</h1>
             </Grid>
           </Grid>
         </Container>

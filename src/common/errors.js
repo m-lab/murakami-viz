@@ -1,54 +1,37 @@
-class FixmeError extends Error {
-  constructor(message, cause) {
-    if (cause && 'message' in cause) {
-      super(`${message}: ${cause.message}`);
-    } else {
-      super(message);
-    }
-    this.name = 'FixmeError';
-    this.cause = cause;
-  }
-}
+import HttpError from 'http-errors';
 
-export class HttpError extends FixmeError {
-  constructor(status, message, cause) {
-    super(`HTTP Error ${status}: ${message}`, cause);
-    this.status = status;
-    this.name = 'HttpError';
-  }
-}
 export class BadRequestError extends HttpError {
-  constructor(message, cause) {
-    super(400, message, cause);
+  constructor(message, properties) {
+    super(400, message, properties);
   }
 }
 
 export class UnauthorizedError extends HttpError {
-  constructor(message, cause) {
-    super(401, message, cause);
+  constructor(message, properties) {
+    super(401, message, properties);
   }
 }
 
 export class ForbiddenError extends HttpError {
-  constructor(message, cause) {
-    super(403, message, cause);
+  constructor(message, properties) {
+    super(403, message, properties);
   }
 }
 
 export class NotFoundError extends HttpError {
-  constructor(message, cause) {
-    super(404, message, cause);
+  constructor(message, properties) {
+    super(404, message, properties);
   }
 }
 
 export class UnprocessableError extends HttpError {
-  constructor(message, cause) {
-    super(422, message, cause);
+  constructor(message, properties) {
+    super(422, message, properties);
   }
 }
 
 export class ServerError extends HttpError {
-  constructor(message, cause) {
-    super(500, message, cause);
+  constructor(message, properties) {
+    super(500, message, properties);
   }
 }

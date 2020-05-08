@@ -4,18 +4,16 @@ import compose from 'koa-compose';
 import cors from '@koa/cors';
 import log4js from 'koa-log4';
 import bodyParser from 'koa-body';
+import flash from 'koa-better-flash';
 import mount from 'koa-mount';
 import serveStatic from 'koa-static';
 import session from 'koa-session';
 import passport from 'koa-passport';
+import koa404handler from 'koa-404-handler';
 import errorHandler from 'koa-better-error-handler';
 import cloudflareAccess from './middleware/cloudflare.js';
 import ssr from './middleware/ssr.js';
 import AuthController from './controllers/auth.js';
-// import HostController from './controllers/host.js';
-import QueueController from './controllers/queue.js';
-// import Hosts from './models/host.js';
-import Queue from './models/queue.js';
 import UserModel from './models/user.js';
 
 const __dirname = path.resolve();
@@ -35,22 +33,12 @@ export default function configServer(config) {
   });
   server.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }));
 
+  const log = log4js.getLogger('backend:server');
+
   // Setup our API handlers
   const users = new UserModel();
   const auth = AuthController(users);
-  // const hosts = new Hosts(config.redis_host, config.redis_port);
-  // const mapping = HostController(hosts);
-  const queue = QueueController(
-    new Queue(config.redis_host, config.redis_port),
-  );
-  const apiV1Router = compose([
-    auth.routes(),
-    auth.allowedMethods(),
-    // mapping.routes(),
-    // mapping.allowedMethods(),
-    queue.routes(),
-    queue.allowedMethods(),
-  ]);
+  const apiV1Router = compose([auth.routes(), auth.allowedMethods()]);
 
   // Set session secrets
   server.keys = Array.isArray(config.secrets)
@@ -62,32 +50,45 @@ export default function configServer(config) {
 
   // If we're running behind Cloudflare, set the access parameters.
   if (config.cfaccess_url) {
-    server.use(cloudflareAccess(config.cfaccess_url, config.cfaccess_audience));
-    if (!config.isDev && !config.isTest) {
-      server.use(async (ctx, next) => {
-        const email = ctx.request.header['cf-access-authenticated-user-email'];
-        if (!email) {
+    server.use(async (ctx, next) => {
+      let cfa = await cloudflareAccess();
+      await cfa(ctx, next);
+    });
+    server.use(async (ctx, next) => {
+      let email = ctx.request.header['cf-access-authenticated-user-email'];
+      if (!email) {
+        if (!config.isDev && !config.isTest) {
           ctx.throw(401, 'Missing header cf-access-authenticated-user-email');
+        } else {
+          email = 'foo@example.com';
         }
-        ctx.state.email = email;
-        await next();
-      });
-    }
+      }
+      ctx.state.email = email;
+      await next();
+    });
+  }
+
+  if (config.proxy) {
+    server.proxy = true;
+  } else {
+    log.warn('Disable proxy header support.');
   }
 
   server
     .use(bodyParser({ multipart: true, json: true }))
     .use(session(server))
+    .use(koa404handler)
+    .use(flash())
     .use(passport.initialize())
     .use(passport.session())
     .use(cors())
     .use(
       mount('/admin', async (ctx, next) => {
         if (ctx.isAuthenticated()) {
-          console.debug('admin is authenticated.');
+          log.debug('Admin is authenticated.');
           await next();
         } else {
-          console.debug('admin is NOT authenticated.');
+          log.debug('Admin is NOT authenticated.');
           ctx.throw(401, 'Authentication failed.');
         }
       }),

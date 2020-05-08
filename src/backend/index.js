@@ -1,10 +1,11 @@
+#!/usr/bin/env node
 import figlet from 'figlet';
 import { createServer } from 'http';
 import config from './config.js';
 import configServer from './server.js';
 
 /**
- * Function to start up Cunei.
+ * Function to start up the app.
  */
 async function bootstrap() {
   /**
@@ -39,9 +40,6 @@ ${bigName}
   })
   .catch(err => {
     setImmediate(() => {
-      console.error(
-        'Unable to run the server because of the following error: ',
-        err,
-      );
+      console.error('Encountered error while running the app: ', err);
     });
   });
