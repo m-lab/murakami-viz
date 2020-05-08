@@ -27,6 +27,7 @@ export function up(knex) {
       table.decimal('UploadValue');
       table.string('UploadUnit');
       table.string('UploadError');
+      table.string('MinRTTValue');
       table.string('MinRTTUnit');
       table.string('MinRTTError');
       table.timestamp('createdAt').defaultTo(knex.fn.now());
