@@ -39,49 +39,54 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function AddUser(props) {
+export default function EditUser(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open } = props;
+  const { onClose, row, selectedValue, open } = props;
 
   const handleClose = () => {
     onClose(selectedValue);
   };
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
+    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="edit-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
       <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
         <ClearIcon />
       </Button>
-      <DialogTitle id="add-user-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a new user</div>
+      <DialogTitle id="edit-user-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Edit User</div>
       </DialogTitle>
       <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleClose(); } }>
         <TextField
           className={classes.formField}
-          id="user-subject"
-          label="Subject"
+          id="user-name"
+          label="Name"
           fullWidth
           variant="outlined"
+          value={props.row.name}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="user-datetime"
-            label="Date"
-            type="datetime-local"
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
         <TextField
           className={classes.formField}
-          id="user-description"
-          label="Description"
-          multiline="true"
-          rows="5"
+          id="user-location"
+          label="Location"
           fullWidth
           variant="outlined"
+          value={props.row.location}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-email"
+          label="Email"
+          fullWidth
+          variant="outlined"
+          value={props.row.email}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-role"
+          label="Role"
+          fullWidth
+          variant="outlined"
+          value={props.row.role}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -101,8 +106,9 @@ export default function AddUser(props) {
   );
 }
 
-AddUser.propTypes = {
+EditUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   selectedValue: PropTypes.string.isRequired,
+  row: PropTypes.object.isRequired,
 };

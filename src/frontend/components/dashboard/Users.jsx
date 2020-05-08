@@ -1,7 +1,12 @@
+// base imports
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
+import Moment from 'react-moment';
+import Truncate from 'react-truncate';
+
+// material ui imports
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -9,32 +14,31 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import AddUser from '../utils/AddUser.jsx';
 
-function createData(name, location, email, role) {
-  return { name, location, email, role };
+// modules imports
+import AddUser from '../utils/AddUser.jsx';
+import EditUser from '../utils/EditUser.jsx';
+import ViewUser from '../utils/ViewUser.jsx';
+
+function createData(id, name, location, email, role) {
+  return { id, name, location, email, role};
 }
 
 const rows = [
-  createData('Sue Brown', 'Hollis Public Library', 'suebrown@hollisalaska.org', 'Viewer'),
-  createData('Sam Smith', 'Hollis Public Library', 'Lorem Ipsum', 'Editor'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
-  createData('Lorem Ipsum', 'City, State', 'Lorem Ipsum', 'Lorem Ipsum'),
+  createData(1, 'Sue Brown', 'Hollis Public Library', 'suebrown@hollisalaska.org', 'Viewer'),
+  createData(2, 'Sam Smith', 'Hollis Public Library', 'samsmith@hollisalaska.org', 'Editor'),
+  createData(3, 'John Doe', 'Hollis Public Library', 'johndoe@hollisalaska.org', 'Viewer'),
+  createData(4, 'Jane Doe', 'Hollis Public Library', 'janedoe@hollisalaska.org', 'Editor'),
+  createData(5, 'Nick Cage', 'City, State', 'nick@city.org', 'Viewer'),
+  createData(6, 'Naomi Campbell', 'City, State', 'naomi@city.org', 'Editor'),
+  createData(7, 'Judy Dench', 'London Public Library', 'judy@london.org', 'Viewer'),
+  createData(8, 'James Brown', 'Musical Public Library', 'james@music.org', 'Editor'),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -65,13 +69,13 @@ function stableSort(array, comparator) {
 
 const headCells = [
   { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
-  { id: 'location', numeric: true, disablePadding: false, label: 'Location' },
-  { id: 'email', numeric: true, disablePadding: false, label: 'Email' },
-  { id: 'role', numeric: true, disablePadding: false, label: 'Role' },
+  { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
+  { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
+  { id: 'role', numeric: false, disablePadding: false, label: 'Role' },
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort } = props;
+  const { classes, order, orderBy, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -82,7 +86,6 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'default'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -110,6 +113,7 @@ EnhancedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
 };
 
 const useToolbarStyles = makeStyles((theme) => ({
@@ -132,13 +136,47 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
+const EnhancedTableToolbar = (props) => {
+  const classes = useToolbarStyles();
+
+  // handle add user
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
+  return (
+    <Toolbar
+      className={clsx(classes.root,)}
+    >
+      <Grid container spacing={2} alignItems="center" justify="flex-start">
+        <Grid item>
+          <Typography component="h2" variant="h3">
+            Users
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+            Add
+          </Button>
+          <AddUser selectedValue={selectedValue} open={open} onClose={handleClose} />
+        </Grid>
+      </Grid>
+    </Toolbar>
+  );
+};
+
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-  },
-  paper: {
-    width: '100%',
     marginBottom: theme.spacing(2),
+    width: '100%',
   },
   table: {
     minWidth: 750,
@@ -156,11 +194,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Users() {
+export default function EnhancedTable() {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('name');
-  const [selected, setSelected] = React.useState([]);
+  const [orderBy, setOrderBy] = React.useState('date');
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -168,94 +207,96 @@ export default function Users() {
     setOrderBy(property);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-
-    setSelected(newSelected);
+  // handle pagination changes
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
-  // handle add user
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+  // handle view user
   const [open, setOpen] = React.useState(false);
+  const [row, setRow] = React.useState({index: 0});
   const [selectedValue, setSelectedValue] = React.useState();
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (row) => {
     setOpen(true);
+    setRow(row);
   };
 
   const handleClose = (value) => {
     setOpen(false);
-    setSelectedValue(value);
   };
 
   return (
     <div className={classes.root}>
-    <Grid container spacing={2} alignItems="center" justify="flex-start">
-      <Grid item>
-        <Typography component="h2" variant="h3">
-          Users
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-          Add
-        </Button>
-        <AddUser selectedValue={selectedValue} open={open} onClose={handleClose} />
-      </Grid>
-    </Grid>
-      <Paper className={classes.paper}>
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .map((row, index) => {
-                  const labelId = `notes-table-${index}`;
+      <EnhancedTableToolbar />
+      <TableContainer>
+        <Table
+          className={classes.table}
+          aria-labelledby="tableTitle"
+          aria-label="enhanced table"
+        >
+          <EnhancedTableHead
+            classes={classes}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            rowCount={rows.length}
+          />
+          <TableBody>
+            {stableSort(rows, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
+                const labelId = `data-row-${index}`;
+                row.index = index;
 
-                  return (
-                    <TableRow
+
+                return (
+                  <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
-                      tabIndex={-1}
+                      onClick={() => {handleClickOpen(row);}}
                       key={row.name}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.location}</TableCell>
-                      <TableCell align="right">{row.email}</TableCell>
-                      <TableCell align="right">{row.role}</TableCell>
+                      <TableCell>{row.location}</TableCell>
+                      <TableCell>
+                        {row.email}
+                      </TableCell>
+                      <TableCell>
+                        {row.role}
+                      </TableCell>
                     </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                );
+              })}
+            {emptyRows > 0 && (
+              <TableRow style={{ height: emptyRows }}>
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[rowsPerPage]}
+        page={page}
+        onChangePage={handleChangePage}
+      />
+      <ViewUser
+        row={row}
+        rows={stableSort(rows, getComparator(order, orderBy))}
+        open={open}
+        onClose={handleClose} />
     </div>
   );
 }
