@@ -6,12 +6,19 @@ range.install(pg);
 const __dirname = path.resolve();
 const BASE_PATH = path.normalize(path.join(__dirname, 'src', 'backend'));
 const DB_PATH = path.join(BASE_PATH, 'db');
+const COMMON_MIGRATIONS_PATH = path.join(DB_PATH, 'migrations', 'common');
+const MIGRATIONS_TABLE = 'knex_migrations';
 
 import config from './src/backend/config.js';
 
-const _migrations = {
-  tableName: 'knex_migrations',
-  directory: path.join(DB_PATH, 'migrations'),
+const _migrations_pg = {
+  tableName: MIGRATIONS_TABLE,
+  directory: [path.join(DB_PATH, 'migrations', 'pg'), COMMON_MIGRATIONS_PATH],
+};
+
+const _migrations_sqlite3 = {
+  tableName: MIGRATIONS_TABLE,
+  directory: COMMON_MIGRATIONS_PATH,
 };
 
 const _seeds = {
@@ -27,8 +34,9 @@ if (config.isDev) {
       filename: './dev.sqlite3',
     },
     debug: true,
-    migrations: _migrations,
+    migrations: _migrations_sqlite3,
     seeds: _seeds,
+    useNullAsDefault: true,
   };
 } else {
   console.log('Loading database settings...');
@@ -49,7 +57,7 @@ if (config.isDev) {
     },
     acquireConnectionTimeout: config.dbTimeout,
     debug: isDebug,
-    migrations: _migrations,
+    migrations: _migrations_pg,
     seeds: _seeds,
   };
 }
