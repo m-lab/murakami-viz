@@ -30,10 +30,10 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import InfoIcon from '@material-ui/icons/Info';
 import AddNote from '../utils/AddNote.jsx';
-//import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js';
 //import Plotly from 'plotly.js';
-import createPlotlyComponent from 'react-plotly.js/factory';
-const Plot = createPlotlyComponent(Plotly);
+// import createPlotlyComponent from 'react-plotly.js/factory';
+// const Plot = createPlotlyComponent(Plotly);
 
 const useStyles = makeStyles(theme => ({
   chips: {
