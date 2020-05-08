@@ -8,10 +8,10 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-//import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js';
 //import Plotly from 'plotly.js';
-import createPlotlyComponent from 'react-plotly.js/factory';
-const Plot = createPlotlyComponent(Plotly);
+// import createPlotlyComponent from 'react-plotly.js/factory';
+// const Plot = createPlotlyComponent(Plotly);
 import NavTabs from './utils/Tabs.jsx';
 
 const drawerWidth = 240;
