@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
+import Moment from 'react-moment';
 import Truncate from 'react-truncate';
 
 // material ui imports
@@ -30,19 +31,19 @@ function createData(id, date, subject, description) {
 }
 
 const rows = [
-  createData(1, 'March 2, 2020, 3:58pm', 'Printer Connection Issue', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(2, 'March 8, 2020, 6:31pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(3, 'April 27, 2020, 4:12pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(4, 'April 13, 2020, 12:38pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(5, 'April 13, 2020, 8:41am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(6, 'April 2, 2020, 6:21pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(7, 'March 30, 2020, 2:48pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(8, 'March 26, 2020, 10:32am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(9, 'March 17, 2020, 8:14am', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(10, 'March 12, 2020, 7:12pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(11, 'March 6, 2020, 3:27pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(12, 'March 1, 2020, 12:01pm', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(13, 'Lorem Ipsum', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(1, '2020-03-02T15:58', 'Printer Connection Issue', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(2, '2020-03-08T18:31', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(3, '2020-04-27T16:12', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(4, '2020-04-13T12:38', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(5, '2020-04-13T08:41', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(6, '2020-04-02T18:21', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(7, '2020-03-30T14:48', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(8, '2020-03-26T10:32', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(9, '2020-03-17T08:14', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(10, '2020-03-12T19:12', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(11, '2020-03-06T15:27', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(12, '2020-03-01T12:01', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
+  createData(13, '2020-04-28T19:20', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -259,6 +260,7 @@ export default function EnhancedTable() {
                 const labelId = `data-row-${index}`;
                 row.index = index;
 
+
                 return (
                   <TableRow
                       hover
@@ -266,7 +268,7 @@ export default function EnhancedTable() {
                       key={row.date}
                     >
                       <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.date}
+                        <Moment date={row.date} format="MMMM D, YYYY, h:ma" />
                       </TableCell>
                       <TableCell>{row.subject}</TableCell>
                       <TableCell>

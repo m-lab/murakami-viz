@@ -65,18 +65,9 @@ export default function AddNote(props) {
         />
         <div className={classes.formField}>
           <TextField
-            id="note-date"
+            id="note-datetime"
             label="Date"
-            type="date"
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <TextField
-            id="time"
-            label="Time"
-            type="time"
+            type="datetime-local"
             className={classes.textField}
             InputLabelProps={{
               shrink: true,
