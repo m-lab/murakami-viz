@@ -8,17 +8,13 @@ export function up(knex) {
           .increments('id')
           .primary()
           .unsigned();
-        table
-          .string('title')
-          .unique()
-          .index()
-          .notNullable();
         table.integer('author').index();
         table
           .foreign('author')
           .references('id')
           .inTable('users');
-        table.string('body');
+        table.text('subject');
+        table.text('description');
         table.timestamps(true, true);
       })
       .then(() =>

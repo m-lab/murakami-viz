@@ -13,7 +13,15 @@ export function up(knex) {
           .unique()
           .index()
           .notNullable();
-        table.string('address');
+        table.text('physical_address');
+        table.text('shipping_address');
+        table.specificType('timezone', 'TIMEZONETZ');
+        table.specificType('coordinates', 'POINT');
+        table.text('primary_contact_name');
+        table.text('primary_contact_email');
+        table.text('it_contact_name');
+        table.text('it_contact_email');
+        table.text('opening_hours');
         table.timestamps(true, true);
       })
       .then(() =>

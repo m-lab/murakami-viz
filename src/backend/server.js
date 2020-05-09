@@ -11,10 +11,19 @@ import session from 'koa-session';
 import passport from 'koa-passport';
 import koa404handler from 'koa-404-handler';
 import errorHandler from 'koa-better-error-handler';
+import db from './db.js';
 import cloudflareAccess from './middleware/cloudflare.js';
 import ssr from './middleware/ssr.js';
 import AuthController from './controllers/auth.js';
-import UserModel from './models/user.js';
+import LibraryController from './controllers/library.js';
+import NoteController from './controllers/note.js';
+import RunController from './controllers/run.js';
+import SystemController from './controllers/system.js';
+import Libraries from './models/library.js';
+import Notes from './models/note.js';
+import Runs from './models/run.js';
+import Systems from './models/system.js';
+import Users from './models/user.js';
 
 const __dirname = path.resolve();
 const STATIC_DIR = path.resolve(__dirname, 'dist', 'frontend');
@@ -36,9 +45,28 @@ export default function configServer(config) {
   const log = log4js.getLogger('backend:server');
 
   // Setup our API handlers
-  const users = new UserModel();
+  const users = new Users();
   const auth = AuthController(users);
-  const apiV1Router = compose([auth.routes(), auth.allowedMethods()]);
+  const libraryModel = new Libraries(db);
+  const libraries = LibraryController(libraryModel);
+  const noteModel = new Notes(db);
+  const notes = NoteController(noteModel);
+  const runModel = new Runs(db);
+  const runs = RunController(runModel);
+  const systemModel = new Systems(db);
+  const systems = SystemController(systemModel);
+  const apiV1Router = compose([
+    auth.routes(),
+    auth.allowedMethods(),
+    libraries.routes(),
+    libraries.allowedMethods(),
+    notes.routes(),
+    notes.allowedMethods(),
+    runs.routes(),
+    runs.allowedMethods(),
+    systems.routes(),
+    systems.allowedMethods(),
+  ]);
 
   // Set session secrets
   server.keys = Array.isArray(config.secrets)

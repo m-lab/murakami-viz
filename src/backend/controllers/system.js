@@ -77,4 +77,6 @@ export default function controller(systems) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
   });
+
+  return router;
 }

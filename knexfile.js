@@ -59,6 +59,7 @@ if (config.isDev) {
     debug: isDebug,
     migrations: _migrations_pg,
     seeds: _seeds,
+    useNullAsDefault: false,
   };
 }
 
@@ -70,4 +71,5 @@ export const {
   debug,
   migrations,
   seeds,
+  useNullAsDefault,
 } = env;
