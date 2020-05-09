@@ -34,7 +34,11 @@ export default class SystemManager {
       .returning('*');
   }
 
-  getById(id) {
+  findById(id) {
     return this._db.select('*').where({ id: parseInt(id) });
+  }
+
+  findAll() {
+    return this._db.select('*');
   }
 }

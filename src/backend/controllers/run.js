@@ -18,11 +18,27 @@ export default function controller(runs) {
     ctx.response.status = 201;
   });
 
+  router.get('/runs', async ctx => {
+    log.debug(`Retrieving runs.`);
+    let res;
+    try {
+      res = runs.findAll();
+      ctx.response.body = {
+        status: 'success',
+        data: res,
+        total: res.length,
+      };
+      ctx.response.status = 200;
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
   router.get('/runs/:id', async ctx => {
     log.debug(`Retrieving run ${ctx.params.id}.`);
     let run;
     try {
-      run = runs.getById(ctx.params.id);
+      run = runs.findById(ctx.params.id);
       if (run.length) {
         ctx.response.body = { status: 'success', data: run };
         ctx.response.status = 200;

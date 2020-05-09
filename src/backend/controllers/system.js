@@ -18,11 +18,27 @@ export default function controller(systems) {
     ctx.response.status = 201;
   });
 
+  router.get('/systems', async ctx => {
+    log.debug(`Retrieving systems.`);
+    let res;
+    try {
+      res = systems.findAll();
+      ctx.response.body = {
+        status: 'success',
+        data: res,
+        total: res.length,
+      };
+      ctx.response.status = 200;
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
   router.get('/systems/:id', async ctx => {
     log.debug(`Retrieving system ${ctx.params.id}.`);
     let system;
     try {
-      system = systems.getById(ctx.params.id);
+      system = systems.findById(ctx.params.id);
       if (system.length) {
         ctx.response.body = { status: 'success', data: system };
         ctx.response.status = 200;
