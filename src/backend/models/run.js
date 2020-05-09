@@ -3,7 +3,7 @@ import { UnprocessableError } from '../../common/errors.js';
 
 export default class RunManager {
   constructor(db) {
-    self._db = db('runs');
+    this._db = db.table('runs');
   }
 
   async create(run) {
@@ -12,7 +12,7 @@ export default class RunManager {
     } catch (err) {
       throw new UnprocessableError('Failed to create run: ', err);
     }
-    return self._db.insert(run).returning('*');
+    return this._db.insert(run).returning('*');
   }
 
   async update(id, run) {
@@ -21,20 +21,24 @@ export default class RunManager {
     } catch (err) {
       throw new UnprocessableError('Failed to update run: ', err);
     }
-    return self._db
+    return this._db
       .update(run)
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
   delete(id) {
-    return self._db
+    return this._db
       .del()
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
-  getById(id) {
-    return self._db.select('*').where({ id: parseInt(id) });
+  findById(id) {
+    return this._db.select('*').where({ id: parseInt(id) });
+  }
+
+  findAll() {
+    return this._db.select('*');
   }
 }

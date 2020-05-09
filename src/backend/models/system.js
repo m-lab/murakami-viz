@@ -3,7 +3,7 @@ import { UnprocessableError } from '../../common/errors.js';
 
 export default class SystemManager {
   constructor(db) {
-    self._db = db('systems');
+    this._db = db.table('systems');
   }
 
   async create(system) {
@@ -12,7 +12,7 @@ export default class SystemManager {
     } catch (err) {
       throw new UnprocessableError('Failed to create system: ', err);
     }
-    return self._db.insert(system).returning('*');
+    return this._db.insert(system).returning('*');
   }
 
   async update(id, system) {
@@ -21,20 +21,24 @@ export default class SystemManager {
     } catch (err) {
       throw new UnprocessableError('Failed to update system: ', err);
     }
-    return self._db
+    return this._db
       .update(system)
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
   delete(id) {
-    return self._db
+    return this._db
       .del()
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
-  getById(id) {
-    return self._db.select('*').where({ id: parseInt(id) });
+  findById(id) {
+    return this._db.select('*').where({ id: parseInt(id) });
+  }
+
+  findAll() {
+    return this._db.select('*');
   }
 }

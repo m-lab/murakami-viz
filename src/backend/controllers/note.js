@@ -18,11 +18,27 @@ export default function controller(notes) {
     ctx.response.status = 201;
   });
 
+  router.get('/notes', async ctx => {
+    log.debug(`Retrieving notes.`);
+    let res;
+    try {
+      res = notes.findAll();
+      ctx.response.body = {
+        status: 'success',
+        data: res,
+        total: res.length,
+      };
+      ctx.response.status = 200;
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
   router.get('/notes/:id', async ctx => {
     log.debug(`Retrieving note ${ctx.params.id}.`);
     let note;
     try {
-      note = notes.getById(ctx.params.id);
+      note = notes.findById(ctx.params.id);
       if (note.length) {
         ctx.response.body = { status: 'success', data: note };
         ctx.response.status = 200;
@@ -77,4 +93,6 @@ export default function controller(notes) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
   });
+
+  return router;
 }

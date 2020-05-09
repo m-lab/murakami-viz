@@ -3,7 +3,7 @@ import { UnprocessableError } from '../../common/errors.js';
 
 export default class LibraryManager {
   constructor(db) {
-    self._db = db('libraries');
+    this._db = db.table('libraries');
   }
 
   async create(library) {
@@ -12,7 +12,7 @@ export default class LibraryManager {
     } catch (err) {
       throw new UnprocessableError('Failed to create library: ', err);
     }
-    return self._db.insert(library).returning('*');
+    return this._db.insert(library).returning('*');
   }
 
   async update(id, library) {
@@ -21,20 +21,24 @@ export default class LibraryManager {
     } catch (err) {
       throw new UnprocessableError('Failed to update library: ', err);
     }
-    return self._db
+    return this._db
       .update(library)
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
   delete(id) {
-    return self._db
+    return this._db
       .del()
       .where({ id: parseInt(id) })
       .returning('*');
   }
 
-  getById(id) {
-    return self._db.select('*').where({ id: parseInt(id) });
+  findById(id) {
+    return this._db.select('*').where({ id: parseInt(id) });
+  }
+
+  findAll() {
+    return this._db.select('*');
   }
 }

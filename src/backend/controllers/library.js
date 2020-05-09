@@ -18,11 +18,27 @@ export default function controller(libraries) {
     ctx.response.status = 201;
   });
 
+  router.get('/libraries', async ctx => {
+    log.debug(`Retrieving libraries.`);
+    let res;
+    try {
+      res = libraries.findAll();
+      ctx.response.body = {
+        status: 'success',
+        data: res,
+        total: res.length,
+      };
+      ctx.response.status = 200;
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
   router.get('/libraries/:id', async ctx => {
     log.debug(`Retrieving library ${ctx.params.id}.`);
     let library;
     try {
-      library = libraries.getById(ctx.params.id);
+      library = libraries.findById(ctx.params.id);
       if (library.length) {
         ctx.response.body = { status: 'success', data: library };
         ctx.response.status = 200;
@@ -77,4 +93,6 @@ export default function controller(libraries) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
   });
+
+  return router;
 }
