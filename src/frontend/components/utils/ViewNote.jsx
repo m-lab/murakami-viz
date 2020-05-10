@@ -67,15 +67,14 @@ const useStyles = makeStyles(theme => ({
 export default function ViewNote(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, selectedValue, open, rows, row } = props;
+  const { onClose, open, rows, index } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
 
   // handle edit note
   const [openEdit, setOpenEdit] = React.useState(false);
-  const [selectedValueEdit, setSelectedValueEdit] = React.useState();
 
   const handleClickOpenEdit = () => {
     setOpenEdit(true);
@@ -83,16 +82,15 @@ export default function ViewNote(props) {
 
   const handleCloseEdit = (value) => {
     setOpenEdit(false);
-    setSelectedValueEdit(value);
   };
 
   // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.row.index);
+  const [activeStep, setActiveStep] = React.useState(props.index);
   const maxSteps = props.rows.length;
 
   React.useEffect(() => {
-      setActiveStep(props.row.index);
-  }, [props.row.index])
+      setActiveStep(props.index);
+  }, [props.index])
 
   const handleNext = () => {
     setActiveStep((activeStep) => activeStep + 1);
@@ -132,7 +130,10 @@ export default function ViewNote(props) {
           <Button variant="contained" disableElevation color="primary" onClick={handleClickOpenEdit} className={classes.editButton}>
             Edit
           </Button>
-          <EditNote row={props.row} selectedValue={selectedValueEdit} open={openEdit} onClose={handleCloseEdit} />
+          <EditNote
+            row={props.rows[activeStep]}
+            open={openEdit}
+            onClose={handleCloseEdit} />
         </Grid>
       </Grid>
       <Box className={classes.box}>
@@ -140,7 +141,7 @@ export default function ViewNote(props) {
           {props.rows[activeStep].subject}
         </Typography>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          <Moment date={props.rows[activeStep].date} format="MM/DD/YYYY, h:ma" />
+          <Moment date={props.rows[activeStep].updated_at} format="MM/DD/YYYY, h:ma" />
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
           {props.rows[activeStep].description}
@@ -164,7 +165,6 @@ export default function ViewNote(props) {
 ViewNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
-  row: PropTypes.object.isRequired,
-  rows: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+  rows: PropTypes.object.isRequired,
 };

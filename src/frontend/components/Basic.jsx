@@ -1,31 +1,37 @@
+// base imports
 import React, { useState, useEffect } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
+import { Link as RouterLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
+
+// material ui imports
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/core/styles';
+
+// icons imports
+import IconButton from '@material-ui/core/IconButton';
 import LinkIcon from '@material-ui/icons/Link';
-import { Link as RouterLink } from 'react-router-dom';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import AddIcon from '@material-ui/icons/Add';
 import ImageIcon from '@material-ui/icons/Image';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import MovieIcon from '@material-ui/icons/Movie';
 import MusicVideoIcon from '@material-ui/icons/MusicVideo';
 import CloseIcon from '@material-ui/icons/Close';
-import List from '@material-ui/core/List';
-import Grid from '@material-ui/core/Grid';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import PropTypes from 'prop-types';
+
 //import MUICookieConsent from 'material-ui-cookie-consent';
 
 const useStyles = makeStyles(theme => ({

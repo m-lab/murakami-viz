@@ -59,7 +59,7 @@ export default function controller(notes) {
     let note;
     try {
       note = await notes.update(ctx.params.id, ctx.request.body);
-      if (note.length) {
+      if (!!note.length) {
         ctx.response.body = { status: 'success', data: note };
         ctx.response.status = 200;
       } else {

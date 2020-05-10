@@ -125,7 +125,6 @@ const EnhancedTableToolbar = (props) => {
 
   // handle add note
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -133,7 +132,6 @@ const EnhancedTableToolbar = (props) => {
 
   const handleClose = (value) => {
     setOpen(false);
-    setSelectedValue(value);
   };
 
   return (
@@ -150,7 +148,9 @@ const EnhancedTableToolbar = (props) => {
           <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
             Add a note
           </Button>
-          <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
+          <AddNote
+            open={open}
+            onClose={handleClose} />
         </Grid>
       </Grid>
     </Toolbar>
@@ -206,11 +206,11 @@ export default function EnhancedTable() {
   // handle view note
   const [open, setOpen] = React.useState(false);
   const [row, setRow] = React.useState({index: 0});
-  const [selectedValue, setSelectedValue] = React.useState();
+  const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = (row) => {
+  const handleClickOpen = (index) => {
     setOpen(true);
-    setRow(row);
+    setRow(index);
   };
 
   const handleClose = (value) => {
@@ -232,7 +232,7 @@ export default function EnhancedTable() {
           setRows(results.data);
           setRow(results.data[0]);
           emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-          setIsLoaded(true);          
+          setIsLoaded(true);
         },
         (error) => {
           setIsLoaded(true);
@@ -253,8 +253,7 @@ export default function EnhancedTable() {
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
-            aria-label="enhanced table"
-          >
+            aria-label="enhanced table" >
             <EnhancedTableHead
               classes={classes}
               order={order}
@@ -267,16 +266,16 @@ export default function EnhancedTable() {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const labelId = `data-row-${index}`;
-                  row.index = index;
+                  // setIndex(index);
 
                   return (
                     <TableRow
                         hover
-                        onClick={() => {handleClickOpen(row);}}
+                        onClick={() => {handleClickOpen(index);}}
                         key={row.date}
                       >
                         <TableCell component="th" id={labelId} scope="row" padding="none">
-                          <Moment date={row.date} format="MMMM D, YYYY, h:ma" />
+                          <Moment date={row.updated_at} format="MMMM D, YYYY, h:ma" />
                         </TableCell>
                         <TableCell>{row.subject}</TableCell>
                         <TableCell>
@@ -304,7 +303,7 @@ export default function EnhancedTable() {
           onChangePage={handleChangePage}
         />
         <ViewNote
-          row={row}
+          index={index}
           rows={stableSort(rows, getComparator(order, orderBy))}
           open={open}
           onClose={handleClose} />

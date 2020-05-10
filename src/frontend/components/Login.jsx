@@ -1,13 +1,18 @@
+// base imports
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
+// material ui imports
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { useHistory } from 'react-router-dom';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+
+// icons imports
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
 export default function Login() {
   const history = useHistory();

@@ -22,8 +22,12 @@ export default class NoteManager {
       throw new UnprocessableError('Failed to update note: ', err);
     }
     return this._db
-      .update(note)
       .where({ id: parseInt(id) })
+      .update({
+        subject: note.subject,
+        description: note.description,
+        updated_at: note.updated_at,
+       }, ['id', 'subject', 'description', 'updated_at'])
       .returning('*');
   }
 

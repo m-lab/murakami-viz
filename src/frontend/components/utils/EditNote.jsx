@@ -1,12 +1,18 @@
-import React from 'react';
+// base imports
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+
+// material ui imports
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+
+// icons imports
 import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles(theme => ({
@@ -39,13 +45,55 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+function formatDate(date) {
+  return date.replace(/ /g, "T");
+}
+
+const useForm = (callback) => {
+  const [inputs, setInputs] = useState({});
+  const handleSubmit = (event) => {
+    if (event) {
+      event.preventDefault();
+    }
+    callback();
+  }
+  const handleInputChange = (event) => {
+    event.persist();
+    setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
+  }
+  return {
+    handleSubmit,
+    handleInputChange,
+    inputs
+  };
+}
+
 export default function EditNote(props) {
   const classes = useStyles();
-  const { onClose, row, selectedValue, open } = props;
+  const { onClose, row,  open } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
+
+  const submitData = () => {
+    fetch(`api/v1/notes/${props.row.id}`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+
+  const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
 
   return (
     <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="edit-note-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
@@ -55,21 +103,27 @@ export default function EditNote(props) {
       <DialogTitle id="edit-note-title" className={classes.dialogTitleRoot}>
         <div className={classes.dialogTitleText}>Edit Note</div>
       </DialogTitle>
-      <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleClose(); } }>
+      <Box className={classes.form}>
         <TextField
           className={classes.formField}
           id="note-subject"
           label="Subject"
+          name="subject"
           fullWidth
           variant="outlined"
-          value={props.row.subject}
+          defaultValue={props.row.subject}
+          onChange={handleInputChange}
+          value={inputs.subject}
         />
         <div className={classes.formField}>
           <TextField
             id="note-datetime"
             label="Date"
+            name="updated_at"
             type="datetime-local"
-            defaultValue={props.row.date}
+            defaultValue={formatDate(props.row.updated_at)}
+            onChange={handleInputChange}
+            value={inputs.updated_at}
             className={classes.textField}
             InputLabelProps={{
               shrink: true,
@@ -80,26 +134,41 @@ export default function EditNote(props) {
           className={classes.formField}
           id="note-description"
           label="Description"
+          name="description"
           multiline="true"
           rows="5"
           fullWidth
           variant="outlined"
-          value={props.row.description}
+          defaultValue={props.row.description}
+          onChange={handleInputChange}
+          value={inputs.description}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
-            <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
+            <Button
+              size="small"
+              label="Cancel"
+              primary={true}
+              onClick={handleClose}
+              className={classes.cancelButton}>
               Cancel
             </Button>
           </Grid>
           <Grid item>
-            <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary"
+            <Button
+              type="submit"
+              label="Save"
+              onClick={handleSubmit}
+              className={classes.cancelButton}
+              variant="contained"
+              disableElevation
+              color="primary"
               primary={true}>
               Save
             </Button>
           </Grid>
         </Grid>
-      </form>
+      </Box>
     </Dialog>
   );
 }
@@ -107,6 +176,5 @@ export default function EditNote(props) {
 EditNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
   row: PropTypes.object.isRequired,
 };
