@@ -22,7 +22,7 @@ export default function controller(notes) {
     log.debug(`Retrieving notes.`);
     let res;
     try {
-      res = notes.findAll();
+      res = await notes.findAll();
       ctx.response.body = {
         status: 'success',
         data: res,

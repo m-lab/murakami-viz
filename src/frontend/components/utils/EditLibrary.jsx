@@ -106,8 +106,6 @@ export default function EditLibrary(props) {
   // handle close
   const { onClose, selectedValue, open, rowsBasic, rowsNetwork, rowsDevices, rowsUsers } = props;
 
-  console.log(rowsBasic);
-
   const handleClose = () => {
     onClose(selectedValue);
   };

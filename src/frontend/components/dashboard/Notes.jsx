@@ -237,69 +237,98 @@ export default function EnhancedTable() {
     setOpen(false);
   };
 
-  return (
-    <div className={classes.root}>
-      <EnhancedTableToolbar />
-      <TableContainer>
-        <Table
-          className={classes.table}
-          aria-labelledby="tableTitle"
-          aria-label="enhanced table"
-        >
-          <EnhancedTableHead
-            classes={classes}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            rowCount={rows.length}
-          />
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const labelId = `data-row-${index}`;
-                row.index = index;
+  // fetch api data
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [notes, setNotes] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch("/api/v1/notes")
+      .then(res => res.json())
+      // .then(res => res.text())          // convert to plain text
+      // .then(text => console.log(text))  // then log it out
+      .then(
+        (result) => {
+          setIsLoaded(true);
+          setNotes(result);
+          console.log('result: ', result);
+        },
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      )
+  }, [])
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <div>Loading...</div>;
+  } else {
+    return (
+      <div className={classes.root}>
+        <EnhancedTableToolbar />
+        <TableContainer>
+          <Table
+            className={classes.table}
+            aria-labelledby="tableTitle"
+            aria-label="enhanced table"
+          >
+            <EnhancedTableHead
+              classes={classes}
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {stableSort(rows, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => {
+                  const labelId = `data-row-${index}`;
+                  row.index = index;
 
 
-                return (
-                  <TableRow
-                      hover
-                      onClick={() => {handleClickOpen(row);}}
-                      key={row.date}
-                    >
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
-                        <Moment date={row.date} format="MMMM D, YYYY, h:ma" />
-                      </TableCell>
-                      <TableCell>{row.subject}</TableCell>
-                      <TableCell>
-                        <Truncate lines={1} width={300}>
-                          {row.description}
-                        </Truncate>
-                      </TableCell>
-                    </TableRow>
-                );
-              })}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[rowsPerPage]}
-        page={page}
-        onChangePage={handleChangePage}
-      />
-      <ViewNote
-        row={row}
-        rows={stableSort(rows, getComparator(order, orderBy))}
-        open={open}
-        onClose={handleClose} />
-    </div>
-  );
+                  return (
+                    <TableRow
+                        hover
+                        onClick={() => {handleClickOpen(row);}}
+                        key={row.date}
+                      >
+                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                          <Moment date={row.date} format="MMMM D, YYYY, h:ma" />
+                        </TableCell>
+                        <TableCell>{row.subject}</TableCell>
+                        <TableCell>
+                          <Truncate lines={1} width={300}>
+                            {row.description}
+                          </Truncate>
+                        </TableCell>
+                      </TableRow>
+                  );
+                })}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[rowsPerPage]}
+          page={page}
+          onChangePage={handleChangePage}
+        />
+        <ViewNote
+          row={row}
+          rows={stableSort(rows, getComparator(order, orderBy))}
+          open={open}
+          onClose={handleClose} />
+      </div>
+    );
+  }
 }
