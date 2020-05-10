@@ -39,12 +39,13 @@ export default class NoteManager {
   }
 
   findAll() {
-    return this._db.select('*')
+    return this._db
+      .select('*')
       .then(data => {
         return data;
       })
       .catch(err => {
-        log.debug('Error: ', err);
-      })
+        throw new UnprocessableError('Failed to fetch all notes: ', err);
+      });
   }
 }
