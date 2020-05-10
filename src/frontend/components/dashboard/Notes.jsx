@@ -26,26 +26,6 @@ import AddNote from '../utils/AddNote.jsx';
 import EditNote from '../utils/EditNote.jsx';
 import ViewNote from '../utils/ViewNote.jsx';
 
-function createData(id, date, subject, description) {
-  return { id, date, subject, description };
-}
-
-const rows = [
-  createData(1, '2020-03-02T15:58', 'Printer Connection Issue', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(2, '2020-03-08T18:31', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(3, '2020-04-27T16:12', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(4, '2020-04-13T12:38', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(5, '2020-04-13T08:41', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(6, '2020-04-02T18:21', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(7, '2020-03-30T14:48', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(8, '2020-03-26T10:32', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(9, '2020-03-17T08:14', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(10, '2020-03-12T19:12', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(11, '2020-03-06T15:27', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(12, '2020-03-01T12:01', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-  createData(13, '2020-04-28T19:20', 'Lorem Ipsum', 'Hi omnes lingua, institutis, legibus inter se differunt. Unam incolunt Belgae, aliam Aquitani, tertiam. Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.'),
-];
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -221,7 +201,7 @@ export default function EnhancedTable() {
     setPage(0);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  let emptyRows;
 
   // handle view note
   const [open, setOpen] = React.useState(false);
@@ -240,7 +220,7 @@ export default function EnhancedTable() {
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const [notes, setNotes] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
 
   React.useEffect(() => {
     fetch("/api/v1/notes")
@@ -248,10 +228,11 @@ export default function EnhancedTable() {
       // .then(res => res.text())          // convert to plain text
       // .then(text => console.log(text))  // then log it out
       .then(
-        (result) => {
-          setIsLoaded(true);
-          setNotes(result);
-          console.log('result: ', result);
+        (results) => {
+          setRows(results.data);
+          setRow(results.data[0]);
+          emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+          setIsLoaded(true);          
         },
         (error) => {
           setIsLoaded(true);
@@ -287,7 +268,6 @@ export default function EnhancedTable() {
                 .map((row, index) => {
                   const labelId = `data-row-${index}`;
                   row.index = index;
-
 
                   return (
                     <TableRow
