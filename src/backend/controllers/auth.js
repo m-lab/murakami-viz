@@ -141,45 +141,45 @@ export default function controller(users) {
    * @param {Object} auth - Authentication middleware
    * @param {Object} ctx - Koa context object
    */
-   router.get('/users', async ctx => {
-     log.debug(`Retrieving users.`);
-     let res;
-     try {
-       const query = await validate_query(ctx.query);
-       let from, to;
-       if (query.from) {
-         const timestamp = moment(query.from);
-         if (timestamp.isValid()) {
-           ctx.throw(400, 'Invalid timestamp value.');
-         }
-         from = timestamp.toISOString();
-       }
-       if (query.to) {
-         const timestamp = moment(query.to);
-         if (timestamp.isValid()) {
-           ctx.throw(400, 'Invalid timestamp value.');
-         }
-         to = timestamp.toISOString();
-       }
-       res = await users.find({
-         start: query.start,
-         end: query.end,
-         asc: query.asc,
-         sort_by: query.sort_by,
-         from: from,
-         to: to,
-         author: query.author,
-       });
-       ctx.response.body = {
-         status: 'success',
-         data: res,
-         total: res.length,
-       };
-       ctx.response.status = 200;
-     } catch (err) {
-       ctx.throw(400, `Failed to parse query: ${err}`);
-     }
-   });
+  router.get('/users', async ctx => {
+    log.debug(`Retrieving users.`);
+    let res;
+    try {
+      const query = await validate_query(ctx.query);
+      let from, to;
+      if (query.from) {
+        const timestamp = moment(query.from);
+        if (timestamp.isValid()) {
+          ctx.throw(400, 'Invalid timestamp value.');
+        }
+        from = timestamp.toISOString();
+      }
+      if (query.to) {
+        const timestamp = moment(query.to);
+        if (timestamp.isValid()) {
+          ctx.throw(400, 'Invalid timestamp value.');
+        }
+        to = timestamp.toISOString();
+      }
+      res = await users.find({
+        start: query.start,
+        end: query.end,
+        asc: query.asc,
+        sort_by: query.sort_by,
+        from: from,
+        to: to,
+        author: query.author,
+      });
+      ctx.response.body = {
+        status: 'success',
+        data: res,
+        total: res.length,
+      };
+      ctx.response.status = 200;
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
 
   /**
    * Get single user
