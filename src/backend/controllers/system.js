@@ -107,6 +107,12 @@ export default function controller(systems) {
     let system;
     try {
       system = await systems.update(ctx.params.id, ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(system)) {
+        system = await systems.findById(system);
+      }
+
       if (system.length) {
         ctx.response.body = { status: 'success', data: system };
         ctx.response.status = 200;

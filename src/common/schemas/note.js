@@ -3,8 +3,9 @@ import Joi from '@hapi/joi';
 
 // TODO: includes ndt5 & ndt7 fields, add from DASH & speedtest-cli after feedback
 const schema = Joi.object({
+  subject: Joi.string(),
   author: Joi.string(),
-  note: Joi.string(),
+  description: Joi.string(),
 });
 
 export async function validate(data) {

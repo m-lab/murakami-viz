@@ -111,6 +111,12 @@ export default function controller(runs) {
     let run;
     try {
       run = await runs.update(ctx.params.id, ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(run)) {
+        run = await runs.findById(run);
+      }
+
       if (run.length) {
         ctx.response.body = { status: 'success', data: run };
         ctx.response.status = 200;

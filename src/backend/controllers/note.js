@@ -109,6 +109,12 @@ export default function controller(notes) {
     let note;
     try {
       note = await notes.update(ctx.params.id, ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(note)) {
+        note = await notes.findById(note);
+      }
+
       if (note.length) {
         ctx.response.body = { status: 'success', data: note };
         ctx.response.status = 200;
