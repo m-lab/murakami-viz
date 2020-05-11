@@ -73,10 +73,8 @@ export default class NoteManager {
         }
 
         if (asc) {
-          console.log('ascending');
           queryBuilder.orderBy(sort_by, 'asc');
         } else {
-          console.log('descending');
           queryBuilder.orderBy(sort_by, 'desc');
         }
 

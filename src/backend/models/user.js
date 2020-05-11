@@ -68,10 +68,8 @@ export default class User {
         }
 
         if (asc) {
-          console.log('ascending');
           queryBuilder.orderBy(sort_by, 'asc');
         } else {
-          console.log('descending');
           queryBuilder.orderBy(sort_by, 'desc');
         }
 
@@ -106,7 +104,6 @@ export default class User {
    * @param {integer} id - Find user by id
    */
   async findByUsername(username) {
-    console.log('findByUsername');
     return this._db
       .table('users')
       .select('*')

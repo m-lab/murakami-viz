@@ -63,13 +63,6 @@ export default class RunManager {
         }
 
         if (test) {
-          //if (
-          //  !test.match(
-          //    '/^(ndt5|ndt7|dash|speedtest-cli-single-stream|speedtest-cli-multi-stream)$/',
-          //  )
-          //) {
-          //  return [];
-          //}
           queryBuilder
             .where({ TestName: test })
             .orWhere({ TestProtocol: test });
@@ -84,10 +77,8 @@ export default class RunManager {
         }
 
         if (asc) {
-          console.log('ascending');
           queryBuilder.orderBy(sort_by, 'asc');
         } else {
-          console.log('descending');
           queryBuilder.orderBy(sort_by, 'desc');
         }
 

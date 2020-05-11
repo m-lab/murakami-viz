@@ -38,6 +38,18 @@ if (config.isDev) {
     seeds: _seeds,
     useNullAsDefault: true,
   };
+} else if (config.isTest) {
+  console.log('Loading testing database settings...');
+  env = {
+    client: 'sqlite3',
+    connection: {
+      filename: './test.sqlite3',
+    },
+    debug: true,
+    migrations: _migrations_sqlite3,
+    seeds: _seeds,
+    useNullAsDefault: true,
+  };
 } else {
   console.log('Loading database settings...');
   const isDebug = config.log_level === 'debug';

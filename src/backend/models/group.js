@@ -65,10 +65,8 @@ export default class Group {
         }
 
         if (asc) {
-          console.log('ascending');
           queryBuilder.orderBy(sort_by, 'asc');
         } else {
-          console.log('descending');
           queryBuilder.orderBy(sort_by, 'desc');
         }
 
@@ -127,10 +125,8 @@ export default class Group {
       .select('*')
       .modify(queryBuilder => {
         if (asc) {
-          console.log('ascending');
           queryBuilder.orderBy('uid', 'asc');
         } else {
-          console.log('descending');
           queryBuilder.orderBy('uid', 'desc');
         }
 

@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "lint": "eslint --ignore-path .gitignore --fix ./src",
-    "test": "jest --coverage --forceExit",
+    "test": "jest --coverage --runInBand",
     "doc": "jsdoc -d ./dist/doc/ -r ./src/backend ./src/frontend ./src/worker",
     "build:imported-components": "imported-components src/frontend src/frontend/imported.js",
     "build:backend": "cross-env BABEL_ENV=server parcel build src/backend/index.js -d dist/backend --public-url / --target=node",
@@ -71,7 +71,7 @@
     "eslint-plugin-promise": "4.1.1",
     "eslint-plugin-react": "^7.19.0",
     "husky": "2.3.0",
-    "jest": "^25.3.0",
+    "jest": "^25.5.4",
     "jsdoc": "^3.6.4",
     "nodemon": "^2.0.3",
     "parcel-bundler": "^1.12.4",
