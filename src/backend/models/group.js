@@ -1,6 +1,9 @@
+import { getLogger } from '../log.js';
+import { isString } from '../../common/utils.js';
 import { validate } from '../../common/schemas/group.js';
 import { UnprocessableError } from '../../common/errors.js';
 
+const log = getLogger('backend:controllers:group');
 /**
  * Initialize the QueueManager data model
  *
@@ -155,5 +158,32 @@ export default class Group {
       .del()
       .where({ gid: parseInt(gid), uid: parseInt(uid) })
       .returning('*');
+  }
+
+  async isMemberOf(group, uid) {
+    log.debug(`Checking if user w/ id ${uid} is a member of group ${group}.`);
+    const match = async id => {
+      return this._db
+        .table('user_groups')
+        .select('*')
+        .where({ gid: parseInt(id), uid: parseInt(uid) });
+    };
+
+    let gid;
+    if (isString(group)) {
+      const found = await this.findByGroupname(group);
+      gid = found.id;
+    } else {
+      gid = group;
+    }
+    if (!gid) {
+      log.error('Group does not exist: ', group);
+      return false;
+    }
+
+    const matches = await match(gid);
+    log.debug('Matching groups: ', matches);
+
+    return matches.length > 0;
   }
 }

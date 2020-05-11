@@ -4,7 +4,6 @@ import moment from 'moment';
 import Joi from '@hapi/joi';
 import passport from 'koa-passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import auth from '../middleware/auth.js';
 import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
 
@@ -42,7 +41,7 @@ async function validate_query(query) {
  * @param {Object} users - User model
  * @returns {Object} Auth controller Koa router
  */
-export default function controller(users) {
+export default function controller(users, thisUser) {
   const router = new Router();
 
   /**
@@ -137,9 +136,13 @@ export default function controller(users) {
    * @param {Object} auth - Authentication middleware
    * @param {Object} ctx - Koa context object
    */
-  router.get('/authenticated', auth, async ctx => {
-    ctx.body = { msg: 'Authenticated', user: ctx.state.user };
-  });
+  router.get(
+    '/authenticated',
+    thisUser.can('access admin pages'),
+    async ctx => {
+      ctx.body = { msg: 'Authenticated', user: ctx.state.user.id };
+    },
+  );
 
   router.post('/users', async ctx => {
     log.debug('Adding new user.');

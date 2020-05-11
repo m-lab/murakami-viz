@@ -34,7 +34,8 @@ async function validate_query(query) {
  * @param {Object} groups - User model
  * @returns {Object} Auth controller Koa router
  */
-export default function controller(groups) {
+// eslint-disable-next-line no-unused-vars
+export default function controller(groups, thisUser) {
   const router = new Router();
 
   router.post('/groups', async ctx => {
