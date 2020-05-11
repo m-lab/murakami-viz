@@ -30,7 +30,8 @@ async function validate_query(query) {
   }
 }
 
-export default function controller(runs) {
+// eslint-disable-next-line no-unused-vars
+export default function controller(runs, thisUser) {
   const router = new Router();
 
   router.post('/runs', async ctx => {

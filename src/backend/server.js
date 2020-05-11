@@ -12,6 +12,7 @@ import passport from 'koa-passport';
 import koa404handler from 'koa-404-handler';
 import errorHandler from 'koa-better-error-handler';
 import db from './db.js';
+import authHandler from './middleware/auth.js';
 import cloudflareAccess from './middleware/cloudflare.js';
 import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
@@ -46,19 +47,23 @@ export default function configServer(config) {
 
   const log = log4js.getLogger('backend:server');
 
+  // Setup our authentication middleware
+  const groupModel = new Groups(db);
+  const auth = authHandler(groupModel);
+  server.use(auth.middleware());
+
   // Setup our API handlers
   const userModel = new Users(db);
-  const users = UserController(userModel);
-  const groupModel = new Groups(db);
-  const groups = GroupController(groupModel);
+  const users = UserController(userModel, auth);
+  const groups = GroupController(groupModel, auth);
   const libraryModel = new Libraries(db);
-  const libraries = LibraryController(libraryModel);
+  const libraries = LibraryController(libraryModel, auth);
   const noteModel = new Notes(db);
-  const notes = NoteController(noteModel);
+  const notes = NoteController(noteModel, auth);
   const runModel = new Runs(db);
-  const runs = RunController(runModel);
+  const runs = RunController(runModel, auth);
   const systemModel = new Systems(db);
-  const systems = SystemController(systemModel);
+  const systems = SystemController(systemModel, auth);
   const apiV1Router = compose([
     users.routes(),
     users.allowedMethods(),
