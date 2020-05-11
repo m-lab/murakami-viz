@@ -17,37 +17,6 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
 
-function createData(id, key, value) {
-  return { id, key, value };
-}
-
-const rowsBasic =  [
-  createData(1, 'Physical Address', 'Craig, AK 99921'),
-  createData(2, 'Shipping Address', 'Craig, AK 99921'),
-  createData(3, 'Timezone', 'GMT-8'),
-  createData(4, 'Coordinates', '55.4764° N, 133.1483° W'),
-  createData(5, 'Primary Library Contact', 'Sam Smith'),
-  createData(6, 'Primary IT Contact', 'Sue Brown'),
-  createData(7, 'Opening Hours', 'Sunday')
-]
-
-const rowsNetwork = [
-  createData(1, 'Network Name', 'Public Access'),
-  createData(2, 'ISP', 'Comcast'),
-  createData(3, 'Contracted Speeds', '100 Mbit/s dowload'),
-  createData(4, 'IP addresses of custom DNS servers', '0.0.0.0'),
-  createData(5, 'Per device bandwidth caps', '100 Mbit/s download'),
-]
-
-const rowsDevices = [
-  createData(1, 'Name'),
-]
-
-const rowsUsers = [
-  createData(1, 'Editor', 'Sue Brown'),
-  createData(2, 'Viewer', 'Sam Smith'),
-]
-
 const TableCell = withStyles({
   root: {
     borderBottom: "none"
@@ -66,19 +35,24 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "50%",
   },
   tableCell: {
-    minWidth: "150px",
+    minWidth: "300px",
+    textTransform: "capitalize",
   },
   tableKey: {
     fontWeight: "bold",
   },
 }));
 
+function formatKey(key) {
+  return key.replace(/_/g, " ");
+}
+
 export default function Library() {
   const classes = useStyles();
 
   // handle edit library
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState();
+  const [row, setRow] = React.useState({});
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -86,101 +60,190 @@ export default function Library() {
 
   const handleClose = (value) => {
     setOpen(false);
-    setSelectedValue(value);
   };
 
-  return (
-    <React.Fragment>
-      <Box mb={9} mt={9}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-            <Typography component="h1" variant="h3">
-              Holis Public Library
-            </Typography>
+  // fetch api data
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch("/api/v1/libraries/1")
+      .then(res => res.json())
+      .then(
+        (results) => {
+          // const data = results.data[0]
+          setRow(results.data[0]);
+          setIsLoaded(true);
+        },
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      )
+  }, [])
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <div>Loading...</div>;
+  } else {
+    return (
+      <React.Fragment>
+        <Box mb={9} mt={9}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <Typography component="h1" variant="h3">
+                {row.name}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+                Edit
+              </Button>
+              <EditLibrary
+                open={open}
+                onClose={handleClose}
+                row={row} />
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
-              Edit
-            </Button>
-            <EditLibrary
-              selectedValue={selectedValue}
-              open={open}
-              onClose={handleClose}
-              rowsBasic={rowsBasic}
-              rowsNetwork={rowsNetwork}
-              rowsDevices={rowsDevices}
-              rowsUsers={rowsUsers} />
-          </Grid>
-        </Grid>
-      </Box>
-      <Box mb={9}>
-        <Typography variant="overline" display="block" gutterBottom>
-          Basic Information
-        </Typography>
+        </Box>
+        <Box mb={9}>
+          <Typography variant="overline" display="block" gutterBottom>
+            Basic Information
+          </Typography>
+            <TableContainer>
+              <Table className={classes.table} aria-label="basic information table">
+                <TableBody>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Physical Address</TableCell>
+                    <TableCell className={classes.tableCell}>{row.physical_address}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Shipping Address</TableCell>
+                    <TableCell className={classes.tableCell}>{row.shipping_address}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Timezone</TableCell>
+                    <TableCell className={classes.tableCell}>{row.timezones}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Coordinates</TableCell>
+                    <TableCell className={classes.tableCell}>{row.coordinates}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Primary Library Contact</TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {row.primary_contact_name}
+                      <br />
+                      {row.primary_contact_email}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Opening Hours</TableCell>
+                    <TableCell className={classes.tableCell}>{row.opening_hours}</TableCell>
+                  </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+        <Box mb={9}>
+          <Typography variant="overline" display="block" gutterBottom>
+            ISP &amp; Library Network Information
+          </Typography>
           <TableContainer>
             <Table className={classes.table} aria-label="basic information table">
               <TableBody>
-              {rowsBasic.map((row) => (
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Network Name</TableCell>
+                  <TableCell className={classes.tableCell}>{row.network_name}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>ISP</TableCell>
+                  <TableCell className={classes.tableCell}>{row.isp}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Contracted Speeds</TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.contracted_speed_download} download
+                    <br />
+                    {row.contracted_speed_upload} upload
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>IP address of custom DNS severs</TableCell>
+                  <TableCell className={classes.tableCell}>{row.ip}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Per device bandwidth caps</TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.bandwith_cap_download} download
+                    <br />
+                    {row.bandwith_cap_upload} upload
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+        <Box mb={9}>
+          <Typography variant="overline" display="block" gutterBottom>
+            Devices
+          </Typography>
+          <TableContainer>
+            <Table className={classes.table} aria-label="basic information table">
+              <TableBody>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Name</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_name}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Location</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_location}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Network type</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_network_type}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Connection Type</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_connection_type}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>DNS server</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_dns}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>IP address</TableCell>
+                  <TableCell className={classes.tableCell}>{row.ip}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Gateway</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_gateway}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>MAC address</TableCell>
+                  <TableCell className={classes.tableCell}>{row.device_mac_address}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+        <Box mb={9}>
+          <Typography variant="overline" display="block" gutterBottom>
+            Users
+          </Typography>
+          <TableContainer>
+            <Table className={classes.table} aria-label="basic information table">
+              <TableBody>
                 <TableRow key={row.id}>
                   <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>{row.key}</TableCell>
                   <TableCell className={classes.tableCell}>{row.value}</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <Box mb={9}>
-        <Typography variant="overline" display="block" gutterBottom>
-          ISP &amp; Library Network Information
-        </Typography>
-        <TableContainer>
-          <Table className={classes.table} aria-label="basic information table">
-            <TableBody>
-              {rowsNetwork.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>{row.key}</TableCell>
-                  <TableCell className={classes.tableCell}>{row.value}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <Box mb={9}>
-        <Typography variant="overline" display="block" gutterBottom>
-          Devices
-        </Typography>
-        <TableContainer>
-          <Table className={classes.table} aria-label="basic information table">
-            <TableBody>
-              {rowsDevices.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>{row.key}</TableCell>
-                  <TableCell className={classes.tableCell}>{row.value}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <Box mb={9}>
-        <Typography variant="overline" display="block" gutterBottom>
-          Users
-        </Typography>
-        <TableContainer>
-          <Table className={classes.table} aria-label="basic information table">
-            <TableBody>
-              {rowsUsers.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>{row.key}</TableCell>
-                  <TableCell className={classes.tableCell}>{row.value}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    </React.Fragment>
-  )
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </React.Fragment>
+    )
+  }
 }

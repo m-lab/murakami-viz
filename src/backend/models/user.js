@@ -45,7 +45,16 @@ export default class User {
           location: user.location,
           role: user.role,
         },
-        ['id', 'firstName', 'lastName', 'username', 'email', 'password', 'location', 'role']
+        [
+          'id',
+          'firstName',
+          'lastName',
+          'username',
+          'email',
+          'password',
+          'location',
+          'role',
+        ],
       )
       .returning('*');
   }

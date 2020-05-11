@@ -111,6 +111,7 @@ export default function controller(libraries) {
     log.debug(`Updating library ${ctx.params.id}.`);
     let library;
     try {
+      console.log('in try');
       library = await libraries.update(ctx.params.id, ctx.request.body);
 
       // workaround for sqlite
@@ -129,6 +130,7 @@ export default function controller(libraries) {
         ctx.response.status = 404;
       }
     } catch (err) {
+      console.log('ERROR: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
   });

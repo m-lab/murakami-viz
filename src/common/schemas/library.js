@@ -2,26 +2,42 @@ import { UnprocessableError } from '../../common/errors.js';
 import Joi from '@hapi/joi';
 
 const schema = Joi.object({
-  name: Joi.string().required(),
-  physical_address: Joi.string().required(),
-  shipping_address: Joi.string().required(),
-  timezone: Joi.string().required(),
+  name: Joi.string(),
+  physical_address: Joi.string(),
+  shipping_address: Joi.string(),
+  timezone: Joi.string(),
   coordinates: Joi.object()
     .keys({
       lat: Joi.number(),
       long: Joi.number(),
     })
     .and('lat', 'long')
-    .required(),
-  primary_contact_name: Joi.string().required(),
+    ,
+  primary_contact_name: Joi.string(),
   primary_contact_email: Joi.string()
     .email()
-    .required(),
-  it_contact_name: Joi.string().required(),
+    ,
+  it_contact_name: Joi.string(),
   it_contact_email: Joi.string()
     .email()
-    .required(),
+    ,
   opening_hours: Joi.string(),
+  network_name: Joi.string(),
+  isp: Joi.string(),
+  contracted_speed_upload: Joi.string(),
+  contracted_speed_download: Joi.string(),
+  ip: Joi.string(),
+  bandwith_cap_upload: Joi.string(),
+  bandwith_cap_download: Joi.string(),
+  device_name: Joi.string(),
+  device_location: Joi.string(),
+  device_network_type: Joi.string(),
+  device_connection_type: Joi.string(),
+  device_dns: Joi.string(),
+  device_ip: Joi.string(),
+  device_gateway: Joi.string(),
+  device_mac_address: Joi.string(),
+  user_id: Joi.number(),
 });
 
 export async function validate(data) {

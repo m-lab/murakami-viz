@@ -22,7 +22,23 @@ export function up(knex) {
         table.text('it_contact_name');
         table.text('it_contact_email');
         table.text('opening_hours');
+        table.text('network_name');
+        table.text('isp');
+        table.text('contracted_speed_upload');
+        table.text('contracted_speed_download');
+        table.text('ip');
+        table.text('bandwith_cap_upload');
+        table.text('bandwith_cap_download');
+        table.text('device_name');
+        table.text('device_location');
+        table.text('device_network_type');
+        table.text('device_connection_type');
+        table.text('device_dns');
+        table.text('device_ip');
+        table.text('device_gateway');
+        table.text('device_mac_address');
         table.timestamps(true, true);
+        table.integer('user_id').references('id').inTable('users');
       })
       .then(() =>
         knex.raw(
