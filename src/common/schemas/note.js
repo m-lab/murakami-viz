@@ -7,7 +7,7 @@ const schema = Joi.object({
   subject: Joi.string(),
   description: Joi.string(),
   created_at: Joi.string(),
-  updated_at: Joi.string()
+  updated_at: Joi.string(),
 });
 
 export async function validate(data) {

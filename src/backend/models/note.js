@@ -28,12 +28,15 @@ export default class NoteManager {
       .table('notes')
       .update(note)
       .where({ id: parseInt(id) })
-      .update({
-        subject: note.subject,
-        description: note.description,
-        updated_at: note.updated_at,
-       }, ['id', 'subject', 'description', 'updated_at'])
-      // .returning('*');
+      .update(
+        {
+          subject: note.subject,
+          description: note.description,
+          updated_at: note.updated_at,
+        },
+        ['id', 'subject', 'description', 'updated_at'],
+      );
+    // .returning('*');
   }
 
   async delete(id) {
