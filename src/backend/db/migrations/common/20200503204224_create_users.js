@@ -8,7 +8,7 @@ export function up(knex) {
         .primary()
         .unsigned();
       table
-        .string('userName')
+        .string('username')
         .unique()
         .index()
         .notNullable();

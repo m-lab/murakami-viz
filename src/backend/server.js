@@ -14,7 +14,7 @@ import errorHandler from 'koa-better-error-handler';
 import db from './db.js';
 import cloudflareAccess from './middleware/cloudflare.js';
 import ssr from './middleware/ssr.js';
-import AuthController from './controllers/auth.js';
+import UserController from './controllers/user.js';
 import LibraryController from './controllers/library.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
@@ -46,7 +46,7 @@ export default function configServer(config) {
 
   // Setup our API handlers
   const users = new Users();
-  const auth = AuthController(users);
+  const auth = UserController(users);
   const libraryModel = new Libraries(db);
   const libraries = LibraryController(libraryModel);
   const noteModel = new Notes(db);

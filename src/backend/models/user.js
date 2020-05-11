@@ -1,4 +1,6 @@
-import config from '../config.js';
+import bcrypt from 'bcryptjs';
+import { validate } from '../../common/schemas/user.js';
+import { UnprocessableError } from '../../common/errors.js';
 
 /**
  * Initialize the QueueManager data model
@@ -6,19 +8,107 @@ import config from '../config.js';
  * @class
  */
 export default class User {
+  constructor(db) {
+    this._db = db;
+  }
+
+  async create(user) {
+    try {
+      await validate(user);
+    } catch (err) {
+      throw new UnprocessableError('Failed to create user: ', err);
+    }
+    const salt = bcrypt.genSaltSync();
+    user.password = bcrypt.hashSync(user.password, salt);
+    return this._db
+      .table('users')
+      .insert(user)
+      .returning('*');
+  }
+
+  async update(id, user) {
+    try {
+      await validate(user);
+    } catch (err) {
+      throw new UnprocessableError('Failed to update user: ', err);
+    }
+    return this._db
+      .table('users')
+      .update(user)
+      .where({ id: parseInt(id) })
+      .returning('*');
+  }
+
+  async delete(id) {
+    return this._db
+      .table('users')
+      .del()
+      .where({ id: parseInt(id) })
+      .returning('*');
+  }
+
+  async find({
+    start: start = 0,
+    end: end,
+    asc: asc = true,
+    sort_by: sort_by = 'id',
+    from: from,
+    to: to,
+  }) {
+    const rows = await this._db
+      .table('users')
+      .select('*')
+      .modify(queryBuilder => {
+        if (from) {
+          queryBuilder.where('created_at', '>', from);
+        }
+
+        if (to) {
+          queryBuilder.where('created_at', '<', to);
+        }
+
+        if (asc) {
+          console.log('ascending');
+          queryBuilder.orderBy(sort_by, 'asc');
+        } else {
+          console.log('descending');
+          queryBuilder.orderBy(sort_by, 'desc');
+        }
+
+        if (start > 0) {
+          queryBuilder.offset(start);
+        }
+
+        if (end && end > start) {
+          queryBuilder.limit(end - start);
+        }
+      });
+
+    return rows || [];
+  }
+
   /**
    * Find user by Id
    *
    * @param {integer} id - Find user by id
    */
-  // eslint-disable-next-line no-unused-vars
   async findById(id) {
-    // Just in case we add other methods, but right now only 1 user
-    return {
-      id: 1,
-      username: config.username,
-      password: config.password,
-    };
+    return this._db
+      .table('users')
+      .select('*')
+      .where({ id: parseInt(id) });
+  }
+
+  /**
+   * Find user by Id
+   *
+   * @param {integer} id - Find user by id
+   */
+  async findByUsername(username) {
+    return this._db
+      .table('users')
+      .select('*')
+      .where({ username: username });
   }
 
   /**
@@ -26,27 +116,7 @@ export default class User {
    *
    * @param {integer} username - Find user by username
    */
-  // eslint-disable-next-line no-unused-vars
-  async findByUsername(username) {
-    // Just in case we add other methods, but right now only 1 user
-    return {
-      id: 1,
-      username: config.username,
-      password: config.password,
-    };
-  }
-
-  /**
-   * Find all users
-   */
   async findAll() {
-    // Just in case we add other methods, but right now only 1 user
-    return [
-      {
-        id: 1,
-        username: config.username,
-        password: config.password,
-      },
-    ];
+    return this._db.table('users').select('*');
   }
 }

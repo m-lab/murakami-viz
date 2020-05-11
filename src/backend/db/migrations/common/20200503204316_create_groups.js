@@ -9,7 +9,7 @@ export function up(knex) {
           .primary()
           .unsigned();
         table
-          .string('groupName')
+          .string('name')
           .unique()
           .index()
           .notNullable();
