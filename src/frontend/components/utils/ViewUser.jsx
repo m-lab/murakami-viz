@@ -67,15 +67,20 @@ const useStyles = makeStyles(theme => ({
 export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, selectedValue, open, rows, row } = props;
+  const { onClose, open, rows, index } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
+
+  const [row, setRow] = React.useState(props.rows[props.index]);
+
+  const updateRow = (row) => {
+    setRow(row);
+  }
 
   // handle edit user
   const [openEdit, setOpenEdit] = React.useState(false);
-  const [selectedValueEdit, setSelectedValueEdit] = React.useState();
 
   const handleClickOpenEdit = () => {
     setOpenEdit(true);
@@ -87,19 +92,22 @@ export default function ViewUser(props) {
   };
 
   // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.row.index);
+  const [activeStep, setActiveStep] = React.useState(props.index);
   const maxSteps = props.rows.length;
 
   React.useEffect(() => {
-      setActiveStep(props.row.index);
-  }, [props.row.index])
+    setRow(props.rows[props.index]);
+    setActiveStep(props.index);
+  }, [props.index])
 
   const handleNext = () => {
     setActiveStep((activeStep) => activeStep + 1);
+    setRow(props.rows[activeStep + 1])
   };
 
   const handleBack = () => {
     setActiveStep((activeStep) => activeStep - 1);
+    setRow(props.rows[activeStep - 1])
   };
 
   return (
@@ -129,24 +137,33 @@ export default function ViewUser(props) {
           </DialogTitle>
         </Grid>
         <Grid item xs={12} sm={5}>
-          <Button variant="contained" disableElevation color="primary" onClick={handleClickOpenEdit} className={classes.editButton}>
+          <Button
+            variant="contained"
+            disableElevation
+            color="primary"
+            onClick={handleClickOpenEdit}
+            className={classes.editButton}>
             Edit
           </Button>
-          <EditUser row={props.row} selectedValue={selectedValueEdit} open={openEdit} onClose={handleCloseEdit} />
+          <EditUser
+            row={row}
+            onRowUpdate={updateRow}
+            open={openEdit}
+            onClose={handleCloseEdit} />
         </Grid>
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          {props.rows[activeStep].name}
+          {row.name}
         </Typography>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          {props.rows[activeStep].location}
+          {row.location}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {props.rows[activeStep].email}
+          {row.email}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {props.rows[activeStep].role}
+          {row.role}
         </Typography>
       </Box>
       <Button
@@ -168,6 +185,6 @@ ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   selectedValue: PropTypes.string.isRequired,
-  row: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
   rows: PropTypes.number.isRequired,
 };

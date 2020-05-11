@@ -1,13 +1,15 @@
 import { UnprocessableError } from '../../common/errors.js';
 import Joi from '@hapi/joi';
 
-// TODO: includes ndt5 & ndt7 fields, add from DASH & speedtest-cli after feedback
 const schema = Joi.object({
-  username: Joi.string(),
-  password: Joi.string(),
+  id: Joi.number(),
   firstName: Joi.string(),
   lastName: Joi.string(),
+  location: Joi.string(),
   email: Joi.string(),
+  role: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string(),
 });
 
 export async function validate(data) {

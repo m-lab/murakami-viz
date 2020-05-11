@@ -1,12 +1,18 @@
-import React from 'react';
+// base imports
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+
+// material ui imports
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+
+// icons imports
 import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles(theme => ({
@@ -39,13 +45,55 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+const useForm = (callback) => {
+  const [inputs, setInputs] = useState({});
+  const handleSubmit = (event) => {
+    if (event) {
+      event.preventDefault();
+    }
+    callback();
+  }
+  const handleInputChange = (event) => {
+    event.persist();
+    setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
+  }
+  return {
+    handleSubmit,
+    handleInputChange,
+    inputs
+  };
+}
+
 export default function AddUser(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open } = props;
+  const { onClose, open, onRowUpdate } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
+
+  const submitData = () => {
+    fetch('api/v1/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    })
+    .then(response => response.json())
+    .then((results) => {
+      console.log(results);
+      onRowUpdate(results.data[0]);
+      alert('User submitted successfully.');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    })
+    onClose();
+  }
+
+  const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
+
 
   return (
     <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
@@ -55,33 +103,51 @@ export default function AddUser(props) {
       <DialogTitle id="add-user-title" className={classes.dialogTitleRoot}>
         <div className={classes.dialogTitleText}>Add a new user</div>
       </DialogTitle>
-      <form action="/" method="POST" className={classes.form} onSubmit={(e) => { e.preventDefault(); alert('Submitted form!'); this.handleClose(); } }>
+      <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="user-subject"
-          label="Subject"
+          id="user-first-name"
+          label="First Name"
+          name="firstName"
           fullWidth
           variant="outlined"
+          onChange={handleInputChange}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="user-datetime"
-            label="Date"
-            type="datetime-local"
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
         <TextField
           className={classes.formField}
-          id="user-description"
-          label="Description"
-          multiline="true"
-          rows="5"
+          id="user-last-name"
+          label="Last Name"
+          name="lastName"
           fullWidth
           variant="outlined"
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-email"
+          label="Email"
+          name="email"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-location"
+          label="Location"
+          name="location"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-role"
+          label="Role"
+          name="role"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -91,12 +157,13 @@ export default function AddUser(props) {
           </Grid>
           <Grid item>
             <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary"
-              primary={true}>
+              primary={true}
+              onClick={submitData}>
               Save
             </Button>
           </Grid>
         </Grid>
-      </form>
+      </Box>
     </Dialog>
   );
 }
@@ -104,5 +171,4 @@ export default function AddUser(props) {
 AddUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
 };

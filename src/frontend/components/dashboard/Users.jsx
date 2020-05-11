@@ -26,20 +26,9 @@ import AddUser from '../utils/AddUser.jsx';
 import EditUser from '../utils/EditUser.jsx';
 import ViewUser from '../utils/ViewUser.jsx';
 
-function createData(id, name, location, email, role) {
-  return { id, name, location, email, role};
+function formatName(first, last) {
+  return (`${first} ${last}`);
 }
-
-const rows = [
-  createData(1, 'Sue Brown', 'Hollis Public Library', 'suebrown@hollisalaska.org', 'Viewer'),
-  createData(2, 'Sam Smith', 'Hollis Public Library', 'samsmith@hollisalaska.org', 'Editor'),
-  createData(3, 'John Doe', 'Hollis Public Library', 'johndoe@hollisalaska.org', 'Viewer'),
-  createData(4, 'Jane Doe', 'Hollis Public Library', 'janedoe@hollisalaska.org', 'Editor'),
-  createData(5, 'Nick Cage', 'City, State', 'nick@city.org', 'Viewer'),
-  createData(6, 'Naomi Campbell', 'City, State', 'naomi@city.org', 'Editor'),
-  createData(7, 'Judy Dench', 'London Public Library', 'judy@london.org', 'Viewer'),
-  createData(8, 'James Brown', 'Musical Public Library', 'james@music.org', 'Editor'),
-];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -217,86 +206,117 @@ export default function EnhancedTable() {
     setPage(0);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  let emptyRows;
 
   // handle view user
   const [open, setOpen] = React.useState(false);
   const [row, setRow] = React.useState({index: 0});
-  const [selectedValue, setSelectedValue] = React.useState();
+  const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = (row) => {
+  const handleClickOpen = (index) => {
+    setIndex(index)
     setOpen(true);
-    setRow(row);
   };
 
   const handleClose = (value) => {
     setOpen(false);
   };
 
-  return (
-    <div className={classes.root}>
-      <EnhancedTableToolbar />
-      <TableContainer>
-        <Table
-          className={classes.table}
-          aria-labelledby="tableTitle"
-          aria-label="enhanced table"
-        >
-          <EnhancedTableHead
-            classes={classes}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            rowCount={rows.length}
-          />
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const labelId = `data-row-${index}`;
-                row.index = index;
+  const updateData = (row) => {
+    setRows(rows.push(row))
+  }
+
+  // fetch api data
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [rows, setRows] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch("/api/v1/users")
+      .then(res => res.json())
+      .then(
+        (results) => {
+          setRows(results.data);
+          setRow(results.data[0]);
+          emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+          setIsLoaded(true);
+        },
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      )
+  }, [])
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <div>Loading...</div>;
+  } else {
+    return (
+      <div className={classes.root}>
+        <EnhancedTableToolbar />
+        <TableContainer>
+          <Table
+            className={classes.table}
+            aria-labelledby="tableTitle"
+            aria-label="enhanced table"
+          >
+            <EnhancedTableHead
+              classes={classes}
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {stableSort(rows, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => {
+                  const labelId = `data-row-${index}`;
 
 
-                return (
-                  <TableRow
-                      hover
-                      onClick={() => {handleClickOpen(row);}}
-                      key={row.name}
-                    >
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.name}
-                      </TableCell>
-                      <TableCell>{row.location}</TableCell>
-                      <TableCell>
-                        {row.email}
-                      </TableCell>
-                      <TableCell>
-                        {row.role}
-                      </TableCell>
-                    </TableRow>
-                );
-              })}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[rowsPerPage]}
-        page={page}
-        onChangePage={handleChangePage}
-      />
-      <ViewUser
-        row={row}
-        rows={stableSort(rows, getComparator(order, orderBy))}
-        open={open}
-        onClose={handleClose} />
-    </div>
-  );
+                  return (
+                    <TableRow
+                        hover
+                        onClick={() => {handleClickOpen(index);}}
+                        key={row.id}
+                      >
+                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                          {formatName(row.firstName, row.lastName)}
+                        </TableCell>
+                        <TableCell>{row.location}</TableCell>
+                        <TableCell>
+                          {row.email}
+                        </TableCell>
+                        <TableCell>
+                          {row.role}
+                        </TableCell>
+                      </TableRow>
+                  );
+                })}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[rowsPerPage]}
+          page={page}
+          onChangePage={handleChangePage}
+        />
+        <ViewUser
+          index={index}
+          rows={stableSort(rows, getComparator(order, orderBy))}
+          open={open}
+          onClose={handleClose} />
+      </div>
+    );
+  }
 }
