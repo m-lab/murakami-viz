@@ -50,7 +50,7 @@ export default function Login() {
       if (response.status === 200 || response.status === 201) {
         setError(false);
         setHelperText('Login successful.');
-        history.push('/admin');
+        history.push('/dashboard');
       } else {
         setError(true);
         setHelperText('Incorrect username or password.');
