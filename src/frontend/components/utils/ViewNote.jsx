@@ -73,6 +73,12 @@ export default function ViewNote(props) {
     onClose();
   };
 
+  const [row, setRow] = React.useState(props.rows[props.index]);
+
+  const updateRow = (row) => {
+    setRow(row);
+  }
+
   // handle edit note
   const [openEdit, setOpenEdit] = React.useState(false);
 
@@ -89,15 +95,18 @@ export default function ViewNote(props) {
   const maxSteps = props.rows.length;
 
   React.useEffect(() => {
+    setRow(props.rows[props.index])
       setActiveStep(props.index);
   }, [props.index])
 
   const handleNext = () => {
     setActiveStep((activeStep) => activeStep + 1);
+    setRow(props.rows[activeStep + 1])
   };
 
   const handleBack = () => {
     setActiveStep((activeStep) => activeStep - 1);
+    setRow(props.rows[activeStep - 1])
   };
 
   return (
@@ -131,20 +140,21 @@ export default function ViewNote(props) {
             Edit
           </Button>
           <EditNote
-            row={props.rows[activeStep]}
+            row={row}
+            onRowUpdate={updateRow}
             open={openEdit}
             onClose={handleCloseEdit} />
         </Grid>
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          {props.rows[activeStep].subject}
+          {row.subject}
         </Typography>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          <Moment date={props.rows[activeStep].updated_at} format="MM/DD/YYYY, h:ma" />
+          <Moment date={row.updated_at} format="MM/DD/YYYY, h:ma" />
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {props.rows[activeStep].description}
+          {row.description}
         </Typography>
       </Box>
       <Button

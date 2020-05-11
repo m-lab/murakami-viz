@@ -209,8 +209,8 @@ export default function EnhancedTable() {
   const [index, setIndex] = React.useState(0);
 
   const handleClickOpen = (index) => {
+    setIndex(index);
     setOpen(true);
-    setRow(index);
   };
 
   const handleClose = (value) => {

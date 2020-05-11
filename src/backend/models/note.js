@@ -33,7 +33,7 @@ export default class NoteManager {
         description: note.description,
         updated_at: note.updated_at,
        }, ['id', 'subject', 'description', 'updated_at'])
-      .returning('*');
+      // .returning('*');
   }
 
   async delete(id) {

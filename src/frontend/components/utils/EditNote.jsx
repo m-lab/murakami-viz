@@ -70,7 +70,7 @@ const useForm = (callback) => {
 
 export default function EditNote(props) {
   const classes = useStyles();
-  const { onClose, row,  open } = props;
+  const { onClose, open, row, onRowUpdate } = props;
 
   const handleClose = () => {
     onClose();
@@ -85,12 +85,14 @@ export default function EditNote(props) {
       body: JSON.stringify(inputs),
     })
     .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
+    .then(results => {
+      onRowUpdate(results.data[0]);
     })
     .catch((error) => {
       console.error('Error:', error);
     });
+
+    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
