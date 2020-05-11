@@ -36,6 +36,11 @@ export default function controller(libraries) {
     let library;
     try {
       library = await libraries.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(library)) {
+        library = await libraries.findById(library);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse library schema: ${err}`);
     }
@@ -107,6 +112,12 @@ export default function controller(libraries) {
     let library;
     try {
       library = await libraries.update(ctx.params.id, ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(library)) {
+        library = await libraries.findById(library);
+      }
+
       if (library.length) {
         ctx.response.body = { status: 'success', data: library };
         ctx.response.status = 200;

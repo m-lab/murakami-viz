@@ -37,6 +37,11 @@ export default function controller(notes) {
     let note;
     try {
       note = await notes.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(note)) {
+        note = await notes.findById(note);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse note schema: ${err}`);
     }
@@ -109,7 +114,13 @@ export default function controller(notes) {
     let note;
     try {
       note = await notes.update(ctx.params.id, ctx.request.body);
-      if (!!note.length) {
+
+      // workaround for sqlite
+      if (Number.isInteger(note)) {
+        note = await notes.findById(note);
+      }
+
+      if (note.length) {
         ctx.response.body = { status: 'success', data: note };
         ctx.response.status = 200;
       } else {
