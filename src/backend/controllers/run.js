@@ -38,6 +38,11 @@ export default function controller(runs) {
     let run;
     try {
       run = await runs.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(run)) {
+        run = await runs.findById(run);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse run schema: ${err}`);
     }

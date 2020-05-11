@@ -37,6 +37,11 @@ export default function controller(notes) {
     let note;
     try {
       note = await notes.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(note)) {
+        note = await notes.findById(note);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse note schema: ${err}`);
     }

@@ -36,6 +36,11 @@ export default function controller(libraries) {
     let library;
     try {
       library = await libraries.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(library)) {
+        library = await libraries.findById(library);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse library schema: ${err}`);
     }

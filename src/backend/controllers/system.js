@@ -36,6 +36,11 @@ export default function controller(systems) {
     let system;
     try {
       system = await systems.create(ctx.request.body);
+
+      // workaround for sqlite
+      if (Number.isInteger(system)) {
+        system = await systems.findById(system);
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse system schema: ${err}`);
     }
