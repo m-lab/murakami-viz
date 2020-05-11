@@ -1,0 +1,163 @@
+import { validate } from '../../common/schemas/group.js';
+import { UnprocessableError } from '../../common/errors.js';
+
+/**
+ * Initialize the QueueManager data model
+ *
+ * @class
+ */
+export default class Group {
+  constructor(db) {
+    this._db = db;
+  }
+
+  async create(group) {
+    try {
+      await validate(group);
+    } catch (err) {
+      throw new UnprocessableError('Failed to create group: ', err);
+    }
+    return this._db
+      .table('groups')
+      .insert(group)
+      .returning('*');
+  }
+
+  async update(id, group) {
+    try {
+      await validate(group);
+    } catch (err) {
+      throw new UnprocessableError('Failed to update group: ', err);
+    }
+    return this._db
+      .table('groups')
+      .update(group)
+      .where({ id: parseInt(id) })
+      .returning('*');
+  }
+
+  async delete(id) {
+    return this._db
+      .table('groups')
+      .del()
+      .where({ id: parseInt(id) })
+      .returning('*');
+  }
+
+  async find({
+    start: start = 0,
+    end: end,
+    asc: asc = true,
+    sort_by: sort_by = 'id',
+    from: from,
+    to: to,
+  }) {
+    const rows = await this._db
+      .table('groups')
+      .select('*')
+      .modify(queryBuilder => {
+        if (from) {
+          queryBuilder.where('created_at', '>', from);
+        }
+
+        if (to) {
+          queryBuilder.where('created_at', '<', to);
+        }
+
+        if (asc) {
+          console.log('ascending');
+          queryBuilder.orderBy(sort_by, 'asc');
+        } else {
+          console.log('descending');
+          queryBuilder.orderBy(sort_by, 'desc');
+        }
+
+        if (start > 0) {
+          queryBuilder.offset(start);
+        }
+
+        if (end && end > start) {
+          queryBuilder.limit(end - start);
+        }
+      });
+
+    return rows || [];
+  }
+
+  /**
+   * Find group by Id
+   *
+   * @param {integer} id - Find group by id
+   */
+  async findById(id) {
+    return this._db
+      .table('groups')
+      .select('*')
+      .where({ id: parseInt(id) })
+      .first();
+  }
+
+  /**
+   * Find group by Id
+   *
+   * @param {integer} id - Find group by id
+   */
+  async findByGroupname(name) {
+    return this._db
+      .table('groups')
+      .select('*')
+      .where({ name: name })
+      .first();
+  }
+
+  /**
+   * Find group by groupname
+   *
+   * @param {integer} groupname - Find group by groupname
+   */
+  async findAll() {
+    return this._db.table('groups').select('*');
+  }
+
+  async members({ gid: gid, start: start = 0, end: end, asc: asc = true }) {
+    const members = await this._db
+      .table('user_groups')
+      .where({ gid: parseInt(gid) })
+      .join('users', 'user_groups.uid', '=', 'users.id')
+      .select('*')
+      .modify(queryBuilder => {
+        if (asc) {
+          console.log('ascending');
+          queryBuilder.orderBy('uid', 'asc');
+        } else {
+          console.log('descending');
+          queryBuilder.orderBy('uid', 'desc');
+        }
+
+        if (start > 0) {
+          queryBuilder.offset(start);
+        }
+
+        if (end && end > start) {
+          queryBuilder.limit(end - start);
+        }
+      });
+
+    return members || [];
+  }
+
+  async memberAdd(gid, uid) {
+    return this._db
+      .table('user_groups')
+      .insert({ gid: parseInt(gid), uid: parseInt(uid) })
+      .returning('*');
+  }
+
+  async memberRemove(gid, uid) {
+    return this._db
+      .table('user_groups')
+      .del()
+      .where({ gid: parseInt(gid), uid: parseInt(uid) })
+      .returning('*');
+  }
+}

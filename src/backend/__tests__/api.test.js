@@ -22,7 +22,7 @@ describe('Authenticate to API', () => {
   test('Authenticate successfully', async () => {
     await session
       .post('/api/v1/login')
-      .send({ username: config.username, password: config.password })
+      .send({ username: 'admin', password: 'averylongandgoodpassword' })
       .expect(200);
   });
 });

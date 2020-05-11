@@ -15,6 +15,7 @@ import db from './db.js';
 import cloudflareAccess from './middleware/cloudflare.js';
 import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
+import GroupController from './controllers/group.js';
 import LibraryController from './controllers/library.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
@@ -24,6 +25,7 @@ import Notes from './models/note.js';
 import Runs from './models/run.js';
 import Systems from './models/system.js';
 import Users from './models/user.js';
+import Groups from './models/group.js';
 
 const __dirname = path.resolve();
 const STATIC_DIR = path.resolve(__dirname, 'dist', 'frontend');
@@ -45,8 +47,10 @@ export default function configServer(config) {
   const log = log4js.getLogger('backend:server');
 
   // Setup our API handlers
-  const users = new Users();
-  const auth = UserController(users);
+  const userModel = new Users(db);
+  const users = UserController(userModel);
+  const groupModel = new Groups(db);
+  const groups = GroupController(groupModel);
   const libraryModel = new Libraries(db);
   const libraries = LibraryController(libraryModel);
   const noteModel = new Notes(db);
@@ -56,8 +60,10 @@ export default function configServer(config) {
   const systemModel = new Systems(db);
   const systems = SystemController(systemModel);
   const apiV1Router = compose([
-    auth.routes(),
-    auth.allowedMethods(),
+    users.routes(),
+    users.allowedMethods(),
+    groups.routes(),
+    groups.allowedMethods(),
     libraries.routes(),
     libraries.allowedMethods(),
     notes.routes(),

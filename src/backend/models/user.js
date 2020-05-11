@@ -96,7 +96,8 @@ export default class User {
     return this._db
       .table('users')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ id: parseInt(id) })
+      .first();
   }
 
   /**
@@ -105,10 +106,12 @@ export default class User {
    * @param {integer} id - Find user by id
    */
   async findByUsername(username) {
+    console.log('findByUsername');
     return this._db
       .table('users')
       .select('*')
-      .where({ username: username });
+      .where({ username: username })
+      .first();
   }
 
   /**
