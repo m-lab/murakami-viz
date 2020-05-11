@@ -134,6 +134,10 @@ const EnhancedTableToolbar = (props) => {
     setOpen(false);
   };
 
+  const updateRows = (row) => {
+    return row;
+  }
+
   return (
     <Toolbar
       className={clsx(classes.root,)}
@@ -145,11 +149,16 @@ const EnhancedTableToolbar = (props) => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+          <Button
+            variant="contained"
+            disableElevation
+            color="primary"
+            onClick={handleClickOpen}>
             Add a note
           </Button>
           <AddNote
             open={open}
+            onSubmitNew={updateRows}
             onClose={handleClose} />
         </Grid>
       </Grid>
@@ -217,6 +226,10 @@ export default function EnhancedTable() {
     setOpen(false);
   };
 
+  const updateData = (row) => {
+    setRows(rows.push(row))
+  }
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -239,7 +252,7 @@ export default function EnhancedTable() {
           setError(error);
         }
       )
-  }, [])
+  }, [updateRows])
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -248,7 +261,7 @@ export default function EnhancedTable() {
   } else {
     return (
       <div className={classes.root}>
-        <EnhancedTableToolbar />
+        <EnhancedTableToolbar updateData={updateRows} />
         <TableContainer>
           <Table
             className={classes.table}
