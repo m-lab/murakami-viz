@@ -1,6 +1,9 @@
+// base imports
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+// material ui imports
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -8,10 +11,14 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import Plot from 'react-plotly.js';
+
+// Plotly imports 
 //import Plotly from 'plotly.js';
 // import createPlotlyComponent from 'react-plotly.js/factory';
 // const Plot = createPlotlyComponent(Plotly);
+import Plot from 'react-plotly.js';
+
+// modules imports
 import NavTabs from './utils/Tabs.jsx';
 
 const drawerWidth = 240;
