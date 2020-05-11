@@ -98,8 +98,7 @@ export default function AddUser(props) {
     })
     .then(response => response.json())
     .then((results) => {
-      console.log(results);
-      onRowUpdate(results.data[0]);
+      // onRowUpdate(results.data[0]);
       alert('User submitted successfully.');
     })
     .catch(error => {

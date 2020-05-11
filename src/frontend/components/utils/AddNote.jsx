@@ -86,7 +86,7 @@ export default function AddNote(props) {
     })
     .then(response => response.json())
     .then(() => {
-      onRowUpdate(results.data[0]);
+      // onRowUpdate(results.data[0]);
       alert('Note submitted successfully.');
     })
     .catch(error => {
