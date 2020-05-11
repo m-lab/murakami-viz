@@ -53,7 +53,7 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'date', numeric: false, disablePadding: true, label: 'Date' },
+  { id: 'updated_at', numeric: false, disablePadding: true, label: 'Date' },
   { id: 'subject', numeric: false, disablePadding: false, label: 'Subject' },
   { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
 ];
@@ -134,7 +134,8 @@ const EnhancedTableToolbar = (props) => {
     setOpen(false);
   };
 
-  const updateRows = (row) => {
+  const updateRow = (row) => {
+    console.log(row);
     return row;
   }
 
@@ -158,7 +159,7 @@ const EnhancedTableToolbar = (props) => {
           </Button>
           <AddNote
             open={open}
-            onSubmitNew={updateRows}
+            onRowUpdate={updateRow}
             onClose={handleClose} />
         </Grid>
       </Grid>
@@ -190,7 +191,7 @@ const useStyles = makeStyles((theme) => ({
 export default function EnhancedTable() {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('date');
+  const [orderBy, setOrderBy] = React.useState('updated_at');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -238,8 +239,6 @@ export default function EnhancedTable() {
   React.useEffect(() => {
     fetch("/api/v1/notes")
       .then(res => res.json())
-      // .then(res => res.text())          // convert to plain text
-      // .then(text => console.log(text))  // then log it out
       .then(
         (results) => {
           setRows(results.data);
@@ -252,7 +251,7 @@ export default function EnhancedTable() {
           setError(error);
         }
       )
-  }, [updateRows])
+  }, [])
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -261,7 +260,7 @@ export default function EnhancedTable() {
   } else {
     return (
       <div className={classes.root}>
-        <EnhancedTableToolbar updateData={updateRows} />
+        <EnhancedTableToolbar updateRow={updateData} />
         <TableContainer>
           <Table
             className={classes.table}
@@ -279,16 +278,15 @@ export default function EnhancedTable() {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const labelId = `data-row-${index}`;
-                  // setIndex(index);
 
                   return (
                     <TableRow
                         hover
                         onClick={() => {handleClickOpen(index);}}
-                        key={row.date}
+                        key={row.updated_at}
                       >
                         <TableCell component="th" id={labelId} scope="row" padding="none">
-                          <Moment date={row.updated_at} format="MMMM D, YYYY, h:ma" />
+                          <Moment date={row.updated_at} format="MMMM D, YYYY, h:mma" />
                         </TableCell>
                         <TableCell>{row.subject}</TableCell>
                         <TableCell>

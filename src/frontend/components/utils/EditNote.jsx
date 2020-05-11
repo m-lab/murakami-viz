@@ -90,7 +90,7 @@ export default function EditNote(props) {
       alert('Note edited successfully.');
     })
     .catch(error => {
-      console.error('Error:', error);
+      alert('An error occurred. Please try again or contact an administrator.');
     });
 
     onClose();

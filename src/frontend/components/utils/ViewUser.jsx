@@ -64,6 +64,14 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+function formatName(first, last) {
+  return (`${first} ${last}`);
+}
+
+function formatRole(role) {
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
+
 export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -88,7 +96,6 @@ export default function ViewUser(props) {
 
   const handleCloseEdit = (value) => {
     setOpenEdit(false);
-    setSelectedValueEdit(value);
   };
 
   // handle prev next
@@ -154,16 +161,16 @@ export default function ViewUser(props) {
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          {row.name}
-        </Typography>
-        <Typography component="p" variant="subtitle2" gutterBottom>
-          {row.location}
+          {formatName(row.firstName, row.lastName)}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
           {row.email}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {row.role}
+          {row.location}
+        </Typography>
+        <Typography component="p" variant="body2" gutterBottom>
+          {formatRole(row.role)}
         </Typography>
       </Box>
       <Button
@@ -184,7 +191,6 @@ export default function ViewUser(props) {
 ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
   index: PropTypes.number.isRequired,
   rows: PropTypes.number.isRequired,
 };

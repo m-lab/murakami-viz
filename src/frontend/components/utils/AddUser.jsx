@@ -8,7 +8,12 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
@@ -37,8 +42,12 @@ const useStyles = makeStyles(theme => ({
   form: {
     padding: "50px",
   },
+  formControl: {
+    width: "100%",
+  },
   formField: {
     marginBottom: "30px",
+    width: "100%",
   },
   saveButton: {
     marginBottom: "0",
@@ -72,6 +81,13 @@ export default function AddUser(props) {
     onClose();
   };
 
+  // handle role select
+  const [role, setRole] = React.useState('');
+
+  const handleRoleChange = (event) => {
+    setRole(event.target.value);
+  };
+
   const submitData = () => {
     fetch('api/v1/users', {
       method: 'POST',
@@ -87,13 +103,12 @@ export default function AddUser(props) {
       alert('User submitted successfully.');
     })
     .catch(error => {
-      console.error('Error:', error);
+      alert('An error occurred. Please try again or contact an administrator.');
     })
     onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
-
 
   return (
     <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
@@ -104,6 +119,26 @@ export default function AddUser(props) {
         <div className={classes.dialogTitleText}>Add a new user</div>
       </DialogTitle>
       <Box className={classes.form}>
+        <TextField
+          className={classes.formField}
+          id="user-username"
+          label="Username"
+          name="username"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="user-password"
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+        />
         <TextField
           className={classes.formField}
           id="user-first-name"
@@ -140,15 +175,20 @@ export default function AddUser(props) {
           variant="outlined"
           onChange={handleInputChange}
         />
-        <TextField
-          className={classes.formField}
-          id="user-role"
-          label="Role"
-          name="role"
-          fullWidth
-          variant="outlined"
-          onChange={handleInputChange}
-        />
+        <FormControl variant="outlined" className={classes.formControl}>
+          <InputLabel id="user-role">Role</InputLabel>
+          <Select
+            labelId="user-role"
+            className={classes.formField}
+            id="user-role"
+            label="Role"
+            name="role"
+            onChange={handleInputChange}
+          >
+            <MenuItem value='editor'>Editor</MenuItem>
+            <MenuItem value='viewer'>Viewer</MenuItem>
+          </Select>
+        </FormControl>
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
             <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>

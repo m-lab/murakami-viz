@@ -15,6 +15,8 @@ export function seed(knex) {
           firstName: 'Rae',
           lastName: 'Gaines',
           email: 'rae@throneless.tech',
+          location: 'Washington, DC',
+          role: 'Editor',
         },
       ]);
     });

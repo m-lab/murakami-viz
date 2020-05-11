@@ -15,6 +15,8 @@ export function up(knex) {
       table.string('password').notNullable();
       table.string('firstName').index();
       table.string('lastName').index();
+      table.string('location').index();
+      table.string('role').index();
       table
         .string('email')
         .unique()

@@ -30,6 +30,10 @@ function formatName(first, last) {
   return (`${first} ${last}`);
 }
 
+function formatRole(role) {
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
+
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -57,7 +61,7 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
+  { id: 'firstName', numeric: false, disablePadding: true, label: 'Name' },
   { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
   { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
   { id: 'role', numeric: false, disablePadding: false, label: 'Role' },
@@ -280,7 +284,7 @@ export default function EnhancedTable() {
                     <TableRow
                         hover
                         onClick={() => {handleClickOpen(index);}}
-                        key={row.id}
+                        key={row.firstName}
                       >
                         <TableCell component="th" id={labelId} scope="row" padding="none">
                           {formatName(row.firstName, row.lastName)}
@@ -290,7 +294,7 @@ export default function EnhancedTable() {
                           {row.email}
                         </TableCell>
                         <TableCell>
-                          {row.role}
+                          {formatRole(row.role)}
                         </TableCell>
                       </TableRow>
                   );

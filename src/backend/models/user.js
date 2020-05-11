@@ -36,6 +36,17 @@ export default class User {
       .table('users')
       .update(user)
       .where({ id: parseInt(id) })
+      .update(
+        {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          email: user.email,
+          location: user.location,
+          role: user.role,
+        },
+        ['id', 'firstName', 'lastName', 'username', 'email', 'password', 'location', 'role']
+      )
       .returning('*');
   }
 
@@ -94,8 +105,7 @@ export default class User {
     return this._db
       .table('users')
       .select('*')
-      .where({ id: parseInt(id) })
-      .first();
+      .where({ id: parseInt(id) });
   }
 
   /**
