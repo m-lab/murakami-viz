@@ -108,6 +108,7 @@ export default function controller(users, thisUser) {
         } else {
           ctx.session.maxAge = 'session';
         }
+        ctx.cookies.set('mv_user', user.username, { httpOnly: false });
         ctx.body = { success: true };
         return ctx.login(user);
       }
