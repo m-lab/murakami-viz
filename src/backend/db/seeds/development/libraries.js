@@ -30,7 +30,7 @@ export function seed(knex) {
           device_dns: '8.8.8.8',
           device_ip: '1.1.1.1',
           device_gateway: 'Lorem ipsum',
-          device_mac_address: 'Lorem ipsum'
+          device_mac_address: 'Lorem ipsum',
         },
       ]);
     });

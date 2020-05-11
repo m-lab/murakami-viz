@@ -11,16 +11,11 @@ const schema = Joi.object({
       lat: Joi.number(),
       long: Joi.number(),
     })
-    .and('lat', 'long')
-    ,
+    .and('lat', 'long'),
   primary_contact_name: Joi.string(),
-  primary_contact_email: Joi.string()
-    .email()
-    ,
+  primary_contact_email: Joi.string().email(),
   it_contact_name: Joi.string(),
-  it_contact_email: Joi.string()
-    .email()
-    ,
+  it_contact_email: Joi.string().email(),
   opening_hours: Joi.string(),
   network_name: Joi.string(),
   isp: Joi.string(),

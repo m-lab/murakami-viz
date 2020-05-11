@@ -38,7 +38,10 @@ export function up(knex) {
         table.text('device_gateway');
         table.text('device_mac_address');
         table.timestamps(true, true);
-        table.integer('user_id').references('id').inTable('users');
+        table
+          .integer('user_id')
+          .references('id')
+          .inTable('users');
       })
       .then(() =>
         knex.raw(
