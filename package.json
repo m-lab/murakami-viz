@@ -98,6 +98,7 @@
     "dotenv": "8.0.0",
     "figlet": "^1.2.4",
     "http-errors": "^1.7.3",
+    "js-cookie": "^2.2.1",
     "jwks-rsa": "^1.8.0",
     "knex": "^0.21.0",
     "knex-migrate": "^1.7.4",

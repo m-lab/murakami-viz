@@ -288,7 +288,7 @@ export default function Basic(props) {
             alignItems="center"
             justify="center"
           >
-            <Grid className={classes.centerText} item xs={2}>
+            <Grid className={classes.centerText} item xs={12} sm={6}>
               <Button
                 variant="contained"
                 color="primary"
@@ -301,7 +301,7 @@ export default function Basic(props) {
                 Log in
               </Button>
             </Grid>
-            <Grid className={classes.centerText} item xs={2}>
+            <Grid className={classes.centerText} item xs={12} sm={6}>
               <Button
                 variant="contained"
                 color="primary"
@@ -310,8 +310,7 @@ export default function Basic(props) {
                   pathname: '/dashboard',
                   state: {},
                 }}
-              >
-                Sample site
+              >Dashboard
               </Button>
             </Grid>
           </Grid>

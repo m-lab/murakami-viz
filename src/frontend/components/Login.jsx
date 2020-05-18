@@ -14,8 +14,9 @@ import Typography from '@material-ui/core/Typography';
 // icons imports
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
-export default function Login() {
+export default function Login(props) {
   const history = useHistory();
+  const { onAuthUpdate } = props;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -49,6 +50,7 @@ export default function Login() {
       });
       if (response.status === 200 || response.status === 201) {
         setError(false);
+        onAuthUpdate(true);
         setHelperText('Login successful.');
         history.push('/dashboard');
       } else {
