@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -29,10 +29,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import InfoIcon from '@material-ui/icons/Info';
 import AddNote from '../utils/AddNote.jsx';
-//import Plot from 'react-plotly.js';
-//import Plotly from 'plotly.js';
-import createPlotlyComponent from 'react-plotly.js/factory';
-const Plot = createPlotlyComponent(Plotly);
 
 const useStyles = makeStyles(theme => ({
   chips: {
@@ -63,11 +59,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const connections = [
-  'Wired',
-  'Wifi',
-  'Other',
-];
+const connections = ['Wired', 'Wifi', 'Other'];
 
 function getStyles(connection, connectionType, theme) {
   return {
@@ -94,22 +86,22 @@ export default function Home() {
   const theme = useTheme();
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const handleDateChange = (date) => {
+  const handleDateChange = date => {
     setSelectedDate(date);
   };
 
   const [viewValue, setViewValue] = React.useState('wired');
-  const handleViewChange = (event) => {
+  const handleViewChange = event => {
     setViewValue(event.target.value);
   };
 
   const [speedMetricValue, setSpeedMetricValue] = React.useState('wired');
-  const handleSpeedMetricChange = (event) => {
+  const handleSpeedMetricChange = event => {
     setSpeedMetricValue(event.target.value);
   };
 
   const [connectionType, setConnectionType] = React.useState([]);
-  const handleConnectionChangeMultiple = (event) => {
+  const handleConnectionChangeMultiple = event => {
     const { options } = event.target;
     const value = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
@@ -119,12 +111,12 @@ export default function Home() {
     }
     setConnectionType(value);
   };
-  const handleConnectionChange = (event) => {
+  const handleConnectionChange = event => {
     setConnectionType(event.target.value);
   };
 
   const [test, setTest] = React.useState('');
-  const handleTestChange = (event) => {
+  const handleTestChange = event => {
     setTest(event.target.value);
   };
 
@@ -143,14 +135,29 @@ export default function Home() {
       </Grid>
       <Box mt={5}>
         <Grid container spacing={1} direction="row" xs={12}>
-          <Grid container item direction="column" alignItems="center" spacing={1} xs={6}>
+          <Grid
+            container
+            item
+            direction="column"
+            alignItems="center"
+            spacing={1}
+            xs={6}
+          >
             <Grid item>
-              <Typography component="div">
-                Download Speed
-              </Typography>
+              <Typography component="div">Download Speed</Typography>
             </Grid>
-            <Grid container item direction="row" alignItems="center" justify="center" spacing={0}>
-              <ButtonGroup color="primary" aria-label="outlined primary button group">
+            <Grid
+              container
+              item
+              direction="row"
+              alignItems="center"
+              justify="center"
+              spacing={0}
+            >
+              <ButtonGroup
+                color="primary"
+                aria-label="outlined primary button group"
+              >
                 <Button>NDT</Button>
                 <Button>Ookla</Button>
               </ButtonGroup>
@@ -175,10 +182,10 @@ export default function Home() {
                       r: 20,
                       b: 20,
                       t: 20,
-                      pad: 5
+                      pad: 5,
                     },
-                    title: false
-                   }}
+                    title: false,
+                  }}
                 />
               </Grid>
               <Grid item className={classes.grid}>
@@ -200,18 +207,23 @@ export default function Home() {
                       r: 20,
                       b: 20,
                       t: 20,
-                      pad: 5
+                      pad: 5,
                     },
-                    title: false
-                   }}
+                    title: false,
+                  }}
                 />
               </Grid>
             </Grid>
           </Grid>
-          <Grid container item direction="column" alignItems="center" spacing={1} xs={6}>
-            <Typography component="div">
-              Streaming Media
-            </Typography>
+          <Grid
+            container
+            item
+            direction="column"
+            alignItems="center"
+            spacing={1}
+            xs={6}
+          >
+            <Typography component="div">Streaming Media</Typography>
             <Grid item>
               <Button variant="contained">DASH</Button>
             </Grid>
@@ -234,17 +246,24 @@ export default function Home() {
                     r: 20,
                     b: 20,
                     t: 20,
-                    pad: 5
+                    pad: 5,
                   },
-                  title: false
-                 }}
+                  title: false,
+                }}
               />
             </Grid>
           </Grid>
         </Grid>
       </Box>
       <Box mt={5}>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
+        <Grid
+          container
+          className={classes.grid}
+          justify="space-between"
+          spacing={2}
+          xs={12}
+          md={12}
+        >
           <Grid item xs={12} md={3}>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -265,11 +284,30 @@ export default function Home() {
           <Grid item xs={12} md={3}>
             <FormControl component="fieldset">
               <FormLabel component="legend">View</FormLabel>
-              <RadioGroup aria-label="view" name="view" value={viewValue} onChange={handleViewChange}>
+              <RadioGroup
+                aria-label="view"
+                name="view"
+                value={viewValue}
+                onChange={handleViewChange}
+              >
                 <FormControlLabel
-                className={classes.formControlLabel} value="overall" control={<Radio />} label="Overall" />
-                <FormControlLabel className={classes.formControlLabel} value="day" control={<Radio />} label="Day of the week" />
-                <FormControlLabel className={classes.formControlLabel} value="hour" control={<Radio />} label="Hour of the day" />
+                  className={classes.formControlLabel}
+                  value="overall"
+                  control={<Radio />}
+                  label="Overall"
+                />
+                <FormControlLabel
+                  className={classes.formControlLabel}
+                  value="day"
+                  control={<Radio />}
+                  label="Day of the week"
+                />
+                <FormControlLabel
+                  className={classes.formControlLabel}
+                  value="hour"
+                  control={<Radio />}
+                  label="Hour of the day"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -283,17 +321,25 @@ export default function Home() {
                 value={connectionType}
                 onChange={handleConnectionChange}
                 input={<Input id="select-multiple-chip" />}
-                renderValue={(selected) => (
-                  <div  className={classes.chips}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value}  className={classes.chip} />
+                renderValue={selected => (
+                  <div className={classes.chips}>
+                    {selected.map(value => (
+                      <Chip
+                        key={value}
+                        label={value}
+                        className={classes.chip}
+                      />
                     ))}
                   </div>
                 )}
                 MenuProps={MenuProps}
               >
-                {connections.map((connection) => (
-                  <MenuItem key={connection} value={connection} style={getStyles(connection, connectionType, theme)}>
+                {connections.map(connection => (
+                  <MenuItem
+                    key={connection}
+                    value={connection}
+                    style={getStyles(connection, connectionType, theme)}
+                  >
                     {connection}
                   </MenuItem>
                 ))}
@@ -301,7 +347,14 @@ export default function Home() {
             </FormControl>
           </Grid>
         </Grid>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
+        <Grid
+          container
+          className={classes.grid}
+          justify="space-between"
+          spacing={2}
+          xs={12}
+          md={12}
+        >
           <Grid item xs={12} md={3}>
             <Typography component="div">
               Internet Speed
@@ -312,7 +365,10 @@ export default function Home() {
               </Tooltip>
             </Typography>
             <FormControl className={classes.formControl}>
-              <InputLabel id="demo-simple-select-placeholder-label-label" className={classes.inputLabel}>
+              <InputLabel
+                id="demo-simple-select-placeholder-label-label"
+                className={classes.inputLabel}
+              >
                 Test
                 <Tooltip title="Gallia est omnis divisa in partes tres, quarum.">
                   <IconButton aria-label="test-tip">
@@ -326,7 +382,7 @@ export default function Home() {
                 value={test}
                 onChange={handleTestChange}
                 displayEmpty
-                 className={classes.selectEmpty}
+                className={classes.selectEmpty}
               >
                 <MenuItem value={10}>NDT</MenuItem>
                 <MenuItem value={20}>Speedtest</MenuItem>
@@ -335,10 +391,30 @@ export default function Home() {
             </FormControl>
             <FormControl component="fieldset">
               <FormLabel component="legend">Metric</FormLabel>
-              <RadioGroup aria-label="view" name="view" value={speedMetricValue} onChange={handleSpeedMetricChange}>
-                <FormControlLabel className={classes.formControlLabel} value="download" control={<Radio />} label="Download Speed" />
-                <FormControlLabel className={classes.formControlLabel} value="upload" control={<Radio />} label="Upload Speed" />
-                <FormControlLabel className={classes.formControlLabel} value="latency" control={<Radio />} label="Latency" />
+              <RadioGroup
+                aria-label="view"
+                name="view"
+                value={speedMetricValue}
+                onChange={handleSpeedMetricChange}
+              >
+                <FormControlLabel
+                  className={classes.formControlLabel}
+                  value="download"
+                  control={<Radio />}
+                  label="Download Speed"
+                />
+                <FormControlLabel
+                  className={classes.formControlLabel}
+                  value="upload"
+                  control={<Radio />}
+                  label="Upload Speed"
+                />
+                <FormControlLabel
+                  className={classes.formControlLabel}
+                  value="latency"
+                  control={<Radio />}
+                  label="Latency"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -350,14 +426,25 @@ export default function Home() {
                   y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
                   type: 'scatter',
                   mode: 'lines+markers',
-                  marker: {color: 'red'},
+                  marker: { color: 'red' },
                 },
               ]}
-              layout={{width: 620, height: 240, title: 'Hollis Public Library'}}
+              layout={{
+                width: 620,
+                height: 240,
+                title: 'Hollis Public Library',
+              }}
             />
           </Grid>
         </Grid>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
+        <Grid
+          container
+          className={classes.grid}
+          justify="space-between"
+          spacing={2}
+          xs={12}
+          md={12}
+        >
           <Grid item xs={12} md={3}>
             <Typography component="div">
               Streaming Media
@@ -368,7 +455,7 @@ export default function Home() {
               </Tooltip>
             </Typography>
             <Typography component="div">
-              Test <br/>
+              Test <br />
               DASH
               <Tooltip title="Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum.">
                 <IconButton aria-label="internet-speed-tip">
@@ -385,10 +472,10 @@ export default function Home() {
                   y: [5, 23, 56, 13, 27, 23, 18, 3, 43, 29, 41, 28],
                   type: 'scatter',
                   mode: 'lines+markers',
-                  marker: {color: 'red'},
+                  marker: { color: 'red' },
                 },
               ]}
-              layout={{width: 620, height: 240, title: ''}}
+              layout={{ width: 620, height: 240, title: '' }}
             />
           </Grid>
         </Grid>
@@ -397,5 +484,5 @@ export default function Home() {
         <Button variant="contained">Export</Button>
       </Box>
     </React.Fragment>
-  )
+  );
 }

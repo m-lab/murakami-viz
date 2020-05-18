@@ -1,5 +1,5 @@
 // base imports
-import React from 'react';
+import React, { Suspense } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 // material ui imports
@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 // import TableCell from '@material-ui/core/TableCell';
-import MuiTableCell from "@material-ui/core/TableCell";
+import MuiTableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
@@ -19,11 +19,11 @@ import EditLibrary from '../utils/EditLibrary.jsx';
 
 const TableCell = withStyles({
   root: {
-    borderBottom: "none"
-  }
+    borderBottom: 'none',
+  },
 })(MuiTableCell);
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     maxWidth: 500,
@@ -32,19 +32,19 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(4),
   },
   table: {
-    maxWidth: "50%",
+    maxWidth: '50%',
   },
   tableCell: {
-    minWidth: "300px",
-    textTransform: "capitalize",
+    minWidth: '300px',
+    textTransform: 'capitalize',
   },
   tableKey: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 }));
 
 function formatKey(key) {
-  return key.replace(/_/g, " ");
+  return key.replace(/_/g, ' ');
 }
 
 export default function Library() {
@@ -58,7 +58,7 @@ export default function Library() {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = value => {
     setOpen(false);
   };
 
@@ -67,20 +67,20 @@ export default function Library() {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    fetch("/api/v1/libraries/1")
+    fetch('/api/v1/libraries/1')
       .then(res => res.json())
       .then(
-        (results) => {
+        results => {
           // const data = results.data[0]
           setRow(results.data[0]);
           setIsLoaded(true);
         },
-        (error) => {
+        error => {
           setIsLoaded(true);
           setError(error);
-        }
-      )
-  }, [])
+        },
+      );
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -88,7 +88,7 @@ export default function Library() {
     return <div>Loading...</div>;
   } else {
     return (
-      <React.Fragment>
+      <Suspense>
         <Box mb={9} mt={9}>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
@@ -97,13 +97,15 @@ export default function Library() {
               </Typography>
             </Grid>
             <Grid item>
-              <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+              <Button
+                variant="contained"
+                disableElevation
+                color="primary"
+                onClick={handleClickOpen}
+              >
                 Edit
               </Button>
-              <EditLibrary
-                open={open}
-                onClose={handleClose}
-                row={row} />
+              <EditLibrary open={open} onClose={handleClose} row={row} />
             </Grid>
           </Grid>
         </Box>
@@ -111,37 +113,74 @@ export default function Library() {
           <Typography variant="overline" display="block" gutterBottom>
             Basic Information
           </Typography>
-            <TableContainer>
-              <Table className={classes.table} aria-label="basic information table">
-                <TableBody>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Physical Address</TableCell>
-                    <TableCell className={classes.tableCell}>{row.physical_address}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Shipping Address</TableCell>
-                    <TableCell className={classes.tableCell}>{row.shipping_address}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Timezone</TableCell>
-                    <TableCell className={classes.tableCell}>{row.timezones}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Coordinates</TableCell>
-                    <TableCell className={classes.tableCell}>{row.coordinates}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Primary Library Contact</TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {row.primary_contact_name}
-                      <br />
-                      {row.primary_contact_email}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Opening Hours</TableCell>
-                    <TableCell className={classes.tableCell}>{row.opening_hours}</TableCell>
-                  </TableRow>
+          <TableContainer>
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
+              <TableBody>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Physical Address
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.physical_address}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Shipping Address
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.shipping_address}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Timezone
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.timezones}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Coordinates
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.coordinates}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Primary Library Contact
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.primary_contact_name}
+                    <br />
+                    {row.primary_contact_email}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Opening Hours
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.opening_hours}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
@@ -151,18 +190,35 @@ export default function Library() {
             ISP &amp; Library Network Information
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Network Name</TableCell>
-                  <TableCell className={classes.tableCell}>{row.network_name}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Network Name
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.network_name}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>ISP</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    ISP
+                  </TableCell>
                   <TableCell className={classes.tableCell}>{row.isp}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Contracted Speeds</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Contracted Speeds
+                  </TableCell>
                   <TableCell className={classes.tableCell}>
                     {row.contracted_speed_download} download
                     <br />
@@ -170,11 +226,19 @@ export default function Library() {
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>IP address of custom DNS severs</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    IP address of custom DNS severs
+                  </TableCell>
                   <TableCell className={classes.tableCell}>{row.ip}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Per device bandwidth caps</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Per device bandwidth caps
+                  </TableCell>
                   <TableCell className={classes.tableCell}>
                     {row.bandwith_cap_download} download
                     <br />
@@ -190,39 +254,88 @@ export default function Library() {
             Devices
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Name</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_name}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Name
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_name}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Location</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_location}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Location
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_location}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Network type</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_network_type}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Network type
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_network_type}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Connection Type</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_connection_type}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Connection Type
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_connection_type}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>DNS server</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_dns}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    DNS server
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_dns}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>IP address</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    IP address
+                  </TableCell>
                   <TableCell className={classes.tableCell}>{row.ip}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>Gateway</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_gateway}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    Gateway
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_gateway}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>MAC address</TableCell>
-                  <TableCell className={classes.tableCell}>{row.device_mac_address}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    MAC address
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.device_mac_address}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -233,17 +346,26 @@ export default function Library() {
             Users
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
                 <TableRow key={row.id}>
-                  <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>{row.key}</TableCell>
-                  <TableCell className={classes.tableCell}>{row.value}</TableCell>
+                  <TableCell
+                    className={`${classes.tableCell} ${classes.tableKey}`}
+                  >
+                    {row.key}
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
+                    {row.value}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
         </Box>
-      </React.Fragment>
-    )
+      </Suspense>
+    );
   }
 }

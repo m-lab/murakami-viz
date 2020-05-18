@@ -1,39 +1,18 @@
-import React, { Component } from "react";
+import React, { Suspense } from 'react';
 import DateFnsUtils from '@date-io/date-fns';
-import { getMuiTheme, makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Chip from '@material-ui/core/Chip';
-import Container from '@material-ui/core/Container';
 // import { DateRangePicker } from 'material-ui-datetime-range-picker';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormLabel from '@material-ui/core/FormLabel';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
-import MenuItem from '@material-ui/core/MenuItem';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Select from '@material-ui/core/Select';
-import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import InfoIcon from '@material-ui/icons/Info';
 import AddNote from '../utils/AddNote.jsx';
 import Plot from 'react-plotly.js';
-//import Plotly from 'plotly.js';
-// import createPlotlyComponent from 'react-plotly.js/factory';
-// const Plot = createPlotlyComponent(Plotly);
 
 const useStyles = makeStyles(theme => ({
   chips: {
@@ -66,15 +45,11 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   upper: {
-    textTransform: 'uppercase'
-  }
+    textTransform: 'uppercase',
+  },
 }));
 
-const connections = [
-  'Wired',
-  'Wifi',
-  'Other',
-];
+const connections = ['Wired', 'Wifi', 'Other'];
 
 function getStyles(connection, connectionType, theme) {
   return {
@@ -96,7 +71,7 @@ const MenuProps = {
   },
 };
 
-export default function Home() {
+function Home() {
   const classes = useStyles();
   const theme = useTheme();
   // const theme = createMuiTheme({
@@ -104,22 +79,22 @@ export default function Home() {
   // });
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const handleDateChange = (date) => {
+  const handleDateChange = date => {
     setSelectedDate(date);
   };
 
   const [viewValue, setViewValue] = React.useState('wired');
-  const handleViewChange = (event) => {
+  const handleViewChange = event => {
     setViewValue(event.target.value);
   };
 
   const [speedMetricValue, setSpeedMetricValue] = React.useState('wired');
-  const handleSpeedMetricChange = (event) => {
+  const handleSpeedMetricChange = event => {
     setSpeedMetricValue(event.target.value);
   };
 
   const [connectionType, setConnectionType] = React.useState([]);
-  const handleConnectionChangeMultiple = (event) => {
+  const handleConnectionChangeMultiple = event => {
     const { options } = event.target;
     const value = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
@@ -129,12 +104,12 @@ export default function Home() {
     }
     setConnectionType(value);
   };
-  const handleConnectionChange = (event) => {
+  const handleConnectionChange = event => {
     setConnectionType(event.target.value);
   };
 
   const [test, setTest] = React.useState('');
-  const handleTestChange = (event) => {
+  const handleTestChange = event => {
     setTest(event.target.value);
   };
 
@@ -146,14 +121,19 @@ export default function Home() {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = value => {
     setOpen(false);
     setSelectedValue(value);
   };
 
   return (
-    <React.Fragment>
-      <Grid className={classes.header} container spacing={2} alignItems="space-between">
+    <Suspense>
+      <Grid
+        className={classes.header}
+        container
+        spacing={2}
+        alignItems="space-between"
+      >
         <Grid container item direction="column" spacing={2} xs={6}>
           <Grid item>
             <Typography component="h1" variant="h3">
@@ -162,10 +142,19 @@ export default function Home() {
             <div>Craig, AK 9921</div>
           </Grid>
           <Grid item>
-            <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={handleClickOpen}
+            >
               Add a note
             </Button>
-            <AddNote selectedValue={selectedValue} open={open} onClose={handleClose} />
+            <AddNote
+              selectedValue={selectedValue}
+              open={open}
+              onClose={handleClose}
+            />
           </Grid>
         </Grid>
         <Grid container item spacing={1} xs={6}>
@@ -175,8 +164,18 @@ export default function Home() {
                 Download Speed
               </Typography>
             </Grid>
-            <Grid container item alignItems="center" justify="center" spacing={0} xs={4}>
-              <ButtonGroup color="primary" aria-label="outlined primary button group">
+            <Grid
+              container
+              item
+              alignItems="center"
+              justify="center"
+              spacing={0}
+              xs={4}
+            >
+              <ButtonGroup
+                color="primary"
+                aria-label="outlined primary button group"
+              >
                 <Button>NDT</Button>
                 <Button>Ookla</Button>
               </ButtonGroup>
@@ -207,10 +206,10 @@ export default function Home() {
                     r: 20,
                     b: 20,
                     t: 20,
-                    pad: 5
+                    pad: 5,
                   },
-                  title: false
-                 }}
+                  title: false,
+                }}
               />
             </Grid>
             <Grid item className={classes.grid} xs={6}>
@@ -232,10 +231,10 @@ export default function Home() {
                     r: 20,
                     b: 20,
                     t: 20,
-                    pad: 5
+                    pad: 5,
                   },
-                  title: false
-                 }}
+                  title: false,
+                }}
               />
             </Grid>
           </Grid>
@@ -262,13 +261,24 @@ export default function Home() {
             />
           </MuiPickersUtilsProvider>
         </div>
-        <Grid container className={classes.grid} justify="space-between" spacing={2} xs={12} md={12}>
+        <Grid
+          container
+          className={classes.grid}
+          justify="space-between"
+          spacing={2}
+          xs={12}
+          md={12}
+        >
           <Grid container item direction="column" spacing={4} xs={12} md={2}>
             <Grid item>
               <Typography variant="overline" display="block" gutterBottom>
                 Connection
               </Typography>
-              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+              <ButtonGroup
+                orientation="vertical"
+                color="primary"
+                aria-label="vertical outlined primary button group"
+              >
                 <Button>Wired</Button>
                 <Button>Wifi</Button>
               </ButtonGroup>
@@ -277,7 +287,11 @@ export default function Home() {
               <Typography variant="overline" display="block" gutterBottom>
                 Test
               </Typography>
-              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+              <ButtonGroup
+                orientation="vertical"
+                color="primary"
+                aria-label="vertical outlined primary button group"
+              >
                 <Button>NDT</Button>
                 <Button>Ookla</Button>
               </ButtonGroup>
@@ -286,7 +300,11 @@ export default function Home() {
               <Typography variant="overline" display="block" gutterBottom>
                 Metric
               </Typography>
-              <ButtonGroup orientation="vertical" color="primary" aria-label="vertical outlined primary button group" >
+              <ButtonGroup
+                orientation="vertical"
+                color="primary"
+                aria-label="vertical outlined primary button group"
+              >
                 <Button>Download</Button>
                 <Button>Upload</Button>
                 <Button>Latency</Button>
@@ -301,10 +319,10 @@ export default function Home() {
                   y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
                   type: 'scatter',
                   mode: 'lines+markers',
-                  marker: {color: 'red'},
+                  marker: { color: 'red' },
                 },
               ]}
-              layout={{width: 820, height: 440, title: ''}}
+              layout={{ width: 820, height: 440, title: '' }}
             />
           </Grid>
         </Grid>
@@ -312,12 +330,15 @@ export default function Home() {
       <Grid container justify="space-between" alignItems="center">
         <Grid container item spacing={2} xs={12} sm={10}>
           <Grid item>
-          <Typography variant="overline" display="block" gutterBottom>
-            View
-          </Typography>
+            <Typography variant="overline" display="block" gutterBottom>
+              View
+            </Typography>
           </Grid>
           <Grid item>
-            <ButtonGroup color="primary" aria-label="outlined primary button group">
+            <ButtonGroup
+              color="primary"
+              aria-label="outlined primary button group"
+            >
               <Button>All tests</Button>
               <Button>By hour</Button>
               <Button>By day</Button>
@@ -329,6 +350,8 @@ export default function Home() {
           <Button variant="contained">Export</Button>
         </Grid>
       </Grid>
-    </React.Fragment>
-  )
+    </Suspense>
+  );
 }
+
+export default Home;

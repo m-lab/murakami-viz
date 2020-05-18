@@ -3,9 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import { rehydrateMarks } from 'react-imported-component';
-import { ThemeProvider } from '@material-ui/core/styles';
-import { StylesProvider } from '@material-ui/styles';
+import { rehydrateMarks, whenComponentsReady } from 'react-imported-component';
+import { StylesProvider, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from './theme.js';
 import App from './components/App.jsx';
@@ -40,7 +39,8 @@ export const start = ({ isProduction, document, module, hydrate }) => {
   if (isProduction) {
     // rehydrate the bundle marks from imported-components,
     // then rehydrate the react app
-    rehydrateMarks()
+    whenComponentsReady()
+      .then(rehydrateMarks)
       .then(hydrate(app, element))
       .catch(err => {
         console.error(`Failed to rehydrate bundle marks: ${err}`);

@@ -12,12 +12,6 @@ import Container from '@material-ui/core/Container';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
-// Plotly imports 
-//import Plotly from 'plotly.js';
-// import createPlotlyComponent from 'react-plotly.js/factory';
-// const Plot = createPlotlyComponent(Plotly);
-import Plot from 'react-plotly.js';
-
 // modules imports
 import NavTabs from './utils/Tabs.jsx';
 
@@ -98,9 +92,11 @@ export default function Dashboard() {
           <div className={classes.sectionDesktop}>
             <AccountCircle />
             <div>
-              <p>Sam Smith
-              <br />
-              Editor</p>
+              <p>
+                Sam Smith
+                <br />
+                Editor
+              </p>
             </div>
             <IconButton color="inherit" href="/logout">
               <ExitToAppIcon />

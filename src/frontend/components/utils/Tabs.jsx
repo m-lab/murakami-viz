@@ -45,7 +45,7 @@ function LinkTab(props) {
   return (
     <Tab
       component="a"
-      onClick={(event) => {
+      onClick={event => {
         event.preventDefault();
       }}
       {...props}
@@ -53,7 +53,7 @@ function LinkTab(props) {
   );
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,

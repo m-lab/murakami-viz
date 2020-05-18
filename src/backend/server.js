@@ -14,7 +14,7 @@ import errorHandler from 'koa-better-error-handler';
 import db from './db.js';
 import authHandler from './middleware/auth.js';
 import cloudflareAccess from './middleware/cloudflare.js';
-import ssr from './middleware/ssr.js';
+//import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
 import GroupController from './controllers/group.js';
 import LibraryController from './controllers/library.js';
@@ -30,7 +30,7 @@ import Groups from './models/group.js';
 
 const __dirname = path.resolve();
 const STATIC_DIR = path.resolve(__dirname, 'dist', 'frontend');
-const ENTRYPOINT = path.resolve(STATIC_DIR, 'index.html');
+//const ENTRYPOINT = path.resolve(STATIC_DIR, 'index.html');
 
 export default function configServer(config) {
   // Initialize our application server
@@ -134,9 +134,12 @@ export default function configServer(config) {
     )
     .use(mount('/api/v1', apiV1Router))
     .use(mount('/static', serveStatic(STATIC_DIR)))
-    .use((ctx, next) => {
-      ctx.state.htmlEntrypoint = ENTRYPOINT;
-      ssr(ctx, next);
-    });
+    .use(
+      async (ctx, next) =>
+        await serveStatic(STATIC_DIR)(
+          Object.assign(ctx, { path: 'index.html' }),
+          next,
+        ),
+    );
   return server.callback();
 }
