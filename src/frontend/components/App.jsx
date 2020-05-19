@@ -17,25 +17,29 @@ const Loading = lazy(() => import('./Loading.jsx'));
 const Login = lazy(() => import('./Login.jsx'));
 const Admin = lazy(() => import('./Admin.jsx'));
 
-function PrivateRoute ({component: Component, authed, user, ...rest}) {
+function PrivateRoute({ component: Component, authed, user, ...rest }) {
   const history = useHistory();
 
   return (
     <Route
       {...rest}
-      render={(props) => authed === true
-        ? <Component {...props} user={user} />
-        : history.push('/login') }
+      render={props =>
+        authed === true ? (
+          <Component {...props} user={user} />
+        ) : (
+          history.push('/login')
+        )
+      }
     />
-  )
+  );
 }
 
 export default function App() {
   const classes = useStyles();
   const [authenticated, setAuthenticated] = React.useState(false);
-  const updateAuthed = (authState) => {
+  const updateAuthed = authState => {
     setAuthenticated(authState);
-  }
+  };
   const [user, setUser] = React.useState(null);
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -48,20 +52,21 @@ export default function App() {
       fetch(`api/v1/users/${username}`)
         .then(res => res.json())
         .then(
-          (results) => {
+          results => {
             setIsLoaded(true);
             setUser(results.data);
           },
-          (error) => {
+          error => {
             setIsLoaded(true);
             setError(error);
-          }
-        )
+          },
+        );
       setAuthenticated(true);
     } else {
       setAuthenticated(false);
+      setIsLoaded(true);
     }
-  }, [])
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -72,10 +77,23 @@ export default function App() {
       <Container className={classes.container}>
         <Switch>
           <LazyBoundary fallback={Loading}>
-            <Route path='/' exact component={Basic} />
-            <Route path='/login' render={(props) => <Login {...props} onAuthUpdate={updateAuthed} /> } />
-            <PrivateRoute authed={authenticated} path='/admin' component={Admin} user={user} />
-            <PrivateRoute authed={authenticated} path='/dashboard' component={Dashboard} user={user} /> } />
+            <Route path="/" exact component={Basic} />
+            <Route
+              path="/login"
+              render={props => <Login {...props} onAuthUpdate={updateAuthed} />}
+            />
+            <PrivateRoute
+              authed={authenticated}
+              path="/admin"
+              component={Admin}
+              user={user}
+            />
+            <PrivateRoute
+              authed={authenticated}
+              path="/dashboard"
+              component={Dashboard}
+              user={user}
+            />
           </LazyBoundary>
           <Redirect to="/" />
         </Switch>
