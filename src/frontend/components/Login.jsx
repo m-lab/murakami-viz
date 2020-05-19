@@ -127,3 +127,7 @@ export default function Login(props) {
     </Container>
   );
 }
+
+Login.propTypes = {
+  onAuthUpdate: PropTypes.func.isRequired,
+}

@@ -79,9 +79,6 @@ const MenuProps = {
 function Home() {
   const classes = useStyles();
   const theme = useTheme();
-  // const theme = createMuiTheme({
-  //   spacing: 4,
-  // });
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -140,6 +137,7 @@ function Home() {
       .then(res => res.json())
       .then(
         (results) => {
+          console.log(results);
           // setRows(results.data);
           // setRow(results.data[0]);
           // emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
