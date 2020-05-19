@@ -131,21 +131,19 @@ function Home() {
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [library, setLibrary] = React.useState(null);
 
   React.useEffect(() => {
     fetch("/api/v1/libraries")
       .then(res => res.json())
       .then(
         (results) => {
-          console.log(results);
-          // setRows(results.data);
-          // setRow(results.data[0]);
-          // emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+          setLibrary(results.data[0]);
           setIsLoaded(true);
         },
         (error) => {
-          setIsLoaded(true);
           setError(error);
+          setIsLoaded(true);
         }
       )
   }, [])
@@ -166,9 +164,9 @@ function Home() {
           <Grid container item direction="column" spacing={2} xs={6}>
             <Grid item>
               <Typography component="h1" variant="h3">
-                Holis Public Library
+                {library.name}
               </Typography>
-              <div>Craig, AK 9921</div>
+              <div>{library.physical_address}</div>
             </Grid>
             <Grid item>
               <Button
