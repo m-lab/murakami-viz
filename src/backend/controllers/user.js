@@ -80,7 +80,7 @@ export default function controller(users, thisUser) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
-        const user = await users.findByUsername(username);
+        const user = await users.findByUsername(username, true);
         if (!comparePass(password, user.password)) {
           done(null, false);
         } else {

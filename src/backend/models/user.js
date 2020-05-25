@@ -77,7 +77,17 @@ export default class User {
   }) {
     const rows = await this._db
       .table('users')
-      .select('*')
+      .column(
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'location',
+        'role',
+        'email',
+        'isActive',
+      )
+      .select()
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);
@@ -113,7 +123,17 @@ export default class User {
   async findById(id) {
     return this._db
       .table('users')
-      .select('*')
+      .column(
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'location',
+        'role',
+        'email',
+        'isActive',
+      )
+      .select()
       .where({ id: parseInt(id) });
   }
 
@@ -122,12 +142,30 @@ export default class User {
    *
    * @param {integer} id - Find user by id
    */
-  async findByUsername(username) {
-    return this._db
-      .table('users')
-      .select('*')
-      .where({ username: username })
-      .first();
+  async findByUsername(username, privileged = false) {
+    if (privileged) {
+      return this._db
+        .table('users')
+        .select('*')
+        .where({ username: username })
+        .first();
+    } else {
+      return this._db
+        .table('users')
+        .column(
+          'id',
+          'username',
+          'firstName',
+          'lastName',
+          'location',
+          'role',
+          'email',
+          'isActive',
+        )
+        .select()
+        .where({ username: username })
+        .first();
+    }
   }
 
   /**

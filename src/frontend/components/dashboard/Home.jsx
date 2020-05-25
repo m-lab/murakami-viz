@@ -17,6 +17,7 @@ import {
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
+import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
 
 const useStyles = makeStyles(theme => ({
@@ -76,9 +77,10 @@ const MenuProps = {
   },
 };
 
-function Home() {
+function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const { user } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -134,24 +136,23 @@ function Home() {
   const [library, setLibrary] = React.useState(null);
 
   React.useEffect(() => {
-    fetch("/api/v1/libraries")
+    fetch(`/api/v1/libraries?of_user=${user.id}`)
       .then(res => res.json())
-      .then(
-        (results) => {
-          setLibrary(results.data[0]);
-          setIsLoaded(true);
-        },
-        (error) => {
-          setError(error);
-          setIsLoaded(true);
-        }
-      )
-  }, [])
+      .then(results => {
+        setLibrary(results.data[0]);
+        setIsLoaded(true);
+        return;
+      })
+      .catch(error => {
+        setError(error);
+        setIsLoaded(true);
+      });
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else {
     return (
       <Suspense>
@@ -185,7 +186,13 @@ function Home() {
             </Grid>
           </Grid>
           <Grid container item spacing={1} xs={6}>
-            <Grid container item alignItems="center" direction="row" spacing={1}>
+            <Grid
+              container
+              item
+              alignItems="center"
+              direction="row"
+              spacing={1}
+            >
               <Grid item xs={4}>
                 <Typography component="div" className={classes.upper}>
                   Download Speed

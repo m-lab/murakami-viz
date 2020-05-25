@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
 import { lazy, LazyBoundary } from 'react-imported-component';
 import Container from '@material-ui/core/Container';
@@ -34,6 +35,12 @@ function PrivateRoute({ component: Component, authed, user, ...rest }) {
   );
 }
 
+PrivateRoute.propTypes = {
+  component: PropTypes.object.isRequired,
+  authed: PropTypes.bool,
+  user: PropTypes.object,
+};
+
 export default function App() {
   const classes = useStyles();
   const [authenticated, setAuthenticated] = React.useState(false);
@@ -46,22 +53,22 @@ export default function App() {
 
   // fetch api data
   React.useEffect(() => {
-    if (Cookies.get('mv_user')) {
-      const username = Cookies.get('mv_user');
+    const username = Cookies.get('mv_user');
+    if (username) {
       // TODO: Add separate case for admin
       fetch(`api/v1/users/${username}`)
         .then(res => res.json())
-        .then(
-          results => {
-            setIsLoaded(true);
-            setUser(results.data);
-          },
-          error => {
-            setIsLoaded(true);
-            setError(error);
-          },
-        );
-      setAuthenticated(true);
+        .then(results => {
+          setIsLoaded(true);
+          setUser(results.data);
+          setAuthenticated(true);
+          return;
+        })
+        .catch(error => {
+          setIsLoaded(true);
+          setError(error);
+          setAuthenticated(false);
+        });
     } else {
       setAuthenticated(false);
       setIsLoaded(true);

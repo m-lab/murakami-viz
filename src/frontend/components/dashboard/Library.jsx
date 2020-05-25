@@ -47,8 +47,9 @@ function formatKey(key) {
   return key.replace(/_/g, ' ');
 }
 
-export default function Library() {
+export default function Library(props) {
   const classes = useStyles();
+  const { user } = props;
 
   // handle edit library
   const [open, setOpen] = React.useState(false);
@@ -67,19 +68,17 @@ export default function Library() {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    fetch('/api/v1/libraries/1')
+    fetch(`/api/v1/libraries?of_user=${user.id}`)
       .then(res => res.json())
-      .then(
-        results => {
-          // const data = results.data[0]
-          setRow(results.data[0]);
-          setIsLoaded(true);
-        },
-        error => {
-          setIsLoaded(true);
-          setError(error);
-        },
-      );
+      .then(results => {
+        setRow(results.data[0]);
+        setIsLoaded(true);
+        return;
+      })
+      .catch(error => {
+        setIsLoaded(true);
+        setError(error);
+      });
   }, []);
 
   if (error) {

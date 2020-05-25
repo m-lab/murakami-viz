@@ -103,7 +103,7 @@ export default function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
-          <NavTabs />
+          <NavTabs user={user} />
         </Container>
       </main>
     </Container>
