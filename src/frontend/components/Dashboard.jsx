@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { user } = props;
+  const user = props.user || props.location.state.user;
 
   return (
     <Container className={classes.root}>

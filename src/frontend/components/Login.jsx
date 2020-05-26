@@ -44,25 +44,31 @@ export default function Login(props) {
     formData.append('username', username);
     formData.append('password', password);
     formData.append('remember', remember);
-    try {
-      const response = await fetch('/api/v1/login', {
-        method: 'POST',
-        body: formData,
-      });
-      if (response.status === 200 || response.status === 201) {
-        setError(false);
-        onAuthUpdate(true);
-        setHelperText('Login successful.');
-        history.push('/dashboard');
-      } else {
+
+    fetch('/api/v1/login', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(results => {
+        if ( results.success ){
+          setError(false);
+          onAuthUpdate(true);
+          setHelperText('Login successful.');
+          history.push({
+            pathname: '/dashboard',
+            state: { user: results.user }
+          });
+        } else {
+          setError(true);
+          setHelperText('Incorrect username or password.');
+        }
+      })
+      .catch(error => {
         setError(true);
-        setHelperText('Incorrect username or password.');
-      }
-    } catch (err) {
-      setError(true);
-      setHelperText('Could not connect to authentication server.');
-      console.error('error: ', err);
-    }
+        setHelperText('Could not connect to authentication server.');
+        console.error('error: ', error);
+      })
   };
 
   return (
