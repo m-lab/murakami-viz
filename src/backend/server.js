@@ -18,10 +18,12 @@ import cloudflareAccess from './middleware/cloudflare.js';
 import UserController from './controllers/user.js';
 import GroupController from './controllers/group.js';
 import LibraryController from './controllers/library.js';
+import DeviceController from './controllers/device.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
 import SystemController from './controllers/system.js';
 import Libraries from './models/library.js';
+import Devices from './models/device.js';
 import Notes from './models/note.js';
 import Runs from './models/run.js';
 import Systems from './models/system.js';
@@ -58,6 +60,8 @@ export default function configServer(config) {
   const groups = GroupController(groupModel, auth);
   const libraryModel = new Libraries(db);
   const libraries = LibraryController(libraryModel, auth);
+  const deviceModel = new Devices(db);
+  const devices = DeviceController(deviceModel, auth);
   const noteModel = new Notes(db);
   const notes = NoteController(noteModel, auth);
   const runModel = new Runs(db);
@@ -71,6 +75,8 @@ export default function configServer(config) {
     groups.allowedMethods(),
     libraries.routes(),
     libraries.allowedMethods(),
+    devices.routes(),
+    devices.allowedMethods(),
     notes.routes(),
     notes.allowedMethods(),
     runs.routes(),
