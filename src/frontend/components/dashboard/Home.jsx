@@ -17,6 +17,7 @@ import {
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
+import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
 
 const useStyles = makeStyles(theme => ({
@@ -76,12 +77,10 @@ const MenuProps = {
   },
 };
 
-function Home() {
+function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  // const theme = createMuiTheme({
-  //   spacing: 4,
-  // });
+  const { user } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -134,28 +133,26 @@ function Home() {
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [library, setLibrary] = React.useState(null);
 
   React.useEffect(() => {
-    fetch("/api/v1/libraries")
+    fetch(`/api/v1/libraries?of_user=${user.id}`)
       .then(res => res.json())
-      .then(
-        (results) => {
-          // setRows(results.data);
-          // setRow(results.data[0]);
-          // emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-          setIsLoaded(true);
-        },
-        (error) => {
-          setIsLoaded(true);
-          setError(error);
-        }
-      )
-  }, [])
+      .then(results => {
+        setLibrary(results.data[0]);
+        setIsLoaded(true);
+        return;
+      })
+      .catch(error => {
+        setError(error);
+        setIsLoaded(true);
+      });
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else {
     return (
       <Suspense>
@@ -168,9 +165,9 @@ function Home() {
           <Grid container item direction="column" spacing={2} xs={6}>
             <Grid item>
               <Typography component="h1" variant="h3">
-                Holis Public Library
+                {library.name}
               </Typography>
-              <div>Craig, AK 9921</div>
+              <div>{library.physical_address}</div>
             </Grid>
             <Grid item>
               <Button
@@ -189,7 +186,13 @@ function Home() {
             </Grid>
           </Grid>
           <Grid container item spacing={1} xs={6}>
-            <Grid container item alignItems="center" direction="row" spacing={1}>
+            <Grid
+              container
+              item
+              alignItems="center"
+              direction="row"
+              spacing={1}
+            >
               <Grid item xs={4}>
                 <Typography component="div" className={classes.upper}>
                   Download Speed

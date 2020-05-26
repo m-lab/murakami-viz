@@ -67,13 +67,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Dashboard() {
+export default function Dashboard(props) {
   const classes = useStyles();
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const { user } = props;
 
   return (
     <Container className={classes.root}>
@@ -93,9 +89,9 @@ export default function Dashboard() {
             <AccountCircle />
             <div>
               <p>
-                Sam Smith
+                {user.firstName} {user.lastName}
                 <br />
-                Editor
+                {user.role}
               </p>
             </div>
             <IconButton color="inherit" href="/logout">
@@ -107,9 +103,13 @@ export default function Dashboard() {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
-          <NavTabs />
+          <NavTabs user={user} />
         </Container>
       </main>
     </Container>
   );
 }
+
+Dashboard.propTypes = {
+  user: PropTypes.object.isRequired,
+};

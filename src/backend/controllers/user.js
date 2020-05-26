@@ -6,6 +6,7 @@ import passport from 'koa-passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import _ from 'lodash/core';
 
 const log = getLogger('backend:controllers:user');
 
@@ -79,7 +80,7 @@ export default function controller(users, thisUser) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
-        const user = await users.findByUsername(username);
+        const user = await users.findByUsername(username, true);
         if (!comparePass(password, user.password)) {
           done(null, false);
         } else {
@@ -205,8 +206,12 @@ export default function controller(users, thisUser) {
     log.debug(`Retrieving user ${ctx.params.id}.`);
     let user;
     try {
-      user = await users.findById(ctx.params.id);
-      if (user.length) {
+      if (!Number.isInteger(ctx.params.id)) {
+        user = await users.findByUsername(ctx.params.id);
+      } else {
+        user = await users.findById(ctx.params.id);
+      }
+      if (!_.isEmpty(user)) {
         ctx.response.body = { status: 'success', data: user };
         ctx.response.status = 200;
       } else {

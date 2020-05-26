@@ -310,7 +310,8 @@ export default function Basic(props) {
                   pathname: '/dashboard',
                   state: {},
                 }}
-              >Dashboard
+              >
+                Dashboard
               </Button>
             </Grid>
           </Grid>

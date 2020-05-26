@@ -17,6 +17,9 @@ const query_schema = Joi.object({
   sort_by: Joi.string(),
   from: Joi.string(),
   to: Joi.string(),
+  of_user: Joi.number()
+    .integer()
+    .positive(),
 });
 
 async function validate_query(query) {
@@ -76,6 +79,7 @@ export default function controller(libraries, thisUser) {
         sort_by: query.sort_by,
         from: from,
         to: to,
+        of_user: query.user,
       });
       ctx.response.body = {
         status: 'success',

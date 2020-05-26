@@ -1,6 +1,7 @@
 // base imports
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 // material ui imports
 import Avatar from '@material-ui/core/Avatar';
@@ -127,3 +128,7 @@ export default function Login(props) {
     </Container>
   );
 }
+
+Login.propTypes = {
+  onAuthUpdate: PropTypes.func.isRequired,
+};

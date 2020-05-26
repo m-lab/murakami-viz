@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "lint": "eslint --ignore-path .gitignore --fix ./src",
-    "test": "jest --coverage --runInBand",
+    "test": "jest --coverage --maxWorkers=2",
     "doc": "jsdoc -d ./dist/doc/ -r ./src/backend ./src/frontend ./src/worker",
     "build:imported-components": "imported-components src/frontend src/frontend/imported.js",
     "build:backend": "cross-env BABEL_ENV=server parcel build src/backend/index.js -d dist/backend --public-url / --target=node",
@@ -119,6 +119,7 @@
     "koa-roles": "^2.0.0",
     "koa-session": "^5.13.1",
     "koa-static": "^5.0.0",
+    "lodash": "^4.17.15",
     "log4js": "^6.2.0",
     "material-ui-cookie-consent": "^0.1.0",
     "minimist": "^1.2.5",

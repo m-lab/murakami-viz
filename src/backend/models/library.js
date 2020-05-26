@@ -1,3 +1,4 @@
+import knex from 'knex';
 import { validate } from '../../common/schemas/library.js';
 import { UnprocessableError } from '../../common/errors.js';
 
@@ -97,6 +98,7 @@ export default class LibraryManager {
     sort_by: sort_by = 'id',
     from: from,
     to: to,
+    of_user: of_user,
   }) {
     const rows = await this._db
       .table('libraries')
@@ -122,6 +124,14 @@ export default class LibraryManager {
 
         if (end && end > start) {
           queryBuilder.limit(end - start);
+        }
+
+        if (of_user) {
+          queryBuilder.join(
+            'library_users',
+            'library_users.uid',
+            knex.raw('?', [of_user]),
+          );
         }
       });
 
