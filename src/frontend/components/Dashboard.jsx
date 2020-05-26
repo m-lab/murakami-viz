@@ -94,7 +94,7 @@ export default function Dashboard(props) {
                 {user.role}
               </p>
             </div>
-            <IconButton color="inherit" href="/logout">
+            <IconButton color="inherit" href="/api/v1/logout">
               <ExitToAppIcon />
             </IconButton>
           </div>

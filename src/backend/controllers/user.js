@@ -111,7 +111,7 @@ export default function controller(users, thisUser) {
         }
         ctx.cookies.set('mv_user', user.username, { httpOnly: false });
         ctx.body = { success: true };
-        return ctx.login(user);
+        return ctx.logIn(user);
       }
     })(ctx);
   });
@@ -123,8 +123,9 @@ export default function controller(users, thisUser) {
    */
   router.get('/logout', async ctx => {
     if (ctx.isAuthenticated()) {
-      await ctx.logout();
+      ctx.logout();
       ctx.session = null;
+      ctx.cookies.set('mv_user', null);
       ctx.redirect('/');
     } else {
       ctx.body = { success: false };

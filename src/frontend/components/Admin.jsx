@@ -1,12 +1,20 @@
+// base imports
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
+// material ui imports
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+
+//icon imports
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import IconButton from '@material-ui/core/IconButton';
+
+// modules imports
+import AdminNavTabs from './admin/Tabs.jsx';
 
 const drawerWidth = 240;
 
@@ -44,8 +52,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Admin() {
+export default function Admin(props) {
   const classes = useStyles();
+  const { user } = props;
 
   return (
     <Container className={classes.root}>
@@ -58,24 +67,34 @@ export default function Admin() {
             noWrap
             className={classes.title}
           >
-            Dashboard
+            MLab Murakami Viz
           </Typography>
-          <IconButton color="inherit" href="/api/v1/logout">
-            <ExitToAppIcon />
-          </IconButton>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            <AccountCircle />
+            <div>
+              <p>
+                {user.firstName} {user.lastName}
+                <br />
+                {user.role}
+              </p>
+            </div>
+            <IconButton color="inherit" href="/api/v1/logout">
+              <ExitToAppIcon />
+            </IconButton>
+          </div>
         </Toolbar>
       </AppBar>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
-          {/* Chart */}
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <h1>Admin interface here.</h1>
-            </Grid>
-          </Grid>
+          <NavTabs user={user} />
         </Container>
       </main>
     </Container>
   );
 }
+
+Admin.propTypes = {
+  user: PropTypes.object.isRequired,
+};
