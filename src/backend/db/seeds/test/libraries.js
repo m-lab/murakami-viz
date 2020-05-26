@@ -1,5 +1,5 @@
 export function seed(knex) {
-  return knex('notes')
+  return knex('libraries')
     .del()
     .then(function() {
       // Inserts seed entries
