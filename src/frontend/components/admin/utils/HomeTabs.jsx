@@ -10,11 +10,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
-import About from '../dashboard/About.jsx';
-import Home from '../dashboard/Home.jsx';
-import Library from '../dashboard/Library.jsx';
-import Notes from '../dashboard/Notes.jsx';
-import Users from '../dashboard/Users.jsx';
+import About from '../About.jsx';
+import Faq from '../Faq.jsx';
+import Glossary from '../Glossary.jsx';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -65,7 +63,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function NavTabs(props) {
+export default function HomeTabs(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
   const { user } = props;
@@ -82,31 +80,23 @@ export default function NavTabs(props) {
         onChange={handleChange}
         aria-label="dashboard navigation tabs"
       >
-        <LinkTab label="Home" href="/" {...a11yProps(0)} />
-        <LinkTab label="Notes" href="/notes" {...a11yProps(1)} />
-        <LinkTab label="Users" href="/users" {...a11yProps(2)} />
-        <LinkTab label="Library" href="/library" {...a11yProps(3)} />
-        <LinkTab label="About" href="/about" {...a11yProps(4)} />
+        <LinkTab label="About &amp; Contact" {...a11yProps(0)} />
+        <LinkTab label="FAQ" {...a11yProps(1)} />
+        <LinkTab label="Glossary" {...a11yProps(2)} />
       </Tabs>
       <TabPanel value={value} index={0}>
-        <Home user={user} />
+        <About />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Notes />
+        <Faq />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Users />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        <Library user={user} />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        <About />
+        <Glossary />
       </TabPanel>
     </div>
   );
 }
 
-NavTabs.propTypes = {
+HomeTabs.propTypes = {
   user: PropTypes.object.isRequired,
 };

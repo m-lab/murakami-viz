@@ -15,7 +15,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import IconButton from '@material-ui/core/IconButton';
 
 // modules imports
-import NavTabs from './admin/Tabs.jsx';
+import NavTabs from './admin/utils/Tabs.jsx';
 
 const drawerWidth = 240;
 

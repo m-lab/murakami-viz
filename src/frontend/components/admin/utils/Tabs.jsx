@@ -1,15 +1,19 @@
+// base imports
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
+
+// material ui imports
 import Box from '@material-ui/core/Box';
-import Home from '../dashboard/Home.jsx';
-import Notes from '../dashboard/Notes.jsx';
-import Users from '../dashboard/Users.jsx';
-import Library from '../dashboard/Library.jsx';
-import About from '../dashboard/About.jsx';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import Typography from '@material-ui/core/Typography';
+
+// modules imports
+import Compare from '../Compare.jsx';
+import Home from '../Home.jsx';
+import Locations from '../Locations.jsx';
+import Users from '../Users.jsx';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -78,25 +82,21 @@ export default function NavTabs(props) {
         aria-label="dashboard navigation tabs"
       >
         <LinkTab label="Home" href="/" {...a11yProps(0)} />
-        <LinkTab label="Notes" href="/notes" {...a11yProps(1)} />
+        <LinkTab label="Compare" href="/compare" {...a11yProps(1)} />
+        <LinkTab label="Locations" href="/locations" {...a11yProps(3)} />
         <LinkTab label="Users" href="/users" {...a11yProps(2)} />
-        <LinkTab label="Library" href="/library" {...a11yProps(3)} />
-        <LinkTab label="About" href="/about" {...a11yProps(4)} />
       </Tabs>
       <TabPanel value={value} index={0}>
-        <Home user={user} />
+        <Home />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Notes />
+        <Compare />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Users />
+        <Locations />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <Library user={user} />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        <About />
+        <Users user={user} />
       </TabPanel>
     </div>
   );
