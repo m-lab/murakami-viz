@@ -112,7 +112,7 @@ export default function controller(users, thisUser) {
         ctx.cookies.set('mv_user', user.username, { httpOnly: false });
         ctx.body = {
           success: true,
-          user: user
+          user: user,
         };
         return ctx.login(user);
       }

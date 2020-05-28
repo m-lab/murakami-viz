@@ -1,26 +1,35 @@
 // base imports
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
 import AppBar from '@material-ui/core/AppBar';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
 
 //icon imports
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import IconButton from '@material-ui/core/IconButton';
 
 // modules imports
-import AdminNavTabs from './admin/Tabs.jsx';
+import NavTabs from './admin/Tabs.jsx';
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
     //display: 'flex',
+  },
+  content: {
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'auto',
+  },
+  grow: {
+    flexGrow: 1,
   },
   toolbar: {
     //paddingRight: 24, // keep right padding when drawer closed
@@ -45,16 +54,24 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      alignItems: 'center',
+      display: 'flex',
+    },
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
 }));
 
 export default function Admin(props) {
   const classes = useStyles();
-  const { user } = props;
+  const user = props.user || props.location.state.user;
 
   return (
     <Container className={classes.root}>

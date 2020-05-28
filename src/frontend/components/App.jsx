@@ -21,6 +21,9 @@ const Admin = lazy(() => import('./Admin.jsx'));
 function PrivateRoute({ component: Component, authed, user, ...rest }) {
   const history = useHistory();
 
+  console.log('Auth: ', authed );
+  console.log('User: ', user );
+
   return (
     <Route
       {...rest}

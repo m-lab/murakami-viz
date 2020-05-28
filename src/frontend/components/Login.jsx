@@ -55,10 +55,17 @@ export default function Login(props) {
           setError(false);
           onAuthUpdate(true);
           setHelperText('Login successful.');
-          history.push({
-            pathname: '/dashboard',
-            state: { user: results.user }
-          });
+          if ( results.user.role === 'Admin' ) {
+            history.push({
+              pathname: '/admin',
+              state: { user: results.user }
+            });
+          } else {
+            history.push({
+              pathname: '/dashboard',
+              state: { user: results.user }
+            });
+          }
         } else {
           setError(true);
           setHelperText('Incorrect username or password.');
