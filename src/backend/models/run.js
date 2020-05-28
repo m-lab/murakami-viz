@@ -15,7 +15,7 @@ export default class RunManager {
     }
     return this._db
       .table('runs')
-      .insert(run)
+      .insert(run.data)
       .returning('*');
   }
 
