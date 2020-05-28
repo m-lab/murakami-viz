@@ -21,9 +21,6 @@ const Admin = lazy(() => import('./Admin.jsx'));
 function PrivateRoute({ component: Component, authed, user, ...rest }) {
   const history = useHistory();
 
-  console.log('Auth: ', authed );
-  console.log('User: ', user );
-
   return (
     <Route
       {...rest}
@@ -62,15 +59,15 @@ export default function App() {
       fetch(`api/v1/users/${username}`)
         .then(res => res.json())
         .then(results => {
-          setIsLoaded(true);
           setUser(results.data);
           setAuthenticated(true);
+          setIsLoaded(true);
           return;
         })
         .catch(error => {
-          setIsLoaded(true);
           setError(error);
           setAuthenticated(false);
+          setIsLoaded(true);
         });
     } else {
       setAuthenticated(false);
