@@ -30,24 +30,33 @@
   ],
   "scripts": {
     "lint": "eslint --ignore-path .gitignore --fix ./src",
-    "test": "jest --coverage --maxWorkers=2",
+    "test": "jest --coverage --forceExit",
     "doc": "jsdoc -d ./dist/doc/ -r ./src/backend ./src/frontend ./src/worker",
     "build:imported-components": "imported-components src/frontend src/frontend/imported.js",
     "build:backend": "cross-env BABEL_ENV=server parcel build src/backend/index.js -d dist/backend --public-url / --target=node",
-    "build:frontend": "cross-env BABEL_ENV=client parcel build src/frontend/index.html -d dist/frontend --public-url /static",
-    "build:worker": "cross-env BABEL_ENV=server parcel build src/worker/index.js -d dist/worker --target=node",
-    "build": "rimraf dist && npm run build:backend && npm run build:worker && npm run build:imported-components && npm run build:frontend && rimraf dist/imported.js",
-    "build:backend:dev": "cross-env BABEL_ENV=server parcel build src/backend/index.js -d dist/backend --public-url / --target=node --no-minify",
-    "build:frontend:dev": "cross-env BABEL_ENV=client parcel build src/frontend/index.html dist/imported.js -d dist/frontend --public-url /static --no-minify",
-    "build:worker:dev": "cross-env BABEL_ENV=server parcel build src/worker/index.js -d dist/worker --target=node --no-minify",
-    "build:dev": "concurrently -p \"[{name}]\" -n \"BACKEND,FRONTEND,WORKER\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run build:backend:dev\" \"npm run build:frontend:dev\" \"npm run build:worker:dev\"",
+    "build:frontend": "cross-env BABEL_ENV=client parcel build src/frontend/index.html src/frontend/imported.js -d dist/frontend --public-url /static",
+    "build": "rimraf dist && npm run build:backend && npm run build:imported-components && npm run build:frontend && rimraf src/frontend/imported.js",
+    "build:backend:dev": "cross-env BABEL_ENV=server parcel build src/backend/index.js -d dist/backend --public-url / --target=node --no-minify --no-cache",
+    "build:frontend:dev": "cross-env BABEL_ENV=client parcel build src/frontend/index.html src/frontend/imported.js -d dist/frontend --public-url /static --no-minify --no-cache",
+    "build:dev": "rimraf dist && npm run build:backend:dev && npm run build:imported-components && npm run build:frontend:dev && rimraf src/frontend/imported.js",
     "start:backend": "node dist/backend",
-    "start:worker": "node dist/worker",
-    "start": "concurrently -p \"[{name}]\" -n \"BACKEND,WORKER\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run start:backend\" \"npm run start:worker\"",
+    "start": "npm run start:backend",
     "start:dev": "nodemon -e js,jsx,html --ignore dist --ignore src/frontend/imported.js --exec 'npm run build:dev && npm run start'"
   },
   "engines": {
     "node": ">=12.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -146,26 +155,16 @@
   },
   "babel": {
     "plugins": [
-      [
-        "react-imported-component/babel"
-      ]
+      "react-imported-component/babel"
+    ],
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "ignore": [
+      "./node_modules/plotly.js"
     ],
     "env": {
-      "test": {
-        "presets": [
-          [
-            "@babel/preset-env"
-          ],
-          [
-            "@babel/preset-react"
-          ]
-        ],
-        "plugins": [
-          [
-            "@babel/plugin-syntax-dynamic-import"
-          ]
-        ]
-      },
       "server": {
         "plugins": [
           "react-imported-component/babel",

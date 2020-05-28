@@ -84,7 +84,7 @@ export default function Admin(props) {
             noWrap
             className={classes.title}
           >
-            MLab Murakami Viz
+            MLBN Data Visualization
           </Typography>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
