@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Compare from '../Compare.jsx';
 import Home from '../Home.jsx';
 import Locations from '../Locations.jsx';
-import Users from '../Users.jsx';
+import Users from '../../dashboard/Users.jsx';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

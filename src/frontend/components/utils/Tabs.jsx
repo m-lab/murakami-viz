@@ -95,7 +95,7 @@ export default function NavTabs(props) {
         <Notes />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Users />
+        <Users user={user} />
       </TabPanel>
       <TabPanel value={value} index={3}>
         <Library user={user} />

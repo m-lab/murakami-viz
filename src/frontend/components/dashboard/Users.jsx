@@ -131,6 +131,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
+  const { userRole } = props;
 
   // handle add user
   const [open, setOpen] = React.useState(false);
@@ -145,25 +146,35 @@ const EnhancedTableToolbar = (props) => {
     setSelectedValue(value);
   };
 
-  return (
-    <Toolbar
-      className={clsx(classes.root,)}
-    >
-      <Grid container spacing={2} alignItems="center" justify="flex-start">
-        <Grid item>
-          <Typography component="h2" variant="h3">
-            Users
-          </Typography>
+  if ( userRole === "Admin" ) {
+    return (
+      <Toolbar
+        className={clsx(classes.root,)}
+      >
+        <Grid container spacing={2} alignItems="center" justify="flex-start">
+          <Grid item>
+            <Typography component="h2" variant="h3">
+              Users
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
+              Add
+            </Button>
+            <AddUser selectedValue={selectedValue} open={open} onClose={handleClose} />
+          </Grid>
         </Grid>
-        <Grid item>
-          <Button variant="contained" disableElevation color="primary" onClick={handleClickOpen}>
-            Add
-          </Button>
-          <AddUser selectedValue={selectedValue} open={open} onClose={handleClose} />
-        </Grid>
-      </Grid>
-    </Toolbar>
-  );
+      </Toolbar>
+    );
+  } else {
+    return (
+      <Toolbar className={clsx(classes.root,)} >
+        <Typography component="h2" variant="h3">
+          Users
+        </Typography>
+      </Toolbar>
+    );
+  }
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -187,8 +198,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props) {
   const classes = useStyles();
+  const { user } = props;
+
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
   const [page, setPage] = React.useState(0);
@@ -259,7 +272,7 @@ export default function EnhancedTable() {
   } else {
     return (
       <div className={classes.root}>
-        <EnhancedTableToolbar />
+        <EnhancedTableToolbar userRole={user.role} />
         <TableContainer>
           <Table
             className={classes.table}
