@@ -88,42 +88,8 @@ export default function controller(users) {
   );
 
   /**
-   * Login user.
-   *
-   * @param {Object} ctx - Koa context object
+   * Login + logout  user functions in user controller.
    */
-  router.post('/login', async ctx => {
-    return passport.authenticate('local', (err, user) => {
-      if (!user) {
-        ctx.body = { success: false };
-        ctx.throw(401, 'Authentication failed.');
-      } else {
-        if (ctx.request.body.remember === 'true') {
-          ctx.session.maxAge = 86400000; // 1 day
-        } else {
-          ctx.session.maxAge = 'session';
-        }
-        ctx.body = { success: true };
-        return ctx.login(user);
-      }
-    })(ctx);
-  });
-
-  /**
-   * Logout user.
-   *
-   * @param {Object} ctx - Koa context object
-   */
-  router.get('/logout', async ctx => {
-    if (ctx.isAuthenticated()) {
-      await ctx.logout();
-      ctx.session = null;
-      ctx.redirect('/');
-    } else {
-      ctx.body = { success: false };
-      ctx.throw(401, 'Logout failed.');
-    }
-  });
 
   /**
    * Authentication required

@@ -110,7 +110,10 @@ export default function controller(users, thisUser) {
           ctx.session.maxAge = 'session';
         }
         ctx.cookies.set('mv_user', user.username, { httpOnly: false });
-        ctx.body = { success: true };
+        ctx.body = {
+          success: true,
+          user: user,
+        };
         return ctx.login(user);
       }
     })(ctx);
@@ -123,8 +126,9 @@ export default function controller(users, thisUser) {
    */
   router.get('/logout', async ctx => {
     if (ctx.isAuthenticated()) {
-      await ctx.logout();
+      ctx.logout();
       ctx.session = null;
+      ctx.cookies.set('mv_user', null);
       ctx.redirect('/');
     } else {
       ctx.body = { success: false };

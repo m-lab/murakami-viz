@@ -1,10 +1,13 @@
-import React from 'react';
+// base imports
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
 import { lazy, LazyBoundary } from 'react-imported-component';
-import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import Cookies from 'js-cookie';
+
+// material ui imports
+import Container from '@material-ui/core/Container';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -20,19 +23,46 @@ const Admin = lazy(() => import('./Admin.jsx'));
 
 function PrivateRoute({ component: Component, authed, user, ...rest }) {
   const history = useHistory();
+  const path = {...rest}
 
-  return (
-    <Route
-      {...rest}
-      render={props =>
-        authed === true ? (
-          <Component {...props} user={user} />
-        ) : (
-          history.push('/login')
-        )
-      }
-    />
-  );
+  if (user) {
+    if (user.role !== "Admin" && path.path === "/admin" ) {
+      return (
+        <Route
+          {...rest}
+          render={props =>
+            <Dashboard {...props} user={user} />
+          }
+        />
+      )
+    } else {
+      return (
+        <Route
+          {...rest}
+          render={props =>
+            authed === true ? (
+              <Component {...props} user={user} />
+            ) : (
+              history.push('/login')
+            )
+          }
+        />
+      );
+    }
+  } else {
+    return (
+      <Route
+        {...rest}
+        render={props =>
+          authed === true ? (
+            <Component {...props} user={user} />
+          ) : (
+            history.push('/login')
+          )
+        }
+      />
+    );
+  }
 }
 
 PrivateRoute.propTypes = {
@@ -59,15 +89,15 @@ export default function App() {
       fetch(`api/v1/users/${username}`)
         .then(res => res.json())
         .then(results => {
-          setIsLoaded(true);
           setUser(results.data);
           setAuthenticated(true);
+          setIsLoaded(true);
           return;
         })
         .catch(error => {
-          setIsLoaded(true);
           setError(error);
           setAuthenticated(false);
+          setIsLoaded(true);
         });
     } else {
       setAuthenticated(false);

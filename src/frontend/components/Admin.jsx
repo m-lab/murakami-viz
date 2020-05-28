@@ -1,18 +1,35 @@
+// base imports
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+
+// material ui imports
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
+
+//icon imports
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import IconButton from '@material-ui/core/IconButton';
+
+// modules imports
+import NavTabs from './admin/utils/Tabs.jsx';
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
     //display: 'flex',
+  },
+  content: {
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'auto',
+  },
+  grow: {
+    flexGrow: 1,
   },
   toolbar: {
     //paddingRight: 24, // keep right padding when drawer closed
@@ -37,15 +54,24 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      alignItems: 'center',
+      display: 'flex',
+    },
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
 }));
 
-export default function Admin() {
+export default function Admin(props) {
   const classes = useStyles();
+  const user = props.user || props.location.state.user;
 
   return (
     <Container className={classes.root}>
@@ -58,24 +84,34 @@ export default function Admin() {
             noWrap
             className={classes.title}
           >
-            Dashboard
+            MLab Murakami Viz
           </Typography>
-          <IconButton color="inherit" href="/api/v1/logout">
-            <ExitToAppIcon />
-          </IconButton>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            <AccountCircle />
+            <div>
+              <p>
+                {user.firstName} {user.lastName}
+                <br />
+                {user.role}
+              </p>
+            </div>
+            <IconButton color="inherit" href="/api/v1/logout">
+              <ExitToAppIcon />
+            </IconButton>
+          </div>
         </Toolbar>
       </AppBar>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
-          {/* Chart */}
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <h1>Admin interface here.</h1>
-            </Grid>
-          </Grid>
+          <NavTabs user={user} />
         </Container>
       </main>
     </Container>
   );
 }
+
+Admin.propTypes = {
+  user: PropTypes.object.isRequired,
+};
