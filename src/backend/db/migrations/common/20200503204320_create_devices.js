@@ -9,6 +9,7 @@ export function up(knex) {
           .primary()
           .unsigned();
         table.string('name');
+        table.string('location');
         table.string('network_type');
         table.string('connection_type');
         table.string('dns_server');

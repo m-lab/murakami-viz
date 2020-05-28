@@ -35,6 +35,27 @@ async function validate_query(query) {
 export default function controller(libraries, thisUser) {
   const router = new Router();
 
+  router.get('/libraries/:id/ip/:ip', async ctx => {
+    log.debug(`Retrieving IP ${ctx.params.ip} for library ${ctx.params.id}.`);
+    try {
+      const ip = await libraries.findIp(ctx.params.id, ctx.params.ip);
+      if (ip.length) {
+        ctx.response.body = { status: 'success', data: ip[0] };
+        ctx.response.status = 200;
+      } else {
+        ctx.response.body = {
+          status: 'error',
+          message: `That library ID ${ctx.params.id} does not have IP ${
+            ctx.params.ip
+          } or does not exist.`,
+        };
+        ctx.response.status = 404;
+      }
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
   router.post('/libraries', async ctx => {
     log.debug('Adding new library.');
     let library;

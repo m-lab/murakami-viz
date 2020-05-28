@@ -7,13 +7,71 @@ export default class LibraryManager {
     this._db = db;
   }
 
+  async createIp(lid, ips) {
+    let value;
+    if (Array.isArray(ips)) {
+      value = ips.map(ip => ({ lid: lid, ip: ip }));
+    } else {
+      value = ips;
+    }
+    return this._db
+      .table('library_ips')
+      .insert(value)
+      .returning('*');
+  }
+
+  async findIp(lid, ip) {
+    const rows = await this._db
+      .table('library_ips')
+      .select('*')
+      .modify(queryBuilder => {
+        if (lid) {
+          queryBuilder.where({ lid: parseInt(lid) });
+          if (ip) {
+            queryBuilder.andWhere({ ip: ip });
+          }
+        } else {
+          if (ip) {
+            queryBuilder.where({ ip: ip });
+          }
+        }
+      });
+
+    return rows || [];
+  }
+
+  async deleteIp(lid, ip) {
+    if (!(lid || ip)) {
+      throw new UnprocessableError('Need to specify either library id or IP.');
+    }
+    return this._db
+      .table('library_ips')
+      .del()
+      .modify(queryBuilder => {
+        if (lid) {
+          queryBuilder.where({ lid: parseInt(lid) });
+          if (ip) {
+            queryBuilder.andWhere({ ip: ip });
+          }
+        } else {
+          if (ip) {
+            queryBuilder.where({ ip: ip });
+          }
+        }
+      })
+      .returning('*');
+  }
+
   async create(library) {
     try {
       await validate(library);
     } catch (err) {
       throw new UnprocessableError('Failed to create library: ', err);
     }
-    return this._db.insert(library).returning('*');
+    return this._db
+      .table('libraries')
+      .insert(library)
+      .returning('*');
   }
 
   async update(id, library) {
@@ -43,14 +101,6 @@ export default class LibraryManager {
           contracted_speed_download: library.contracted_speed_download,
           bandwith_cap_upload: library.bandwith_cap_upload,
           bandwith_cap_download: library.bandwith_cap_download,
-          device_name: library.device_name,
-          device_location: library.device_location,
-          device_network_type: library.device_network_type,
-          device_connection_type: library.device_connection_type,
-          device_dns: library.device_dns,
-          device_ip: library.device_ip,
-          device_gateway: library.device_gateway,
-          device_mac_address: library.device_mac_address,
         },
         [
           'id',
@@ -67,17 +117,8 @@ export default class LibraryManager {
           'isp',
           'contracted_speed_upload',
           'contracted_speed_download',
-          'ip',
           'bandwith_cap_upload',
           'bandwith_cap_download',
-          'device_name',
-          'device_location',
-          'device_network_type',
-          'device_connection_type',
-          'device_dns',
-          'device_ip',
-          'device_gateway',
-          'device_mac_address',
         ],
       )
       .returning('*');

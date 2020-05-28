@@ -21,18 +21,9 @@ const schema = Joi.object({
   isp: Joi.string(),
   contracted_speed_upload: Joi.string(),
   contracted_speed_download: Joi.string(),
-  ip: Joi.string(),
+  ip: Joi.array().items(Joi.string().ip()),
   bandwith_cap_upload: Joi.string(),
   bandwith_cap_download: Joi.string(),
-  device_name: Joi.string(),
-  device_location: Joi.string(),
-  device_network_type: Joi.string(),
-  device_connection_type: Joi.string(),
-  device_dns: Joi.string(),
-  device_ip: Joi.string(),
-  device_gateway: Joi.string(),
-  device_mac_address: Joi.string(),
-  user_id: Joi.number(),
 });
 
 export async function validate(data) {
