@@ -68,7 +68,7 @@ const useForm = (callback) => {
   };
 }
 
-export default function EditAbout(props) {
+export default function EditContact(props) {
   const classes = useStyles();
   const { onClose, open, row, onRowUpdate } = props;
 
@@ -104,21 +104,21 @@ export default function EditAbout(props) {
         <ClearIcon />
       </Button>
       <DialogTitle id="edit-note-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Edit About Section</div>
+        <div className={classes.dialogTitleText}>Edit Contact Information</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="about"
-          label="About"
-          name="about"
+          id="contact"
+          label="Contact"
+          name="contact"
           multiline="true"
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={'This is the about blurb.'}
+          defaultValue={'This is the contact information.'}
           onChange={handleInputChange}
-          value={inputs.about}
+          value={inputs.contact}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -150,7 +150,7 @@ export default function EditAbout(props) {
   );
 }
 
-EditAbout.propTypes = {
+EditContact.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   row: PropTypes.object.isRequired,

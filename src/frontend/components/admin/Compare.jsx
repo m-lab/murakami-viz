@@ -5,7 +5,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
 }));
 
-export default function About(props) {
+export default function Compare(props) {
   const classes = useStyles();
   const { user } = props;
 

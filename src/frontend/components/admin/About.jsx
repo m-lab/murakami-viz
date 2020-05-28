@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditAbout from './utils/EditAbout.jsx';
+import EditContact from './utils/EditContact.jsx';
 
 const useStyles = makeStyles(theme => ({
 }));
@@ -31,6 +32,18 @@ export default function About(props) {
     setSelectedAboutValue(value);
   };
 
+  // handle contact edit
+  const [openContact, setOpenContact] = React.useState(false);
+  const [selectedContactValue, setSelectedContactValue] = React.useState();
+
+  const handleContactClickOpen = () => {
+    setOpenContact(true);
+  };
+
+  const handleContactClose = value => {
+    setOpenContact(false);
+    setSelectedContactValue(value);
+  };
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -57,7 +70,7 @@ export default function About(props) {
   } else {
     return (
       <Suspense>
-        <Box mb={9} >
+        <Box mb={9} mt={9} >
           <Grid container spacing={2} alignItems="center">
             <Grid item>
               <Typography component="h3" variant="h3">
@@ -73,7 +86,7 @@ export default function About(props) {
               >
                 Edit
               </Button>
-              <EditAbout open={open} onClose={handleAboutClose} />
+              <EditAbout open={openAbout} onClose={handleAboutClose} />
             </Grid>
           </Grid>
           <div>
@@ -81,6 +94,31 @@ export default function About(props) {
               Unam incolunt Belgae, aliam Aquitani, tertiam. Me non paenitet nullum festiviorem excogitasse ad hoc. Gallia est omnis divisa in partes tres, quarum. Donec sed odio operae, eu vulputate felis rhoncus. Excepteur sint obcaecat cupiditat non proident culpa.
 
               Magna pars studiorum, prodita quaerimus. Hi omnes lingua, institutis, legibus inter se differunt. Nihil hic munitissimus habendi senatus locus, nihil horum? Ab illo tempore, ab est sed immemorabili.
+            </Typography>
+          </div>
+        </Box>
+        <Box mb={9} mt={9} >
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <Typography component="h3" variant="h3">
+                Contact
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disableElevation
+                color="primary"
+                onClick={handleContactClickOpen}
+              >
+                Edit
+              </Button>
+              <EditContact open={openContact} onClose={handleContactClose} />
+            </Grid>
+          </Grid>
+          <div>
+            <Typography component="p" variant="body1">
+            Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Tityre, tu patulae recubans sub tegmine fagi dolor. Contra legem facit qui id facit quod lex prohibet. A communi observantia non est recedendum. Ut enim ad minim veniam, quis nostrud exercitation. Quo usque tandem abutere, Catilina, patientia nostra? Nec dubitamus multa iter quae et nos invenerat. Ambitioni dedisse scripsisse iudicaretur. Ullamco laboris nisi ut aliquid ex ea commodi consequat. Praeterea iter est quasdam res quas ex communi.
             </Typography>
           </div>
         </Box>
