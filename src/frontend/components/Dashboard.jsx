@@ -1,5 +1,5 @@
 // base imports
-import React from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
@@ -15,6 +15,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import IconButton from '@material-ui/core/IconButton';
 
 // modules imports
+import Loading from './Loading.jsx';
 import NavTabs from './utils/Tabs.jsx';
 
 const drawerWidth = 240;
@@ -73,43 +74,72 @@ export default function Dashboard(props) {
   const classes = useStyles();
   const user = props.user || props.location.state.user;
 
-  return (
-    <Container className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
-        <Toolbar className={classes.toolbar}>
-          <Typography
-            component="h2"
-            variant="h6"
-            color="inherit"
-            noWrap
-            className={classes.title}
-          >
-            MLab Murakami Viz
-          </Typography>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <AccountCircle />
-            <div>
-              <p>
-                {user.firstName} {user.lastName}
-                <br />
-                {user.role}
-              </p>
-            </div>
-            <IconButton color="inherit" href="/api/v1/logout">
-              <ExitToAppIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-      </AppBar>
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container className={classes.container}>
-          <NavTabs user={user} />
+  // handle library
+  const [library, setLibrary] = React.useState({});
+
+  // fetch api data
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch(`/api/v1/libraries?of_user=${user.id}`)
+      .then(res => res.json())
+      .then(results => {
+        setLibrary(results.data[0]);
+        setIsLoaded(true);
+        return;
+      })
+      .catch(error => {
+        setIsLoaded(true);
+        setError(error);
+      });
+  }, []);
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <Loading />;
+  } else {
+    return (
+      <Suspense>
+        <Container className={classes.root}>
+          <AppBar position="static" className={classes.appBar}>
+            <Toolbar className={classes.toolbar}>
+              <Typography
+                component="h2"
+                variant="h6"
+                color="inherit"
+                noWrap
+                className={classes.title}
+              >
+                MLab Murakami Viz
+              </Typography>
+              <div className={classes.grow} />
+              <div className={classes.sectionDesktop}>
+                <AccountCircle />
+                <div>
+                  <p>
+                    {user.firstName} {user.lastName}
+                    <br />
+                    {user.role}
+                  </p>
+                </div>
+                <IconButton color="inherit" href="/api/v1/logout">
+                  <ExitToAppIcon />
+                </IconButton>
+              </div>
+            </Toolbar>
+          </AppBar>
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer} />
+            <Container className={classes.container}>
+              <NavTabs user={user} library={library} />
+            </Container>
+          </main>
         </Container>
-      </main>
-    </Container>
-  );
+      </Suspense>
+    );
+  }
 }
 
 Dashboard.propTypes = {

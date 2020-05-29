@@ -68,7 +68,7 @@ const useStyles = makeStyles(theme => ({
 export default function NavTabs(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
-  const { user } = props;
+  const { user, library } = props;
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -95,10 +95,10 @@ export default function NavTabs(props) {
         <Notes />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Users user={user} />
+        <Users user={user} library={library} />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <Library user={user} />
+        <Library user={user} library={library} />
       </TabPanel>
       <TabPanel value={value} index={4}>
         <About />

@@ -200,7 +200,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EnhancedTable(props) {
   const classes = useStyles();
-  const { user } = props;
+  const { user, library } = props;
 
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
@@ -302,7 +302,7 @@ export default function EnhancedTable(props) {
                         <TableCell component="th" id={labelId} scope="row" padding="none">
                           {formatName(row.firstName, row.lastName)}
                         </TableCell>
-                        <TableCell>{row.location}</TableCell>
+                        <TableCell>{library.physical_address}</TableCell>
                         <TableCell>
                           {row.email}
                         </TableCell>
