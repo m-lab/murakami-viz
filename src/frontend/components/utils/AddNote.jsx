@@ -70,10 +70,10 @@ const useForm = (callback) => {
 
 export default function AddNote(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open, onRowUpdate } = props;
+  const { onClose, open, onRowUpdate } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
 
   const submitData = () => {
@@ -162,5 +162,4 @@ export default function AddNote(props) {
 AddNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
 };
