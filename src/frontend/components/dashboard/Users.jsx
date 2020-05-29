@@ -1,5 +1,5 @@
 // base imports
-import React from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
@@ -24,6 +24,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 // modules imports
 import AddUser from '../utils/AddUser.jsx';
 import EditUser from '../utils/EditUser.jsx';
+import Loading from '../Loading.jsx';
 import ViewUser from '../utils/ViewUser.jsx';
 
 function formatName(first, last) {
@@ -268,72 +269,74 @@ export default function EnhancedTable(props) {
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else {
     return (
-      <div className={classes.root}>
-        <EnhancedTableToolbar userRole={user.role} />
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const labelId = `data-row-${index}`;
+      <Suspense>
+        <div className={classes.root}>
+          <EnhancedTableToolbar userRole={user.role} />
+          <TableContainer>
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              aria-label="enhanced table"
+            >
+              <EnhancedTableHead
+                classes={classes}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const labelId = `data-row-${index}`;
 
 
-                  return (
-                    <TableRow
-                        hover
-                        onClick={() => {handleClickOpen(index);}}
-                        key={row.firstName}
-                      >
-                        <TableCell component="th" id={labelId} scope="row" padding="none">
-                          {formatName(row.firstName, row.lastName)}
-                        </TableCell>
-                        <TableCell>{library.physical_address}</TableCell>
-                        <TableCell>
-                          {row.email}
-                        </TableCell>
-                        <TableCell>
-                          {formatRole(row.role)}
-                        </TableCell>
-                      </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[rowsPerPage]}
-          page={page}
-          onChangePage={handleChangePage}
-        />
-        <ViewUser
-          index={index}
-          rows={stableSort(rows, getComparator(order, orderBy))}
-          open={open}
-          onClose={handleClose} />
-      </div>
+                    return (
+                      <TableRow
+                          hover
+                          onClick={() => {handleClickOpen(index);}}
+                          key={row.firstName}
+                        >
+                          <TableCell component="th" id={labelId} scope="row" padding="none">
+                            {formatName(row.firstName, row.lastName)}
+                          </TableCell>
+                          <TableCell>{library.physical_address}</TableCell>
+                          <TableCell>
+                            {row.email}
+                          </TableCell>
+                          <TableCell>
+                            {formatRole(row.role)}
+                          </TableCell>
+                        </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[rowsPerPage]}
+            page={page}
+            onChangePage={handleChangePage}
+          />
+          <ViewUser
+            index={index}
+            rows={stableSort(rows, getComparator(order, orderBy))}
+            open={open}
+            onClose={handleClose} />
+        </div>
+      </Suspense>
     );
   }
 }
