@@ -47,13 +47,10 @@ function formatKey(key) {
   return key.replace(/_/g, ' ');
 }
 
-export default function Library(props) {
-  const classes = useStyles();
-  const { user } = props;
+const EditButton = props => {
+  const { userRole, row } = props;
 
-  // handle edit library
   const [open, setOpen] = React.useState(false);
-  const [row, setRow] = React.useState({});
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -62,6 +59,30 @@ export default function Library(props) {
   const handleClose = value => {
     setOpen(false);
   };
+
+  if ( userRole === "Admin" || userRole === "Editor" ) {
+    return (
+      <Grid item>
+        <Button
+          variant="contained"
+          disableElevation
+          color="primary"
+          onClick={handleClickOpen}
+        >
+          Edit
+        </Button>
+        <EditLibrary open={open} onClose={handleClose} row={row} />
+      </Grid>
+    )
+  } else { return null; }
+}
+
+export default function Library(props) {
+  const classes = useStyles();
+  const { user } = props;
+
+  // handle edit library
+  const [row, setRow] = React.useState({});
 
   // fetch api data
   const [error, setError] = React.useState(null);
@@ -95,17 +116,7 @@ export default function Library(props) {
                 {row.name}
               </Typography>
             </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                disableElevation
-                color="primary"
-                onClick={handleClickOpen}
-              >
-                Edit
-              </Button>
-              <EditLibrary open={open} onClose={handleClose} row={row} />
-            </Grid>
+            <EditButton row={row} userRole={user.role} />
           </Grid>
         </Box>
         <Box mb={9}>
