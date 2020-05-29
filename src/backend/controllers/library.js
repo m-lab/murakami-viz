@@ -35,18 +35,20 @@ async function validate_query(query) {
 export default function controller(libraries, thisUser) {
   const router = new Router();
 
-  router.get('/libraries/:id/ip/:ip', async ctx => {
-    log.debug(`Retrieving IP ${ctx.params.ip} for library ${ctx.params.id}.`);
+  router.get('/libraries/:id/ip/:address', async ctx => {
+    log.debug(
+      `Retrieving IP ${ctx.params.address} for library ${ctx.params.id}.`,
+    );
     try {
-      const ip = await libraries.findIp(ctx.params.id, ctx.params.ip);
+      const ip = await libraries.findIp(ctx.params.id, ctx.params.address);
       if (ip.length) {
         ctx.response.body = { status: 'success', data: ip[0] };
         ctx.response.status = 200;
       } else {
         ctx.response.body = {
           status: 'error',
-          message: `That library ID ${ctx.params.id} does not have IP ${
-            ctx.params.ip
+          message: `Library with ID ${ctx.params.id} does not have IP ${
+            ctx.params.address
           } or does not exist.`,
         };
         ctx.response.status = 404;
@@ -54,6 +56,39 @@ export default function controller(libraries, thisUser) {
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+  });
+
+  router.get('/libraries/:id/ip', async ctx => {
+    log.debug(`Retrieving IPs for library ${ctx.params.id}.`);
+    try {
+      const ip = await libraries.findIp(ctx.params.id);
+      if (ip.length) {
+        ctx.response.body = { status: 'success', data: ip };
+        ctx.response.status = 200;
+      } else {
+        ctx.response.body = {
+          status: 'error',
+          message: `That library ID ${
+            ctx.params.id
+          } does not have IP any IPs or does not exist.`,
+        };
+        ctx.response.status = 404;
+      }
+    } catch (err) {
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+  });
+
+  router.post('/libraries/:id/ip/:address', async ctx => {
+    log.debug(`Adding IP ${ctx.params.address} to library ${ctx.params.id}.`);
+    let ip;
+    try {
+      ip = await libraries.createIp(ctx.params.id, ctx.params.address);
+    } catch (err) {
+      ctx.throw(400, `Failed to parse library schema: ${err}`);
+    }
+    ctx.response.body = { status: 'success', data: ip };
+    ctx.response.status = 201;
   });
 
   router.post('/libraries', async ctx => {

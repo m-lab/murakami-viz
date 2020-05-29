@@ -12,7 +12,7 @@ export default class LibraryManager {
     if (Array.isArray(ips)) {
       value = ips.map(ip => ({ lid: lid, ip: ip }));
     } else {
-      value = ips;
+      value = { lid: lid, ip: ips };
     }
     return this._db
       .table('library_ips')
