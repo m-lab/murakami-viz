@@ -86,14 +86,13 @@ export default function EditNote(props) {
     })
     .then(response => response.json())
     .then(results => {
-      onRowUpdate(results.data[0]);
       alert('Note edited successfully.');
+      onClose(results.data[0]);
     })
     .catch(error => {
       alert('An error occurred. Please try again or contact an administrator.');
+      onClose();
     });
-
-    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);

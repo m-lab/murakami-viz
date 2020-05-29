@@ -70,10 +70,10 @@ const useForm = (callback) => {
 
 export default function AddNote(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open, onRowUpdate } = props;
+  const { onClose, open, onRowUpdate } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
 
   const submitData = () => {
@@ -88,11 +88,12 @@ export default function AddNote(props) {
     .then(() => {
       // onRowUpdate(results.data[0]);
       alert('Note submitted successfully.');
+      onClose(inputs);
     })
     .catch(error => {
       alert('An error occurred. Please try again or contact an administrator.');
+      onClose();
     })
-    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
@@ -162,5 +163,4 @@ export default function AddNote(props) {
 AddNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
 };

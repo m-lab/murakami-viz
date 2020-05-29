@@ -118,7 +118,7 @@ export default function controller(notes, thisUser) {
 
       // workaround for sqlite
       if (Number.isInteger(note)) {
-        note = await notes.findById(note);
+        note = await notes.findById(ctx.params.id);
       }
 
       if (note.length) {
