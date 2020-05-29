@@ -70,7 +70,7 @@ const useForm = (callback) => {
 
 export default function EditNote(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, row } = props;
 
   const handleClose = () => {
     onClose();
@@ -98,7 +98,14 @@ export default function EditNote(props) {
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="edit-note-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
+    <Dialog
+      onClose={handleClose}
+      modal={true}
+      open={open}
+      aria-labelledby="edit-note-title"
+      fullWidth={ true }
+      maxWidth={"lg"}
+      className={classes.dialog}>
       <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
         <ClearIcon />
       </Button>

@@ -113,7 +113,14 @@ export default function ViewNote(props) {
   };
 
   return (
-    <Dialog onClose={() => handleClose(row)} modal={true} open={open} aria-labelledby="view-note-title" fullWidth={ true } maxWidth={"md"} className={classes.dialog}>
+    <Dialog
+      onClose={() => handleClose(row)}
+      modal={true}
+      open={open}
+      aria-labelledby="view-note-title"
+      fullWidth={ true }
+      maxWidth={"md"}
+      className={classes.dialog}>
       <MobileStepper
         steps={maxSteps}
         position="static"

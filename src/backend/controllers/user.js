@@ -238,7 +238,7 @@ export default function controller(users, thisUser) {
 
       // workaround for sqlite
       if (Number.isInteger(user)) {
-        user = await users.findById(user);
+        user = await users.findById(ctx.params.id);
       }
 
       if (user.length) {
