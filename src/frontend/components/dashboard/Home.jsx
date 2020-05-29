@@ -37,8 +37,11 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '0',
   },
   grid: {
-    // border: '1px solid black',
     padding: '20px',
+  },
+  gridBorder: {
+    border: '1px solid #000',
+    borderRadius: '10px',
   },
   header: {
     marginTop: '40px',
@@ -47,8 +50,19 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     top: '-15px',
   },
+  large: {
+    fontSize: '3rem',
+  },
+  plotSmall: {
+    height: '60px',
+    width: '100%',
+  },
   selectEmpty: {
     marginTop: theme.spacing(2),
+  },
+  textBorder: {
+    borderTop: '1px solid #000',
+    paddingTop: '5px',
   },
   upper: {
     textTransform: 'uppercase',
@@ -221,8 +235,19 @@ function Home(props) {
               </Grid>
             </Grid>
             <Grid container item direction="row" spacing={2} xs={12}>
-              <Grid item className={classes.grid} xs={6}>
+              <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+                <Typography component="div" className={classes.upper}>
+                  7 day median:
+                </Typography>
+                <Typography component="div" className={classes.large}>
+                  50
+                </Typography>
+                <Typography component="div">
+                  Mbps
+                </Typography>
                 <Plot
+                  className={classes.plotSmall}
+                  config={{displayModeBar: false}}
                   data={[
                     {
                       x: [1, 2, 3],
@@ -230,11 +255,13 @@ function Home(props) {
                       type: 'scatter',
                       mode: 'lines+markers',
                       marker: { color: 'rgb(52, 235, 107)' },
+                      hoverinfo: 'none',
                     },
                   ]}
                   layout={{
-                    width: 250,
-                    height: 250,
+                    autosize: true,
+                    // width: 250,
+                    // height: 250,
                     margin: {
                       l: 20,
                       r: 20,
@@ -243,11 +270,35 @@ function Home(props) {
                       pad: 5,
                     },
                     title: false,
+                    xaxis: {
+                      showgrid: false,
+                      visible: false,
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      showgrid: false,
+                      visible: false,
+                      zeroline: false,
+                    }
                   }}
                 />
+                <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
+                  Last 7 days: 28 tests
+                </Typography>
               </Grid>
-              <Grid item className={classes.grid} xs={6}>
+              <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+                <Typography component="div" className={classes.upper}>
+                  24 hour median:
+                </Typography>
+                <Typography component="div" className={classes.large}>
+                  61
+                </Typography>
+                <Typography component="div">
+                  Mbps
+                </Typography>
                 <Plot
+                  className={classes.plotSmall}
+                  config={{displayModeBar: false}}
                   data={[
                     {
                       x: [1, 2, 3],
@@ -255,11 +306,13 @@ function Home(props) {
                       type: 'scatter',
                       mode: 'lines+markers',
                       marker: { color: 'rgb(235, 64, 52)' },
+                      hoverinfo: 'none',
                     },
                   ]}
                   layout={{
-                    width: 250,
-                    height: 250,
+                    autosize: true,
+                    // width: 250,
+                    // height: 250,
                     margin: {
                       l: 20,
                       r: 20,
@@ -268,8 +321,21 @@ function Home(props) {
                       pad: 5,
                     },
                     title: false,
+                    xaxis: {
+                      showgrid: false,
+                      visible: false,
+                      zeroline: false,
+                    },
+                    yaxis: {
+                      showgrid: false,
+                      visible: false,
+                      zeroline: false,
+                    },
                   }}
                 />
+                <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
+                  Last 24 hours: 4 tests
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
@@ -356,7 +422,17 @@ function Home(props) {
                     marker: { color: 'red' },
                   },
                 ]}
-                layout={{ width: 820, height: 440, title: '' }}
+                layout={{
+                  width: 820,
+                  height: 440,
+                  title: '',
+                  xaxis: {
+                    showgrid: false,
+                  },
+                  yaxis: {
+                    showgrid: false,
+                  }
+                }}
               />
             </Grid>
           </Grid>
