@@ -392,7 +392,20 @@ function Home(props) {
                     marker: { color: 'red' },
                   },
                 ]}
-                layout={{ width: 820, height: 440, title: '' }}
+                layout={{
+                  width: 820,
+                  height: 440,
+                  yaxis: {
+                    title: {
+                      text: 'Download Speed (Mbit/s)',
+                      font: {
+                        family: 'Roboto, monospace',
+                        size: 14,
+                      }
+                    }
+                  },
+                  title: false,
+                }}
               />
             </Grid>
           </Grid>
