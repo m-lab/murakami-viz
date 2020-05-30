@@ -1,7 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
 import { CSVLink } from "react-csv";
-import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
@@ -9,17 +8,14 @@ import Plot from 'react-plotly.js';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-// import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+import { TextField } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
-import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
+import DatePicker from '../datepicker/DatePicker.jsx';
+import Loading from '../Loading.jsx';
 
 const headers = [
   { label: 'id', key: 'run.id' },
@@ -113,15 +109,10 @@ const MenuProps = {
   },
 };
 
-function Home(props) {
+export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { user } = props;
-
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const handleDateChange = date => {
-    setSelectedDate(date);
-  };
 
   const [viewValue, setViewValue] = React.useState('wired');
   const handleViewChange = event => {
@@ -152,6 +143,9 @@ function Home(props) {
   const handleTestChange = event => {
     setTest(event.target.value);
   };
+
+  // handle date range picker
+
 
   // handle add note
   const [open, setOpen] = React.useState(false);
@@ -315,21 +309,7 @@ function Home(props) {
             <Typography variant="overline" display="block" gutterBottom>
               Date range
             </Typography>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-inline"
-                label="Date range"
-                value={selectedDate}
-                onChange={handleDateChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
-              />
-            </MuiPickersUtilsProvider>
+            <DatePicker />
           </div>
           <Grid
             container
@@ -441,5 +421,3 @@ function Home(props) {
     );
   }
 }
-
-export default Home;
