@@ -70,12 +70,13 @@ const useForm = (callback) => {
 
 export default function AddNote(props) {
   const classes = useStyles();
-  const { onClose, selectedValue, open, onRowUpdate } = props;
+  const { onClose, open } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
 
+  // submit new note to api
   const submitData = () => {
     fetch('api/v1/notes', {
       method: 'POST',
@@ -86,19 +87,26 @@ export default function AddNote(props) {
     })
     .then(response => response.json())
     .then(() => {
-      // onRowUpdate(results.data[0]);
       alert('Note submitted successfully.');
+      onClose(inputs);
     })
     .catch(error => {
       alert('An error occurred. Please try again or contact an administrator.');
+      onClose();
     })
-    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-note-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
+    <Dialog
+      onClose={handleClose}
+      modal={true}
+      open={open}
+      aria-labelledby="add-note-title"
+      fullWidth={ true }
+      maxWidth={"lg"}
+      className={classes.dialog}>
       <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
         <ClearIcon />
       </Button>
@@ -162,5 +170,4 @@ export default function AddNote(props) {
 AddNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
 };

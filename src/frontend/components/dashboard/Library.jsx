@@ -16,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
+import Loading from '../Loading.jsx';
 
 const TableCell = withStyles({
   root: {

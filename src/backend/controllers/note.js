@@ -126,6 +126,17 @@ export default function controller(notes, thisUser) {
       if (Number.isInteger(note)) {
         note = await notes.findById(ctx.params.id);
       }
+
+      if (note.length) {
+        ctx.response.body = { status: 'success', data: note };
+        ctx.response.status = 200;
+      } else {
+        ctx.response.body = {
+          status: 'error',
+          message: `That note with ID ${ctx.params.id} does not exist.`,
+        };
+        ctx.response.status = 404;
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }

@@ -1,5 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
+import { CSVLink } from "react-csv";
 import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
@@ -19,6 +20,41 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
+
+const headers = [
+  { label: 'id', key: 'run.id' },
+  { label: 'Test Name', key: 'run.TestName' },
+  { label: 'Test Error', key: 'TestError' },
+  { label: 'Server Name', key: 'ServerName' },
+  { label: 'Server IP', key: 'server.ip' },
+  { label: 'Client IP', key: 'ClientIP' },
+  { label: 'Murakami Location', key: 'MurakamiLocation' },
+  { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
+  { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
+  { label: 'Download UUID', key: 'DownloadUUID' },
+  { label: 'Download Test Start Time', key: 'DownloadTestStartTime' },
+  { label: 'Download Test End Time', key: 'DownloadTestEndTime' },
+  { label: 'Download Value', key: 'DownloadValue' },
+  { label: 'Download Unit', key: 'DownloadUnit' },
+  { label: 'Download Error', key: 'DownloadError' },
+  { label: 'Download Retrans Value', key: 'DownloadRetransValue' },
+  { label: 'Download Retrans Unit', key: 'DownloadRetransUnit' },
+  { label: 'Upload Value', key: 'UploadValue' },
+  { label: 'Upload Unit', key: 'UploadUnit' },
+  { label: 'Min RTT Value', key: 'MinRTTValue' },
+  { label: 'Min RTT Unit', key: 'MinRTTUnit' },
+];
+
+const data = [
+  { run: {
+      id: 1,
+      TestName: 'ndt7'
+    },
+    server: {
+      ip: '0.0.0.0',
+    }
+  },
+];
 
 const useStyles = makeStyles(theme => ({
   chips: {
@@ -356,7 +392,20 @@ function Home(props) {
                     marker: { color: 'red' },
                   },
                 ]}
-                layout={{ width: 820, height: 440, title: '' }}
+                layout={{
+                  width: 820,
+                  height: 440,
+                  yaxis: {
+                    title: {
+                      text: 'Download Speed (Mbit/s)',
+                      font: {
+                        family: 'Roboto, monospace',
+                        size: 14,
+                      }
+                    }
+                  },
+                  title: false,
+                }}
               />
             </Grid>
           </Grid>
@@ -381,7 +430,11 @@ function Home(props) {
             </Grid>
           </Grid>
           <Grid item xs={12} sm={2}>
-            <Button variant="contained">Export</Button>
+            <Button variant="contained">
+              <CSVLink data={data} headers={headers}>
+                Export
+              </CSVLink>
+            </Button>
           </Grid>
         </Grid>
       </Suspense>

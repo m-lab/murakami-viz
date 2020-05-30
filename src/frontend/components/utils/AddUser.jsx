@@ -1,5 +1,5 @@
 // base imports
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -20,6 +20,9 @@ import Typography from '@material-ui/core/Typography';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
+
+// module imports
+import Loading from '../Loading.jsx';
 
 const useStyles = makeStyles(theme => ({
   cancelButton: {
@@ -77,7 +80,7 @@ const useForm = (callback) => {
 
 export default function AddUser(props) {
   const classes = useStyles();
-  const { onClose, open, onRowUpdate } = props;
+  const { onClose, open } = props;
 
   const handleClose = () => {
     onClose();
@@ -90,6 +93,7 @@ export default function AddUser(props) {
     setRole(event.target.value);
   };
 
+  // submit new user to api
   const submitData = () => {
     fetch('api/v1/users', {
       method: 'POST',
@@ -100,13 +104,14 @@ export default function AddUser(props) {
     })
     .then(response => response.json())
     .then((results) => {
-      // onRowUpdate(results.data[0]);
       alert('User submitted successfully.');
+      onClose(inputs);
     })
     .catch(error => {
+      console.log(error);
       alert('An error occurred. Please try again or contact an administrator.');
+      onClose();
     })
-    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
@@ -134,102 +139,111 @@ export default function AddUser(props) {
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else {
     return (
-      <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
-        <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
-          <ClearIcon />
-        </Button>
-        <DialogTitle id="add-user-title" className={classes.dialogTitleRoot}>
-          <div className={classes.dialogTitleText}>Add a new user</div>
-        </DialogTitle>
-        <Box className={classes.form}>
-          <TextField
-            className={classes.formField}
-            id="user-username"
-            label="Username"
-            name="username"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-          />
-          <TextField
-            className={classes.formField}
-            id="user-password"
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-          />
-          <TextField
-            className={classes.formField}
-            id="user-first-name"
-            label="First Name"
-            name="firstName"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-          />
-          <TextField
-            className={classes.formField}
-            id="user-last-name"
-            label="Last Name"
-            name="lastName"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-          />
-          <TextField
-            className={classes.formField}
-            id="user-email"
-            label="Email"
-            name="email"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-          />
-          <FormControl variant="outlined" className={classes.formControl}>
-            <Autocomplete
-              id="library-select"
-              options={libraries}
-              getOptionLabel={(option) => option.name}
-              renderInput={(params) => <TextField {...params} label="Location" variant="outlined" />}
-            />
-          </FormControl>
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="user-role">Role</InputLabel>
-            <Select
-              labelId="user-role"
+      <Suspense>
+        <Dialog
+          onClose={handleClose}
+          modal={true}
+          open={open}
+          aria-labelledby="add-user-title"
+          fullWidth={ true }
+          maxWidth={"lg"}
+          className={classes.dialog}>
+          <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
+            <ClearIcon />
+          </Button>
+          <DialogTitle id="add-user-title" className={classes.dialogTitleRoot}>
+            <div className={classes.dialogTitleText}>Add a new user</div>
+          </DialogTitle>
+          <Box className={classes.form}>
+            <TextField
               className={classes.formField}
-              id="user-role"
-              label="Role"
-              name="role"
+              id="user-username"
+              label="Username"
+              name="username"
+              fullWidth
+              variant="outlined"
               onChange={handleInputChange}
-            >
-              <MenuItem value='editor'>Editor</MenuItem>
-              <MenuItem value='viewer'>Viewer</MenuItem>
-            </Select>
-          </FormControl>
-          <Grid container alignItems="center" justify="space-between">
-            <Grid item>
-              <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
-                Cancel
-              </Button>
+            />
+            <TextField
+              className={classes.formField}
+              id="user-password"
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <TextField
+              className={classes.formField}
+              id="user-first-name"
+              label="First Name"
+              name="firstName"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <TextField
+              className={classes.formField}
+              id="user-last-name"
+              label="Last Name"
+              name="lastName"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <TextField
+              className={classes.formField}
+              id="user-email"
+              label="Email"
+              name="email"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <FormControl variant="outlined" className={classes.formControl}>
+              <Autocomplete
+                id="library-select"
+                options={libraries}
+                getOptionLabel={(option) => option.name}
+                renderInput={(params) => <TextField {...params} label="Location" variant="outlined" />}
+              />
+            </FormControl>
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="user-role">Role</InputLabel>
+              <Select
+                labelId="user-role"
+                className={classes.formField}
+                id="user-role"
+                label="Role"
+                name="role"
+                onChange={handleInputChange}
+              >
+                <MenuItem value='editor'>Editor</MenuItem>
+                <MenuItem value='viewer'>Viewer</MenuItem>
+              </Select>
+            </FormControl>
+            <Grid container alignItems="center" justify="space-between">
+              <Grid item>
+                <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
+                  Cancel
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary"
+                  primary={true}
+                  onClick={submitData}>
+                  Save
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button type="submit" label="Save" className={classes.cancelButton} variant="contained" disableElevation color="primary"
-                primary={true}
-                onClick={submitData}>
-                Save
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-      </Dialog>
+          </Box>
+        </Dialog>
+      </Suspense>
     );
   }
 }

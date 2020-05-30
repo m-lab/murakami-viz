@@ -79,7 +79,7 @@ const useForm = (callback) => {
 
 export default function EditUser(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, row } = props;
 
   const handleClose = () => {
     onClose();
@@ -95,20 +95,27 @@ export default function EditUser(props) {
     })
     .then(response => response.json())
     .then(results => {
-      onRowUpdate(results.data[0]);
       alert('User edited successfully.');
+      onClose(results.data[0]);
     })
     .catch(error => {
       alert('An error occurred. Please try again or contact an administrator.');
+      onClose();
     });
 
-    onClose();
   }
 
   const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="edit-user-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
+    <Dialog
+      onClose={handleClose}
+      modal={true}
+      open={open}
+      aria-labelledby="edit-user-title"
+      fullWidth={ true }
+      maxWidth={"lg"}
+      lassName={classes.dialog}>
       <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
         <ClearIcon />
       </Button>

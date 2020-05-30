@@ -243,6 +243,17 @@ export default function controller(users, thisUser) {
       if (Number.isInteger(user)) {
         user = await users.findById(ctx.params.id);
       }
+
+      if (user.length) {
+        ctx.response.body = { status: 'success', data: user };
+        ctx.response.status = 200;
+      } else {
+        ctx.response.body = {
+          status: 'error',
+          message: `That user with ID ${ctx.params.id} does not exist.`,
+        };
+        ctx.response.status = 404;
+      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
