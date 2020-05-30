@@ -34,26 +34,31 @@ async function validate_query(query) {
 export default function controller(devices, thisUser) {
   const router = new Router();
 
-  router.post('/devices', async ctx => {
+  router.post('/devices', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new device.');
-    let device;
+    let device, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
+
     try {
-      device = await devices.create(ctx.request.body);
+      device = await devices.create(ctx.request.body, lid);
 
       // workaround for sqlite
       if (Number.isInteger(device)) {
         device = await devices.findById(device);
       }
     } catch (err) {
-      ctx.throw(400, `Failed to parse device schema: ${err}`);
+      ctx.throw(400, `Failed to add device: ${err}`);
     }
-    ctx.response.body = { status: 'success', data: device };
+    ctx.response.body = { status: 'success', data: device[0] };
     ctx.response.status = 201;
   });
 
   router.get('/devices', async ctx => {
     log.debug(`Retrieving devices.`);
-    let res;
+    let res, library;
     try {
       const query = await validate_query(ctx.query);
       let from, to;
@@ -71,6 +76,13 @@ export default function controller(devices, thisUser) {
         }
         to = timestamp.toISOString();
       }
+
+      if (ctx.params.lid) {
+        library = ctx.params.lid;
+      } else {
+        library = query.library;
+      }
+
       res = await devices.find({
         start: query.start,
         end: query.end,
@@ -78,7 +90,7 @@ export default function controller(devices, thisUser) {
         sort_by: query.sort_by,
         from: from,
         to: to,
-        library: query.library,
+        library: library,
       });
       ctx.response.body = {
         status: 'success',
@@ -91,71 +103,79 @@ export default function controller(devices, thisUser) {
     }
   });
 
-  router.get('/devices/:id', async ctx => {
-    log.debug(`Retrieving device ${ctx.params.id}.`);
-    let device;
-    try {
-      device = await devices.findById(ctx.params.id);
-      if (device.length) {
-        ctx.response.body = { status: 'success', data: device };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That device with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+  router.get(
+    '/devices/:id',
+    thisUser.can('access private pages'),
+    async ctx => {
+      log.debug(`Retrieving device ${ctx.params.id}.`);
+      let device, lid;
 
-  router.put('/devices/:id', async ctx => {
+      if (ctx.params.lid) {
+        lid = ctx.params.lid;
+      }
+
+      try {
+        device = await devices.findById(ctx.params.id, lid);
+        if (device.length) {
+          ctx.response.body = { status: 'success', data: device };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `That device with ID ${ctx.params.id} does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+    },
+  );
+
+  router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating device ${ctx.params.id}.`);
-    let device;
+    let device = [];
+
     try {
       device = await devices.update(ctx.params.id, ctx.request.body);
-
       // workaround for sqlite
       if (Number.isInteger(device)) {
-        device = await devices.findById(device);
-      }
-
-      if (device.length) {
-        ctx.response.body = { status: 'success', data: device };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That device with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+        device = await devices.findById(ctx.params.id);
       }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (device.length && device.length > 0) {
+      ctx.response.body = { status: 'success', data: device };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.delete('/devices/:id', async ctx => {
-    log.debug(`Deleting device ${ctx.params.id}.`);
-    let device;
-    try {
-      device = await devices.delete(ctx.params.id);
-      if (device.length) {
+  router.delete(
+    '/devices/:id',
+    thisUser.can('access admin pages'),
+    async ctx => {
+      log.debug(`Deleting device ${ctx.params.id}.`);
+      let device = 0;
+
+      try {
+        device = await devices.delete(ctx.params.id);
+        log.debug('Deleted device: ', device);
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+      if (device > 0) {
         ctx.response.body = { status: 'success', data: device };
         ctx.response.status = 200;
       } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That device with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+        ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
       }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+    },
+  );
 
   return router;
 }

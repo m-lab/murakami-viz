@@ -35,63 +35,75 @@ async function validate_query(query) {
 export default function controller(libraries, thisUser) {
   const router = new Router();
 
-  router.get('/libraries/:id/ip/:address', async ctx => {
-    log.debug(
-      `Retrieving IP ${ctx.params.address} for library ${ctx.params.id}.`,
-    );
-    try {
-      const ip = await libraries.findIp(ctx.params.id, ctx.params.address);
-      if (ip.length) {
-        ctx.response.body = { status: 'success', data: ip[0] };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `Library with ID ${ctx.params.id} does not have IP ${
-            ctx.params.address
-          } or does not exist.`,
-        };
-        ctx.response.status = 404;
+  router.get(
+    '/libraries/:id/ip/:address',
+    thisUser.can('edit this library'),
+    async ctx => {
+      log.debug(
+        `Retrieving IP ${ctx.params.address} for library ${ctx.params.id}.`,
+      );
+      try {
+        const ip = await libraries.findIp(ctx.params.id, ctx.params.address);
+        if (ip.length) {
+          ctx.response.body = { status: 'success', data: ip[0] };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `Library with ID ${ctx.params.id} does not have IP ${
+              ctx.params.address
+            } or does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
       }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+    },
+  );
 
-  router.get('/libraries/:id/ip', async ctx => {
-    log.debug(`Retrieving IPs for library ${ctx.params.id}.`);
-    try {
-      const ip = await libraries.findIp(ctx.params.id);
-      if (ip.length) {
-        ctx.response.body = { status: 'success', data: ip };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That library ID ${
-            ctx.params.id
-          } does not have IP any IPs or does not exist.`,
-        };
-        ctx.response.status = 404;
+  router.get(
+    '/libraries/:id/ip',
+    thisUser.can('get this library'),
+    async ctx => {
+      log.debug(`Retrieving IPs for library ${ctx.params.id}.`);
+      try {
+        const ip = await libraries.findIp(ctx.params.id);
+        if (ip.length) {
+          ctx.response.body = { status: 'success', data: ip };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `That library ID ${
+              ctx.params.id
+            } does not have IP any IPs or does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
       }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+    },
+  );
 
-  router.post('/libraries/:id/ip/:address', async ctx => {
-    log.debug(`Adding IP ${ctx.params.address} to library ${ctx.params.id}.`);
-    let ip;
-    try {
-      ip = await libraries.createIp(ctx.params.id, ctx.params.address);
-    } catch (err) {
-      ctx.throw(400, `Failed to parse library schema: ${err}`);
-    }
-    ctx.response.body = { status: 'success', data: ip };
-    ctx.response.status = 201;
-  });
+  router.post(
+    '/libraries/:id/ip/:address',
+    thisUser.can('edit this library'),
+    async ctx => {
+      log.debug(`Adding IP ${ctx.params.address} to library ${ctx.params.id}.`);
+      let ip;
+      try {
+        ip = await libraries.createIp(ctx.params.id, ctx.params.address);
+      } catch (err) {
+        ctx.throw(400, `Failed to parse library schema: ${err}`);
+      }
+      ctx.response.body = { status: 'success', data: ip };
+      ctx.response.status = 201;
+    },
+  );
 
-  router.post('/libraries', async ctx => {
+  router.post('/libraries', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new library.');
     let library;
     try {
@@ -108,7 +120,7 @@ export default function controller(libraries, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/libraries', async ctx => {
+  router.get('/libraries', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving libraries.`);
     let res;
     try {
@@ -148,71 +160,83 @@ export default function controller(libraries, thisUser) {
     }
   });
 
-  router.get('/libraries/:id', async ctx => {
-    log.debug(`Retrieving library ${ctx.params.id}.`);
-    let library;
-    try {
-      library = await libraries.findById(ctx.params.id);
-      if (library.length) {
-        ctx.response.body = { status: 'success', data: library };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That library with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+  router.get(
+    '/libraries/:id',
+    thisUser.can('access private pages'),
+    async ctx => {
+      log.debug(`Retrieving library ${ctx.params.id}.`);
+      let library;
+      try {
+        library = await libraries.findById(ctx.params.id);
+        if (library.length) {
+          ctx.response.body = { status: 'success', data: library };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `That library with ID ${ctx.params.id} does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
       }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+    },
+  );
 
-  router.put('/libraries/:id', async ctx => {
-    log.debug(`Updating library ${ctx.params.id}.`);
-    let library;
-    try {
-      library = await libraries.update(ctx.params.id, ctx.request.body);
+  router.put(
+    '/libraries/:id',
+    thisUser.can('access admin pages'),
+    async ctx => {
+      log.debug(`Updating library ${ctx.params.id}.`);
+      let library;
+      try {
+        library = await libraries.update(ctx.params.id, ctx.request.body);
 
-      // workaround for sqlite
-      if (Number.isInteger(library)) {
-        library = await libraries.findById(library);
+        // workaround for sqlite
+        if (Number.isInteger(library)) {
+          library = await libraries.findById(library);
+        }
+
+        if (library.length) {
+          ctx.response.body = { status: 'success', data: library };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `That library with ID ${ctx.params.id} does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
       }
+    },
+  );
 
-      if (library.length) {
-        ctx.response.body = { status: 'success', data: library };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That library with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+  router.delete(
+    '/libraries/:id',
+    thisUser.can('access admin pages'),
+    async ctx => {
+      log.debug(`Deleting library ${ctx.params.id}.`);
+      let library;
+      try {
+        library = await libraries.delete(ctx.params.id);
+        if (library.length) {
+          ctx.response.body = { status: 'success', data: library };
+          ctx.response.status = 200;
+        } else {
+          ctx.response.body = {
+            status: 'error',
+            message: `That library with ID ${ctx.params.id} does not exist.`,
+          };
+          ctx.response.status = 404;
+        }
+      } catch (err) {
+        ctx.throw(400, `Failed to parse query: ${err}`);
       }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
-
-  router.delete('/libraries/:id', async ctx => {
-    log.debug(`Deleting library ${ctx.params.id}.`);
-    let library;
-    try {
-      library = await libraries.delete(ctx.params.id);
-      if (library.length) {
-        ctx.response.body = { status: 'success', data: library };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That library with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
-    } catch (err) {
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-  });
+    },
+  );
 
   return router;
 }

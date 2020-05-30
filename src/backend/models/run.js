@@ -1,29 +1,44 @@
 import knex from 'knex';
 import { validate } from '../../common/schemas/run.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
 
 export default class RunManager {
   constructor(db) {
     this._db = db;
   }
 
-  async create(run) {
+  async create(run, lid) {
     try {
       await validate(run);
+      let ids;
+      await this._db.transaction(async trx => {
+        let lids = [];
+        if (lid) {
+          lids = await trx('libraries')
+            .select()
+            .where({ id: parseInt(lid) });
+          if (lids.length === 0) {
+            throw new BadRequestError('Invalid library ID.');
+          }
+        }
+        ids = await trx('runs').insert(run);
+
+        if (lids.length > 0) {
+          const inserts = ids.map(id => ({ lid: lid[0], rid: id }));
+          await trx('library_runs').insert(inserts);
+        }
+      });
+      return ids;
     } catch (err) {
-      throw new UnprocessableError('Failed to create run: ', err);
+      throw new BadRequestError('Failed to create run: ', err);
     }
-    return this._db
-      .table('runs')
-      .insert(run)
-      .returning('*');
   }
 
   async update(id, run) {
     try {
       await validate(run);
     } catch (err) {
-      throw new UnprocessableError('Failed to update run: ', err);
+      throw new BadRequestError('Failed to update run: ', err);
     }
     return this._db
       .table('runs')
@@ -103,5 +118,38 @@ export default class RunManager {
 
   async findAll() {
     return this._db.table('runs').select('*');
+  }
+
+  async addToLibrary(lid, id) {
+    return await this._db.transaction(async trx => {
+      let lids = [];
+      lids = await trx('libraries')
+        .select()
+        .where({ id: parseInt(lid) });
+
+      if (lids.length === 0) {
+        throw new BadRequestError('Invalid library ID.');
+      }
+
+      let ids = [];
+      ids = await trx('runs')
+        .select()
+        .where({ id: parseInt(id) });
+
+      if (ids.length === 0) {
+        throw new BadRequestError('Invalid run ID.');
+      }
+
+      await trx('library_runs').insert({ lid: lid, rid: id });
+    });
+  }
+
+  async removeFromLibrary(lid, id) {
+    return this._db
+      .table('library_runs')
+      .del()
+      .where({ lid: parseInt(lid) })
+      .andWhere({ rid: parseInt(id) })
+      .returning('*');
   }
 }

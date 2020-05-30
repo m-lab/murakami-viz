@@ -1,6 +1,9 @@
 import knex from 'knex';
 import { validate } from '../../common/schemas/library.js';
 import { UnprocessableError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:model:library');
 
 export default class LibraryManager {
   constructor(db) {
@@ -36,6 +39,12 @@ export default class LibraryManager {
           }
         }
       });
+
+    return rows || [];
+  }
+
+  async findAllIps() {
+    const rows = await this._db.table('library_ips').select('ip');
 
     return rows || [];
   }
@@ -188,5 +197,17 @@ export default class LibraryManager {
 
   async findAll() {
     return this._db.table('libraries').select('*');
+  }
+
+  async isMemberOf(lid, uid) {
+    log.debug(`Checking if user w/ id ${uid} is a member of library ${lid}.`);
+    const matches = await this._db
+      .table('library_users')
+      .select('*')
+      .where({ lid: parseInt(lid), uid: parseInt(uid) });
+
+    log.debug('Matching libraries: ', matches);
+
+    return matches.length > 0;
   }
 }

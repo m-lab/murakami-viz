@@ -14,6 +14,7 @@ import errorHandler from 'koa-better-error-handler';
 import db from './db.js';
 import authHandler from './middleware/auth.js';
 import cloudflareAccess from './middleware/cloudflare.js';
+import currentLibrary from './middleware/library.js';
 //import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
 import GroupController from './controllers/group.js';
@@ -51,15 +52,15 @@ export default function configServer(config) {
 
   // Setup our authentication middleware
   const groupModel = new Groups(db);
-  const auth = authHandler(groupModel);
+  const libraryModel = new Libraries(db);
+  server.use(currentLibrary());
+  const auth = authHandler(groupModel, libraryModel);
   server.use(auth.middleware());
 
   // Setup our API handlers
   const userModel = new Users(db);
   const users = UserController(userModel, auth);
   const groups = GroupController(groupModel, auth);
-  const libraryModel = new Libraries(db);
-  const libraries = LibraryController(libraryModel, auth);
   const deviceModel = new Devices(db);
   const devices = DeviceController(deviceModel, auth);
   const noteModel = new Notes(db);
@@ -68,6 +69,11 @@ export default function configServer(config) {
   const runs = RunController(runModel, auth);
   const systemModel = new Systems(db);
   const systems = SystemController(systemModel, auth);
+  const libraries = LibraryController(libraryModel, auth);
+  libraries.use('/libraries/:lid', devices.routes(), devices.allowedMethods());
+  libraries.use('/libraries/:lid', notes.routes(), notes.allowedMethods());
+  libraries.use('/libraries/:lid', runs.routes(), runs.allowedMethods());
+  libraries.use('/libraries/:lid', users.routes(), users.allowedMethods());
   const apiV1Router = compose([
     users.routes(),
     users.allowedMethods(),
