@@ -33,11 +33,16 @@ async function validate_query(query) {
 export default function controller(notes, thisUser) {
   const router = new Router();
 
-  router.post('/notes', async ctx => {
+  router.post('/notes', thisUser.can('view this library'), async ctx => {
     log.debug('Adding new note.');
-    let note;
+    let note, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
+
     try {
-      note = await notes.create(ctx.request.body);
+      note = await notes.create(ctx.request.body, lid);
 
       // workaround for sqlite
       if (Number.isInteger(note)) {
@@ -50,7 +55,7 @@ export default function controller(notes, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/notes', async ctx => {
+  router.get('/notes', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving notes.`);
     let res;
     try {
@@ -78,6 +83,7 @@ export default function controller(notes, thisUser) {
         from: from,
         to: to,
         author: query.author,
+        library: ctx.params.lid,
       });
       ctx.response.body = {
         status: 'success',
@@ -90,7 +96,7 @@ export default function controller(notes, thisUser) {
     }
   });
 
-  router.get('/notes/:id', async ctx => {
+  router.get('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving note ${ctx.params.id}.`);
     let note;
     try {
@@ -110,7 +116,7 @@ export default function controller(notes, thisUser) {
     }
   });
 
-  router.put('/notes/:id', async ctx => {
+  router.put('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Updating note ${ctx.params.id}.`);
     let note;
     try {
@@ -134,25 +140,28 @@ export default function controller(notes, thisUser) {
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (note.length && note.length > 0) {
+      ctx.response.body = { status: 'success', data: note };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.delete('/notes/:id', async ctx => {
+  router.delete('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Deleting note ${ctx.params.id}.`);
     let note;
     try {
       note = await notes.delete(ctx.params.id);
-      if (note.length) {
-        ctx.response.body = { status: 'success', data: note };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That note with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+    if (note.length && note.length > 0) {
+      ctx.response.body = { status: 'success', data: note };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
     }
   });
 
