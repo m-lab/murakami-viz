@@ -1,6 +1,6 @@
 // base imports
-import React, { useState } from "react";
-import { useDatepicker, START_DATE } from "@datepicker-react/hooks";
+import React, { useState } from 'react';
+import { useDatepicker, START_DATE } from '@datepicker-react/hooks';
 import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
@@ -14,9 +14,9 @@ import Hidden from '@material-ui/core/Hidden';
 import EventIcon from '@material-ui/icons/Event';
 
 // module imports
-import Month from "./Month";
-import NavButton from "./NavButton";
-import DatepickerContext from "./datepickerContext";
+import Month from './Month.jsx';
+import NavButton from './NavButton.jsx';
+import DatepickerContext from './DatePickerContext.jsx';
 
 const today = new Date();
 const weekAgo = new Date(today.setDate(today.getDate() - 7));
@@ -25,7 +25,7 @@ export default function Datepicker() {
   const [state, setState] = useState({
     startDate: weekAgo,
     endDate: new Date(),
-    focusedInput: START_DATE
+    focusedInput: START_DATE,
   });
 
   const {
@@ -41,12 +41,12 @@ export default function Datepicker() {
     onDateSelect,
     onDateFocus,
     goToPreviousMonths,
-    goToNextMonths
+    goToNextMonths,
   } = useDatepicker({
     startDate: state.startDate,
     endDate: state.endDate,
     focusedInput: state.focusedInput,
-    onDatesChange: handleDateChange
+    onDatesChange: handleDateChange,
   });
   const useStyles = makeStyles(theme => ({
     buttons: {
@@ -56,10 +56,10 @@ export default function Datepicker() {
       padding: '20px',
     },
     grid: {
-      display: "grid",
-      gridGap: "0 15px",
+      display: 'grid',
+      gridGap: '0 15px',
       gridTemplateColumns: `repeat(${activeMonths.length}, 300px)`,
-      margin: "32px",
+      margin: '32px',
     },
   }));
   const classes = useStyles();
@@ -78,7 +78,7 @@ export default function Datepicker() {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = value => {
     setOpen(false);
   };
 
@@ -93,17 +93,17 @@ export default function Datepicker() {
         isFirstOrLastSelectedDate,
         onDateSelect,
         onDateFocus,
-        onDateHover
+        onDateHover,
       }}
     >
       <Button variant="outlined" onClick={handleClickOpen}>
         <EventIcon />
         <span>
-          {state.startDate && state.startDate.toLocaleString().split(",")[0]}
+          {state.startDate && state.startDate.toLocaleString().split(',')[0]}
         </span>
         -
         <span>
-          {state.endDate && state.endDate.toLocaleString().split(",")[0]}
+          {state.endDate && state.endDate.toLocaleString().split(',')[0]}
         </span>
       </Button>
       <Dialog
@@ -111,7 +111,8 @@ export default function Datepicker() {
         maxWidth={'md'}
         onClose={handleClose}
         aria-labelledby="calendar-title"
-        open={open}>
+        open={open}
+      >
         <Hidden>
           <DialogTitle id="calendar-title">Select date range</DialogTitle>
         </Hidden>
