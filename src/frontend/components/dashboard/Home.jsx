@@ -305,12 +305,6 @@ export default function Home(props) {
           </Grid>
         </Grid>
         <Box mt={5}>
-          <div>
-            <Typography variant="overline" display="block" gutterBottom>
-              Date range
-            </Typography>
-            <DatePicker />
-          </div>
           <Grid
             container
             className={classes.grid}
@@ -319,7 +313,13 @@ export default function Home(props) {
             xs={12}
             md={12}
           >
-            <Grid container item direction="column" spacing={4} xs={12} md={2}>
+            <Grid container item direction="column" spacing={4} xs={12} md={3}>
+              <Grid item>
+                <Typography variant="overline" display="block" gutterBottom>
+                  Date range
+                </Typography>
+                <DatePicker />
+              </Grid>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
                   Connection
@@ -361,7 +361,7 @@ export default function Home(props) {
                 </ButtonGroup>
               </Grid>
             </Grid>
-            <Grid item xs={12} md={10}>
+            <Grid item xs={12} md={9}>
               <Plot
                 data={[
                   {

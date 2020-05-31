@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
   button: {
     border: "1px solid #929598",
+    borderRadius: "5px",
     background: "transparent",
     padding: "8px",
     fontSize: "12px"

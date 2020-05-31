@@ -3,17 +3,31 @@ import React, { useState } from "react";
 import { useDatepicker, START_DATE } from "@datepicker-react/hooks";
 import { makeStyles } from '@material-ui/core/styles';
 
+// material ui imports
+import Button from '@material-ui/core/Button';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
+
+// icon imports
+import EventIcon from '@material-ui/icons/Event';
+
 // module imports
 import Month from "./Month";
 import NavButton from "./NavButton";
 import DatepickerContext from "./datepickerContext";
 
+const today = new Date();
+const weekAgo = new Date(today.setDate(today.getDate() - 7));
+
 export default function Datepicker() {
   const [state, setState] = useState({
-    startDate: null,
-    endDate: null,
+    startDate: weekAgo,
+    endDate: new Date(),
     focusedInput: START_DATE
   });
+
   const {
     firstDayOfWeek,
     activeMonths,
@@ -35,11 +49,17 @@ export default function Datepicker() {
     onDatesChange: handleDateChange
   });
   const useStyles = makeStyles(theme => ({
+    buttons: {
+      marginLeft: '30px',
+    },
+    dialog: {
+      padding: '20px',
+    },
     grid: {
       display: "grid",
-      gridGap: "0 64px",
+      gridGap: "0 15px",
       gridTemplateColumns: `repeat(${activeMonths.length}, 300px)`,
-      margin: "32px 0 0",
+      margin: "32px",
     },
   }));
   const classes = useStyles();
@@ -51,6 +71,16 @@ export default function Datepicker() {
       setState(data);
     }
   }
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+  };
 
   return (
     <DatepickerContext.Provider
@@ -66,32 +96,45 @@ export default function Datepicker() {
         onDateHover
       }}
     >
-      <div>
-        <strong>Focused input: </strong>
-        {state.focusedInput}
-      </div>
-      <div>
-        <strong>Start date: </strong>
-        {state.startDate && state.startDate.toLocaleString()}
-      </div>
-      <div>
-        <strong>End date: </strong>
-        {state.endDate && state.endDate.toLocaleString()}
-      </div>
+      <Button variant="outlined" onClick={handleClickOpen}>
+        <EventIcon />
+        <span>
+          {state.startDate && state.startDate.toLocaleString().split(",")[0]}
+        </span>
+        -
+        <span>
+          {state.endDate && state.endDate.toLocaleString().split(",")[0]}
+        </span>
+      </Button>
+      <Dialog
+        className={classes.dialog}
+        maxWidth={'md'}
+        onClose={handleClose}
+        aria-labelledby="calendar-title"
+        open={open}>
+        <Hidden>
+          <DialogTitle id="calendar-title">Select date range</DialogTitle>
+        </Hidden>
+        <Grid container className={classes.buttons} spacing={2}>
+          <Grid item>
+            <NavButton onClick={goToPreviousMonths}>Previous</NavButton>
+          </Grid>
+          <Grid item>
+            <NavButton onClick={goToNextMonths}>Next</NavButton>
+          </Grid>
+        </Grid>
 
-      <NavButton onClick={goToPreviousMonths}>Previous</NavButton>
-      <NavButton onClick={goToNextMonths}>Next</NavButton>
-
-      <div className={classes.grid}>
-        {activeMonths.map(month => (
-          <Month
-            key={`${month.year}-${month.month}`}
-            year={month.year}
-            month={month.month}
-            firstDayOfWeek={firstDayOfWeek}
-          />
-        ))}
-      </div>
+        <div className={classes.grid}>
+          {activeMonths.map(month => (
+            <Month
+              key={`${month.year}-${month.month}`}
+              year={month.year}
+              month={month.month}
+              firstDayOfWeek={firstDayOfWeek}
+            />
+          ))}
+        </div>
+      </Dialog>
     </DatepickerContext.Provider>
   );
 }
