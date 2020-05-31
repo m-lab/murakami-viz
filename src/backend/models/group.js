@@ -3,7 +3,7 @@ import { isString } from '../../common/utils.js';
 import { validate } from '../../common/schemas/group.js';
 import { UnprocessableError } from '../../common/errors.js';
 
-const log = getLogger('backend:controllers:group');
+const log = getLogger('backend:models:group');
 /**
  * Initialize the QueueManager data model
  *

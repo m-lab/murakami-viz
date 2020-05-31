@@ -34,11 +34,16 @@ async function validate_query(query) {
 export default function controller(runs, thisUser) {
   const router = new Router();
 
-  router.post('/runs', async ctx => {
+  router.post('/runs', thisUser.can('write from whitelisted IP'), async ctx => {
     log.debug('Adding new run.');
-    let run;
+    let run, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
+
     try {
-      run = await runs.create(ctx.request.body);
+      run = await runs.create(ctx.request.body, lid);
 
       // workaround for sqlite
       if (Number.isInteger(run)) {
@@ -51,9 +56,9 @@ export default function controller(runs, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/runs', async ctx => {
+  router.get('/runs', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving runs.`);
-    let res;
+    let res, library;
     try {
       const query = await validate_query(ctx.query);
       let from, to;
@@ -71,6 +76,13 @@ export default function controller(runs, thisUser) {
         }
         to = timestamp.toISOString();
       }
+
+      if (ctx.params.lid) {
+        library = ctx.params.lid;
+      } else {
+        library = query.library;
+      }
+
       res = await runs.find({
         start: query.start,
         end: query.end,
@@ -79,7 +91,7 @@ export default function controller(runs, thisUser) {
         from: from,
         to: to,
         test: query.test,
-        library: query.library,
+        library: library,
       });
       ctx.response.body = {
         status: 'success',
@@ -92,27 +104,24 @@ export default function controller(runs, thisUser) {
     }
   });
 
-  router.get('/runs/:id', async ctx => {
+  router.get('/runs/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving run ${ctx.params.id}.`);
     let run;
     try {
       run = await runs.findById(ctx.params.id);
-      if (run.length) {
-        ctx.response.body = { status: 'success', data: run };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That run with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (run.length && run.length > 0) {
+      ctx.response.body = { status: 'success', data: run };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That run with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.put('/runs/:id', async ctx => {
+  router.put('/runs/:id', thisUser.can('edit this library'), async ctx => {
     log.debug(`Updating run ${ctx.params.id}.`);
     let run;
     try {
@@ -120,41 +129,34 @@ export default function controller(runs, thisUser) {
 
       // workaround for sqlite
       if (Number.isInteger(run)) {
-        run = await runs.findById(run);
-      }
-
-      if (run.length) {
-        ctx.response.body = { status: 'success', data: run };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That run with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+        run = await runs.findById(ctx.params.id);
       }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (run.length && run.length > 0) {
+      ctx.response.body = { status: 'success', data: run };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That run with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.delete('/runs/:id', async ctx => {
+  router.delete('/runs/:id', thisUser.can('edit this library'), async ctx => {
     log.debug(`Deleting run ${ctx.params.id}.`);
     let run;
     try {
       run = await runs.delete(ctx.params.id);
-      if (run.length) {
-        ctx.response.body = { status: 'success', data: run };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That run with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (run.length && run.length > 0) {
+      ctx.response.body = { status: 'success', data: run };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That run with ID ${ctx.params.id} does not exist.`);
     }
   });
 

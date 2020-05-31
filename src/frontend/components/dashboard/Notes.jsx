@@ -1,5 +1,5 @@
 // base imports
-import React from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
@@ -24,6 +24,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
 import EditNote from '../utils/EditNote.jsx';
+import Loading from '../Loading.jsx';
 import ViewNote from '../utils/ViewNote.jsx';
 
 function descendingComparator(a, b, orderBy) {
@@ -122,6 +123,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
+  const { updateRows } = props;
 
   // handle add note
   const [open, setOpen] = React.useState(false);
@@ -130,14 +132,12 @@ const EnhancedTableToolbar = (props) => {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = (note) => {
+    if ( note ) {
+      updateRows(note);
+    }
     setOpen(false);
   };
-
-  const updateRow = (row) => {
-    console.log(row);
-    return row;
-  }
 
   return (
     <Toolbar
@@ -159,7 +159,6 @@ const EnhancedTableToolbar = (props) => {
           </Button>
           <AddNote
             open={open}
-            onRowUpdate={updateRow}
             onClose={handleClose} />
         </Grid>
       </Grid>
@@ -223,12 +222,18 @@ export default function EnhancedTable() {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = (note) => {
+    if ( note ) {
+      let editedNotes = [...rows];
+      editedNotes[index] = note;
+      setRows(editedNotes);
+    }
     setOpen(false);
   };
 
-  const updateData = (row) => {
-    setRows(rows.push(row))
+  const addData = (row) => {
+    const newRow = [...rows, row];
+    setRows(newRow);
   }
 
   // fetch api data
@@ -256,69 +261,71 @@ export default function EnhancedTable() {
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else {
     return (
-      <div className={classes.root}>
-        <EnhancedTableToolbar updateRow={updateData} />
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            aria-label="enhanced table" >
-            <EnhancedTableHead
-              classes={classes}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const labelId = `data-row-${index}`;
+      <Suspense>
+        <div className={classes.root}>
+          <EnhancedTableToolbar updateRows={addData} />
+          <TableContainer>
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              aria-label="enhanced table" >
+              <EnhancedTableHead
+                classes={classes}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const labelId = `data-row-${index}`;
 
-                  return (
-                    <TableRow
-                        hover
-                        onClick={() => {handleClickOpen(index);}}
-                        key={row.updated_at}
-                      >
-                        <TableCell component="th" id={labelId} scope="row" padding="none">
-                          <Moment date={row.updated_at} format="MMMM D, YYYY, h:mma" />
-                        </TableCell>
-                        <TableCell>{row.subject}</TableCell>
-                        <TableCell>
-                          <Truncate lines={1} width={300}>
-                            {row.description}
-                          </Truncate>
-                        </TableCell>
-                      </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[rowsPerPage]}
-          page={page}
-          onChangePage={handleChangePage}
-        />
-        <ViewNote
-          index={index}
-          rows={stableSort(rows, getComparator(order, orderBy))}
-          open={open}
-          onClose={handleClose} />
-      </div>
+                    return (
+                      <TableRow
+                          hover
+                          onClick={() => {handleClickOpen(index);}}
+                          key={row.id}
+                        >
+                          <TableCell component="th" id={labelId} scope="row" padding="none">
+                            <Moment date={row.updated_at} format="MMMM D, YYYY, h:mma" />
+                          </TableCell>
+                          <TableCell>{row.subject}</TableCell>
+                          <TableCell>
+                            <Truncate lines={1} width={300}>
+                              {row.description}
+                            </Truncate>
+                          </TableCell>
+                        </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[rowsPerPage]}
+            page={page}
+            onChangePage={handleChangePage}
+          />
+          <ViewNote
+            index={index}
+            rows={stableSort(rows, getComparator(order, orderBy))}
+            open={open}
+            onClose={handleClose} />
+        </div>
+      </Suspense>
     );
   }
 }

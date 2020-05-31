@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
+import knex from 'knex';
 import { validate } from '../../common/schemas/user.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
 
 /**
  * Initialize the QueueManager data model
@@ -12,25 +13,40 @@ export default class User {
     this._db = db;
   }
 
-  async create(user) {
+  async create(user, lid) {
     try {
       await validate(user);
+      let ids;
+      await this._db.transaction(async trx => {
+        let lids = [];
+        if (lid) {
+          lids = await trx('libraries')
+            .select()
+            .where({ id: parseInt(lid) });
+          if (lids.length === 0) {
+            throw new BadRequestError('Invalid library ID.');
+          }
+        }
+        const salt = bcrypt.genSaltSync();
+        user.password = bcrypt.hashSync(user.password, salt);
+        ids = await trx('users').insert(user);
+
+        if (lids.length > 0) {
+          const inserts = ids.map(id => ({ lid: lid[0], uid: id }));
+          await trx('library_users').insert(inserts);
+        }
+      });
+      return ids;
     } catch (err) {
-      throw new UnprocessableError('Failed to create user: ', err);
+      throw new BadRequestError('Failed to create user: ', err);
     }
-    const salt = bcrypt.genSaltSync();
-    user.password = bcrypt.hashSync(user.password, salt);
-    return this._db
-      .table('users')
-      .insert(user)
-      .returning('*');
   }
 
   async update(id, user) {
     try {
       await validate(user);
     } catch (err) {
-      throw new UnprocessableError('Failed to update user: ', err);
+      throw new BadRequestError('Failed to update user: ', err);
     }
     return this._db
       .table('users')
@@ -74,6 +90,7 @@ export default class User {
     sort_by: sort_by = 'id',
     from: from,
     to: to,
+    library: library,
   }) {
     const rows = await this._db
       .table('users')
@@ -95,6 +112,14 @@ export default class User {
 
         if (to) {
           queryBuilder.where('created_at', '<', to);
+        }
+
+        if (library) {
+          queryBuilder.join(
+            'library_users',
+            'library_users.lid',
+            knex.raw('?', [library]),
+          );
         }
 
         if (asc) {
@@ -175,5 +200,38 @@ export default class User {
    */
   async findAll() {
     return this._db.table('users').select('*');
+  }
+
+  async addToLibrary(lid, id) {
+    return await this._db.transaction(async trx => {
+      let lids = [];
+      lids = await trx('libraries')
+        .select()
+        .where({ id: parseInt(lid) });
+
+      if (lids.length === 0) {
+        throw new BadRequestError('Invalid library ID.');
+      }
+
+      let ids = [];
+      ids = await trx('users')
+        .select()
+        .where({ id: parseInt(id) });
+
+      if (ids.length === 0) {
+        throw new BadRequestError('Invalid user ID.');
+      }
+
+      await trx('library_users').insert({ lid: lid, uid: id });
+    });
+  }
+
+  async removeFromLibrary(lid, id) {
+    return this._db
+      .table('library_users')
+      .del()
+      .where({ lid: parseInt(lid) })
+      .andWhere({ uid: parseInt(id) })
+      .returning('*');
   }
 }

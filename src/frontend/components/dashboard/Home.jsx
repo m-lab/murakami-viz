@@ -1,5 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
+import { CSVLink } from "react-csv";
 import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
@@ -20,6 +21,41 @@ import Typography from '@material-ui/core/Typography';
 import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
+
+const headers = [
+  { label: 'id', key: 'run.id' },
+  { label: 'Test Name', key: 'run.TestName' },
+  { label: 'Test Error', key: 'TestError' },
+  { label: 'Server Name', key: 'ServerName' },
+  { label: 'Server IP', key: 'server.ip' },
+  { label: 'Client IP', key: 'ClientIP' },
+  { label: 'Murakami Location', key: 'MurakamiLocation' },
+  { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
+  { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
+  { label: 'Download UUID', key: 'DownloadUUID' },
+  { label: 'Download Test Start Time', key: 'DownloadTestStartTime' },
+  { label: 'Download Test End Time', key: 'DownloadTestEndTime' },
+  { label: 'Download Value', key: 'DownloadValue' },
+  { label: 'Download Unit', key: 'DownloadUnit' },
+  { label: 'Download Error', key: 'DownloadError' },
+  { label: 'Download Retrans Value', key: 'DownloadRetransValue' },
+  { label: 'Download Retrans Unit', key: 'DownloadRetransUnit' },
+  { label: 'Upload Value', key: 'UploadValue' },
+  { label: 'Upload Unit', key: 'UploadUnit' },
+  { label: 'Min RTT Value', key: 'MinRTTValue' },
+  { label: 'Min RTT Unit', key: 'MinRTTUnit' },
+];
+
+const data = [
+  { run: {
+      id: 1,
+      TestName: 'ndt7'
+    },
+    server: {
+      ip: '0.0.0.0',
+    }
+  },
+];
 
 const useStyles = makeStyles(theme => ({
   chips: {

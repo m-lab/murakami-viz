@@ -144,17 +144,22 @@ export default function controller(users, thisUser) {
    */
   router.get(
     '/authenticated',
-    thisUser.can('access admin pages'),
+    thisUser.can('access private pages'),
     async ctx => {
       ctx.body = { msg: 'Authenticated', user: ctx.state.user.id };
     },
   );
 
-  router.post('/users', async ctx => {
+  router.post('/users', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new user.');
-    let user;
+    let user, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
+
     try {
-      user = await users.create(ctx.request.body);
+      user = await users.create(ctx.request.body, lid);
 
       // workaround for sqlite
       if (Number.isInteger(user)) {
@@ -167,7 +172,7 @@ export default function controller(users, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/users', async ctx => {
+  router.get('/users', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving users.`);
     let res;
     try {
@@ -194,6 +199,7 @@ export default function controller(users, thisUser) {
         sort_by: query.sort_by,
         from: from,
         to: to,
+        library: ctx.params.lid,
       });
       ctx.response.body = {
         status: 'success',
@@ -206,7 +212,7 @@ export default function controller(users, thisUser) {
     }
   });
 
-  router.get('/users/:id', async ctx => {
+  router.get('/users/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving user ${ctx.params.id}.`);
     let user;
     try {
@@ -215,22 +221,19 @@ export default function controller(users, thisUser) {
       } else {
         user = await users.findById(ctx.params.id);
       }
-      if (!_.isEmpty(user)) {
-        ctx.response.body = { status: 'success', data: user };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That user with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (!_.isEmpty(user)) {
+      ctx.response.body = { status: 'success', data: user };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That user with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.put('/users/:id', async ctx => {
+  router.put('/users/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating user ${ctx.params.id}.`);
     let user;
     try {
@@ -238,7 +241,7 @@ export default function controller(users, thisUser) {
 
       // workaround for sqlite
       if (Number.isInteger(user)) {
-        user = await users.findById(user);
+        user = await users.findById(ctx.params.id);
       }
 
       if (user.length) {
@@ -254,25 +257,29 @@ export default function controller(users, thisUser) {
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
+    if (user.length) {
+      ctx.response.body = { status: 'success', data: user };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That user with ID ${ctx.params.id} does not exist.`);
+    }
   });
 
-  router.delete('/users/:id', async ctx => {
+  router.delete('/users/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Deleting user ${ctx.params.id}.`);
     let user;
     try {
       user = await users.delete(ctx.params.id);
-      if (user.length) {
-        ctx.response.body = { status: 'success', data: user };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That user with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (user.length) {
+      ctx.response.body = { status: 'success', data: user };
+      ctx.response.status = 200;
+    } else {
+      ctx.throw(404, `That user with ID ${ctx.params.id} does not exist.`);
     }
   });
 

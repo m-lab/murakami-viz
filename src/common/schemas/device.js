@@ -2,7 +2,6 @@ import { UnprocessableError } from '../../common/errors.js';
 import Joi from '@hapi/joi';
 
 const schema = Joi.object({
-  id: Joi.number(),
   name: Joi.string(),
   network_type: Joi.string(),
   connection_type: Joi.string(),

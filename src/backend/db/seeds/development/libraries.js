@@ -20,17 +20,8 @@ export function seed(knex) {
           isp: 'Comcast',
           contracted_speed_upload: '40 Mbit/s',
           contracted_speed_download: '100 Mbit/s',
-          ip: '0.0.0.0',
           bandwith_cap_upload: '40 Mbit/s',
           bandwith_cap_download: '100 Mbit/s',
-          device_name: 'Lorem ipsum',
-          device_location: 'Lorem ipsum',
-          device_network_type: 'public',
-          device_connection_type: 'wired',
-          device_dns: '8.8.8.8',
-          device_ip: '1.1.1.1',
-          device_gateway: 'Lorem ipsum',
-          device_mac_address: 'Lorem ipsum',
         },
       ]);
     });

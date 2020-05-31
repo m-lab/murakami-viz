@@ -69,8 +69,8 @@ export default function ViewNote(props) {
   const theme = useTheme();
   const { onClose, open, rows, index } = props;
 
-  const handleClose = () => {
-    onClose();
+  const handleClose = (row) => {
+    onClose(row);
   };
 
   const [row, setRow] = React.useState(props.rows[props.index]);
@@ -86,7 +86,10 @@ export default function ViewNote(props) {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = (value) => {
+  const handleCloseEdit = (note) => {
+    if ( note ) {
+      updateRow(note);
+    }
     setOpenEdit(false);
   };
 
@@ -110,7 +113,14 @@ export default function ViewNote(props) {
   };
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="view-note-title" fullWidth={ true } maxWidth={"md"} className={classes.dialog}>
+    <Dialog
+      onClose={() => handleClose(row)}
+      modal={true}
+      open={open}
+      aria-labelledby="view-note-title"
+      fullWidth={ true }
+      maxWidth={"md"}
+      className={classes.dialog}>
       <MobileStepper
         steps={maxSteps}
         position="static"
@@ -141,7 +151,6 @@ export default function ViewNote(props) {
           </Button>
           <EditNote
             row={row}
-            onRowUpdate={updateRow}
             open={openEdit}
             onClose={handleCloseEdit} />
         </Grid>
@@ -163,7 +172,7 @@ export default function ViewNote(props) {
         label="Close"
         color="primary"
         primary={true}
-        onClick={handleClose}
+        onClick={() => handleClose(row)}
         className={classes.closeButton}
         gutterBottom>
         Close

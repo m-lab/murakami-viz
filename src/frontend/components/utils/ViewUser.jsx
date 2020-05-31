@@ -77,8 +77,8 @@ export default function ViewUser(props) {
   const theme = useTheme();
   const { onClose, open, rows, index } = props;
 
-  const handleClose = () => {
-    onClose();
+  const handleClose = (row) => {
+    onClose(row);
   };
 
   const [row, setRow] = React.useState(props.rows[props.index]);
@@ -94,7 +94,10 @@ export default function ViewUser(props) {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = (value) => {
+  const handleCloseEdit = (user) => {
+    if ( user ) {
+      updateRow(user);
+    }
     setOpenEdit(false);
   };
 
@@ -118,7 +121,14 @@ export default function ViewUser(props) {
   };
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="view-user-title" fullWidth={ true } maxWidth={"md"} className={classes.dialog}>
+    <Dialog
+      onClose={() => handleClose(row)}
+      modal={true}
+      open={open}
+      aria-labelledby="view-user-title"
+      fullWidth={ true }
+      maxWidth={"md"}
+      className={classes.dialog}>
       <MobileStepper
         steps={maxSteps}
         position="static"
@@ -179,7 +189,7 @@ export default function ViewUser(props) {
         label="Close"
         color="primary"
         primary={true}
-        onClick={handleClose}
+        onClick={() => handleClose(row)}
         className={classes.closeButton}
         gutterBottom>
         Close
