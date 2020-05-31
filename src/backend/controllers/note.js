@@ -49,9 +49,11 @@ export default function controller(notes, thisUser) {
         note = await notes.findById(note);
       }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse note schema: ${err}`);
     }
-    ctx.response.body = { status: 'success', data: note };
+
+    ctx.response.body = { statusCode: 201, status: 'created', data: note };
     ctx.response.status = 201;
   });
 
@@ -61,9 +63,11 @@ export default function controller(notes, thisUser) {
     try {
       const query = await validate_query(ctx.query);
       let from, to;
+
       if (query.from) {
         const timestamp = moment(query.from);
         if (timestamp.isValid()) {
+          log.error('HTTP 400 Error: Invalid timestamp value.');
           ctx.throw(400, 'Invalid timestamp value.');
         }
         from = timestamp.toISOString();
@@ -71,6 +75,7 @@ export default function controller(notes, thisUser) {
       if (query.to) {
         const timestamp = moment(query.to);
         if (timestamp.isValid()) {
+          log.error('HTTP 400 Error: Invalid timestamp value.');
           ctx.throw(400, 'Invalid timestamp value.');
         }
         to = timestamp.toISOString();
@@ -86,12 +91,13 @@ export default function controller(notes, thisUser) {
         library: ctx.params.lid,
       });
       ctx.response.body = {
-        status: 'success',
+        statusCode: 200,
+        status: 'ok',
         data: res,
-        total: res.length,
       };
       ctx.response.status = 200;
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
   });
@@ -99,52 +105,52 @@ export default function controller(notes, thisUser) {
   router.get('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving note ${ctx.params.id}.`);
     let note;
+
     try {
       note = await notes.findById(ctx.params.id);
-      if (note.length) {
-        ctx.response.body = { status: 'success', data: note };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That note with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (note.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: note };
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+      );
+      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
     }
   });
 
   router.put('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Updating note ${ctx.params.id}.`);
     let note;
+
     try {
-      note = await notes.update(ctx.params.id, ctx.request.body);
+      if (ctx.params.lid) {
+        note = await notes.addToLibrary(ctx.params.lid, ctx.params.id);
+      } else {
+        note = await notes.update(ctx.params.id, ctx.request.body);
+      }
 
       // workaround for sqlite
       if (Number.isInteger(note)) {
         note = await notes.findById(ctx.params.id);
       }
-
-      if (note.length) {
-        ctx.response.body = { status: 'success', data: note };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That note with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
     if (note.length && note.length > 0) {
-      ctx.response.body = { status: 'success', data: note };
+      ctx.response.body = { statusCode: 200, status: 'ok', data: note };
       ctx.response.status = 200;
     } else {
+      log.error(
+        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+      );
       ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
     }
   });
@@ -152,15 +158,25 @@ export default function controller(notes, thisUser) {
   router.delete('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Deleting note ${ctx.params.id}.`);
     let note;
+
     try {
-      note = await notes.delete(ctx.params.id);
+      if (ctx.params.lid) {
+        note = await notes.removeFromLibrary(ctx.params.lid, ctx.params.id);
+      } else {
+        note = await notes.delete(ctx.params.id);
+      }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
+
     if (note.length && note.length > 0) {
       ctx.response.body = { status: 'success', data: note };
       ctx.response.status = 200;
     } else {
+      log.error(
+        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+      );
       ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
     }
   });

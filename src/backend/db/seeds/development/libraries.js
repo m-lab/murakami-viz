@@ -20,8 +20,8 @@ export function seed(knex) {
           isp: 'Comcast',
           contracted_speed_upload: '40 Mbit/s',
           contracted_speed_download: '100 Mbit/s',
-          bandwith_cap_upload: '40 Mbit/s',
-          bandwith_cap_download: '100 Mbit/s',
+          bandwidth_cap_upload: '40 Mbit/s',
+          bandwidth_cap_download: '100 Mbit/s',
         },
       ]);
     });

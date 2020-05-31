@@ -26,13 +26,9 @@ export function up(knex) {
         table.text('isp');
         table.text('contracted_speed_upload');
         table.text('contracted_speed_download');
-        table.text('bandwith_cap_upload');
-        table.text('bandwith_cap_download');
+        table.text('bandwidth_cap_upload');
+        table.text('bandwidth_cap_download');
         table.timestamps(true, true);
-        table
-          .integer('user_id')
-          .references('id')
-          .inTable('users');
       })
       .then(() =>
         knex.raw(

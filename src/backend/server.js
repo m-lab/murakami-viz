@@ -99,6 +99,9 @@ export default function configServer(config) {
   // Set custom error handler
   server.context.onerror = errorHandler;
 
+  // Specify that this is our backend API (for better-errror-handler)
+  // server.context.api = true;
+
   // If we're running behind Cloudflare, set the access parameters.
   if (config.cfaccess_url) {
     server.use(async (ctx, next) => {
