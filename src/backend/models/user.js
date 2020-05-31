@@ -87,24 +87,28 @@ export default class User {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'id',
+    sort_by: sort_by = 'users.id',
     from: from,
     to: to,
     library: library,
   }) {
     const rows = await this._db
-      .table('users')
-      .column(
-        'id',
-        'username',
-        'firstName',
-        'lastName',
-        'location',
-        'role',
-        'email',
-        'isActive',
-      )
-      .select()
+      .select({
+        id: 'users.id',
+        username: 'users.username',
+        firstName: 'users.firstName',
+        lastName: 'users.lastName',
+        location: 'users.location',
+        role: 'users.role',
+        email: 'users.email',
+        isActive: 'users.isActive',
+        library_id: 'libraries.id',
+        library_name: 'libraries.name',
+        library_address: 'libraries.physical_address',
+      })
+      .from('users')
+      .leftJoin('library_users', 'users.id', 'library_users.uid')
+      .leftJoin('libraries', 'libraries.id', 'library_users.lid')
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);

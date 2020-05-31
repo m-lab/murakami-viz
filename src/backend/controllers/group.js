@@ -41,6 +41,7 @@ export default function controller(groups, thisUser) {
   router.post('/groups', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new group.');
     let group;
+
     try {
       group = await groups.create(ctx.request.body);
 
@@ -49,21 +50,24 @@ export default function controller(groups, thisUser) {
         group = await groups.findById(group);
       }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse group schema: ${err}`);
     }
-    ctx.response.body = { status: 'success', data: group };
+    ctx.response.body = { statusCode: 201, status: 'created', data: group };
     ctx.response.status = 201;
   });
 
   router.get('/groups', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Retrieving groups.`);
     let res;
+
     try {
       const query = await validate_query(ctx.query);
       let from, to;
       if (query.from) {
         const timestamp = moment(query.from);
         if (timestamp.isValid()) {
+          log.error('HTTP 400 Error: Invalid timestamp value.');
           ctx.throw(400, 'Invalid timestamp value.');
         }
         from = timestamp.toISOString();
@@ -71,6 +75,7 @@ export default function controller(groups, thisUser) {
       if (query.to) {
         const timestamp = moment(query.to);
         if (timestamp.isValid()) {
+          log.error('HTTP 400 Error: Invalid timestamp value.');
           ctx.throw(400, 'Invalid timestamp value.');
         }
         to = timestamp.toISOString();
@@ -84,9 +89,9 @@ export default function controller(groups, thisUser) {
         to: to,
       });
       ctx.response.body = {
-        status: 'success',
+        statusCode: 200,
+        status: 'ok',
         data: res,
-        total: res.length,
       };
       ctx.response.status = 200;
     } catch (err) {
@@ -97,46 +102,49 @@ export default function controller(groups, thisUser) {
   router.get('/groups/:id', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving group ${ctx.params.id}.`);
     let group;
+
     try {
       group = await groups.findById(ctx.params.id);
-      if (group.length) {
-        ctx.response.body = { status: 'success', data: group };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That group with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
-      }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (group.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: group };
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
+      );
+      ctx.throw(404, `That group with ID ${ctx.params.id} does not exist.`);
     }
   });
 
   router.put('/groups/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating group ${ctx.params.id}.`);
     let group;
+
     try {
       group = await groups.update(ctx.params.id, ctx.request.body);
 
       // workaround for sqlite
       if (Number.isInteger(group)) {
-        group = await groups.findById(group);
-      }
-
-      if (group.length) {
-        ctx.response.body = { status: 'success', data: group };
-        ctx.response.status = 200;
-      } else {
-        ctx.response.body = {
-          status: 'error',
-          message: `That group with ID ${ctx.params.id} does not exist.`,
-        };
-        ctx.response.status = 404;
+        group = await groups.findById(ctx.param.id);
       }
     } catch (err) {
+      log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (group.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: group };
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
+      );
+      ctx.throw(404, `That group with ID ${ctx.params.id} does not exist.`);
     }
   });
 
@@ -146,20 +154,22 @@ export default function controller(groups, thisUser) {
     async ctx => {
       log.debug(`Deleting group ${ctx.params.id}.`);
       let group;
+
       try {
         group = await groups.delete(ctx.params.id);
-        if (group.length) {
-          ctx.response.body = { status: 'success', data: group };
-          ctx.response.status = 200;
-        } else {
-          ctx.response.body = {
-            status: 'error',
-            message: `That group with ID ${ctx.params.id} does not exist.`,
-          };
-          ctx.response.status = 404;
-        }
       } catch (err) {
+        log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+      if (group.length) {
+        ctx.response.body = { statusCode: 200, status: 'ok', data: group };
+        ctx.response.status = 200;
+      } else {
+        log.error(
+          `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
+        );
+        ctx.throw(404, `That group with ID ${ctx.params.id} does not exist.`);
       }
     },
   );
@@ -170,6 +180,7 @@ export default function controller(groups, thisUser) {
     async ctx => {
       log.debug(`Retrieving members of group ${ctx.params.id}.`);
       let group;
+
       try {
         const query = await validate_query(ctx.query);
         group = await groups.members({
@@ -178,47 +189,53 @@ export default function controller(groups, thisUser) {
           end: query.end,
           asc: query.asc,
         });
-        if (group.length) {
-          ctx.response.body = { status: 'success', data: group };
-          ctx.response.status = 200;
-        } else {
-          ctx.response.body = {
-            status: 'error',
-            message: `That group with ID ${ctx.params.id} does not exist.`,
-          };
-          ctx.response.status = 404;
-        }
       } catch (err) {
+        log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+      if (group.length) {
+        ctx.response.body = { statusCode: 200, status: 'ok', data: group };
+        ctx.response.status = 200;
+      } else {
+        log.error(
+          `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
+        );
+        ctx.throw(404, `That group with ID ${ctx.params.id} does not exist.`);
       }
     },
   );
 
-  router.post(
+  router.put(
     '/groups/:id/members/:uid',
     thisUser.can('access admin pages'),
     async ctx => {
       log.debug(`Adding user ${ctx.params.uid} to group ${ctx.params.id}.`);
       let res;
+
       try {
         res = await groups.memberAdd(ctx.params.id, ctx.params.uid);
-        if (res) {
-          ctx.response.body = { status: 'success', data: res };
-          ctx.response.status = 201;
-        } else {
-          ctx.response.body = {
-            status: 'error',
-            message: `That mapping with gid ${ctx.params.id} and uid ${
-              ctx.params.uid
-            } does not exist.`,
-          };
-          ctx.response.status = 404;
-        }
       } catch (err) {
+        log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
-      ctx.response.body = { status: 'success', data: res };
-      ctx.response.status = 201;
+
+      if (res) {
+        ctx.response.body = { statusCode: 201, status: 'created', data: res };
+        ctx.response.status = 201;
+      } else {
+        log.error(
+          `HTTP 404 Error: That mapping with gid ${ctx.params.id} and uid ${
+            ctx.params.uid
+          } does not exist.`,
+        );
+        ctx.throw(
+          404,
+          `That mapping with gid ${ctx.params.id} and uid ${
+            ctx.params.uid
+          } does not exist.`,
+        );
+      }
     },
   );
 
@@ -228,22 +245,29 @@ export default function controller(groups, thisUser) {
     async ctx => {
       log.debug(`Removing user ${ctx.params.uid} from group ${ctx.params.id}.`);
       let res;
+
       try {
         res = await groups.memberRemove(ctx.params.id, ctx.params.uid);
-        if (res) {
-          ctx.response.body = { status: 'success', data: res };
-          ctx.response.status = 200;
-        } else {
-          ctx.response.body = {
-            status: 'error',
-            message: `That mapping with gid ${ctx.params.id} and uid ${
-              ctx.params.uid
-            } does not exist.`,
-          };
-          ctx.response.status = 404;
-        }
       } catch (err) {
+        log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+      if (res) {
+        ctx.response.body = { statusCode: 200, status: 'ok', data: res };
+        ctx.response.status = 200;
+      } else {
+        log.error(
+          `HTTP 404 Error: That mapping with gid ${ctx.params.id} and uid ${
+            ctx.params.uid
+          } does not exist.`,
+        );
+        ctx.throw(
+          404,
+          `That mapping with gid ${ctx.params.id} and uid ${
+            ctx.params.uid
+          } does not exist.`,
+        );
       }
     },
   );

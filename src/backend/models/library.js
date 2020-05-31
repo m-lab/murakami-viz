@@ -151,8 +151,28 @@ export default class LibraryManager {
     of_user: of_user,
   }) {
     const rows = await this._db
-      .table('libraries')
-      .select('*')
+      .select({
+        id: 'libraries.id',
+        name: 'libraries.name',
+        physical_address: 'libraries.physical_address',
+        shipping_address: 'libraries.shipping_address',
+        timezone: 'libraries.timezone',
+        coordinates: 'libraries.coordinates',
+        primary_contact_name: 'libraries.primary_contact_name',
+        primary_contact_email: 'libraries.primary_contact_email',
+        it_contact_name: 'libraries.it_contact_name',
+        it_contact_email: 'libraries.it_contact_email',
+        opening_hours: 'libraries.opening_hours',
+        network_name: 'libraries.network_name',
+        isp: 'libraries.isp',
+        contracted_speed_upload: 'libraries.contracted_speed_upload',
+        contracted_speed_download: 'libraries.contracted_speed_download',
+        bandwidth_cap_upload: 'libraries.bandwidth_cap_upload',
+        bandwidth_cap_download: 'libraries.bandwidth_cap_download',
+        user_count: this._db.raw('COUNT(library_users.uid)'),
+      })
+      .from('libraries')
+      .leftJoin('library_users', 'libraries.id', 'library_users.lid')
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);
