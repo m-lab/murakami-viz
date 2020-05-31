@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
+import TestsSummary from '../utils/TestsSummary.jsx';
 
 const headers = [
   { label: 'id', key: 'run.id' },
@@ -73,7 +74,6 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '0',
   },
   grid: {
-    // border: '1px solid black',
     padding: '20px',
   },
   header: {
@@ -85,6 +85,10 @@ const useStyles = makeStyles(theme => ({
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
+  },
+  textBorder: {
+    borderTop: '1px solid #000',
+    paddingTop: '5px',
   },
   upper: {
     textTransform: 'uppercase',
@@ -155,27 +159,37 @@ function Home(props) {
 
   // handle add note
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState();
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = value => {
+  const handleClose = () => {
     setOpen(false);
-    setSelectedValue(value);
   };
+
+  // handle NDT or Ookla summary
+  const [ summary, setSummary ] = React.useState('NDT');
+
+  const handleSummaryClick = (test) => {
+    setSummary(test);
+  }
 
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [library, setLibrary] = React.useState(null);
+  const [runs, setRuns] = React.useState(null);
 
   React.useEffect(() => {
-    fetch(`/api/v1/libraries?of_user=${user.id}`)
-      .then(res => res.json())
-      .then(results => {
-        setLibrary(results.data[0]);
+    Promise.all([
+      fetch(`/api/v1/libraries?of_user=${user.id}`),
+      fetch(`/api/v1/runs`),
+    ])
+      .then(([librariesResponse, runsResponse]) => Promise.all([librariesResponse.json(), runsResponse.json()]))
+      .then(([libraries, runs]) => {
+        setLibrary(libraries.data[0]);
+        setRuns(runs.data);
         setIsLoaded(true);
         return;
       })
@@ -192,251 +206,200 @@ function Home(props) {
   } else {
     return (
       <Suspense>
-        <Grid
-          className={classes.header}
-          container
-          spacing={2}
-          alignItems="space-between"
-        >
-          <Grid container item direction="column" spacing={2} xs={6}>
-            <Grid item>
-              <Typography component="h1" variant="h3">
-                {library.name}
-              </Typography>
-              <div>{library.physical_address}</div>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                disableElevation
-                color="primary"
-                onClick={handleClickOpen}
-              >
-                Add a note
-              </Button>
-              <AddNote
-                selectedValue={selectedValue}
-                open={open}
-                onClose={handleClose}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item spacing={1} xs={6}>
-            <Grid
-              container
-              item
-              alignItems="center"
-              direction="row"
-              spacing={1}
-            >
-              <Grid item xs={4}>
-                <Typography component="div" className={classes.upper}>
-                  Download Speed
+        <Box mb={9}>
+          <Grid
+            className={classes.header}
+            container
+            spacing={2}
+            alignItems="space-between"
+          >
+            <Grid container item direction="column" spacing={2} xs={6}>
+              <Grid item>
+                <Typography component="h1" variant="h3">
+                  {library.name}
                 </Typography>
+                <div>{library.physical_address}</div>
               </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  disableElevation
+                  color="primary"
+                  onClick={handleClickOpen}
+                >
+                  Add a note
+                </Button>
+                <AddNote
+                  open={open}
+                  onClose={handleClose}
+                />
+              </Grid>
+            </Grid>
+            <Grid container item spacing={1} xs={6}>
               <Grid
                 container
                 item
                 alignItems="center"
-                justify="center"
-                spacing={0}
-                xs={4}
+                direction="row"
+                spacing={1}
               >
+                <Grid item xs={4}>
+                  <Typography component="div" className={classes.upper}>
+                    Download Speed
+                  </Typography>
+                </Grid>
+                <Grid
+                  container
+                  item
+                  alignItems="center"
+                  justify="center"
+                  spacing={0}
+                  xs={4}
+                >
+                  <ButtonGroup
+                    color="primary"
+                    aria-label="outlined primary button group"
+                  >
+                    <Button
+                      onClick={() => handleSummaryClick('NDT')}>
+                      NDT
+                    </Button>
+                    <Button
+                      onClick={() => handleSummaryClick('Ookla')}>
+                      Ookla
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography component="div">
+                    Last Test: March 9, 8:00 a.m.
+                  </Typography>
+                </Grid>
+              </Grid>
+              <TestsSummary test={summary} />
+            </Grid>
+          </Grid>
+          <Box mt={5}>
+            <div>
+              <Typography variant="overline" display="block" gutterBottom>
+                Date range
+              </Typography>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="MM/dd/yyyy"
+                  margin="normal"
+                  id="date-picker-inline"
+                  label="Date range"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  KeyboardButtonProps={{
+                    'aria-label': 'change date',
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            </div>
+            <Grid
+              container
+              className={classes.grid}
+              justify="space-between"
+              spacing={2}
+              xs={12}
+              md={12}
+            >
+              <Grid container item direction="column" spacing={4} xs={12} md={2}>
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Connection
+                  </Typography>
+                  <ButtonGroup
+                    orientation="vertical"
+                    color="primary"
+                    aria-label="vertical outlined primary button group"
+                  >
+                    <Button>Wired</Button>
+                    <Button>Wifi</Button>
+                  </ButtonGroup>
+                </Grid>
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Test
+                  </Typography>
+                  <ButtonGroup
+                    orientation="vertical"
+                    color="primary"
+                    aria-label="vertical outlined primary button group"
+                  >
+                    <Button>NDT</Button>
+                    <Button>Ookla</Button>
+                  </ButtonGroup>
+                </Grid>
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Metric
+                  </Typography>
+                  <ButtonGroup
+                    orientation="vertical"
+                    color="primary"
+                    aria-label="vertical outlined primary button group"
+                  >
+                    <Button>Download</Button>
+                    <Button>Upload</Button>
+                    <Button>Latency</Button>
+                  </ButtonGroup>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={10}>
+                <Plot
+                  data={[
+                    {
+                      x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                      y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
+                      type: 'scatter',
+                      mode: 'lines+markers',
+                      marker: { color: 'red' },
+                    },
+                  ]}
+                  layout={{
+                    width: 820,
+                    height: 440,
+                    title: '',
+                    xaxis: {
+                      showgrid: false,
+                    },
+                    yaxis: {
+                      showgrid: false,
+                    }
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+          <Grid container justify="space-between" alignItems="center">
+            <Grid container item spacing={2} xs={12} sm={10}>
+              <Grid item>
+                <Typography variant="overline" display="block" gutterBottom>
+                  View
+                </Typography>
+              </Grid>
+              <Grid item>
                 <ButtonGroup
                   color="primary"
                   aria-label="outlined primary button group"
                 >
-                  <Button>NDT</Button>
-                  <Button>Ookla</Button>
-                </ButtonGroup>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography component="div">
-                  Last Test: March 9, 8:00 a.m.
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container item direction="row" spacing={2} xs={12}>
-              <Grid item className={classes.grid} xs={6}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [6, 3, 9],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(52, 235, 107)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5,
-                    },
-                    title: false,
-                  }}
-                />
-              </Grid>
-              <Grid item className={classes.grid} xs={6}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [2, 6, 3],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(235, 64, 52)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5,
-                    },
-                    title: false,
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Box mt={5}>
-          <div>
-            <Typography variant="overline" display="block" gutterBottom>
-              Date range
-            </Typography>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-inline"
-                label="Date range"
-                value={selectedDate}
-                onChange={handleDateChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
-              />
-            </MuiPickersUtilsProvider>
-          </div>
-          <Grid
-            container
-            className={classes.grid}
-            justify="space-between"
-            spacing={2}
-            xs={12}
-            md={12}
-          >
-            <Grid container item direction="column" spacing={4} xs={12} md={2}>
-              <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  Connection
-                </Typography>
-                <ButtonGroup
-                  orientation="vertical"
-                  color="primary"
-                  aria-label="vertical outlined primary button group"
-                >
-                  <Button>Wired</Button>
-                  <Button>Wifi</Button>
-                </ButtonGroup>
-              </Grid>
-              <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  Test
-                </Typography>
-                <ButtonGroup
-                  orientation="vertical"
-                  color="primary"
-                  aria-label="vertical outlined primary button group"
-                >
-                  <Button>NDT</Button>
-                  <Button>Ookla</Button>
-                </ButtonGroup>
-              </Grid>
-              <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  Metric
-                </Typography>
-                <ButtonGroup
-                  orientation="vertical"
-                  color="primary"
-                  aria-label="vertical outlined primary button group"
-                >
-                  <Button>Download</Button>
-                  <Button>Upload</Button>
-                  <Button>Latency</Button>
+                  <Button>All tests</Button>
+                  <Button>By hour</Button>
+                  <Button>By day</Button>
+                  <Button>By month</Button>
                 </ButtonGroup>
               </Grid>
             </Grid>
-            <Grid item xs={12} md={10}>
-              <Plot
-                data={[
-                  {
-                    x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                    y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    marker: { color: 'red' },
-                  },
-                ]}
-                layout={{
-                  width: 820,
-                  height: 440,
-                  yaxis: {
-                    title: {
-                      text: 'Download Speed (Mbit/s)',
-                      font: {
-                        family: 'Roboto, monospace',
-                        size: 14,
-                      }
-                    }
-                  },
-                  title: false,
-                }}
-              />
+            <Grid item xs={12} sm={2}>
+              <Button variant="contained">Export</Button>
             </Grid>
           </Grid>
         </Box>
-        <Grid container justify="space-between" alignItems="center">
-          <Grid container item spacing={2} xs={12} sm={10}>
-            <Grid item>
-              <Typography variant="overline" display="block" gutterBottom>
-                View
-              </Typography>
-            </Grid>
-            <Grid item>
-              <ButtonGroup
-                color="primary"
-                aria-label="outlined primary button group"
-              >
-                <Button>All tests</Button>
-                <Button>By hour</Button>
-                <Button>By day</Button>
-                <Button>By month</Button>
-              </ButtonGroup>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <Button variant="contained">
-              <CSVLink data={data} headers={headers}>
-                Export
-              </CSVLink>
-            </Button>
-          </Grid>
-        </Grid>
       </Suspense>
     );
   }
