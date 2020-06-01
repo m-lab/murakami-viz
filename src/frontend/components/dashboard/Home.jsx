@@ -286,7 +286,10 @@ function Home(props) {
                 </Grid>
                 <Grid item xs={4}>
                   <Typography component="div">
-                    Last Test: { !!runs.length ? runs[runs.length].DownloadTestStartTime : 'No tests yet. Is a device running?' }
+                    Last Test:{' '}
+                    {runs.length
+                      ? runs[runs.length - 1].DownloadTestStartTime
+                      : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>
               </Grid>
