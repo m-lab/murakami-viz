@@ -68,7 +68,7 @@ const useStyles = makeStyles(theme => ({
 export default function NavTabs(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
-  const { user } = props;
+  const { user, library } = props;
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -89,16 +89,16 @@ export default function NavTabs(props) {
         <LinkTab label="About" href="/about" {...a11yProps(4)} />
       </Tabs>
       <TabPanel value={value} index={0}>
-        <Home user={user} />
+        <Home user={user} library={library} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Notes />
+        <Notes library={library} />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Users user={user} />
+        <Users user={user} library={library} />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <Library user={user} />
+        <Library library={library} />
       </TabPanel>
       <TabPanel value={value} index={4}>
         <About />
@@ -109,4 +109,5 @@ export default function NavTabs(props) {
 
 NavTabs.propTypes = {
   user: PropTypes.object.isRequired,
+  library: PropTypes.object.isRequired,
 };

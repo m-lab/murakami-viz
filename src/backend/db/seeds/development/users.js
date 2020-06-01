@@ -7,27 +7,39 @@ export function seed(knex) {
     .del()
     .then(function() {
       // Inserts seed entries
-      return knex('users').insert([
-        {
-          id: 1,
-          username: 'admin',
-          password: hash,
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@mlbn.org',
-          location: 'Washington, DC',
-          role: 'Admin',
-        },
-        {
-          id: 2,
-          username: 'editor',
-          password: hash,
-          firstName: 'Rae',
-          lastName: 'Gaines',
-          email: 'rae@throneless.tech',
-          location: 'Washington, DC',
-          role: 'Editor',
-        },
+      return Promise.all([
+        knex('users').insert([
+          {
+            id: 1,
+            username: 'admin',
+            password: hash,
+            firstName: 'Admin',
+            lastName: 'User',
+            email: 'admin@mlbn.org',
+            location: 'Washington, DC',
+            role: 'Admin',
+          },
+          {
+            id: 2,
+            username: 'editor',
+            password: hash,
+            firstName: 'Rae',
+            lastName: 'Gaines',
+            email: 'rae@throneless.tech',
+            location: 'Washington, DC',
+            role: 'Editor',
+          },
+        ]),
+        knex('library_users').insert([
+          {
+            uid: 1,
+            lid: 1,
+          },
+          {
+            uid: 2,
+            lid: 2,
+          },
+        ]),
       ]);
     });
 }

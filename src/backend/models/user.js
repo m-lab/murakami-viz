@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import knex from 'knex';
 import { validate } from '../../common/schemas/user.js';
 import { BadRequestError } from '../../common/errors.js';
 
@@ -119,11 +118,7 @@ export default class User {
         }
 
         if (library) {
-          queryBuilder.join(
-            'library_users',
-            'library_users.lid',
-            knex.raw('?', [library]),
-          );
+          queryBuilder.where('library_id', '=', library);
         }
 
         if (asc) {

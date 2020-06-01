@@ -51,31 +51,32 @@ export default function Login(props) {
     })
       .then(res => res.json())
       .then(results => {
-        if ( results.success ){
+        if (results.success) {
           setError(false);
           onAuthUpdate(true);
           setHelperText('Login successful.');
-          if ( results.user.role === 'Admin' ) {
-            history.push({
+          if (results.user.role === 'Admin') {
+            return history.push({
               pathname: '/admin',
-              state: { user: results.user }
+              state: { user: results.user },
             });
           } else {
-            history.push({
+            return history.push({
               pathname: '/dashboard',
-              state: { user: results.user }
+              state: { user: results.user },
             });
           }
         } else {
           setError(true);
           setHelperText('Incorrect username or password.');
+          return;
         }
       })
       .catch(error => {
         setError(true);
         setHelperText('Could not connect to authentication server.');
         console.error('error: ', error);
-      })
+      });
   };
 
   return (

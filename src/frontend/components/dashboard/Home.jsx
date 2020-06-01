@@ -1,6 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
-import { CSVLink } from "react-csv";
+import { CSVLink } from 'react-csv';
 import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
@@ -47,13 +47,14 @@ const headers = [
 ];
 
 const data = [
-  { run: {
+  {
+    run: {
       id: 1,
-      TestName: 'ndt7'
+      TestName: 'ndt7',
     },
     server: {
       ip: '0.0.0.0',
-    }
+    },
   },
 ];
 
@@ -120,7 +121,7 @@ const MenuProps = {
 function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { user } = props;
+  const { user, library } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -169,32 +170,49 @@ function Home(props) {
   };
 
   // handle NDT or Ookla summary
-  const [ summary, setSummary ] = React.useState('NDT');
+  const [summary, setSummary] = React.useState('NDT');
 
-  const handleSummaryClick = (test) => {
+  const handleSummaryClick = test => {
     setSummary(test);
-  }
+  };
 
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const [library, setLibrary] = React.useState(null);
   const [runs, setRuns] = React.useState(null);
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   React.useEffect(() => {
-    Promise.all([
-      fetch(`/api/v1/libraries?of_user=${user.id}`),
-      fetch(`/api/v1/runs`),
-    ])
-      .then(([librariesResponse, runsResponse]) => Promise.all([librariesResponse.json(), runsResponse.json()]))
-      .then(([libraries, runs]) => {
-        setLibrary(libraries.data[0]);
-        setRuns(runs.data);
-        setIsLoaded(true);
-        return;
+    let status;
+    fetch(`/api/v1/libraries/${library.id}/runs`)
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(runs => {
+        if (status === 200) {
+          setRuns(runs.data);
+          setIsLoaded(true);
+          return;
+        } else {
+          processError(runs);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         setError(error);
+        console.err(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -229,10 +247,7 @@ function Home(props) {
                 >
                   Add a note
                 </Button>
-                <AddNote
-                  open={open}
-                  onClose={handleClose}
-                />
+                <AddNote open={open} onClose={handleClose} />
               </Grid>
             </Grid>
             <Grid container item spacing={1} xs={6}>
@@ -260,12 +275,10 @@ function Home(props) {
                     color="primary"
                     aria-label="outlined primary button group"
                   >
-                    <Button
-                      onClick={() => handleSummaryClick('NDT')}>
+                    <Button onClick={() => handleSummaryClick('NDT')}>
                       NDT
                     </Button>
-                    <Button
-                      onClick={() => handleSummaryClick('Ookla')}>
+                    <Button onClick={() => handleSummaryClick('Ookla')}>
                       Ookla
                     </Button>
                   </ButtonGroup>
@@ -308,7 +321,14 @@ function Home(props) {
               xs={12}
               md={12}
             >
-              <Grid container item direction="column" spacing={4} xs={12} md={2}>
+              <Grid
+                container
+                item
+                direction="column"
+                spacing={4}
+                xs={12}
+                md={2}
+              >
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
                     Connection
@@ -370,7 +390,7 @@ function Home(props) {
                     },
                     yaxis: {
                       showgrid: false,
-                    }
+                    },
                   }}
                 />
               </Grid>

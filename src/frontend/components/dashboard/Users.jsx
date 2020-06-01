@@ -28,7 +28,7 @@ import Loading from '../Loading.jsx';
 import ViewUser from '../utils/ViewUser.jsx';
 
 function formatName(first, last) {
-  return (`${first} ${last}`);
+  return `${first} ${last}`;
 }
 
 function formatRole(role) {
@@ -58,7 +58,7 @@ function stableSort(array, comparator) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis.map(el => el[0]);
 }
 
 const headCells = [
@@ -70,14 +70,14 @@ const headCells = [
 
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, rowCount, onRequestSort } = props;
-  const createSortHandler = (property) => (event) => {
+  const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
 
   return (
     <TableHead>
       <TableRow>
-        {headCells.map((headCell) => (
+        {headCells.map(headCell => (
           <TableCell
             key={headCell.id}
             padding={headCell.disablePadding ? 'none' : 'default'}
@@ -110,7 +110,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const useToolbarStyles = makeStyles((theme) => ({
+const useToolbarStyles = makeStyles(theme => ({
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
@@ -130,7 +130,7 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
-const EnhancedTableToolbar = (props) => {
+const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
   const { userRole, updateRows } = props;
 
@@ -141,18 +141,16 @@ const EnhancedTableToolbar = (props) => {
     setOpen(true);
   };
 
-  const handleClose = (user) => {
-    if ( user ) {
+  const handleClose = user => {
+    if (user) {
       updateRows(user);
     }
     setOpen(false);
   };
 
-  if ( userRole === "Admin" ) {
+  if (userRole === 'Admin') {
     return (
-      <Toolbar
-        className={clsx(classes.root,)}
-      >
+      <Toolbar className={clsx(classes.root)}>
         <Grid container spacing={2} alignItems="center" justify="flex-start">
           <Grid item>
             <Typography component="h2" variant="h3">
@@ -164,19 +162,18 @@ const EnhancedTableToolbar = (props) => {
               variant="contained"
               disableElevation
               color="primary"
-              onClick={handleClickOpen}>
+              onClick={handleClickOpen}
+            >
               Add
             </Button>
-            <AddUser
-             open={open}
-             onClose={handleClose} />
+            <AddUser open={open} onClose={handleClose} />
           </Grid>
         </Grid>
       </Toolbar>
     );
   } else {
     return (
-      <Toolbar className={clsx(classes.root,)} >
+      <Toolbar className={clsx(classes.root)}>
         <Typography component="h2" variant="h3">
           Users
         </Typography>
@@ -185,7 +182,7 @@ const EnhancedTableToolbar = (props) => {
   }
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     marginBottom: theme.spacing(2),
     width: '100%',
@@ -208,7 +205,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EnhancedTable(props) {
   const classes = useStyles();
-  const { user } = props;
+  const { user, library } = props;
 
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
@@ -226,7 +223,7 @@ export default function EnhancedTable(props) {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = event => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -235,16 +232,16 @@ export default function EnhancedTable(props) {
 
   // handle view user
   const [open, setOpen] = React.useState(false);
-  const [row, setRow] = React.useState({index: 0});
+  const [row, setRow] = React.useState({ index: 0 });
   const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = (index) => {
-    setIndex(index)
+  const handleClickOpen = index => {
+    setIndex(index);
     setOpen(true);
   };
 
-  const handleClose = (user) => {
-    if ( user ) {
+  const handleClose = user => {
+    if (user) {
       let editedUsers = [...rows];
       editedUsers[index] = user;
       setRows(editedUsers);
@@ -252,32 +249,54 @@ export default function EnhancedTable(props) {
     setOpen(false);
   };
 
-  const addData = (row) => {
+  const addData = row => {
     const newRow = [...rows, row];
     setRows(newRow);
-  }
+  };
 
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [rows, setRows] = React.useState([]);
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   React.useEffect(() => {
-    fetch("/api/v1/users")
-      .then(res => res.json())
-      .then(
-        (results) => {
-          setRows(results.data);
-          setRow(results.data[0]);
-          emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    let status;
+    fetch(`/api/v1/libraries/${library.id}/users`)
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(users => {
+        if (status === 200) {
+          setRows(users.data);
+          emptyRows =
+            rowsPerPage -
+            Math.min(rowsPerPage, rows.length - page * rowsPerPage);
           setIsLoaded(true);
-        },
-        (error) => {
-          setIsLoaded(true);
-          setError(error);
+          return;
+        } else {
+          processError(users);
+          throw new Error(`Error in response from server.`);
         }
-      )
-  }, [])
+      })
+      .catch(error => {
+        setError(error);
+        console.err(error.name + error.message);
+        setIsLoaded(true);
+      });
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -307,25 +326,29 @@ export default function EnhancedTable(props) {
                   .map((row, index) => {
                     const labelId = `data-row-${index}`;
 
-
-                    return (
-                      <TableRow
+                    if (row) {
+                      return (
+                        <TableRow
                           hover
-                          onClick={() => {handleClickOpen(index);}}
+                          onClick={() => {
+                            handleClickOpen(index);
+                          }}
                           key={row.id}
                         >
-                          <TableCell component="th" id={labelId} scope="row" padding="none">
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                          >
                             {formatName(row.firstName, row.lastName)}
                           </TableCell>
                           <TableCell>{row.location}</TableCell>
-                          <TableCell>
-                            {row.email}
-                          </TableCell>
-                          <TableCell>
-                            {formatRole(row.role)}
-                          </TableCell>
+                          <TableCell>{row.email}</TableCell>
+                          <TableCell>{formatRole(row.role)}</TableCell>
                         </TableRow>
-                    );
+                      );
+                    }
                   })}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: emptyRows }}>
@@ -343,11 +366,14 @@ export default function EnhancedTable(props) {
             page={page}
             onChangePage={handleChangePage}
           />
-          <ViewUser
-            index={index}
-            rows={stableSort(rows, getComparator(order, orderBy))}
-            open={open}
-            onClose={handleClose} />
+          {rows.length > 0 && (
+            <ViewUser
+              index={index}
+              rows={stableSort(rows, getComparator(order, orderBy))}
+              open={open}
+              onClose={handleClose}
+            />
+          )}
         </div>
       </Suspense>
     );

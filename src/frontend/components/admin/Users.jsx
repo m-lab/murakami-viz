@@ -2,8 +2,7 @@
 import React, { Suspense } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(theme => ({
-}));
+const useStyles = makeStyles(theme => ({}));
 
 export default function Users(props) {
   const classes = useStyles();
@@ -33,9 +32,6 @@ export default function Users(props) {
   } else if (!isLoaded) {
     return <div>Loading...</div>;
   } else {
-    return (
-      <Suspense>
-      </Suspense>
-    )
+    return <Suspense />;
   }
 }

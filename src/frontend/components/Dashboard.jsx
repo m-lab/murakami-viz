@@ -1,7 +1,7 @@
 // base imports
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
 import AppBar from '@material-ui/core/AppBar';
@@ -71,7 +71,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const user = props.user || props.location.state.user;
+  const { user, library } = props;
 
   return (
     <Container className={classes.root}>
@@ -105,7 +105,7 @@ export default function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
-          <NavTabs user={user} />
+          <NavTabs user={user} library={library} />
         </Container>
       </main>
     </Container>
@@ -114,4 +114,5 @@ export default function Dashboard(props) {
 
 Dashboard.propTypes = {
   user: PropTypes.object.isRequired,
+  library: PropTypes.object.isRequired,
 };

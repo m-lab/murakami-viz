@@ -233,7 +233,7 @@ export default function controller(users, thisUser) {
     }
 
     if (!_.isEmpty(user)) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: user };
+      ctx.response.body = { statusCode: 200, status: 'ok', data: [user] };
       ctx.response.status = 200;
     } else {
       log.error(
