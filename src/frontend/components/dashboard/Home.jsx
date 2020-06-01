@@ -411,7 +411,7 @@ function Home(props) {
                   <Button>All tests</Button>
                   <Button>By hour</Button>
                   <Button>By day</Button>
-                  <Button>By month</Button>
+                  // <Button>By month</Button>
                 </ButtonGroup>
               </Grid>
             </Grid>
