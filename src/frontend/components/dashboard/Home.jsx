@@ -18,8 +18,9 @@ import {
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
-import Loading from '../Loading.jsx';
 import AddNote from '../utils/AddNote.jsx';
+import Loading from '../Loading.jsx';
+import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
 
 const headers = [
@@ -200,13 +201,13 @@ function Home(props) {
         status = res.status;
         return res.json();
       })
-      .then(runs => {
+      .then(response => {
         if (status === 200) {
-          setRuns(runs.data);
+          setRuns(response.data);
           setIsLoaded(true);
           return;
         } else {
-          processError(runs);
+          processError(response);
           throw new Error(`Error in response from server.`);
         }
       })
@@ -285,11 +286,11 @@ function Home(props) {
                 </Grid>
                 <Grid item xs={4}>
                   <Typography component="div">
-                    Last Test: March 9, 8:00 a.m.
+                    Last Test: { !!runs.length ? runs[runs.length].DownloadTestStartTime : 'No tests yet. Is a device running?' }
                   </Typography>
                 </Grid>
               </Grid>
-              <TestsSummary test={summary} />
+              <TestsSummary tests={runs} />
             </Grid>
           </Grid>
           <Box mt={5}>
@@ -371,28 +372,7 @@ function Home(props) {
                 </Grid>
               </Grid>
               <Grid item xs={12} md={10}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                      y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'red' },
-                    },
-                  ]}
-                  layout={{
-                    width: 820,
-                    height: 440,
-                    title: '',
-                    xaxis: {
-                      showgrid: false,
-                    },
-                    yaxis: {
-                      showgrid: false,
-                    },
-                  }}
-                />
+                <MainGraph runs={runs} />
               </Grid>
             </Grid>
           </Box>
