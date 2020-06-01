@@ -400,7 +400,7 @@ function Home(props) {
             <Grid container item spacing={2} xs={12} sm={10}>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
-                  View
+                  Group by
                 </Typography>
               </Grid>
               <Grid item>
