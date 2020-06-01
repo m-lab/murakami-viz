@@ -2,7 +2,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Moment from 'react-moment';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -11,61 +10,58 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import MobileStepper from '@material-ui/core/MobileStepper';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 // icons imports
-import ClearIcon from '@material-ui/icons/Clear';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 // modules imports
 import EditUser from '../utils/EditUser.jsx';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-  },
+const useStyles = makeStyles(() => ({
+  root: {},
   box: {
-    padding: "50px",
+    padding: '50px',
   },
   closeButton: {
-    marginBottom: "50px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: "130px",
+    marginBottom: '50px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    maxWidth: '130px',
   },
   closeX: {
-    marginTop: "15px",
-    position: "absolute",
-    right: "0",
-    top: "0"
+    marginTop: '15px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
   },
   dialog: {
-    position: "relative"
+    position: 'relative',
   },
   dialogTitleRoot: {
-    marginTop: "30px",
+    marginTop: '30px',
   },
   dialogTitleText: {
-    fontSize: "2.25rem",
-    textAlign: "right"
+    fontSize: '2.25rem',
+    textAlign: 'right',
   },
   editButton: {
-    marginTop: "30px"
+    marginTop: '30px',
   },
   form: {
-    padding: "50px",
+    padding: '50px',
   },
   formField: {
-    marginBottom: "30px",
+    marginBottom: '30px',
   },
   saveButton: {
-    marginBottom: "0",
-  }
-}))
+    marginBottom: '0',
+  },
+}));
 
 function formatName(first, last) {
-  return (`${first} ${last}`);
+  return `${first} ${last}`;
 }
 
 function formatRole(role) {
@@ -77,15 +73,15 @@ export default function ViewUser(props) {
   const theme = useTheme();
   const { onClose, open, rows, index } = props;
 
-  const handleClose = (row) => {
+  const handleClose = row => {
     onClose(row);
   };
 
   const [row, setRow] = React.useState(props.rows[props.index]);
 
-  const updateRow = (row) => {
+  const updateRow = row => {
     setRow(row);
-  }
+  };
 
   // handle edit user
   const [openEdit, setOpenEdit] = React.useState(false);
@@ -94,8 +90,8 @@ export default function ViewUser(props) {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = (user) => {
-    if ( user ) {
+  const handleCloseEdit = user => {
+    if (user) {
       updateRow(user);
     }
     setOpenEdit(false);
@@ -108,16 +104,16 @@ export default function ViewUser(props) {
   React.useEffect(() => {
     setRow(props.rows[props.index]);
     setActiveStep(props.index);
-  }, [props.index])
+  }, [props.index]);
 
   const handleNext = () => {
-    setActiveStep((activeStep) => activeStep + 1);
-    setRow(props.rows[activeStep + 1])
+    setActiveStep(activeStep => activeStep + 1);
+    setRow(props.rows[activeStep + 1]);
   };
 
   const handleBack = () => {
-    setActiveStep((activeStep) => activeStep - 1);
-    setRow(props.rows[activeStep - 1])
+    setActiveStep(activeStep => activeStep - 1);
+    setRow(props.rows[activeStep - 1]);
   };
 
   return (
@@ -126,23 +122,36 @@ export default function ViewUser(props) {
       modal={true}
       open={open}
       aria-labelledby="view-user-title"
-      fullWidth={ true }
-      maxWidth={"md"}
-      className={classes.dialog}>
+      fullWidth={true}
+      maxWidth={'md'}
+      className={classes.dialog}
+    >
       <MobileStepper
         steps={maxSteps}
         position="static"
         variant="text"
         activeStep={activeStep}
         nextButton={
-          <Button size="small" onClick={handleNext} disabled={activeStep === maxSteps - 1}>
+          <Button
+            size="small"
+            onClick={handleNext}
+            disabled={activeStep === maxSteps - 1}
+          >
             Next
-            {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+            {theme.direction === 'rtl' ? (
+              <KeyboardArrowLeft />
+            ) : (
+              <KeyboardArrowRight />
+            )}
           </Button>
         }
         backButton={
           <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-            {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+            {theme.direction === 'rtl' ? (
+              <KeyboardArrowRight />
+            ) : (
+              <KeyboardArrowLeft />
+            )}
             Back
           </Button>
         }
@@ -159,14 +168,16 @@ export default function ViewUser(props) {
             disableElevation
             color="primary"
             onClick={handleClickOpenEdit}
-            className={classes.editButton}>
+            className={classes.editButton}
+          >
             Edit
           </Button>
           <EditUser
             row={row}
             onRowUpdate={updateRow}
             open={openEdit}
-            onClose={handleCloseEdit} />
+            onClose={handleCloseEdit}
+          />
         </Grid>
       </Grid>
       <Box className={classes.box}>
@@ -177,10 +188,10 @@ export default function ViewUser(props) {
           {row.email}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {row.location}
+          {row.location_name}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {formatRole(row.role)}
+          {formatRole(row.role_name)}
         </Typography>
       </Box>
       <Button
@@ -191,7 +202,8 @@ export default function ViewUser(props) {
         primary={true}
         onClick={() => handleClose(row)}
         className={classes.closeButton}
-        gutterBottom>
+        gutterBottom
+      >
         Close
       </Button>
     </Dialog>

@@ -55,7 +55,7 @@ export default function Login(props) {
           setError(false);
           onAuthUpdate(true);
           setHelperText('Login successful.');
-          if (results.user.role === 'Admin') {
+          if (results.user.role === 1) {
             return history.push({
               pathname: '/admin',
               state: { user: results.user },

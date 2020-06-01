@@ -16,57 +16,59 @@ import Typography from '@material-ui/core/Typography';
 import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles(theme => ({
-  cancelButton: {
-  },
+  cancelButton: {},
   closeButton: {
-    marginTop: "15px",
-    position: "absolute",
-    right: "0",
-    top: "0"
+    marginTop: '15px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
   },
   dialog: {
-    position: "relative"
+    position: 'relative',
   },
   dialogTitleRoot: {
-    marginTop: "30px",
+    marginTop: '30px',
   },
   dialogTitleText: {
-    fontSize: "2.25rem",
-    textAlign: "center"
+    fontSize: '2.25rem',
+    textAlign: 'center',
   },
   form: {
-    padding: "50px",
+    padding: '50px',
   },
   formField: {
-    marginBottom: "30px",
+    marginBottom: '30px',
   },
   saveButton: {
-    marginBottom: "0",
-  }
-}))
+    marginBottom: '0',
+  },
+}));
 
 function formatDate(date) {
-  return date.replace(/ /g, "T");
+  return date.replace(/ /g, 'T');
 }
 
-const useForm = (callback) => {
+const useForm = callback => {
   const [inputs, setInputs] = useState({});
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     callback();
-  }
-  const handleInputChange = (event) => {
+  };
+  const handleInputChange = event => {
     event.persist();
-    setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
-  }
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value,
+    }));
+  };
   return {
     handleSubmit,
     handleInputChange,
-    inputs
+    inputs,
   };
-}
+};
 
 export default function EditAbout(props) {
   const classes = useStyles();
@@ -94,13 +96,26 @@ export default function EditAbout(props) {
     // });
 
     onClose();
-  }
+  };
 
-  const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="edit-note-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
-      <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
+    <Dialog
+      onClose={handleClose}
+      modal={true}
+      open={open}
+      aria-labelledby="edit-note-title"
+      fullWidth={true}
+      maxWidth={'lg'}
+      className={classes.dialog}
+    >
+      <Button
+        label="Close"
+        primary={true}
+        onClick={handleClose}
+        className={classes.closeButton}
+      >
         <ClearIcon />
       </Button>
       <DialogTitle id="edit-note-title" className={classes.dialogTitleRoot}>
@@ -127,7 +142,8 @@ export default function EditAbout(props) {
               label="Cancel"
               primary={true}
               onClick={handleClose}
-              className={classes.cancelButton}>
+              className={classes.cancelButton}
+            >
               Cancel
             </Button>
           </Grid>
@@ -140,7 +156,8 @@ export default function EditAbout(props) {
               variant="contained"
               disableElevation
               color="primary"
-              primary={true}>
+              primary={true}
+            >
               Save
             </Button>
           </Grid>

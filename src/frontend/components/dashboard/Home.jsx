@@ -121,7 +121,7 @@ const MenuProps = {
 function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { user, library } = props;
+  const { library } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -212,7 +212,7 @@ function Home(props) {
       })
       .catch(error => {
         setError(error);
-        console.err(error.name + error.message);
+        console.error(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -247,7 +247,7 @@ function Home(props) {
                 >
                   Add a note
                 </Button>
-                <AddNote open={open} onClose={handleClose} />
+                <AddNote open={open} onClose={handleClose} library={library} />
               </Grid>
             </Grid>
             <Grid container item spacing={1} xs={6}>

@@ -22,29 +22,32 @@ const useStyles = makeStyles(theme => ({
   upper: {
     textTransform: 'uppercase',
   },
-}))
+}));
 
 export default function TestsSummary(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { test } = props;
 
-  if ( test === 'NDT' || test === 'Ookla' ) {
+  if (test === 'NDT' || test === 'Ookla') {
     return (
       <Grid container item direction="row" spacing={2} xs={12}>
-        <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+        <Grid
+          item
+          className={`${classes.grid} ${classes.gridBorder}`}
+          xs={12}
+          sm={6}
+        >
           <Typography component="div" className={classes.upper}>
             7 day median:
           </Typography>
           <Typography component="div" className={classes.large}>
             50
           </Typography>
-          <Typography component="div">
-            Mbps
-          </Typography>
+          <Typography component="div">Mbps</Typography>
           <Plot
             className={classes.plotSmall}
-            config={{displayModeBar: false}}
+            config={{ displayModeBar: false }}
             data={[
               {
                 x: [1, 2, 3],
@@ -76,26 +79,32 @@ export default function TestsSummary(props) {
                 showgrid: false,
                 visible: false,
                 zeroline: false,
-              }
+              },
             }}
           />
-          <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
+          <Typography
+            component="div"
+            className={`${classes.upper} ${classes.textBorder}`}
+          >
             Last 7 days: 28 tests
           </Typography>
         </Grid>
-        <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+        <Grid
+          item
+          className={`${classes.grid} ${classes.gridBorder}`}
+          xs={12}
+          sm={6}
+        >
           <Typography component="div" className={classes.upper}>
             24 hour median:
           </Typography>
           <Typography component="div" className={classes.large}>
             61
           </Typography>
-          <Typography component="div">
-            Mbps
-          </Typography>
+          <Typography component="div">Mbps</Typography>
           <Plot
             className={classes.plotSmall}
-            config={{displayModeBar: false}}
+            config={{ displayModeBar: false }}
             data={[
               {
                 x: [1, 2, 3],
@@ -130,15 +139,16 @@ export default function TestsSummary(props) {
               },
             }}
           />
-          <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
+          <Typography
+            component="div"
+            className={`${classes.upper} ${classes.textBorder}`}
+          >
             Last 24 hours: 4 tests
           </Typography>
         </Grid>
       </Grid>
-    )
-  }  else {
-    return (
-      <div>Something went wrong. Please contact an administrator. </div>
-    )
+    );
+  } else {
+    return <div>Something went wrong. Please contact an administrator. </div>;
   }
 }

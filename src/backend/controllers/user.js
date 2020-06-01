@@ -25,6 +25,12 @@ const query_schema = Joi.object({
   sort_by: Joi.string(),
   from: Joi.string(),
   to: Joi.string(),
+  library: Joi.number()
+    .integer()
+    .positive(),
+  group: Joi.number()
+    .integer()
+    .positive(),
 });
 
 async function validate_query(query) {
@@ -159,7 +165,7 @@ export default function controller(users, thisUser) {
     }
 
     try {
-      user = await users.create(ctx.request.body, lid);
+      user = await users.create(ctx.request.body.data, lid);
 
       // workaround for sqlite
       if (Number.isInteger(user)) {
@@ -205,6 +211,7 @@ export default function controller(users, thisUser) {
         from: from,
         to: to,
         library: ctx.params.lid,
+        group: query.group,
       });
       ctx.response.body = {
         statusCode: 200,
@@ -223,7 +230,7 @@ export default function controller(users, thisUser) {
     let user;
 
     try {
-      if (!Number.isInteger(ctx.params.id)) {
+      if (!Number.isInteger(parseInt(ctx.params.id))) {
         user = await users.findByUsername(ctx.params.id);
       } else {
         user = await users.findById(ctx.params.id);
@@ -251,7 +258,7 @@ export default function controller(users, thisUser) {
       if (ctx.params.lid) {
         user = await users.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
-        user = await users.update(ctx.params.id, ctx.request.body);
+        user = await users.update(ctx.params.id, ctx.request.body.data);
       }
 
       // workaround for sqlite

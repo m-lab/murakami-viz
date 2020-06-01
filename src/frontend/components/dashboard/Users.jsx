@@ -2,9 +2,7 @@
 import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
-import Moment from 'react-moment';
-import Truncate from 'react-truncate';
+import { lighten, makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
 import Button from '@material-ui/core/Button';
@@ -19,11 +17,9 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 // modules imports
 import AddUser from '../utils/AddUser.jsx';
-import EditUser from '../utils/EditUser.jsx';
 import Loading from '../Loading.jsx';
 import ViewUser from '../utils/ViewUser.jsx';
 
@@ -63,9 +59,14 @@ function stableSort(array, comparator) {
 
 const headCells = [
   { id: 'firstName', numeric: false, disablePadding: true, label: 'Name' },
-  { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
+  {
+    id: 'location_name',
+    numeric: false,
+    disablePadding: false,
+    label: 'Location',
+  },
   { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
-  { id: 'role', numeric: false, disablePadding: false, label: 'Role' },
+  { id: 'role_name', numeric: false, disablePadding: false, label: 'Role' },
 ];
 
 function EnhancedTableHead(props) {
@@ -132,7 +133,7 @@ const useToolbarStyles = makeStyles(theme => ({
 
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
-  const { userRole, updateRows } = props;
+  const { userRole, updateRows, user, library } = props;
 
   // handle add user
   const [open, setOpen] = React.useState(false);
@@ -166,7 +167,12 @@ const EnhancedTableToolbar = props => {
             >
               Add
             </Button>
-            <AddUser open={open} onClose={handleClose} />
+            <AddUser
+              open={open}
+              onClose={handleClose}
+              user={user}
+              library={library}
+            />
           </Grid>
         </Grid>
       </Toolbar>
@@ -210,7 +216,7 @@ export default function EnhancedTable(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const rowsPerPage = 10;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -223,16 +229,10 @@ export default function EnhancedTable(props) {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   let emptyRows;
 
   // handle view user
   const [open, setOpen] = React.useState(false);
-  const [row, setRow] = React.useState({ index: 0 });
   const [index, setIndex] = React.useState(0);
 
   const handleClickOpen = index => {
@@ -293,7 +293,7 @@ export default function EnhancedTable(props) {
       })
       .catch(error => {
         setError(error);
-        console.err(error.name + error.message);
+        console.error(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -306,7 +306,12 @@ export default function EnhancedTable(props) {
     return (
       <Suspense>
         <div className={classes.root}>
-          <EnhancedTableToolbar userRole={user.role} updateRows={addData} />
+          <EnhancedTableToolbar
+            userRole={user.role_name}
+            updateRows={addData}
+            user={user}
+            library={library}
+          />
           <TableContainer>
             <Table
               className={classes.table}
@@ -343,9 +348,9 @@ export default function EnhancedTable(props) {
                           >
                             {formatName(row.firstName, row.lastName)}
                           </TableCell>
-                          <TableCell>{row.location}</TableCell>
+                          <TableCell>{row.location_name}</TableCell>
                           <TableCell>{row.email}</TableCell>
-                          <TableCell>{formatRole(row.role)}</TableCell>
+                          <TableCell>{formatRole(row.role_name)}</TableCell>
                         </TableRow>
                       );
                     }
