@@ -1,6 +1,6 @@
 // base imports
-import React, { useState } from 'react';
-import { useDatepicker, START_DATE } from '@datepicker-react/hooks';
+import React, { useState } from "react";
+import { useDatepicker, START_DATE } from "@datepicker-react/hooks";
 import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
@@ -14,9 +14,9 @@ import Hidden from '@material-ui/core/Hidden';
 import EventIcon from '@material-ui/icons/Event';
 
 // module imports
-import Month from './Month.jsx';
-import NavButton from './NavButton.jsx';
-import DatepickerContext from './DatePickerContext.jsx';
+import Month from './Month';
+import NavButton from './NavButton';
+import DatepickerContext from './datepickerContext';
 
 const today = new Date();
 const weekAgo = new Date(today.setDate(today.getDate() - 7));
@@ -25,7 +25,7 @@ export default function Datepicker() {
   const [state, setState] = useState({
     startDate: weekAgo,
     endDate: new Date(),
-    focusedInput: START_DATE,
+    focusedInput: START_DATE
   });
 
   const {
@@ -41,16 +41,19 @@ export default function Datepicker() {
     onDateSelect,
     onDateFocus,
     goToPreviousMonths,
-    goToNextMonths,
+    goToNextMonths
   } = useDatepicker({
     startDate: state.startDate,
     endDate: state.endDate,
     focusedInput: state.focusedInput,
-    onDatesChange: handleDateChange,
+    onDatesChange: handleDateChange
   });
   const useStyles = makeStyles(theme => ({
     buttons: {
       marginLeft: '30px',
+    },
+    center: {
+      textAlign: 'center',
     },
     dialog: {
       padding: '20px',
@@ -82,6 +85,10 @@ export default function Datepicker() {
     setOpen(false);
   };
 
+  const handleSubmit = value => {
+    setOpen(false);
+  }
+
   return (
     <DatepickerContext.Provider
       value={{
@@ -93,38 +100,48 @@ export default function Datepicker() {
         isFirstOrLastSelectedDate,
         onDateSelect,
         onDateFocus,
-        onDateHover,
+        onDateHover
       }}
     >
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <Button variant='outlined' onClick={handleClickOpen}>
         <EventIcon />
         <span>
-          {state.startDate && state.startDate.toLocaleString().split(',')[0]}
+          {state.startDate && state.startDate.toLocaleString().split(",")[0]}
         </span>
         -
         <span>
-          {state.endDate && state.endDate.toLocaleString().split(',')[0]}
+          {state.endDate && state.endDate.toLocaleString().split(",")[0]}
         </span>
       </Button>
       <Dialog
         className={classes.dialog}
         maxWidth={'md'}
         onClose={handleClose}
-        aria-labelledby="calendar-title"
-        open={open}
-      >
+        aria-labelledby='calendar-title'
+        open={open}>
         <Hidden>
           <DialogTitle id="calendar-title">Select date range</DialogTitle>
         </Hidden>
-        <Grid container className={classes.buttons} spacing={2}>
-          <Grid item>
-            <NavButton onClick={goToPreviousMonths}>Previous</NavButton>
+        <Grid container justify='space-between' xs={12} sm={12} className={classes.buttons}>
+          <Grid container item  spacing={2} xs={12} sm={6}>
+            <Grid item>
+              <NavButton onClick={goToPreviousMonths}>Previous</NavButton>
+            </Grid>
+            <Grid item>
+              <NavButton onClick={goToNextMonths}>Next</NavButton>
+            </Grid>
           </Grid>
-          <Grid item>
-            <NavButton onClick={goToNextMonths}>Next</NavButton>
+          <Grid item xs={12} sm={6} className={classes.center}>
+            <Button
+              variant='contained'
+              disableElevation
+              color='primary'
+              onClick={handleSubmit}
+              >
+              Submit
+            </Button>
           </Grid>
         </Grid>
-
         <div className={classes.grid}>
           {activeMonths.map(month => (
             <Month
