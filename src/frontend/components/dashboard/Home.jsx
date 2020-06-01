@@ -11,11 +11,16 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 // import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+
+// icon imports
+import InfoIcon from '@material-ui/icons/Info';
 
 // modules imports
 import Loading from '../Loading.jsx';
@@ -79,6 +84,11 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginTop: '40px',
+  },
+  iconButton: {
+    padding: '0',
+    position: 'absolute',
+    right: '-35px',
   },
   inputLabel: {
     position: 'absolute',
@@ -351,8 +361,22 @@ function Home(props) {
                     color="primary"
                     aria-label="vertical outlined primary button group"
                   >
-                    <Button>NDT</Button>
-                    <Button>Ookla</Button>
+                    <Button>
+                      NDT
+                      <Tooltip title="Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum.">
+                        <IconButton className={classes.iconButton} aria-label="ndt-test-tip">
+                        <InfoIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Button>
+                    <Button>
+                      Ookla
+                      <Tooltip title="Morbi fringilla convallis sapien, id pulvinar odio volutpat. Gallia est omnis divisa in partes tres, quarum. Quae vero auctorem tractata ab fiducia dicuntur.">
+                        <IconButton className={classes.iconButton} aria-label="ookla-test-tip">
+                        <InfoIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>
@@ -364,9 +388,30 @@ function Home(props) {
                     color="primary"
                     aria-label="vertical outlined primary button group"
                   >
-                    <Button>Download</Button>
-                    <Button>Upload</Button>
-                    <Button>Latency</Button>
+                    <Button>
+                      Download
+                      <Tooltip title="Gallia est omnis divisa in partes tres, quarum. Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat.">
+                        <IconButton className={classes.iconButton} aria-label="download-tip">
+                        <InfoIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Button>
+                    <Button>
+                      Upload
+                      <Tooltip title="Gallia est omnis divisa in partes tres, quarum. Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat.">
+                        <IconButton className={classes.iconButton} aria-label="upload-tip">
+                        <InfoIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Button>
+                    <Button>
+                      Latency
+                      <Tooltip title="Gallia est omnis divisa in partes tres, quarum. Quae vero auctorem tractata ab fiducia dicuntur. Morbi fringilla convallis sapien, id pulvinar odio volutpat.">
+                        <IconButton className={classes.iconButton} aria-label="latency-tip">
+                        <InfoIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Button>
                   </ButtonGroup>
                 </Grid>
               </Grid>
