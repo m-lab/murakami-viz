@@ -53,7 +53,9 @@ export default function Library(props) {
   console.log('library: ', library);
   // handle edit library
   const [open, setOpen] = React.useState(false);
+
   const [show, setShow] = React.useState(false);
+  const [ipValue, setIpValue] = React.useState("");
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -72,9 +74,39 @@ export default function Library(props) {
     setShow(false);
   }
 
+  // handles value change
+  const handleIpInput = (event) => {
+    setIpValue(event.target.value)
+  }
+
   // submits an IP address to the library_ips table
-  const handleSubmit = () => {
-    console.log("submitting the thing")
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const data = {
+      id: library.id,
+      ip: ipValue
+    };
+    fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.json())
+      .then(results => {
+        // onRowUpdate(results.data[0]);
+        console.log(results);
+      })
+      .catch(error => {
+        console.log(error);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+
+    closeTextfield();
   };
 
   return (
@@ -356,20 +388,21 @@ export default function Library(props) {
                     name="ip"
                     fullWidth
                     variant="outlined"
-                  // onChange={handleInputChange}
-                  // defaultValue={props.row.ip}
-                  // value={inputs.ip}
+                    onChange={handleIpInput}
+                    value={ipValue}
                   />
                 </TableCell>
                 <TableCell className={classes.tableCell}>
                   <Button
-                      variant="contained"
-                      disableElevation
-                      color="primary"
-                      onClick={handleSubmit}
-                    >
-                      Save
-                  </Button>   
+                    type="submit"
+                    label="Submit"
+                    variant="contained"
+                    disableElevation
+                    color="primary"
+                    onClick={handleSubmit}
+                  >
+                    Submit
+                  </Button>
                   <Button
                     variant="contained"
                     disableElevation
