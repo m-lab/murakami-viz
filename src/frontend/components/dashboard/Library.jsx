@@ -6,6 +6,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl'
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -13,6 +14,7 @@ import TableBody from '@material-ui/core/TableBody';
 import MuiTableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
@@ -51,6 +53,7 @@ export default function Library(props) {
   console.log('library: ', library);
   // handle edit library
   const [open, setOpen] = React.useState(false);
+  const [show, setShow] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -60,9 +63,19 @@ export default function Library(props) {
     setOpen(false);
   };
 
-  const handleWhitelist = () => {
-    console.log('handling whitelist add')
+  // next two functions toggle showing/hiding the TextField to whitelist an IP address
+  const showTextfield = () => {
+    setShow(true);
   }
+
+  const closeTextfield = () => {
+    setShow(false);
+  }
+
+  // submits an IP address to the library_ips table
+  const handleSubmit = () => {
+    console.log("submitting the thing")
+  };
 
   return (
     <Suspense>
@@ -333,16 +346,54 @@ export default function Library(props) {
                   {library.network_name}
                 </TableCell>
               </TableRow>
+              { show ?
               <TableRow>
-                <Button
-                  variant="contained"
-                  disableElevation
-                  color="primary"
-                  onClick={handleWhitelist}
-                >
-                  Add an IP address
+                <TableCell className={classes.tableCell}>
+                  <TextField
+                    className={classes.formField}
+                    id="library-ip"
+                    label="IP address"
+                    name="ip"
+                    fullWidth
+                    variant="outlined"
+                  // onChange={handleInputChange}
+                  // defaultValue={props.row.ip}
+                  // value={inputs.ip}
+                  />
+                </TableCell>
+                <TableCell className={classes.tableCell}>
+                  <Button
+                      variant="contained"
+                      disableElevation
+                      color="primary"
+                      onClick={handleSubmit}
+                    >
+                      Save
+                  </Button>   
+                  <Button
+                    variant="contained"
+                    disableElevation
+                    color="primary"
+                    onClick={closeTextfield}
+                  >
+                    Cancel
                 </Button>
+                </TableCell>
               </TableRow>
+              : 
+              <TableRow>
+                <TableCell className={classes.tableCell}>
+                  <Button
+                    variant="contained"
+                    disableElevation
+                    color="primary"
+                    onClick={showTextfield}
+                  >
+                    Whitelist a new IP address
+                  </Button>
+                </TableCell>
+              </TableRow>
+              }
             </TableBody>
           </Table>
         </TableContainer>
