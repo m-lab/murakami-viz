@@ -35,7 +35,7 @@ RUN apk add --update --no-cache curl
 
 EXPOSE 3000
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY --from=build /src/node_modules node_modules
 COPY --from=build /src/dist dist
