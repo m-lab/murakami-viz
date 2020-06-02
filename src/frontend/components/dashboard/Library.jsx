@@ -60,6 +60,10 @@ export default function Library(props) {
     setOpen(false);
   };
 
+  const handleWhitelist = () => {
+    console.log('handling whitelist add')
+  }
+
   return (
     <Suspense>
       <Box mb={9} mt={9}>
@@ -306,6 +310,38 @@ export default function Library(props) {
                 <TableCell className={classes.tableCell}>
                   {library.device_mac_address}
                 </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      <Box mb={9}>
+        <Typography variant="overline" display="block" gutterBottom>
+          Whitelisted IP Addresses
+        </Typography>
+        <TableContainer>
+          <Table className={classes.table} aria-label="basic information table">
+            <TableBody> 
+              {/* map over the ip props to dynamically create TableRows */ }
+              <TableRow>
+                <TableCell
+                  className={`${classes.tableCell} ${classes.tableKey}`}
+                >
+                  IP Address
+                </TableCell>
+                <TableCell className={classes.tableCell}>
+                  {library.network_name}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <Button
+                  variant="contained"
+                  disableElevation
+                  color="primary"
+                  onClick={handleWhitelist}
+                >
+                  Add an IP address
+                </Button>
               </TableRow>
             </TableBody>
           </Table>
