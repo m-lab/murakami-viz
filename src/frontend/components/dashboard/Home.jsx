@@ -99,6 +99,11 @@ const useStyles = makeStyles(theme => ({
 
 const connections = ['Wired', 'Wifi', 'Other'];
 
+function formatDate(date) {
+  console.log('in format date', date);
+  return date.substr(0, 10);
+}
+
 function getStyles(connection, connectionType, theme) {
   return {
     fontWeight:
@@ -205,7 +210,7 @@ function Home(props) {
         if (status === 200) {
           setRuns(response.data);
           setIsLoaded(true);
-          return;
+          // return;
         } else {
           processError(response);
           throw new Error(`Error in response from server.`);
@@ -216,6 +221,7 @@ function Home(props) {
         console.err(error.name + error.message);
         setIsLoaded(true);
       });
+
   }, []);
 
   if (error) {
@@ -287,13 +293,13 @@ function Home(props) {
                 <Grid item xs={4}>
                   <Typography component="div">
                     Last Test:{' '}
-                    {runs.length
-                      ? runs[runs.length - 1].DownloadTestStartTime
+                    {!!runs
+                      ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>
               </Grid>
-              <TestsSummary tests={runs} />
+              <TestsSummary tests={!!runs ? runs : undefined} />
             </Grid>
           </Grid>
           <Box mt={5}>
