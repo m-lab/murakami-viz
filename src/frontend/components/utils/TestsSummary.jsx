@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 // module imports
 import Loading from '../Loading.jsx';
 
-
 const useStyles = makeStyles(theme => ({
   gridBorder: {
     border: '1px solid #000',
@@ -26,16 +25,16 @@ const useStyles = makeStyles(theme => ({
   upper: {
     textTransform: 'uppercase',
   },
-}))
+}));
 
 function getMedian(runs) {
   if (!runs) {
     return 0;
   } else {
     let total;
-    runs.map( run => {
+    runs.map(run => {
       total += run.DownloadValue;
-    })
+    });
 
     return total / runs.length;
   }
@@ -47,8 +46,10 @@ export default function TestsSummary(props) {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const { runs } = props;
 
+  console.log('RUNS: ', runs);
+
   React.useEffect(() => {
-    if (!!runs) {
+    if (runs) {
       setIsLoaded(true);
     }
   }, []);
@@ -58,19 +59,22 @@ export default function TestsSummary(props) {
   } else {
     return (
       <Grid container item direction="row" spacing={2} xs={12}>
-        <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+        <Grid
+          item
+          className={`${classes.grid} ${classes.gridBorder}`}
+          xs={12}
+          sm={6}
+        >
           <Typography component="div" className={classes.upper}>
             7 day median:
           </Typography>
           <Typography component="div" className={classes.large}>
             {getMedian(runs)}
           </Typography>
-          <Typography component="div">
-            Mbps
-          </Typography>
+          <Typography component="div">Mbps</Typography>
           <Plot
             className={classes.plotSmall}
-            config={{displayModeBar: false}}
+            config={{ displayModeBar: false }}
             data={[
               {
                 x: [1, 2, 3],
@@ -102,26 +106,32 @@ export default function TestsSummary(props) {
                 showgrid: false,
                 visible: false,
                 zeroline: false,
-              }
+              },
             }}
           />
-          <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
-            Last 7 days: { !!runs ? runs.length : '0' } tests
+          <Typography
+            component="div"
+            className={`${classes.upper} ${classes.textBorder}`}
+          >
+            Last 7 days: {runs ? runs.length : '0'} tests
           </Typography>
         </Grid>
-        <Grid item className={`${classes.grid} ${classes.gridBorder}`} xs={12} sm={6}>
+        <Grid
+          item
+          className={`${classes.grid} ${classes.gridBorder}`}
+          xs={12}
+          sm={6}
+        >
           <Typography component="div" className={classes.upper}>
             24 hour median:
           </Typography>
           <Typography component="div" className={classes.large}>
             {getMedian(runs)}
           </Typography>
-          <Typography component="div">
-            Mbps
-          </Typography>
+          <Typography component="div">Mbps</Typography>
           <Plot
             className={classes.plotSmall}
-            config={{displayModeBar: false}}
+            config={{ displayModeBar: false }}
             data={[
               {
                 x: [1, 2, 3],
@@ -156,11 +166,14 @@ export default function TestsSummary(props) {
               },
             }}
           />
-          <Typography component="div" className={`${classes.upper} ${classes.textBorder}`}>
-            Last 24 hours: { !!runs ? runs.length : '0' } tests
+          <Typography
+            component="div"
+            className={`${classes.upper} ${classes.textBorder}`}
+          >
+            Last 24 hours: {runs ? runs.length : '0'} tests
           </Typography>
         </Grid>
       </Grid>
-    )  
+    );
   }
 }

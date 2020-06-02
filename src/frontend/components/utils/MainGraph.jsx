@@ -5,12 +5,8 @@ import Plot from 'react-plotly.js';
 export default function MainGraph(props) {
   const { runs } = props;
 
-  if (!!runs) {
-    return (
-      <div>
-        No data to display. Is a device running?
-      </div>
-    )
+  if (runs) {
+    return <div>No data to display. Is a device running?</div>;
   } else {
     return (
       <Plot
@@ -35,6 +31,6 @@ export default function MainGraph(props) {
           },
         }}
       />
-    );  
+    );
   }
 }

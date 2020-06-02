@@ -210,7 +210,7 @@ function Home(props) {
         if (status === 200) {
           setRuns(response.data);
           setIsLoaded(true);
-          // return;
+          return;
         } else {
           processError(response);
           throw new Error(`Error in response from server.`);
@@ -221,7 +221,6 @@ function Home(props) {
         console.err(error.name + error.message);
         setIsLoaded(true);
       });
-
   }, []);
 
   if (error) {
@@ -293,13 +292,13 @@ function Home(props) {
                 <Grid item xs={4}>
                   <Typography component="div">
                     Last Test:{' '}
-                    {!!runs
+                    {runs
                       ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>
               </Grid>
-              <TestsSummary tests={!!runs ? runs : undefined} />
+              <TestsSummary runs={runs ? runs : undefined} />
             </Grid>
           </Grid>
           <Box mt={5}>
