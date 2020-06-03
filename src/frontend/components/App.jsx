@@ -85,7 +85,6 @@ export default function App() {
   };
   const [user, setUser] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
-  const [libraryIPs, setLibraryIPs] = React.useState(null);
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
@@ -137,20 +136,6 @@ export default function App() {
             throw new Error(error);
           }
         })
-        .then(library => fetch(`/api/v1/libraries/${library.id}/ip`))
-        .then(ipResponse => {
-          ipStatus = ipResponse.status;
-          return ipResponse.json();
-        })
-        .then(libraryIPs => {
-          if (ipStatus === 200) {
-            setLibraryIPs(libraryIPs.data);
-            return;
-          } else {
-            const error = processError(libraryIPs);
-            throw new Error(error);
-          }
-        })
         .catch(error => {
           setError(error);
           console.err(error.name + error.message);
@@ -182,7 +167,6 @@ export default function App() {
               component={Admin}
               user={user}
               library={library}
-              libraryIPs={libraryIPs}
             />
             <PrivateRoute
               authed={authenticated}
@@ -190,7 +174,6 @@ export default function App() {
               component={Dashboard}
               user={user}
               library={library}
-              libraryIPs={libraryIPs}
             />
           </LazyBoundary>
           <Redirect to="/" />

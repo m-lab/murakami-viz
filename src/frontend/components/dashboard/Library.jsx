@@ -1,7 +1,8 @@
 // base imports
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import Cookies from 'js-cookie'
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -50,8 +51,7 @@ export default function Library(props) {
   const classes = useStyles();
   const { library } = props;
 
-  console.log('library: ', library);
-  console.log("IPs: ", props.libraryIPs)
+  // console.log('library: ', library);
   // handle edit library
   const [open, setOpen] = React.useState(false);
 
@@ -62,6 +62,32 @@ export default function Library(props) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  // handle existing whitelisted IPs
+  const [libraryIPs, setLibraryIPs] = React.useState([])
+
+  // fetch existing whitelisted IPs
+  React.useEffect(() => {
+    let ipStatus;
+    console.log("user cookie baby: ", Cookies.get('mv_user'));
+
+    console.log("library: ", library)
+
+    fetch(`/api/v1/libraries/${library.id}/ip`)
+      .then(response => {
+        ipStatus = response.status;
+        return response.json();
+      })
+      .then(libraryIPs => {
+        if (ipStatus === 200) {
+          setLibraryIPs(libraryIPs.data);
+          console.log("ips: ", libraryIPs)
+          return;
+        } else {
+          throw new Error(error);
+        }
+      })
+    })
 
   // handling IP whitelist add
   const [show, setShow] = React.useState(false);
