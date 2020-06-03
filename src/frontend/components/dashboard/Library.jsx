@@ -51,11 +51,9 @@ export default function Library(props) {
   const { library } = props;
 
   console.log('library: ', library);
+  console.log("IPs: ", props.libraryIPs)
   // handle edit library
   const [open, setOpen] = React.useState(false);
-
-  const [show, setShow] = React.useState(false);
-  const [ipValue, setIpValue] = React.useState("");
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -64,6 +62,11 @@ export default function Library(props) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  // handling IP whitelist add
+  const [show, setShow] = React.useState(false);
+  const [ipValue, setIpValue] = React.useState(null)
+
 
   // next two functions toggle showing/hiding the TextField to whitelist an IP address
   const showTextfield = () => {
@@ -87,6 +90,7 @@ export default function Library(props) {
       id: library.id,
       ip: ipValue
     };
+
     fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
       method: 'POST',
       headers: {
@@ -96,8 +100,7 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
-        // onRowUpdate(results.data[0]);
-        console.log(results);
+        alert("Awesome!")
       })
       .catch(error => {
         console.log(error);
@@ -107,6 +110,7 @@ export default function Library(props) {
       });
 
     closeTextfield();
+    setIpValue(null);
   };
 
   return (
