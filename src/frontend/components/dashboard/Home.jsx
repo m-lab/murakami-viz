@@ -100,7 +100,6 @@ const useStyles = makeStyles(theme => ({
 const connections = ['Wired', 'Wifi', 'Other'];
 
 function formatDate(date) {
-  console.log('in format date', date);
   return date.substr(0, 10);
 }
 
@@ -176,7 +175,7 @@ function Home(props) {
   };
 
   // handle NDT or Ookla summary
-  const [summary, setSummary] = React.useState('NDT');
+  const [summary, setSummary] = React.useState('ndt7');
 
   const handleSummaryClick = test => {
     setSummary(test);
@@ -281,10 +280,10 @@ function Home(props) {
                     color="primary"
                     aria-label="outlined primary button group"
                   >
-                    <Button onClick={() => handleSummaryClick('NDT')}>
+                    <Button onClick={() => handleSummaryClick('ndt7')}>
                       NDT
                     </Button>
-                    <Button onClick={() => handleSummaryClick('Ookla')}>
+                    <Button onClick={() => handleSummaryClick('ookla')}>
                       Ookla
                     </Button>
                   </ButtonGroup>
@@ -298,7 +297,7 @@ function Home(props) {
                   </Typography>
                 </Grid>
               </Grid>
-              <TestsSummary runs={runs ? runs : undefined} />
+              <TestsSummary runs={runs} summary={summary} />
             </Grid>
           </Grid>
           <Box mt={5}>

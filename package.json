@@ -134,7 +134,7 @@
     "log4js": "^6.2.0",
     "material-ui-cookie-consent": "^0.1.0",
     "minimist": "^1.2.5",
-    "moment": "^2.25.3",
+    "moment": "^2.26.0",
     "multistream": "^4.0.0",
     "node-fetch": "^2.6.0",
     "passport-local": "^1.0.0",

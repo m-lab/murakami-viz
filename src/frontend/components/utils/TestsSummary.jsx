@@ -2,6 +2,7 @@
 import React from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
+import moment from 'moment';
 
 // material ui imports
 import Grid from '@material-ui/core/Grid';
@@ -27,32 +28,75 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function getMedian(runs) {
-  if (!runs) {
-    return 0;
+let xAxisDay = [], yAxisDay = [], xAxisWeek = [], yAxisWeek = [];
+let dayMedian = 0, weekMedian = 0, dayRuns = 0, weekRuns = 0;
+
+function getData(runs) {
+  xAxisDay = [];
+  yAxisDay = [];
+  xAxisWeek = [];
+  yAxisWeek = [];
+
+  if ( !runs.length ) {
+    dayMedian = 0;
+    weekMedian = 0;
+    return;
   } else {
-    let total;
+    const weekAgo = moment().subtract(7,'d').format('YYYY-MM-DD');
+    const today = moment().format('YYYY-MM-DD');
+    let weekTotalMbps = 0, dayTotalMbps = 0;
+    dayRuns = 0;
+    weekRuns = 0;
+
     runs.map(run => {
-      total += run.DownloadValue;
+      const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
+
+      if ( runDate.isBetween(weekAgo, today, 'days', '[]') ) {
+        weekTotalMbps += parseFloat(run.DownloadRetransValue.toFixed(2));
+        weekRuns += 1;
+        xAxisWeek.push(run.DownloadTestStartTime.substr(0, 10));
+        yAxisWeek.push(run.DownloadRetransValue.toFixed(2));
+      }
+
+      if ( runDate.format('YYYY-MM-DD') === today ) {
+        dayTotalMbps += parseFloat(run.DownloadRetransValue.toFixed(2));
+        dayRuns += 1;
+        xAxisDay.push(run.DownloadTestStartTime.substr(0, 10));
+        yAxisDay.push(run.DownloadRetransValue.toFixed(2));
+      }
     });
 
-    return total / runs.length;
+    console.log(weekRuns);
+
+    weekMedian = weekTotalMbps / weekRuns;
+    dayMedian = dayTotalMbps / dayRuns;
   }
 }
 
 export default function TestsSummary(props) {
   const classes = useStyles();
   const theme = useTheme();
+  // const [ dayRuns, setDayRuns ] = React.useState(0);
+  // const [ weekRuns, setWeekRuns ] = React.useState(0);
+  // const [ dayMedian, setDayMedian ] = React.useState(0);
+  // const [ weekMedian, setWeekMedian ] = React.useState(0);
+  const [ testSummary, setTestSummary ] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const { runs } = props;
+  const { runs, summary } = props;
 
-  console.log('RUNS: ', runs);
+  // console.log('RUNS: ', runs);
 
   React.useEffect(() => {
-    if (runs) {
+    if ( runs ) {
+      const filteredRuns = runs.filter( run => {
+        return run.TestName === summary;
+      });
+
+      setTestSummary(filteredRuns);
+      getData(filteredRuns);
       setIsLoaded(true);
     }
-  }, []);
+  }, [summary]);
 
   if (!isLoaded) {
     return <Loading />;
@@ -69,7 +113,7 @@ export default function TestsSummary(props) {
             7 day median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            {getMedian(runs)}
+            { weekMedian }
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot
@@ -77,8 +121,8 @@ export default function TestsSummary(props) {
             config={{ displayModeBar: false }}
             data={[
               {
-                x: [1, 2, 3],
-                y: [6, 3, 9],
+                x: xAxisWeek,
+                y: yAxisWeek,
                 type: 'scatter',
                 mode: 'lines+markers',
                 marker: { color: 'rgb(52, 235, 107)' },
@@ -113,7 +157,7 @@ export default function TestsSummary(props) {
             component="div"
             className={`${classes.upper} ${classes.textBorder}`}
           >
-            Last 7 days: {runs ? runs.length : '0'} tests
+            Last 7 days: { weekRuns } tests
           </Typography>
         </Grid>
         <Grid
@@ -126,7 +170,7 @@ export default function TestsSummary(props) {
             24 hour median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            {getMedian(runs)}
+            { dayMedian }
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot
@@ -134,8 +178,8 @@ export default function TestsSummary(props) {
             config={{ displayModeBar: false }}
             data={[
               {
-                x: [1, 2, 3],
-                y: [2, 6, 3],
+                x: xAxisDay,
+                y: yAxisDay,
                 type: 'scatter',
                 mode: 'lines+markers',
                 marker: { color: 'rgb(235, 64, 52)' },
@@ -144,8 +188,6 @@ export default function TestsSummary(props) {
             ]}
             layout={{
               autosize: true,
-              // width: 250,
-              // height: 250,
               margin: {
                 l: 20,
                 r: 20,
@@ -170,7 +212,7 @@ export default function TestsSummary(props) {
             component="div"
             className={`${classes.upper} ${classes.textBorder}`}
           >
-            Last 24 hours: {runs ? runs.length : '0'} tests
+            Last 24 hours: { dayRuns } tests
           </Typography>
         </Grid>
       </Grid>

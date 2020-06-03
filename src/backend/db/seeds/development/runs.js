@@ -20,9 +20,9 @@ export function seed(knex) {
             MurakamiConnectionType: 'wifi',
             DownloadUUID: 'ndt-cz99j_1580820576_000000000003708B',
             DownloadTestStartTime:
-              '2020-02-18 20:32:52.639720903 +0000 UTC m=+5825.539350534',
+              '2020-06-03 20:32:52.639720903 +0000 UTC m=+5825.539350534',
             DownloadTestEndTime:
-              '2020-02-18 20:33:02.640686711 +0000 UTC m=+5835.540316330',
+              '2020-06-03 20:33:02.640686711 +0000 UTC m=+5835.540316330',
             DownloadValue: 405.32368416128276,
             DownloadUnit: 'Mbit/s',
             DownloadError: '',
@@ -48,9 +48,9 @@ export function seed(knex) {
             MurakamiConnectionType: 'wifi',
             DownloadUUID: 'ndt-cz99j_1580820576_000000000003708B',
             DownloadTestStartTime:
-              '2020-02-18 20:32:52.639720903 +0000 UTC m=+5825.539350534',
+              '2020-05-29 20:32:52.639720903 +0000 UTC m=+5825.539350534',
             DownloadTestEndTime:
-              '2020-02-18 20:33:02.640686711 +0000 UTC m=+5835.540316330',
+              '2020-05-29 20:33:02.640686711 +0000 UTC m=+5835.540316330',
             DownloadValue: 405.32368416128276,
             DownloadUnit: 'Mbit/s',
             DownloadError: '',
