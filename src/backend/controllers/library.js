@@ -72,7 +72,7 @@ export default function controller(libraries, thisUser) {
 
   router.get(
     '/libraries/:id/ip',
-    thisUser.can('get this library'),
+    thisUser.can('view this library'),
     async ctx => {
       log.debug(`Retrieving IPs for library ${ctx.params.id}.`);
       let ip;

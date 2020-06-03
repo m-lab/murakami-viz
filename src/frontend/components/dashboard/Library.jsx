@@ -64,14 +64,11 @@ export default function Library(props) {
   };
 
   // handle existing whitelisted IPs
-  const [libraryIPs, setLibraryIPs] = React.useState([])
+  const [libraryIPs, setLibraryIPs] = React.useState(null)
 
   // fetch existing whitelisted IPs
   React.useEffect(() => {
     let ipStatus;
-    console.log("user cookie baby: ", Cookies.get('mv_user'));
-
-    console.log("library: ", library)
 
     fetch(`/api/v1/libraries/${library.id}/ip`)
       .then(response => {
@@ -80,14 +77,15 @@ export default function Library(props) {
       })
       .then(libraryIPs => {
         if (ipStatus === 200) {
-          setLibraryIPs(libraryIPs.data);
-          console.log("ips: ", libraryIPs)
+          setLibraryIPs(
+            libraryIPs.data.map(addresses => addresses.ip) // get just the IP addresses 
+          );
           return;
         } else {
           throw new Error(error);
         }
       })
-    })
+    }, []);
 
   // handling IP whitelist add
   const [show, setShow] = React.useState(false);
@@ -126,7 +124,7 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
-        alert("Awesome!")
+        console.log(results.data[0])
       })
       .catch(error => {
         console.log(error);
@@ -138,6 +136,8 @@ export default function Library(props) {
     closeTextfield();
     setIpValue(null);
   };
+
+  console.log("libraryIPs: ", libraryIPs)
 
   return (
     <Suspense>
@@ -397,17 +397,17 @@ export default function Library(props) {
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
             <TableBody> 
-              {/* map over the ip props to dynamically create TableRows */ }
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  IP Address
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.network_name}
-                </TableCell>
-              </TableRow>
+              { libraryIPs ?
+                libraryIPs.map(ip => {
+                   return <TableRow>
+                            <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>
+                              {ip}
+                            </TableCell>
+                          </TableRow>
+                })
+              :
+              null
+              }
               { show ?
               <TableRow>
                 <TableCell className={classes.tableCell}>
