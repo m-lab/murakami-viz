@@ -15,6 +15,8 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
@@ -85,6 +87,9 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     top: '-15px',
   },
+  mb1: {
+    marginBottom: '10px',
+  },
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
@@ -133,31 +138,6 @@ function Home(props) {
     setSelectedDate(date);
   };
 
-  const [viewValue, setViewValue] = React.useState('wired');
-  const handleViewChange = event => {
-    setViewValue(event.target.value);
-  };
-
-  const [speedMetricValue, setSpeedMetricValue] = React.useState('wired');
-  const handleSpeedMetricChange = event => {
-    setSpeedMetricValue(event.target.value);
-  };
-
-  const [connectionType, setConnectionType] = React.useState([]);
-  const handleConnectionChangeMultiple = event => {
-    const { options } = event.target;
-    const value = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        value.push(options[i].value);
-      }
-    }
-    setConnectionType(value);
-  };
-  const handleConnectionChange = event => {
-    setConnectionType(event.target.value);
-  };
-
   const [test, setTest] = React.useState('');
   const handleTestChange = event => {
     setTest(event.target.value);
@@ -177,8 +157,29 @@ function Home(props) {
   // handle NDT or Ookla summary
   const [summary, setSummary] = React.useState('ndt7');
 
-  const handleSummaryClick = test => {
-    setSummary(test);
+  const handleSummary = (event, newSummary) => {
+    setSummary(newSummary);
+  };
+
+  // handle connection change
+  const [ connections, setConnections ] = React.useState(['wired']);
+
+  const handleConnection = (event, newConnections) => {
+    setConnections(newConnections);
+  };
+
+  // handle test type change
+  const [ testTypes, setTestTypes ] = React.useState(['ndt7']);
+
+  const handleTestType = (event, newTestTypes) => {
+    setTestTypes(newTestTypes);
+  };
+
+  // handle metric change
+  const [metric, setMetric] = React.useState('download');
+
+  const handleMetric = (event, nextMetric) => {
+    setMetric(nextMetric);
   };
 
   // fetch api data
@@ -262,6 +263,7 @@ function Home(props) {
                 alignItems="center"
                 direction="row"
                 spacing={1}
+                className={classes.mb1}
               >
                 <Grid item xs={4}>
                   <Typography component="div" className={classes.upper}>
@@ -276,17 +278,19 @@ function Home(props) {
                   spacing={0}
                   xs={4}
                 >
-                  <ButtonGroup
-                    color="primary"
-                    aria-label="outlined primary button group"
+                  <ToggleButtonGroup
+                    value={summary}
+                    exclusive
+                    onChange={handleSummary}
+                    aria-label="tests summary data"
                   >
-                    <Button onClick={() => handleSummaryClick('ndt7')}>
+                    <ToggleButton value="ndt7" aria-label="NDT7">
                       NDT
-                    </Button>
-                    <Button onClick={() => handleSummaryClick('ookla')}>
+                    </ToggleButton>
+                    <ToggleButton value="ookla" aria-label="Ookla">
                       Ookla
-                    </Button>
-                  </ButtonGroup>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography component="div">
@@ -341,45 +345,61 @@ function Home(props) {
                   <Typography variant="overline" display="block" gutterBottom>
                     Connection
                   </Typography>
-                  <ButtonGroup
+                  <ToggleButtonGroup
                     orientation="vertical"
-                    color="primary"
-                    aria-label="vertical outlined primary button group"
-                  >
-                    <Button>Wired</Button>
-                    <Button>Wifi</Button>
-                  </ButtonGroup>
+                    value={connections}
+                    onChange={handleConnection}
+                    aria-label="connection type">
+                    <ToggleButton value="wired" aria-label="wired">
+                      Wired
+                    </ToggleButton>
+                    <ToggleButton value="wireless" aria-label="wireless">
+                      Wireless
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
                     Test
                   </Typography>
-                  <ButtonGroup
+                  <ToggleButtonGroup
                     orientation="vertical"
-                    color="primary"
-                    aria-label="vertical outlined primary button group"
-                  >
-                    <Button>NDT</Button>
-                    <Button>Ookla</Button>
-                  </ButtonGroup>
+                    value={testTypes} onChange={handleTestType} aria-label="connection type">
+                    <ToggleButton value="ndt7" aria-label="NDT">
+                      NDT
+                    </ToggleButton>
+                    <ToggleButton value="ookla" aria-label="Ookla">
+                      Ookla
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
                     Metric
                   </Typography>
-                  <ButtonGroup
+                  <ToggleButtonGroup
                     orientation="vertical"
-                    color="primary"
-                    aria-label="vertical outlined primary button group"
-                  >
-                    <Button>Download</Button>
-                    <Button>Upload</Button>
-                    <Button>Latency</Button>
-                  </ButtonGroup>
+                    value={metric}
+                    exclusive
+                    onChange={handleMetric}>
+                    <ToggleButton value="download" aria-label="Download">
+                      Download
+                    </ToggleButton>
+                    <ToggleButton value="upload" aria-label="Upload">
+                      Upload
+                    </ToggleButton>
+                    <ToggleButton value="latency" aria-label="Latency">
+                      Latency
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Grid>
               </Grid>
               <Grid item xs={12} md={10}>
-                <MainGraph runs={runs} />
+                <MainGraph
+                  runs={runs}
+                  connections={connections}
+                  testTypes={testTypes}
+                  metric={metric} />
               </Grid>
             </Grid>
           </Box>

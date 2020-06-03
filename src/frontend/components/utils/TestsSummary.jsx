@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
 let xAxisDay = [], yAxisDay = [], xAxisWeek = [], yAxisWeek = [];
 let dayMedian = 0, weekMedian = 0, dayRuns = 0, weekRuns = 0;
 
-function getData(runs) {
+function handleData(runs) {
   xAxisDay = [];
   yAxisDay = [];
   xAxisWeek = [];
@@ -87,7 +87,7 @@ export default function TestsSummary(props) {
       });
 
       setTestSummary(filteredRuns);
-      getData(filteredRuns);
+      handleData(filteredRuns);
       setIsLoaded(true);
     }
   }, [summary]);
@@ -125,8 +125,6 @@ export default function TestsSummary(props) {
             ]}
             layout={{
               autosize: true,
-              // width: 250,
-              // height: 250,
               margin: {
                 l: 20,
                 r: 20,
