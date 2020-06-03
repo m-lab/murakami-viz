@@ -7,7 +7,8 @@ import Cookies from 'js-cookie'
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl'
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -403,6 +404,14 @@ export default function Library(props) {
                    return <TableRow>
                             <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>
                               {ipAddress}
+                            </TableCell>
+                            <TableCell>
+                              <IconButton 
+                                aria-label="delete"
+                                onClick={()=>console.log("hi")}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
                             </TableCell>
                           </TableRow>
                 })
