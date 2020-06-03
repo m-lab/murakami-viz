@@ -125,9 +125,9 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
-        if (results.status === "created") {
-          let updatedIPs = libraryIPs.concat(ipValue)
-          setLibraryIPs(updatedIPs)
+        if (results.statusCode === 201) {
+          let updatedIPs = libraryIPs.concat(ipValue);
+          setLibraryIPs(updatedIPs);
         }
       })
       .catch(error => {
@@ -140,6 +140,28 @@ export default function Library(props) {
     closeTextfield();
     setIpValue(null);
   };
+
+  const handleIpDelete = (ipToDelete) => {
+    console.log("IP to delete: ", ipToDelete)
+    fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }})
+      .then(response => response.json())
+      .then(results => {
+        if (results.statusCode === 200) {
+          let updatedIPs = libraryIPs.filter(ip => ip !== ipToDelete);
+          setLibraryIPs(updatedIPs);
+        }
+      })
+      .catch(error => {
+        console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  }
 
   return (
     <Suspense>
@@ -408,7 +430,7 @@ export default function Library(props) {
                             <TableCell>
                               <IconButton 
                                 aria-label="delete"
-                                onClick={()=>console.log("hi")}
+                                onClick={()=>handleIpDelete(ipAddress)}
                               >
                                 <DeleteIcon fontSize="small" />
                               </IconButton>

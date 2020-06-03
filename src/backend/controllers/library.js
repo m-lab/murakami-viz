@@ -122,6 +122,35 @@ export default function controller(libraries, thisUser) {
     },
   );
 
+  router.delete(
+    '/libraries/:id/ip/:address', 
+    thisUser.can('edit this library'), 
+    async ctx => {
+      log.debug(`Deleting IP address ${ctx.params.address} from library ${ctx.params.id}.`);
+      let address;
+
+      try {
+        if (ctx.params.id) {
+          address = await libraries.deleteIp(ctx.params.id, ctx.params.address);
+          log.debug("this is address: ", address)
+        } 
+      } catch (err) {
+        log.error('HTTP 400 Error: ', err);
+        ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+    if (address) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: address };
+      log.debug('ctx: ', ctx.response.body)
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: The IP address ${ctx.params.address} does not exist.`,
+      );
+      ctx.throw(404, `The IP address ${ctx.params.address} does not exist.`);
+    }
+  });
+
   router.post('/libraries', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new library.');
     let library;
