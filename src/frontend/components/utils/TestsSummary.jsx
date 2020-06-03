@@ -40,6 +40,8 @@ function getData(runs) {
   if ( !runs.length ) {
     dayMedian = 0;
     weekMedian = 0;
+    dayRuns = 0;
+    weekRuns = 0;
     return;
   } else {
     const weekAgo = moment().subtract(7,'d').format('YYYY-MM-DD');
@@ -66,8 +68,6 @@ function getData(runs) {
       }
     });
 
-    console.log(weekRuns);
-
     weekMedian = weekTotalMbps / weekRuns;
     dayMedian = dayTotalMbps / dayRuns;
   }
@@ -76,15 +76,9 @@ function getData(runs) {
 export default function TestsSummary(props) {
   const classes = useStyles();
   const theme = useTheme();
-  // const [ dayRuns, setDayRuns ] = React.useState(0);
-  // const [ weekRuns, setWeekRuns ] = React.useState(0);
-  // const [ dayMedian, setDayMedian ] = React.useState(0);
-  // const [ weekMedian, setWeekMedian ] = React.useState(0);
   const [ testSummary, setTestSummary ] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const { runs, summary } = props;
-
-  // console.log('RUNS: ', runs);
 
   React.useEffect(() => {
     if ( runs ) {
