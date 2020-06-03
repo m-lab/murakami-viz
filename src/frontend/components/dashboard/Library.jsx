@@ -124,10 +124,13 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
-        console.log(results.data[0])
+        if (results.status === "created") {
+          let updatedIPs = libraryIPs.concat(ipValue)
+          setLibraryIPs(updatedIPs)
+        }
       })
       .catch(error => {
-        console.log(error);
+        console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -136,8 +139,6 @@ export default function Library(props) {
     closeTextfield();
     setIpValue(null);
   };
-
-  console.log("libraryIPs: ", libraryIPs)
 
   return (
     <Suspense>
@@ -398,10 +399,10 @@ export default function Library(props) {
           <Table className={classes.table} aria-label="basic information table">
             <TableBody> 
               { libraryIPs ?
-                libraryIPs.map(ip => {
+                libraryIPs.map(ipAddress => {
                    return <TableRow>
                             <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>
-                              {ip}
+                              {ipAddress}
                             </TableCell>
                           </TableRow>
                 })
