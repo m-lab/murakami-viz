@@ -65,7 +65,7 @@ export default function Library(props) {
   };
 
   // handle existing whitelisted IPs
-  const [libraryIPs, setLibraryIPs] = React.useState(null)
+  const [libraryIPs, setLibraryIPs] = React.useState([])
 
   // fetch existing whitelisted IPs
   React.useEffect(() => {
@@ -125,9 +125,10 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
+        console.log("results: ", results)
         if (results.statusCode === 201) {
           let updatedIPs = libraryIPs.concat(ipValue);
-          setLibraryIPs(updatedIPs);
+          setLibraryIPs(updatedIPs)
         }
       })
       .catch(error => {
@@ -142,7 +143,6 @@ export default function Library(props) {
   };
 
   const handleIpDelete = (ipToDelete) => {
-    console.log("IP to delete: ", ipToDelete)
     fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
       method: 'DELETE',
       headers: {
@@ -421,7 +421,7 @@ export default function Library(props) {
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
             <TableBody> 
-              { libraryIPs ?
+              { libraryIPs && libraryIPs.length > 0 ?
                 libraryIPs.map(ipAddress => {
                    return <TableRow>
                             <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>
@@ -438,7 +438,7 @@ export default function Library(props) {
                           </TableRow>
                 })
               :
-              null
+                null
               }
               { show ?
               <TableRow>
@@ -446,7 +446,7 @@ export default function Library(props) {
                   <TextField
                     className={classes.formField}
                     id="library-ip"
-                    label="IP address"
+                    label="New IP address"
                     name="ip"
                     fullWidth
                     variant="outlined"
@@ -463,15 +463,14 @@ export default function Library(props) {
                     color="primary"
                     onClick={handleSubmit}
                   >
-                    Submit
-                  </Button>
-                  <Button
-                    variant="contained"
-                    disableElevation
-                    color="primary"
-                    onClick={closeTextfield}
-                  >
-                    Cancel
+                      Submit
+                  </Button> <Button
+                      variant="contained"
+                      disableElevation
+                      color="primary"
+                      onClick={closeTextfield}
+                    >
+                      Cancel
                 </Button>
                 </TableCell>
               </TableRow>
