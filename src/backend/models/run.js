@@ -84,11 +84,13 @@ export default class RunManager {
         }
 
         if (library) {
-          queryBuilder.join(
-            'library_runs',
-            'library_runs.lid',
-            knex.raw('?', [library]),
-          );
+          queryBuilder
+            .join('devices', 'devices.deviceid', 'runs.MurakamiDeviceID')
+            .join('library_devices', {
+              'devices.id': 'library_devices.did',
+              'library_devices.lid': knex.raw('?', [library]),
+            });
+          //.andOn('library_devices.lid', knex.raw('?', [library]));
         }
 
         if (asc) {

@@ -16,6 +16,7 @@ export function up(knex) {
         table.string('ip');
         table.string('gateway');
         table.string('mac');
+        table.string('deviceid').unique();
         table.timestamps(true, true);
       })
       .then(() =>
