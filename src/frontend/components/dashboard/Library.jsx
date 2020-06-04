@@ -222,7 +222,7 @@ export default function Library(props) {
       </Box>
       <Box mb={9}>
         <Typography variant="overline" display="block" gutterBottom>
-          Devices
+          Measurement Devices
         </Typography>
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
