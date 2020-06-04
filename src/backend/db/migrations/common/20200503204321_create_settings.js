@@ -1,5 +1,3 @@
-import { onUpdateTrigger } from '../../../utils/updateTimestamp.js';
-
 export function up(knex) {
   return knex.schema
     .createTable('settings', table => {
@@ -18,6 +16,10 @@ export function up(knex) {
         {
           key: 'contact',
           value: 'This is the contact blurb.',
+        },
+        {
+          key: 'forum',
+          value: 'https://example.com',
         },
       ]);
     });

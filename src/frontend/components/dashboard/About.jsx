@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Loading from '../Loading.jsx';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -17,8 +18,33 @@ const useStyles = makeStyles(theme => ({
 export default function About() {
   const classes = useStyles();
   const [error, setError] = useState();
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const [about, setAbout] = useState();
   const [contact, setContact] = useState();
+  const [forum, setForum] = useState();
+  const [faqs, setFaqs] = useState();
+  const [glossaries, setGlossaries] = useState();
+  const [showAbout, setShowAbout] = useState(true);
+  const [showFaqs, setShowFaqs] = useState(false);
+  const [showGlossary, setShowGlossary] = useState(false);
+
+  const clickAbout = () => {
+    setShowAbout(true);
+    setShowFaqs(false);
+    setShowGlossary(false);
+  };
+
+  const clickFaq = () => {
+    setShowAbout(false);
+    setShowFaqs(true);
+    setShowGlossary(false);
+  };
+
+  const clickGlossary = () => {
+    setShowAbout(false);
+    setShowFaqs(false);
+    setShowGlossary(true);
+  };
 
   const processError = res => {
     let errorString;
@@ -34,68 +60,147 @@ export default function About() {
 
   useEffect(() => {
     let status;
-    fetch('/api/v1/settings')
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(res => {
-        if (status === 200 && res.data) {
-          const settings = new Map(res.data.map(i => [i.key, i.value]));
-          console.log('about: ', settings.get('about'));
-          setAbout(settings.get('about'));
-          setContact(settings.get('contact'));
-          return;
-        } else {
-          processError(res);
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        setError(error);
-        console.error(error.name + error.message);
-      });
+    return Promise.all([
+      fetch('/api/v1/settings')
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(res => {
+          if (status === 200 && res.data) {
+            const settings = new Map(res.data.map(i => [i.key, i.value]));
+            console.log('about: ', settings.get('about'));
+            setAbout(settings.get('about'));
+            setContact(settings.get('contact'));
+            setForum(settings.get('forum'));
+            return;
+          } else {
+            const error = processError(res);
+            throw new Error(`Error in response from server: ${error}`);
+          }
+        })
+        .catch(error => {
+          setError(error);
+          console.error(error.name + error.message);
+          setIsLoaded(true);
+        }),
+      fetch('/api/v1/faqs')
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(res => {
+          if (status === 200 && res.data) {
+            setFaqs(res.data);
+            return;
+          } else {
+            const error = processError(res);
+            throw new Error(`Error in response from server: ${error}`);
+          }
+        })
+        .catch(error => {
+          setError(error);
+          console.error(error.name + error.message);
+          setIsLoaded(true);
+        }),
+      fetch('/api/v1/glossaries')
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(res => {
+          if (status === 200 && res.data) {
+            console.debug('glossaries: ', res.data);
+            setGlossaries(res.data);
+            return;
+          } else {
+            const error = processError(res);
+            throw new Error(`Error in response from server: ${error}`);
+          }
+        })
+        .catch(error => {
+          setError(error);
+          console.error(error.name + error.message);
+          setIsLoaded(true);
+        }),
+    ]).then(() => {
+      setIsLoaded(true);
+      return;
+    });
   }, []);
 
-  return (
-    <Container className={classes.root}>
-      <Typography component="h1" variant="srOnly">
-        About
-      </Typography>
-      <Grid container justify="center" spacing={2}>
-        <Grid item>
-          <Button variant="contained">FAQ</Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained">Glossary</Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained">Forum</Button>
-        </Grid>
-      </Grid>
-      <Box>
-        <Typography component="h2" variant="h4">
-          Contact
-        </Typography>
-        <Typography>
-          Name
-          <br />
-          Email
-          <br />
-          Contact
-        </Typography>
-      </Box>
-      <Box>
-        <Typography component="h2" variant="h4">
-          About
-        </Typography>
-        <Typography paragraph="true" variant="body1">
-          Praeterea iter est quasdam res quas ex communi. Quisque ut dolor
-          gravida, placerat libero vel, euismod. Contra legem facit qui id facit
-          quod lex prohibet. Curabitur est gravida et libero vitae dictum. Plura
-          mihi bona sunt, inclinet, amari petere vellent.
-        </Typography>
-      </Box>
-    </Container>
-  );
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <Loading />;
+  } else {
+    return (
+      <Suspense>
+        <Container className={classes.root}>
+          <Typography component="h1" variant="srOnly">
+            More
+          </Typography>
+          <Grid container justify="center" spacing={2}>
+            <Grid item>
+              <Button variant="contained" onClick={clickAbout}>
+                About
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" onClick={clickFaq}>
+                FAQ
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" onClick={clickGlossary}>
+                Glossary
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" href={forum}>
+                Forum
+              </Button>
+            </Grid>
+          </Grid>
+          {showAbout && (
+            <Box>
+              <Box>
+                <Typography component="h2" variant="h4">
+                  Contact
+                </Typography>
+                <Typography>{contact}</Typography>
+              </Box>
+              <Box>
+                <Typography component="h2" variant="h4">
+                  About
+                </Typography>
+                <Typography paragraph="true" variant="body1">
+                  {about}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          {showFaqs &&
+            faqs.map((item, index) => (
+              <Box key={index}>
+                <Typography component="h2" variant="h4">
+                  {console.log('item: ', item)}
+                  {item.question}
+                </Typography>
+                <Typography>{item.answer}</Typography>
+              </Box>
+            ))}
+          {showGlossary &&
+            glossaries.map((item, index) => (
+              <Box key={index}>
+                <Typography component="h2" variant="h4">
+                  {item.term}
+                </Typography>
+                <Typography>{item.definition}</Typography>
+              </Box>
+            ))}
+        </Container>
+      </Suspense>
+    );
+  }
 }

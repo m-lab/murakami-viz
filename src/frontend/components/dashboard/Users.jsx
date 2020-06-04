@@ -273,7 +273,15 @@ export default function EnhancedTable(props) {
 
   React.useEffect(() => {
     let status;
-    fetch(`/api/v1/libraries/${library.id}/users`)
+    let url;
+
+    if (library && library.id) {
+      url = `/api/v1/libraries/${library.id}/users`;
+    } else {
+      url = '/api/v1/users';
+    }
+
+    fetch(url)
       .then(res => {
         status = res.status;
         return res.json();

@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import EditAbout from './utils/EditAbout.jsx';
 import EditContact from './utils/EditContact.jsx';
+import EditForum from './utils/EditForum.jsx';
 
 export default function About() {
   // handle about edit
@@ -37,6 +38,20 @@ export default function About() {
     setOpenContact(false);
     setSelectedContactValue(value);
   };
+
+  // handle contact edit
+  const [openForum, setOpenForum] = React.useState(false);
+  const [selectedForumValue, setSelectedForumValue] = React.useState();
+
+  const handleForumClickOpen = () => {
+    setOpenForum(true);
+  };
+
+  const handleForumClose = value => {
+    setOpenForum(false);
+    setSelectedForumValue(value);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -66,6 +81,7 @@ export default function About() {
           console.log('about: ', settings.get('about'));
           setSelectedAboutValue(settings.get('about'));
           setSelectedContactValue(settings.get('contact'));
+          setSelectedForumValue(settings.get('forum'));
           setIsLoaded(true);
           return;
         } else {
@@ -143,6 +159,35 @@ export default function About() {
           <div>
             <Typography component="p" variant="body1">
               {selectedContactValue}
+            </Typography>
+          </div>
+        </Box>
+        <Box mb={9} mt={9}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <Typography component="h3" variant="h3">
+                Forum
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disableElevation
+                color="primary"
+                onClick={handleForumClickOpen}
+              >
+                Edit
+              </Button>
+              <EditForum
+                open={openForum}
+                onClose={handleForumClose}
+                selectedForumValue={selectedForumValue}
+              />
+            </Grid>
+          </Grid>
+          <div>
+            <Typography component="p" variant="body1">
+              {selectedForumValue}
             </Typography>
           </div>
         </Box>
