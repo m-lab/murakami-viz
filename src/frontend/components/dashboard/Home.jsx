@@ -136,11 +136,6 @@ function Home(props) {
     setSelectedDate(date);
   };
 
-  const [test, setTest] = React.useState('');
-  const handleTestChange = event => {
-    setTest(event.target.value);
-  };
-
   // handle add note
   const [open, setOpen] = React.useState(false);
 
@@ -174,7 +169,7 @@ function Home(props) {
   };
 
   // handle metric change
-  const [metric, setMetric] = React.useState('download');
+  const [metric, setMetric] = React.useState('DownloadValue');
 
   const handleMetric = (event, nextMetric) => {
     setMetric(nextMetric);
@@ -380,13 +375,13 @@ function Home(props) {
                     value={metric}
                     exclusive
                     onChange={handleMetric}>
-                    <ToggleButton value="download" aria-label="Download">
+                    <ToggleButton value="DownloadValue" aria-label="Download">
                       Download
                     </ToggleButton>
-                    <ToggleButton value="upload" aria-label="Upload">
+                    <ToggleButton value="UploadValue" aria-label="Upload">
                       Upload
                     </ToggleButton>
-                    <ToggleButton value="latency" aria-label="Latency">
+                    <ToggleButton value="DownloadRetransValue" aria-label="Latency">
                       Latency
                     </ToggleButton>
                   </ToggleButtonGroup>

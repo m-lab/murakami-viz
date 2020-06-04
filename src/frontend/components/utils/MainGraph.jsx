@@ -7,14 +7,14 @@ import Loading from '../Loading.jsx';
 
 let xAxis = [], yAxis = [];
 
-function handleData(runs) {
+function handleData(runs, metric) {
   xAxis = [];
   yAxis = [];
 
   runs.map(run => {
     // const runDate = moment(run.DownloadTestStar tTime.substr(0, 10));
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
-    yAxis.push(run.DownloadRetransValue.toFixed(2));
+    yAxis.push(run[metric].toFixed(2));
   });
 }
 
@@ -41,7 +41,7 @@ export default function MainGraph(props) {
       console.log(filteredRuns);
 
       setTestSummary(filteredRuns);
-      handleData(filteredRuns);
+      handleData(filteredRuns, metric);
     }
     setIsLoaded(true);
   }, [connections, testTypes, metric])

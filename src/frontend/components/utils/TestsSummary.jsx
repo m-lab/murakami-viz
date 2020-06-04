@@ -54,17 +54,17 @@ function handleData(runs) {
       const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
 
       if ( runDate.isBetween(weekAgo, today, 'days', '[]') ) {
-        weekTotalMbps += parseFloat(run.DownloadRetransValue.toFixed(2));
+        weekTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         weekRuns += 1;
         xAxisWeek.push(run.DownloadTestStartTime.substr(0, 10));
-        yAxisWeek.push(run.DownloadRetransValue.toFixed(2));
+        yAxisWeek.push(run.DownloadValue.toFixed(2));
       }
 
       if ( runDate.format('YYYY-MM-DD') === today ) {
-        dayTotalMbps += parseFloat(run.DownloadRetransValue.toFixed(2));
+        dayTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         dayRuns += 1;
         xAxisDay.push(run.DownloadTestStartTime.substr(0, 10));
-        yAxisDay.push(run.DownloadRetransValue.toFixed(2));
+        yAxisDay.push(run.DownloadValue.toFixed(2));
       }
     });
 
