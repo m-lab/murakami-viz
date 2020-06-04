@@ -1,7 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
 import { CSVLink } from 'react-csv';
-import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
@@ -391,7 +390,8 @@ export default function Home(props) {
                   connections={connections}
                   testTypes={testTypes}
                   metric={metric}
-                  group={group} />
+                  group={group}
+                />
               </Grid>
             </Grid>
           </Box>
@@ -420,7 +420,11 @@ export default function Home(props) {
               </Grid>
             </Grid>
             <Grid item xs={12} sm={2}>
-              <Button variant="contained">Export</Button>
+              <Button variant="contained">
+                <CSVLink data={data} headers={headers}>
+                  Export
+                </CSVLink>
+              </Button>
             </Grid>
           </Grid>
         </Box>
