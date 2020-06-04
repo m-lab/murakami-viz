@@ -71,7 +71,7 @@ const useForm = callback => {
 
 export default function AddNote(props) {
   const classes = useStyles();
-  const { onClose, open, user, library } = props;
+  const { onClose, open, library } = props;
 
   const handleClose = () => {
     onClose();
@@ -80,19 +80,19 @@ export default function AddNote(props) {
   // submit new note to api
   const submitData = () => {
     let status;
-    fetch('api/v1/notes', {
+    fetch(`api/v1/libraries/${library.id}/notes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(res => {
         status = res.status;
         return res.json();
       })
       .then(() => {
-        if (status === 200) {
+        if (status === 201) {
           alert('Note submitted successfully.');
           onClose(inputs);
           return;
@@ -104,7 +104,7 @@ export default function AddNote(props) {
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
-        console.err(error.name + error.message);
+        console.error(error.name + error.message);
         onClose();
       });
   };
@@ -202,4 +202,5 @@ export default function AddNote(props) {
 AddNote.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  library: PropTypes.object,
 };

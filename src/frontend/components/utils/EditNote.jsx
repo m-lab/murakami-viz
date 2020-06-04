@@ -78,12 +78,12 @@ export default function EditNote(props) {
   };
 
   const submitData = () => {
-    fetch(`api/v1/notes/${props.row.id}`, {
+    fetch(`api/v1/notes/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(response => response.json())
       .then(results => {
@@ -92,6 +92,7 @@ export default function EditNote(props) {
         return;
       })
       .catch(error => {
+        console.error(error.name + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -130,7 +131,7 @@ export default function EditNote(props) {
           name="subject"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.subject}
+          defaultValue={row.subject}
           onChange={handleInputChange}
           value={inputs.subject}
         />
@@ -140,7 +141,7 @@ export default function EditNote(props) {
             label="Date"
             name="updated_at"
             type="datetime-local"
-            defaultValue={formatDate(props.row.updated_at)}
+            defaultValue={formatDate(row.updated_at)}
             onChange={handleInputChange}
             value={inputs.updated_at}
             className={classes.textField}
@@ -158,7 +159,7 @@ export default function EditNote(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.description}
+          defaultValue={row.description}
           onChange={handleInputChange}
           value={inputs.description}
         />

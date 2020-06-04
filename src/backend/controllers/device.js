@@ -43,7 +43,7 @@ export default function controller(devices, thisUser) {
     }
 
     try {
-      device = await devices.create(ctx.request.body, lid);
+      device = await devices.create(ctx.request.body.data, lid);
 
       // workaround for sqlite
       if (Number.isInteger(device)) {
@@ -149,7 +149,7 @@ export default function controller(devices, thisUser) {
       if (ctx.params.lid) {
         device = await devices.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
-        device = await devices.update(ctx.params.id, ctx.request.body);
+        device = await devices.update(ctx.params.id, ctx.request.body.data);
       }
       // workaround for sqlite
       if (Number.isInteger(device)) {

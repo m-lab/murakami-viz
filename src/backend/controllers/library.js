@@ -127,7 +127,7 @@ export default function controller(libraries, thisUser) {
     let library;
 
     try {
-      library = await libraries.create(ctx.request.body);
+      library = await libraries.create(ctx.request.body.data);
 
       // workaround for sqlite
       if (Number.isInteger(library)) {
@@ -222,7 +222,7 @@ export default function controller(libraries, thisUser) {
       let library;
 
       try {
-        library = await libraries.update(ctx.params.id, ctx.request.body);
+        library = await libraries.update(ctx.params.id, ctx.request.body.data);
 
         // workaround for sqlite
         if (Number.isInteger(library)) {

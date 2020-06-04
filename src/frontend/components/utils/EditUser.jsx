@@ -86,19 +86,21 @@ export default function EditUser(props) {
   };
 
   const submitData = () => {
-    fetch(`api/v1/users/${props.row.id}`, {
+    fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(response => response.json())
       .then(results => {
         alert('User edited successfully.');
         onClose(results.data[0]);
+        return;
       })
       .catch(error => {
+        console.error(error.name + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -137,7 +139,7 @@ export default function EditUser(props) {
           name="username"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.username}
+          defaultValue={row.username}
           onChange={handleInputChange}
           value={inputs.username}
         />
@@ -148,7 +150,7 @@ export default function EditUser(props) {
           name="firstName"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.firstName}
+          defaultValue={row.firstName}
           onChange={handleInputChange}
           value={inputs.firstName}
         />
@@ -159,7 +161,7 @@ export default function EditUser(props) {
           name="lastName"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.lastName}
+          defaultValue={row.lastName}
           onChange={handleInputChange}
           value={inputs.lastName}
         />
@@ -170,7 +172,7 @@ export default function EditUser(props) {
           name="email"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.email}
+          defaultValue={row.email}
           onChange={handleInputChange}
           value={inputs.email}
         />
@@ -181,7 +183,7 @@ export default function EditUser(props) {
           name="location"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.location}
+          defaultValue={row.location}
           onChange={handleInputChange}
           value={inputs.location}
         />
@@ -193,9 +195,9 @@ export default function EditUser(props) {
             id="user-role"
             label="Role"
             name="role"
-            defaultValue={props.row.role}
+            defaultValue={row.role_name}
             onChange={handleInputChange}
-            value={inputs.role}
+            value={inputs.role_name}
           >
             <MenuItem value="editor">Editor</MenuItem>
             <MenuItem value="viewer">Viewer</MenuItem>

@@ -16,8 +16,6 @@ export function seed(knex) {
             firstName: 'Admin',
             lastName: 'User',
             email: 'admin@mlbn.org',
-            location: 'Washington, DC',
-            role: 'Admin',
           },
           {
             id: 2,
@@ -26,8 +24,6 @@ export function seed(knex) {
             firstName: 'Rae',
             lastName: 'Gaines',
             email: 'rae@throneless.tech',
-            location: 'Washington, DC',
-            role: 'Editor',
           },
         ]),
         knex('library_users').insert([

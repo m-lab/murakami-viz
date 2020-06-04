@@ -33,7 +33,7 @@ async function validate_query(query) {
 export default function controller(notes, thisUser) {
   const router = new Router();
 
-  router.post('/notes', thisUser.can('view this library'), async ctx => {
+  router.post('/notes', thisUser.can('access private pages'), async ctx => {
     log.debug('Adding new note.');
     let note, lid;
 
@@ -42,7 +42,8 @@ export default function controller(notes, thisUser) {
     }
 
     try {
-      note = await notes.create(ctx.request.body, lid);
+      ctx.request.body.data.author = ctx.state.user[0].id;
+      note = await notes.create(ctx.request.body.data, lid);
 
       // workaround for sqlite
       if (Number.isInteger(note)) {
@@ -132,7 +133,7 @@ export default function controller(notes, thisUser) {
       if (ctx.params.lid) {
         note = await notes.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
-        note = await notes.update(ctx.params.id, ctx.request.body);
+        note = await notes.update(ctx.params.id, ctx.request.body.data);
       }
 
       // workaround for sqlite
