@@ -76,6 +76,10 @@ export default function Library(props) {
     setOpenAddDevice(false);
   }
 
+  // React.useEffect(() => {
+  //   fetch(`/api/v1/libraries/${library.id}/devices`)
+  // }, [])
+
   // handle existing whitelisted IPs
   const [libraryIPs, setLibraryIPs] = React.useState([])
 

@@ -83,13 +83,39 @@ export default function AddLibraryDevice(props) {
   const handleClose = () => {
     onClose();
   }
+
+  const [inputs, setInputs] = React.useState({})
   
-  const handleSubmit = () => {
-    console.log("clicking submit")
+  
+  const handleInputChange = (event) => {
+    event.persist();
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value
+    }));
   }
 
-  const handleInputChange = () => {
-    console.log("handling input change")
+  console.log(inputs)
+
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    const data = {
+      ...inputs,
+      lid: row.id
+    }
+
+    console.log(data)
+
+    // fetch(`/api/v1/libraries/${row.id}/devices`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(data)
+    // })
+    // .then(response => response.json())
+    // .then(console.log(results))
   }
 
   return (
@@ -150,7 +176,7 @@ export default function AddLibraryDevice(props) {
               className={classes.formField}
               id="library-device-name"
               label="Device name"
-              name="device_name"
+              name="name"
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
@@ -159,13 +185,24 @@ export default function AddLibraryDevice(props) {
             />
             <TextField
               className={classes.formField}
-              id="library-device-location"
-              label="Location"
-              name="device_location"
+              id="library-deviceid"
+              label="DeviceID"
+              name="deviceid"
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              // defaultValue={props.row.device_location}
+              defaultValue={props.row.device_mac_address}
+            // value={inputs.device_mac_address}
+            />
+            <TextField
+              className={classes.formField}
+              id="library-device-location"
+              label="Location"
+              name="location"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+              defaultValue={props.row.device_location}
               // value={inputs.device_location}
             />
             <FormControl variant="outlined" className={classes.formControl}>
@@ -175,7 +212,7 @@ export default function AddLibraryDevice(props) {
                 className={classes.formField}
                 id="library-network-type"
                 label="Network Type"
-                name="device_network_type"
+                name="network_type"
                 defaultValue={props.row.device_network_type}
                 onChange={handleInputChange}
                 // value={inputs.device_network_type}
@@ -193,7 +230,7 @@ export default function AddLibraryDevice(props) {
                 className={classes.formField}
                 id="library-connection-type"
                 label="Connection Type"
-                name="device_connection_type"
+                name="connection_type"
                 defaultValue={props.row.device_connection_type}
                 onChange={handleInputChange}
                 // value={inputs.device_connection_type}
@@ -206,7 +243,7 @@ export default function AddLibraryDevice(props) {
               className={classes.formField}
               id="library-dns"
               label="DNS server"
-              name="device_dns"
+              name="dns_server"
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
@@ -217,7 +254,7 @@ export default function AddLibraryDevice(props) {
               className={classes.formField}
               id="library-device-ip"
               label="Static IP"
-              name="device_ip"
+              name="ip"
               variant="outlined"
               onChange={handleInputChange}
               defaultValue={props.row.device_ip}
@@ -227,7 +264,7 @@ export default function AddLibraryDevice(props) {
               className={classes.formField}
               id="library-gateway"
               label="Gateway"
-              name="device_gateway"
+              name="gateway"
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
@@ -236,9 +273,9 @@ export default function AddLibraryDevice(props) {
             />
             <TextField
               className={classes.formField}
-              id="library-dns"
+              id="library-mac"
               label="MAC address"
-              name="device_mac_address"
+              name="mac"
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
@@ -261,8 +298,6 @@ export default function AddLibraryDevice(props) {
       </Grid>
     </Dialog>
   )
-
-
 
 }
 
