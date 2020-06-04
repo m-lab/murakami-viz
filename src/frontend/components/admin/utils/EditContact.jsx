@@ -1,5 +1,5 @@
 // base imports
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -10,12 +10,11 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   cancelButton: {},
   closeButton: {
     marginTop: '15px',
@@ -44,61 +43,49 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function formatDate(date) {
-  return date.replace(/ /g, 'T');
-}
-
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
-  const handleSubmit = event => {
-    if (event) {
-      event.preventDefault();
-    }
-    callback();
-  };
-  const handleInputChange = event => {
-    event.persist();
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  return {
-    handleSubmit,
-    handleInputChange,
-    inputs,
-  };
-};
-
 export default function EditContact(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, contactValue } = props;
+  const [contact, setContact] = useState('');
 
   const handleClose = () => {
-    onClose();
+    onClose(contact);
   };
 
   const submitData = () => {
-    // fetch(`api/v1/notes/${props.row.id}`, {
-    //   method: "PUT",
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(inputs),
-    // })
-    // .then(response => response.json())
-    // .then(results => {
-    //   onRowUpdate(results.data[0]);
-    //   alert('Note edited successfully.');
-    // })
-    // .catch(error => {
-    //   alert('An error occurred. Please try again or contact an administrator.');
-    // });
-
-    onClose();
+    let status;
+    fetch('api/v1/settings/contact', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: contact }),
+    })
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(() => {
+        if (status === 200 || status === 201) {
+          alert('Contact page submitted successfully.');
+          onClose(contact);
+          return;
+        } else {
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+        console.error(error.name + error.message);
+        onClose();
+      });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  useEffect(() => {
+    setContact(contactValue);
+  }, [contactValue]);
 
   return (
     <Dialog
@@ -131,9 +118,8 @@ export default function EditContact(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={'This is the contact information.'}
-          onChange={handleInputChange}
-          value={inputs.contact}
+          onChange={e => setContact(e.currentTarget.value)}
+          value={contact}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -151,7 +137,7 @@ export default function EditContact(props) {
             <Button
               type="submit"
               label="Save"
-              onClick={handleSubmit}
+              onClick={submitData}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
@@ -170,5 +156,5 @@ export default function EditContact(props) {
 EditContact.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  row: PropTypes.object.isRequired,
+  contactValue: PropTypes.string.isRequired,
 };

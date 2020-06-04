@@ -80,7 +80,6 @@ export default function AddNote(props) {
   // submit new note to api
   const submitData = () => {
     let status;
-    console.log('body.data: ', JSON.stringify(inputs));
     fetch(`api/v1/libraries/${library.id}/notes`, {
       method: 'POST',
       headers: {
@@ -89,7 +88,6 @@ export default function AddNote(props) {
       body: JSON.stringify({ data: inputs }),
     })
       .then(res => {
-        console.log('response: ', res);
         status = res.status;
         return res.json();
       })

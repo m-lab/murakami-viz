@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -16,6 +16,46 @@ const useStyles = makeStyles(theme => ({
 
 export default function About() {
   const classes = useStyles();
+  const [error, setError] = useState();
+  const [about, setAbout] = useState();
+  const [contact, setContact] = useState();
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
+  useEffect(() => {
+    let status;
+    fetch('/api/v1/settings')
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(res => {
+        if (status === 200 && res.data) {
+          const settings = new Map(res.data.map(i => [i.key, i.value]));
+          console.log('about: ', settings.get('about'));
+          setAbout(settings.get('about'));
+          setContact(settings.get('contact'));
+          return;
+        } else {
+          processError(res);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+      });
+  }, []);
 
   return (
     <Container className={classes.root}>

@@ -71,7 +71,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Admin(props) {
   const classes = useStyles();
-  const user = props.user || props.location.state.user;
+  const user = props.user;
 
   return (
     <Container className={classes.root}>

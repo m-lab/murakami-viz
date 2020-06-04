@@ -22,11 +22,13 @@ import LibraryController from './controllers/library.js';
 import DeviceController from './controllers/device.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
+import SettingController from './controllers/setting.js';
 import SystemController from './controllers/system.js';
 import Libraries from './models/library.js';
 import Devices from './models/device.js';
 import Notes from './models/note.js';
 import Runs from './models/run.js';
+import Settings from './models/setting.js';
 import Systems from './models/system.js';
 import Users from './models/user.js';
 import Groups from './models/group.js';
@@ -67,6 +69,8 @@ export default function configServer(config) {
   const notes = NoteController(noteModel, auth);
   const runModel = new Runs(db);
   const runs = RunController(runModel, auth);
+  const settingModel = new Settings(db);
+  const settings = SettingController(settingModel, auth);
   const systemModel = new Systems(db);
   const systems = SystemController(systemModel, auth);
   const libraries = LibraryController(libraryModel, auth);
@@ -87,6 +91,8 @@ export default function configServer(config) {
     notes.allowedMethods(),
     runs.routes(),
     runs.allowedMethods(),
+    settings.routes(),
+    settings.allowedMethods(),
     systems.routes(),
     systems.allowedMethods(),
   ]);

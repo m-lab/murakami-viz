@@ -1,5 +1,5 @@
 // base imports
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -10,12 +10,11 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   cancelButton: {},
   closeButton: {
     marginTop: '15px',
@@ -44,61 +43,49 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function formatDate(date) {
-  return date.replace(/ /g, 'T');
-}
-
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
-  const handleSubmit = event => {
-    if (event) {
-      event.preventDefault();
-    }
-    callback();
-  };
-  const handleInputChange = event => {
-    event.persist();
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  return {
-    handleSubmit,
-    handleInputChange,
-    inputs,
-  };
-};
-
 export default function EditAbout(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, aboutValue } = props;
+  const [about, setAbout] = useState('');
 
   const handleClose = () => {
-    onClose();
+    onClose(about);
   };
 
   const submitData = () => {
-    // fetch(`api/v1/notes/${props.row.id}`, {
-    //   method: "PUT",
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(inputs),
-    // })
-    // .then(response => response.json())
-    // .then(results => {
-    //   onRowUpdate(results.data[0]);
-    //   alert('Note edited successfully.');
-    // })
-    // .catch(error => {
-    //   alert('An error occurred. Please try again or contact an administrator.');
-    // });
-
-    onClose();
+    let status;
+    fetch('api/v1/settings/about', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: about }),
+    })
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(() => {
+        if (status === 200 || status === 201) {
+          alert('About page submitted successfully.');
+          onClose(about);
+          return;
+        } else {
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+        console.error(error.name + error.message);
+        onClose();
+      });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  useEffect(() => {
+    setAbout(aboutValue);
+  }, [aboutValue]);
 
   return (
     <Dialog
@@ -131,9 +118,8 @@ export default function EditAbout(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={'This is the about blurb.'}
-          onChange={handleInputChange}
-          value={inputs.about}
+          onChange={e => setAbout(e.currentTarget.value)}
+          value={about}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -151,7 +137,7 @@ export default function EditAbout(props) {
             <Button
               type="submit"
               label="Save"
-              onClick={handleSubmit}
+              onClick={submitData}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
@@ -170,5 +156,5 @@ export default function EditAbout(props) {
 EditAbout.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  row: PropTypes.object.isRequired,
+  aboutValue: PropTypes.string.isRequired,
 };
