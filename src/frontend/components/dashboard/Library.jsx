@@ -89,12 +89,17 @@ export default function Library(props) {
         return response.json();
       })
       .then(libraryIPs => {
-        if (ipStatus === 200) {
+        if (ipStatus === 200 && libraryIPs.ipCount > 0) {
+          console.log("libraryIPs: ", libraryIPs)
           setLibraryIPs(
-            libraryIPs.data.map(addresses => addresses.ip) // get just the IP addresses 
+            libraryIPs.data.map(libraryIP => libraryIP.ip) // get just the IP addresses 
           );
           return;
+        } else if (ipStatus === 200 && libraryIPs.ipCount === 0) {
+          setLibraryIPs([])
+          return;
         } else {
+          console.log("what's up? ", libraryIPs)
           throw new Error(error);
         }
       })
@@ -137,7 +142,6 @@ export default function Library(props) {
     })
       .then(response => response.json())
       .then(results => {
-        console.log("results: ", results)
         if (results.statusCode === 201) {
           let updatedIPs = libraryIPs.concat(ipValue);
           setLibraryIPs(updatedIPs)

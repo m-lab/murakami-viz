@@ -84,8 +84,12 @@ export default function controller(libraries, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (ip.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: ip };
+      if (ip.length >= 0) {
+        ctx.response.body = { 
+          statusCode: 200, 
+          status: 'ok', 
+          data: ip,
+          ipCount: ip.length };
         ctx.response.status = 200;
       } else {
         log.error(
@@ -136,7 +140,6 @@ export default function controller(libraries, thisUser) {
       try {
         if (ctx.params.id) {
           address = await libraries.deleteIp(ctx.params.id, ctx.params.address);
-          log.debug('this is address: ', address);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
@@ -145,7 +148,6 @@ export default function controller(libraries, thisUser) {
 
       if (address) {
         ctx.response.body = { statusCode: 200, status: 'ok', data: address };
-        log.debug('ctx: ', ctx.response.body);
         ctx.response.status = 200;
       } else {
         log.error(
