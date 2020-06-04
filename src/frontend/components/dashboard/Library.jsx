@@ -21,6 +21,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
+import AddLibraryDevice from '../utils/AddLibraryDevice.jsx';
 
 const TableCell = withStyles({
   root: {
@@ -63,6 +64,17 @@ export default function Library(props) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const [devices, setDevices] = React.useState([]);
+  const [openAddDevice, setOpenAddDevice] = React.useState(false);
+
+  const showAddDevice = () => {
+    setOpenAddDevice(true);
+  }
+
+  const closeAddDevice = () => {
+    setOpenAddDevice(false);
+  }
 
   // handle existing whitelisted IPs
   const [libraryIPs, setLibraryIPs] = React.useState([])
@@ -408,6 +420,19 @@ export default function Library(props) {
                 </TableCell>
                 <TableCell className={classes.tableCell}>
                   {library.device_mac_address}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className={classes.tableCell}>
+                  <Button
+                    variant="contained"
+                    disableElevation
+                    color="primary"
+                    onClick={showAddDevice}
+                  >
+                    Add a device
+                  </Button>
+                  <AddLibraryDevice open={openAddDevice} onClose={closeAddDevice}/>
                 </TableCell>
               </TableRow>
             </TableBody>
