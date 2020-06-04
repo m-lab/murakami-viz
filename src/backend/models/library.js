@@ -1,10 +1,74 @@
 import knex from 'knex';
 import { validate } from '../../common/schemas/library.js';
 import { UnprocessableError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:model:library');
 
 export default class LibraryManager {
   constructor(db) {
     this._db = db;
+  }
+
+  async createIp(lid, ips) {
+    let value;
+    if (Array.isArray(ips)) {
+      value = ips.map(ip => ({ lid: lid, ip: ip }));
+    } else {
+      value = { lid: lid, ip: ips };
+    }
+    return this._db
+      .table('library_ips')
+      .insert(value)
+      .returning('*');
+  }
+
+  async findIp(lid, ip) {
+    const rows = await this._db
+      .table('library_ips')
+      .select('*')
+      .modify(queryBuilder => {
+        if (lid) {
+          queryBuilder.where({ lid: parseInt(lid) });
+          if (ip) {
+            queryBuilder.andWhere({ ip: ip });
+          }
+        } else {
+          if (ip) {
+            queryBuilder.where({ ip: ip });
+          }
+        }
+      });
+
+    return rows || [];
+  }
+
+  async findAllIps() {
+    const rows = await this._db.table('library_ips').select('ip');
+
+    return rows || [];
+  }
+
+  async deleteIp(lid, ip) {
+    if (!(lid || ip)) {
+      throw new UnprocessableError('Need to specify either library id or IP.');
+    }
+    return this._db
+      .table('library_ips')
+      .del()
+      .modify(queryBuilder => {
+        if (lid) {
+          queryBuilder.where({ lid: parseInt(lid) });
+          if (ip) {
+            queryBuilder.andWhere({ ip: ip });
+          }
+        } else {
+          if (ip) {
+            queryBuilder.where({ ip: ip });
+          }
+        }
+      })
+      .returning('*');
   }
 
   async create(library) {
@@ -13,7 +77,10 @@ export default class LibraryManager {
     } catch (err) {
       throw new UnprocessableError('Failed to create library: ', err);
     }
-    return this._db.insert(library).returning('*');
+    return this._db
+      .table('libraries')
+      .insert(library)
+      .returning('*');
   }
 
   async update(id, library) {
@@ -43,14 +110,6 @@ export default class LibraryManager {
           contracted_speed_download: library.contracted_speed_download,
           bandwith_cap_upload: library.bandwith_cap_upload,
           bandwith_cap_download: library.bandwith_cap_download,
-          device_name: library.device_name,
-          device_location: library.device_location,
-          device_network_type: library.device_network_type,
-          device_connection_type: library.device_connection_type,
-          device_dns: library.device_dns,
-          device_ip: library.device_ip,
-          device_gateway: library.device_gateway,
-          device_mac_address: library.device_mac_address,
         },
         [
           'id',
@@ -67,17 +126,8 @@ export default class LibraryManager {
           'isp',
           'contracted_speed_upload',
           'contracted_speed_download',
-          'ip',
           'bandwith_cap_upload',
           'bandwith_cap_download',
-          'device_name',
-          'device_location',
-          'device_network_type',
-          'device_connection_type',
-          'device_dns',
-          'device_ip',
-          'device_gateway',
-          'device_mac_address',
         ],
       )
       .returning('*');
@@ -101,8 +151,28 @@ export default class LibraryManager {
     of_user: of_user,
   }) {
     const rows = await this._db
-      .table('libraries')
-      .select('*')
+      .select({
+        id: 'libraries.id',
+        name: 'libraries.name',
+        physical_address: 'libraries.physical_address',
+        shipping_address: 'libraries.shipping_address',
+        timezone: 'libraries.timezone',
+        coordinates: 'libraries.coordinates',
+        primary_contact_name: 'libraries.primary_contact_name',
+        primary_contact_email: 'libraries.primary_contact_email',
+        it_contact_name: 'libraries.it_contact_name',
+        it_contact_email: 'libraries.it_contact_email',
+        opening_hours: 'libraries.opening_hours',
+        network_name: 'libraries.network_name',
+        isp: 'libraries.isp',
+        contracted_speed_upload: 'libraries.contracted_speed_upload',
+        contracted_speed_download: 'libraries.contracted_speed_download',
+        bandwidth_cap_upload: 'libraries.bandwidth_cap_upload',
+        bandwidth_cap_download: 'libraries.bandwidth_cap_download',
+        user_count: this._db.raw('COUNT(library_users.uid)'),
+      })
+      .from('libraries')
+      .leftJoin('library_users', 'libraries.id', 'library_users.lid')
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);
@@ -147,5 +217,17 @@ export default class LibraryManager {
 
   async findAll() {
     return this._db.table('libraries').select('*');
+  }
+
+  async isMemberOf(lid, uid) {
+    log.debug(`Checking if user w/ id ${uid} is a member of library ${lid}.`);
+    const matches = await this._db
+      .table('library_users')
+      .select('*')
+      .where({ lid: parseInt(lid), uid: parseInt(uid) });
+
+    log.debug('Matching libraries: ', matches);
+
+    return matches.length > 0;
   }
 }

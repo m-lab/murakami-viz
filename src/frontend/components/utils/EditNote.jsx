@@ -10,63 +10,64 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
 
-const useStyles = makeStyles(theme => ({
-  cancelButton: {
-  },
+const useStyles = makeStyles(() => ({
+  cancelButton: {},
   closeButton: {
-    marginTop: "15px",
-    position: "absolute",
-    right: "0",
-    top: "0"
+    marginTop: '15px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
   },
   dialog: {
-    position: "relative"
+    position: 'relative',
   },
   dialogTitleRoot: {
-    marginTop: "30px",
+    marginTop: '30px',
   },
   dialogTitleText: {
-    fontSize: "2.25rem",
-    textAlign: "center"
+    fontSize: '2.25rem',
+    textAlign: 'center',
   },
   form: {
-    padding: "50px",
+    padding: '50px',
   },
   formField: {
-    marginBottom: "30px",
+    marginBottom: '30px',
   },
   saveButton: {
-    marginBottom: "0",
-  }
-}))
+    marginBottom: '0',
+  },
+}));
 
 function formatDate(date) {
-  return date.replace(/ /g, "T");
+  return date.replace(/ /g, 'T');
 }
 
-const useForm = (callback) => {
+const useForm = callback => {
   const [inputs, setInputs] = useState({});
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     callback();
-  }
-  const handleInputChange = (event) => {
+  };
+  const handleInputChange = event => {
     event.persist();
-    setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
-  }
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value,
+    }));
+  };
   return {
     handleSubmit,
     handleInputChange,
-    inputs
+    inputs,
   };
-}
+};
 
 export default function EditNote(props) {
   const classes = useStyles();
@@ -77,25 +78,29 @@ export default function EditNote(props) {
   };
 
   const submitData = () => {
-    fetch(`api/v1/notes/${props.row.id}`, {
-      method: "PUT",
+    fetch(`api/v1/notes/${row.id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
-    .then(response => response.json())
-    .then(results => {
-      alert('Note edited successfully.');
-      onClose(results.data[0]);
-    })
-    .catch(error => {
-      alert('An error occurred. Please try again or contact an administrator.');
-      onClose();
-    });
-  }
+      .then(response => response.json())
+      .then(results => {
+        alert('Note edited successfully.');
+        onClose(results.data[0]);
+        return;
+      })
+      .catch(error => {
+        console.error(error.name + error.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+        onClose();
+      });
+  };
 
-  const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
   return (
     <Dialog
@@ -103,10 +108,16 @@ export default function EditNote(props) {
       modal={true}
       open={open}
       aria-labelledby="edit-note-title"
-      fullWidth={ true }
-      maxWidth={"lg"}
-      className={classes.dialog}>
-      <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
+      fullWidth={true}
+      maxWidth={'lg'}
+      className={classes.dialog}
+    >
+      <Button
+        label="Close"
+        primary={true}
+        onClick={handleClose}
+        className={classes.closeButton}
+      >
         <ClearIcon />
       </Button>
       <DialogTitle id="edit-note-title" className={classes.dialogTitleRoot}>
@@ -120,7 +131,7 @@ export default function EditNote(props) {
           name="subject"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.subject}
+          defaultValue={row.subject}
           onChange={handleInputChange}
           value={inputs.subject}
         />
@@ -130,7 +141,7 @@ export default function EditNote(props) {
             label="Date"
             name="updated_at"
             type="datetime-local"
-            defaultValue={formatDate(props.row.updated_at)}
+            defaultValue={formatDate(row.updated_at)}
             onChange={handleInputChange}
             value={inputs.updated_at}
             className={classes.textField}
@@ -148,7 +159,7 @@ export default function EditNote(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={props.row.description}
+          defaultValue={row.description}
           onChange={handleInputChange}
           value={inputs.description}
         />
@@ -159,7 +170,8 @@ export default function EditNote(props) {
               label="Cancel"
               primary={true}
               onClick={handleClose}
-              className={classes.cancelButton}>
+              className={classes.cancelButton}
+            >
               Cancel
             </Button>
           </Grid>
@@ -172,7 +184,8 @@ export default function EditNote(props) {
               variant="contained"
               disableElevation
               color="primary"
-              primary={true}>
+              primary={true}
+            >
               Save
             </Button>
           </Grid>

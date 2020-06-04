@@ -26,22 +26,9 @@ export function up(knex) {
         table.text('isp');
         table.text('contracted_speed_upload');
         table.text('contracted_speed_download');
-        table.text('ip');
-        table.text('bandwith_cap_upload');
-        table.text('bandwith_cap_download');
-        table.text('device_name');
-        table.text('device_location');
-        table.text('device_network_type');
-        table.text('device_connection_type');
-        table.text('device_dns');
-        table.text('device_ip');
-        table.text('device_gateway');
-        table.text('device_mac_address');
+        table.text('bandwidth_cap_upload');
+        table.text('bandwidth_cap_download');
         table.timestamps(true, true);
-        table
-          .integer('user_id')
-          .references('id')
-          .inTable('users');
       })
       .then(() =>
         knex.raw(
@@ -60,6 +47,14 @@ export function up(knex) {
         .references('id')
         .inTable('users');
     }),
+    knex.schema.createTable('library_ips', table => {
+      table.integer('lid').index();
+      table
+        .foreign('lid')
+        .references('id')
+        .inTable('libraries');
+      table.text('ip');
+    }),
   ]);
 }
 
@@ -67,5 +62,6 @@ export function down(knex) {
   return Promise.all([
     knex.schema.dropTable('libraries'),
     knex.schema.dropTable('library_users'),
+    knex.schema.dropTable('library_ips'),
   ]);
 }

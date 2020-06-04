@@ -14,18 +14,25 @@ import errorHandler from 'koa-better-error-handler';
 import db from './db.js';
 import authHandler from './middleware/auth.js';
 import cloudflareAccess from './middleware/cloudflare.js';
+import currentLibrary from './middleware/library.js';
 //import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
 import GroupController from './controllers/group.js';
 import LibraryController from './controllers/library.js';
 import DeviceController from './controllers/device.js';
+import FaqController from './controllers/faq.js';
+import GlossaryController from './controllers/glossary.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
+import SettingController from './controllers/setting.js';
 import SystemController from './controllers/system.js';
 import Libraries from './models/library.js';
 import Devices from './models/device.js';
+import Faqs from './models/faq.js';
+import Glossaries from './models/glossary.js';
 import Notes from './models/note.js';
 import Runs from './models/run.js';
+import Settings from './models/setting.js';
 import Systems from './models/system.js';
 import Users from './models/user.js';
 import Groups from './models/group.js';
@@ -51,23 +58,34 @@ export default function configServer(config) {
 
   // Setup our authentication middleware
   const groupModel = new Groups(db);
-  const auth = authHandler(groupModel);
+  const libraryModel = new Libraries(db);
+  server.use(currentLibrary());
+  const auth = authHandler(groupModel, libraryModel);
   server.use(auth.middleware());
 
   // Setup our API handlers
   const userModel = new Users(db);
   const users = UserController(userModel, auth);
   const groups = GroupController(groupModel, auth);
-  const libraryModel = new Libraries(db);
-  const libraries = LibraryController(libraryModel, auth);
   const deviceModel = new Devices(db);
   const devices = DeviceController(deviceModel, auth);
+  const faqModel = new Faqs(db);
+  const faqs = FaqController(faqModel, auth);
+  const glossaryModel = new Glossaries(db);
+  const glossaries = GlossaryController(glossaryModel, auth);
   const noteModel = new Notes(db);
   const notes = NoteController(noteModel, auth);
   const runModel = new Runs(db);
   const runs = RunController(runModel, auth);
+  const settingModel = new Settings(db);
+  const settings = SettingController(settingModel, auth);
   const systemModel = new Systems(db);
   const systems = SystemController(systemModel, auth);
+  const libraries = LibraryController(libraryModel, auth);
+  libraries.use('/libraries/:lid', devices.routes(), devices.allowedMethods());
+  libraries.use('/libraries/:lid', notes.routes(), notes.allowedMethods());
+  libraries.use('/libraries/:lid', runs.routes(), runs.allowedMethods());
+  libraries.use('/libraries/:lid', users.routes(), users.allowedMethods());
   const apiV1Router = compose([
     users.routes(),
     users.allowedMethods(),
@@ -77,10 +95,16 @@ export default function configServer(config) {
     libraries.allowedMethods(),
     devices.routes(),
     devices.allowedMethods(),
+    faqs.routes(),
+    faqs.allowedMethods(),
+    glossaries.routes(),
+    glossaries.allowedMethods(),
     notes.routes(),
     notes.allowedMethods(),
     runs.routes(),
     runs.allowedMethods(),
+    settings.routes(),
+    settings.allowedMethods(),
     systems.routes(),
     systems.allowedMethods(),
   ]);
@@ -92,6 +116,9 @@ export default function configServer(config) {
 
   // Set custom error handler
   server.context.onerror = errorHandler;
+
+  // Specify that this is our backend API (for better-errror-handler)
+  // server.context.api = true;
 
   // If we're running behind Cloudflare, set the access parameters.
   if (config.cfaccess_url) {

@@ -9,6 +9,14 @@ export function seed(knex) {
             id: 1,
             name: 'admins',
           },
+          {
+            id: 2,
+            name: 'editors',
+          },
+          {
+            id: 3,
+            name: 'viewers',
+          },
         ]);
       }),
     knex('user_groups')
@@ -19,6 +27,10 @@ export function seed(knex) {
           {
             gid: 1,
             uid: 1,
+          },
+          {
+            gid: 2,
+            uid: 2,
           },
         ]);
       }),

@@ -15,6 +15,7 @@ export function up(knex) {
           .inTable('users');
         table.text('subject');
         table.text('description');
+        table.timestamp('date');
         table.timestamps(true, true);
       })
       .then(() =>

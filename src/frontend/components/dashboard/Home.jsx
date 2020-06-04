@@ -10,12 +10,16 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Grid from '@material-ui/core/Grid';
 import { TextField } from "@material-ui/core";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
 import DatePicker from '../datepicker/DatePicker.jsx';
 import Loading from '../Loading.jsx';
+import MainGraph from '../utils/MainGraph.jsx';
+import TestsSummary from '../utils/TestsSummary.jsx';
 
 const headers = [
   { label: 'id', key: 'run.id' },
@@ -42,13 +46,14 @@ const headers = [
 ];
 
 const data = [
-  { run: {
+  {
+    run: {
       id: 1,
-      TestName: 'ndt7'
+      TestName: 'ndt7',
     },
     server: {
       ip: '0.0.0.0',
-    }
+    },
   },
 ];
 
@@ -69,7 +74,6 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '0',
   },
   grid: {
-    // border: '1px solid black',
     padding: '20px',
   },
   header: {
@@ -79,15 +83,24 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     top: '-15px',
   },
+  mb1: {
+    marginBottom: '10px',
+  },
   selectEmpty: {
     marginTop: theme.spacing(2),
+  },
+  textBorder: {
+    borderTop: '1px solid #000',
+    paddingTop: '5px',
   },
   upper: {
     textTransform: 'uppercase',
   },
 }));
 
-const connections = ['Wired', 'Wifi', 'Other'];
+function formatDate(date) {
+  return date.substr(0, 10);
+}
 
 function getStyles(connection, connectionType, theme) {
   return {
@@ -112,69 +125,89 @@ const MenuProps = {
 export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { user } = props;
+  const { library } = props;
 
-  const [viewValue, setViewValue] = React.useState('wired');
-  const handleViewChange = event => {
-    setViewValue(event.target.value);
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const handleDateChange = date => {
+    setSelectedDate(date);
   };
-
-  const [speedMetricValue, setSpeedMetricValue] = React.useState('wired');
-  const handleSpeedMetricChange = event => {
-    setSpeedMetricValue(event.target.value);
-  };
-
-  const [connectionType, setConnectionType] = React.useState([]);
-  const handleConnectionChangeMultiple = event => {
-    const { options } = event.target;
-    const value = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        value.push(options[i].value);
-      }
-    }
-    setConnectionType(value);
-  };
-  const handleConnectionChange = event => {
-    setConnectionType(event.target.value);
-  };
-
-  const [test, setTest] = React.useState('');
-  const handleTestChange = event => {
-    setTest(event.target.value);
-  };
-
-  // handle date range picker
-
 
   // handle add note
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState();
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = value => {
+  const handleClose = () => {
     setOpen(false);
-    setSelectedValue(value);
+  };
+
+  // handle NDT or Ookla summary
+  const [summary, setSummary] = React.useState('ndt7');
+
+  const handleSummary = (event, newSummary) => {
+    setSummary(newSummary);
+  };
+
+  // handle connection change
+  const [connections, setConnections] = React.useState(['wired']);
+
+  const handleConnection = (event, newConnections) => {
+    setConnections(newConnections);
+  };
+
+  // handle test type change
+  const [testTypes, setTestTypes] = React.useState(['ndt7']);
+
+  const handleTestType = (event, newTestTypes) => {
+    setTestTypes(newTestTypes);
+  };
+
+  // handle metric change
+  const [metric, setMetric] = React.useState('DownloadValue');
+
+  const handleMetric = (event, nextMetric) => {
+    setMetric(nextMetric);
   };
 
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const [library, setLibrary] = React.useState(null);
+  const [runs, setRuns] = React.useState(null);
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
 
   React.useEffect(() => {
-    fetch(`/api/v1/libraries?of_user=${user.id}`)
-      .then(res => res.json())
-      .then(results => {
-        setLibrary(results.data[0]);
-        setIsLoaded(true);
-        return;
+    let status;
+    fetch(`/api/v1/libraries/${library.id}/runs`)
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(response => {
+        if (status === 200) {
+          setRuns(response.data);
+          setIsLoaded(true);
+          return;
+        } else {
+          processError(response);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         setError(error);
+        console.error(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -186,124 +219,189 @@ export default function Home(props) {
   } else {
     return (
       <Suspense>
-        <Grid
-          className={classes.header}
-          container
-          spacing={2}
-          alignItems="space-between"
-        >
-          <Grid container item direction="column" spacing={2} xs={6}>
-            <Grid item>
-              <Typography component="h1" variant="h3">
-                {library.name}
-              </Typography>
-              <div>{library.physical_address}</div>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                disableElevation
-                color="primary"
-                onClick={handleClickOpen}
-              >
-                Add a note
-              </Button>
-              <AddNote
-                selectedValue={selectedValue}
-                open={open}
-                onClose={handleClose}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item spacing={1} xs={6}>
-            <Grid
-              container
-              item
-              alignItems="center"
-              direction="row"
-              spacing={1}
-            >
-              <Grid item xs={4}>
-                <Typography component="div" className={classes.upper}>
-                  Download Speed
+        <Box mb={9}>
+          <Grid
+            className={classes.header}
+            container
+            spacing={2}
+            alignItems="space-between"
+          >
+            <Grid container item direction="column" spacing={2} xs={6}>
+              <Grid item>
+                <Typography component="h1" variant="h3">
+                  {library.name}
                 </Typography>
+                <div>{library.physical_address}</div>
               </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  disableElevation
+                  color="primary"
+                  onClick={handleClickOpen}
+                >
+                  Add a note
+                </Button>
+                <AddNote open={open} onClose={handleClose} library={library} />
+              </Grid>
+            </Grid>
+            <Grid container item spacing={1} xs={6}>
               <Grid
                 container
                 item
                 alignItems="center"
-                justify="center"
-                spacing={0}
-                xs={4}
+                direction="row"
+                spacing={1}
+                className={classes.mb1}
               >
-                <ButtonGroup
-                  color="primary"
-                  aria-label="outlined primary button group"
+                <Grid item xs={4}>
+                  <Typography component="div" className={classes.upper}>
+                    Download Speed
+                  </Typography>
+                </Grid>
+                <Grid
+                  container
+                  item
+                  alignItems="center"
+                  justify="center"
+                  spacing={0}
+                  xs={4}
                 >
-                  <Button>NDT</Button>
-                  <Button>Ookla</Button>
-                </ButtonGroup>
+                  <ToggleButtonGroup
+                    value={summary}
+                    exclusive
+                    onChange={handleSummary}
+                    aria-label="tests summary data"
+                  >
+                    <ToggleButton value="ndt7" aria-label="NDT7">
+                      NDT
+                    </ToggleButton>
+                    <ToggleButton value="ookla" aria-label="Ookla">
+                      Ookla
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography component="div">
+                    Last Test:{' '}
+                    {runs
+                      ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
+                      : 'No tests yet. Is a device running?'}
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={4}>
-                <Typography component="div">
-                  Last Test: March 9, 8:00 a.m.
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container item direction="row" spacing={2} xs={12}>
-              <Grid item className={classes.grid} xs={6}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [6, 3, 9],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(52, 235, 107)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5,
-                    },
-                    title: false,
-                  }}
-                />
-              </Grid>
-              <Grid item className={classes.grid} xs={6}>
-                <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [2, 6, 3],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: { color: 'rgb(235, 64, 52)' },
-                    },
-                  ]}
-                  layout={{
-                    width: 250,
-                    height: 250,
-                    margin: {
-                      l: 20,
-                      r: 20,
-                      b: 20,
-                      t: 20,
-                      pad: 5,
-                    },
-                    title: false,
-                  }}
-                />
-              </Grid>
+              <TestsSummary runs={runs} summary={summary} />
             </Grid>
           </Grid>
-        </Grid>
+          <Box mt={5}>
+            <div>
+              <Typography variant="overline" display="block" gutterBottom>
+                Date range
+              </Typography>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="MM/dd/yyyy"
+                  margin="normal"
+                  id="date-picker-inline"
+                  label="Date range"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  KeyboardButtonProps={{
+                    'aria-label': 'change date',
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            </div>
+            <Grid
+              container
+              className={classes.grid}
+              justify="space-between"
+              spacing={2}
+              xs={12}
+              md={12}
+            >
+              <Grid
+                container
+                item
+                direction="column"
+                spacing={4}
+                xs={12}
+                md={2}
+              >
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Connection
+                  </Typography>
+                  <ToggleButtonGroup
+                    orientation="vertical"
+                    value={connections}
+                    onChange={handleConnection}
+                    aria-label="connection type"
+                  >
+                    <ToggleButton value="wired" aria-label="wired">
+                      Wired
+                    </ToggleButton>
+                    <ToggleButton value="wifi" aria-label="wifi">
+                      Wireless
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Test
+                  </Typography>
+                  <ToggleButtonGroup
+                    orientation="vertical"
+                    value={testTypes}
+                    onChange={handleTestType}
+                    aria-label="connection type"
+                  >
+                    <ToggleButton value="ndt7" aria-label="NDT">
+                      NDT
+                    </ToggleButton>
+                    <ToggleButton value="ookla" aria-label="Ookla">
+                      Ookla
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Metric
+                  </Typography>
+                  <ToggleButtonGroup
+                    orientation="vertical"
+                    value={metric}
+                    exclusive
+                    onChange={handleMetric}
+                  >
+                    <ToggleButton value="DownloadValue" aria-label="Download">
+                      Download
+                    </ToggleButton>
+                    <ToggleButton value="UploadValue" aria-label="Upload">
+                      Upload
+                    </ToggleButton>
+                    <ToggleButton
+                      value="DownloadRetransValue"
+                      aria-label="Latency"
+                    >
+                      Latency
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={10}>
+                <MainGraph
+                  runs={runs}
+                  connections={connections}
+                  testTypes={testTypes}
+                  metric={metric}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
         <Box mt={5}>
           <Grid
             container
@@ -322,42 +420,18 @@ export default function Home(props) {
               </Grid>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
-                  Connection
+                  View
                 </Typography>
-                <ButtonGroup
-                  orientation="vertical"
-                  color="primary"
-                  aria-label="vertical outlined primary button group"
-                >
-                  <Button>Wired</Button>
-                  <Button>Wifi</Button>
-                </ButtonGroup>
               </Grid>
               <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  Test
-                </Typography>
                 <ButtonGroup
-                  orientation="vertical"
                   color="primary"
-                  aria-label="vertical outlined primary button group"
+                  aria-label="outlined primary button group"
                 >
-                  <Button>NDT</Button>
-                  <Button>Ookla</Button>
-                </ButtonGroup>
-              </Grid>
-              <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  Metric
-                </Typography>
-                <ButtonGroup
-                  orientation="vertical"
-                  color="primary"
-                  aria-label="vertical outlined primary button group"
-                >
-                  <Button>Download</Button>
-                  <Button>Upload</Button>
-                  <Button>Latency</Button>
+                  <Button>All tests</Button>
+                  <Button>By hour</Button>
+                  <Button>By day</Button>
+                  <Button>By month</Button>
                 </ButtonGroup>
               </Grid>
             </Grid>
@@ -388,35 +462,11 @@ export default function Home(props) {
                 }}
               />
             </Grid>
+            <Grid item xs={12} sm={2}>
+              <Button variant="contained">Export</Button>
+            </Grid>
           </Grid>
         </Box>
-        <Grid container justify="space-between" alignItems="center">
-          <Grid container item spacing={2} xs={12} sm={10}>
-            <Grid item>
-              <Typography variant="overline" display="block" gutterBottom>
-                View
-              </Typography>
-            </Grid>
-            <Grid item>
-              <ButtonGroup
-                color="primary"
-                aria-label="outlined primary button group"
-              >
-                <Button>All tests</Button>
-                <Button>By hour</Button>
-                <Button>By day</Button>
-                <Button>By month</Button>
-              </ButtonGroup>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <Button variant="contained">
-              <CSVLink data={data} headers={headers}>
-                Export
-              </CSVLink>
-            </Button>
-          </Grid>
-        </Grid>
       </Suspense>
     );
   }

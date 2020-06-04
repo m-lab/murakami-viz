@@ -1,6 +1,5 @@
 // base imports
-import React, { Suspense } from 'react';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import React, { Suspense, useEffect } from 'react';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -11,14 +10,9 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import EditAbout from './utils/EditAbout.jsx';
 import EditContact from './utils/EditContact.jsx';
+import EditForum from './utils/EditForum.jsx';
 
-const useStyles = makeStyles(theme => ({
-}));
-
-export default function About(props) {
-  const classes = useStyles();
-  const { user } = props;
-
+export default function About() {
   // handle about edit
   const [openAbout, setOpenAbout] = React.useState(false);
   const [selectedAboutValue, setSelectedAboutValue] = React.useState();
@@ -44,22 +38,62 @@ export default function About(props) {
     setOpenContact(false);
     setSelectedContactValue(value);
   };
+
+  // handle contact edit
+  const [openForum, setOpenForum] = React.useState(false);
+  const [selectedForumValue, setSelectedForumValue] = React.useState();
+
+  const handleForumClickOpen = () => {
+    setOpenForum(true);
+  };
+
+  const handleForumClose = value => {
+    setOpenForum(false);
+    setSelectedForumValue(value);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
-  React.useEffect(() => {
-    // fetch(`/api/v1/libraries?of_user=${user.id}`)
-    //   .then(res => res.json())
-    //   .then(results => {
-    //     setRow(results.data[0]);
-    //     setIsLoaded(true);
-    //     return;
-    //   })
-    //   .catch(error => {
-    //     setIsLoaded(true);
-    //     setError(error);
-    //   });
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
+  useEffect(() => {
+    let status;
+    fetch('/api/v1/settings')
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(res => {
+        if (status === 200 && res.data) {
+          const settings = new Map(res.data.map(i => [i.key, i.value]));
+          console.log('about: ', settings.get('about'));
+          setSelectedAboutValue(settings.get('about'));
+          setSelectedContactValue(settings.get('contact'));
+          setSelectedForumValue(settings.get('forum'));
+          setIsLoaded(true);
+          return;
+        } else {
+          const error = processError(res);
+          throw new Error(`Error in response from server: ${error}`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
     setIsLoaded(true);
   }, []);
 
@@ -70,7 +104,7 @@ export default function About(props) {
   } else {
     return (
       <Suspense>
-        <Box mb={9} mt={9} >
+        <Box mb={9} mt={9}>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
               <Typography component="h3" variant="h3">
@@ -86,18 +120,20 @@ export default function About(props) {
               >
                 Edit
               </Button>
-              <EditAbout open={openAbout} onClose={handleAboutClose} />
+              <EditAbout
+                open={openAbout}
+                onClose={handleAboutClose}
+                aboutValue={selectedAboutValue}
+              />
             </Grid>
           </Grid>
           <div>
             <Typography component="p" variant="body1">
-              Unam incolunt Belgae, aliam Aquitani, tertiam. Me non paenitet nullum festiviorem excogitasse ad hoc. Gallia est omnis divisa in partes tres, quarum. Donec sed odio operae, eu vulputate felis rhoncus. Excepteur sint obcaecat cupiditat non proident culpa.
-
-              Magna pars studiorum, prodita quaerimus. Hi omnes lingua, institutis, legibus inter se differunt. Nihil hic munitissimus habendi senatus locus, nihil horum? Ab illo tempore, ab est sed immemorabili.
+              {selectedAboutValue}
             </Typography>
           </div>
         </Box>
-        <Box mb={9} mt={9} >
+        <Box mb={9} mt={9}>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
               <Typography component="h3" variant="h3">
@@ -113,16 +149,49 @@ export default function About(props) {
               >
                 Edit
               </Button>
-              <EditContact open={openContact} onClose={handleContactClose} />
+              <EditContact
+                open={openContact}
+                onClose={handleContactClose}
+                selectedContactValue={selectedContactValue}
+              />
             </Grid>
           </Grid>
           <div>
             <Typography component="p" variant="body1">
-            Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Tityre, tu patulae recubans sub tegmine fagi dolor. Contra legem facit qui id facit quod lex prohibet. A communi observantia non est recedendum. Ut enim ad minim veniam, quis nostrud exercitation. Quo usque tandem abutere, Catilina, patientia nostra? Nec dubitamus multa iter quae et nos invenerat. Ambitioni dedisse scripsisse iudicaretur. Ullamco laboris nisi ut aliquid ex ea commodi consequat. Praeterea iter est quasdam res quas ex communi.
+              {selectedContactValue}
+            </Typography>
+          </div>
+        </Box>
+        <Box mb={9} mt={9}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <Typography component="h3" variant="h3">
+                Forum
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disableElevation
+                color="primary"
+                onClick={handleForumClickOpen}
+              >
+                Edit
+              </Button>
+              <EditForum
+                open={openForum}
+                onClose={handleForumClose}
+                selectedForumValue={selectedForumValue}
+              />
+            </Grid>
+          </Grid>
+          <div>
+            <Typography component="p" variant="body1">
+              {selectedForumValue}
             </Typography>
           </div>
         </Box>
       </Suspense>
-    )
+    );
   }
 }

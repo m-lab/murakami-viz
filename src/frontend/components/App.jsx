@@ -1,5 +1,5 @@
 // base imports
-import React, { Suspense } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
 import { lazy, LazyBoundary } from 'react-imported-component';
@@ -21,27 +21,33 @@ const Loading = lazy(() => import('./Loading.jsx'));
 const Login = lazy(() => import('./Login.jsx'));
 const Admin = lazy(() => import('./Admin.jsx'));
 
-function PrivateRoute({ component: Component, authed, user, ...rest }) {
+function PrivateRoute({
+  component: Component,
+  authed,
+  user,
+  library,
+  ...rest
+}) {
   const history = useHistory();
-  const path = {...rest}
+  const path = { ...rest };
 
   if (user) {
-    if (user.role !== "Admin" && path.path === "/admin" ) {
+    if (user.role !== 1 && path.path === '/admin') {
       return (
         <Route
           {...rest}
-          render={props =>
-            <Dashboard {...props} user={user} />
-          }
+          render={props => (
+            <Dashboard {...props} user={user} library={library} />
+          )}
         />
-      )
+      );
     } else {
       return (
         <Route
           {...rest}
           render={props =>
             authed === true ? (
-              <Component {...props} user={user} />
+              <Component {...props} user={user} library={library} />
             ) : (
               history.push('/login')
             )
@@ -55,7 +61,7 @@ function PrivateRoute({ component: Component, authed, user, ...rest }) {
         {...rest}
         render={props =>
           authed === true ? (
-            <Component {...props} user={user} />
+            <Component {...props} user={user} library={library} />
           ) : (
             history.push('/login')
           )
@@ -78,25 +84,61 @@ export default function App() {
     setAuthenticated(authState);
   };
   const [user, setUser] = React.useState(null);
+  const [library, setLibrary] = React.useState(null);
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   // fetch api data
   React.useEffect(() => {
+    let userStatus, libraryStatus;
     const username = Cookies.get('mv_user');
     if (username) {
       // TODO: Add separate case for admin
       fetch(`api/v1/users/${username}`)
-        .then(res => res.json())
-        .then(results => {
-          setUser(results.data);
-          setAuthenticated(true);
-          setIsLoaded(true);
-          return;
+        .then(usersResponse => {
+          userStatus = usersResponse.status;
+          return usersResponse.json();
+        })
+        .then(users => {
+          if (userStatus === 200) {
+            setUser(users.data[0]);
+            setAuthenticated(true);
+            return users.data[0];
+          } else {
+            const error = processError(users);
+            throw new Error(error);
+          }
+        })
+        .then(user => fetch(`/api/v1/libraries?of_user=${user.id}`))
+        .then(librariesResponse => {
+          libraryStatus = librariesResponse.status;
+          return librariesResponse.json();
+        })
+        .then(libraries => {
+          if (libraryStatus === 200) {
+            setLibrary(libraries.data[0]);
+            setIsLoaded(true);
+            return;
+          } else {
+            const error = processError(libraries);
+            throw new Error(error);
+          }
         })
         .catch(error => {
           setError(error);
-          setAuthenticated(false);
+          console.error(error.name + error.message);
           setIsLoaded(true);
         });
     } else {
@@ -124,12 +166,14 @@ export default function App() {
               path="/admin"
               component={Admin}
               user={user}
+              library={library}
             />
             <PrivateRoute
               authed={authenticated}
               path="/dashboard"
               component={Dashboard}
               user={user}
+              library={library}
             />
           </LazyBoundary>
           <Redirect to="/" />

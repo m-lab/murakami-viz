@@ -1,0 +1,21 @@
+version: "3"
+services:
+  murakami:
+    build: .
+    depends_on:
+      - murakami-db
+    ports:
+      - "3000:3000"
+
+  murakami-db:
+    image: postgres:12-alpine
+    volumes:
+      - murakami-db_data:/var/lib/postgresql/data
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: ${MURAKAMI_VIZ_DB_USER:-murakami}
+      POSTGRES_PASSWORD: ${MURAKAMI_VIZ_DB_PASSWORD:-murakami}
+      POSTGRES_DB: ${MURAKAMI_VIZ_DB_DATABASE:-murakami}
+
+volumes:
+  murakami-db_data: {}

@@ -50,25 +50,30 @@ function stableSort(array, comparator) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis.map(el => el[0]);
 }
 
 const headCells = [
   { id: 'updated_at', numeric: false, disablePadding: true, label: 'Date' },
   { id: 'subject', numeric: false, disablePadding: false, label: 'Subject' },
-  { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+  {
+    id: 'description',
+    numeric: false,
+    disablePadding: false,
+    label: 'Description',
+  },
 ];
 
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, rowCount, onRequestSort } = props;
-  const createSortHandler = (property) => (event) => {
+  const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
 
   return (
     <TableHead>
       <TableRow>
-        {headCells.map((headCell) => (
+        {headCells.map(headCell => (
           <TableCell
             key={headCell.id}
             padding={headCell.disablePadding ? 'none' : 'default'}
@@ -101,7 +106,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const useToolbarStyles = makeStyles((theme) => ({
+const useToolbarStyles = makeStyles(theme => ({
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
@@ -121,9 +126,9 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
-const EnhancedTableToolbar = (props) => {
+const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
-  const { updateRows } = props;
+  const { updateRows, library } = props;
 
   // handle add note
   const [open, setOpen] = React.useState(false);
@@ -132,17 +137,15 @@ const EnhancedTableToolbar = (props) => {
     setOpen(true);
   };
 
-  const handleClose = (note) => {
-    if ( note ) {
+  const handleClose = note => {
+    if (note) {
       updateRows(note);
     }
     setOpen(false);
   };
 
   return (
-    <Toolbar
-      className={clsx(classes.root,)}
-    >
+    <Toolbar className={clsx(classes.root)}>
       <Grid container spacing={2} alignItems="center" justify="flex-start">
         <Grid item>
           <Typography component="h2" variant="h3">
@@ -154,19 +157,18 @@ const EnhancedTableToolbar = (props) => {
             variant="contained"
             disableElevation
             color="primary"
-            onClick={handleClickOpen}>
+            onClick={handleClickOpen}
+          >
             Add a note
           </Button>
-          <AddNote
-            open={open}
-            onClose={handleClose} />
+          <AddNote open={open} onClose={handleClose} library={library} />
         </Grid>
       </Grid>
     </Toolbar>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     marginBottom: theme.spacing(2),
     width: '100%',
@@ -187,8 +189,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props) {
   const classes = useStyles();
+  const { library } = props;
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('updated_at');
   const [page, setPage] = React.useState(0);
@@ -205,7 +208,7 @@ export default function EnhancedTable() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = event => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -214,16 +217,15 @@ export default function EnhancedTable() {
 
   // handle view note
   const [open, setOpen] = React.useState(false);
-  const [row, setRow] = React.useState({index: 0});
   const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = (index) => {
+  const handleClickOpen = index => {
     setIndex(index);
     setOpen(true);
   };
 
-  const handleClose = (note) => {
-    if ( note ) {
+  const handleClose = note => {
+    if (note) {
       let editedNotes = [...rows];
       editedNotes[index] = note;
       setRows(editedNotes);
@@ -231,32 +233,54 @@ export default function EnhancedTable() {
     setOpen(false);
   };
 
-  const addData = (row) => {
+  const addData = row => {
     const newRow = [...rows, row];
     setRows(newRow);
-  }
+  };
 
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [rows, setRows] = React.useState([]);
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   React.useEffect(() => {
-    fetch("/api/v1/notes")
-      .then(res => res.json())
-      .then(
-        (results) => {
-          setRows(results.data);
-          setRow(results.data[0]);
-          emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    let status;
+    fetch(`/api/v1/libraries/${library.id}/notes`)
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(notes => {
+        if (status === 200) {
+          setRows(notes.data);
+          emptyRows =
+            rowsPerPage -
+            Math.min(rowsPerPage, rows.length - page * rowsPerPage);
           setIsLoaded(true);
-        },
-        (error) => {
-          setIsLoaded(true);
-          setError(error);
+          return;
+        } else {
+          processError(notes);
+          throw new Error(`Error in response from server.`);
         }
-      )
-  }, [])
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -266,12 +290,13 @@ export default function EnhancedTable() {
     return (
       <Suspense>
         <div className={classes.root}>
-          <EnhancedTableToolbar updateRows={addData} />
+          <EnhancedTableToolbar updateRows={addData} library={library} />
           <TableContainer>
             <Table
               className={classes.table}
               aria-labelledby="tableTitle"
-              aria-label="enhanced table" >
+              aria-label="enhanced table"
+            >
               <EnhancedTableHead
                 classes={classes}
                 order={order}
@@ -285,14 +310,25 @@ export default function EnhancedTable() {
                   .map((row, index) => {
                     const labelId = `data-row-${index}`;
 
-                    return (
-                      <TableRow
+                    if (row) {
+                      return (
+                        <TableRow
                           hover
-                          onClick={() => {handleClickOpen(index);}}
+                          onClick={() => {
+                            handleClickOpen(index);
+                          }}
                           key={row.id}
                         >
-                          <TableCell component="th" id={labelId} scope="row" padding="none">
-                            <Moment date={row.updated_at} format="MMMM D, YYYY, h:mma" />
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                          >
+                            <Moment
+                              date={row.updated_at}
+                              format="MMMM D, YYYY, h:mma"
+                            />
                           </TableCell>
                           <TableCell>{row.subject}</TableCell>
                           <TableCell>
@@ -301,7 +337,8 @@ export default function EnhancedTable() {
                             </Truncate>
                           </TableCell>
                         </TableRow>
-                    );
+                      );
+                    }
                   })}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: emptyRows }}>
@@ -319,11 +356,14 @@ export default function EnhancedTable() {
             page={page}
             onChangePage={handleChangePage}
           />
-          <ViewNote
-            index={index}
-            rows={stableSort(rows, getComparator(order, orderBy))}
-            open={open}
-            onClose={handleClose} />
+          {rows.length > 0 && (
+            <ViewNote
+              index={index}
+              rows={stableSort(rows, getComparator(order, orderBy))}
+              open={open}
+              onClose={handleClose}
+            />
+          )}
         </div>
       </Suspense>
     );

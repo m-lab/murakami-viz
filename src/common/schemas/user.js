@@ -9,9 +9,7 @@ const schema = Joi.object({
   lastName: Joi.string(),
   location: Joi.string(),
   email: Joi.string(),
-  role: Joi.string(),
-  created_at: Joi.string(),
-  updated_at: Joi.string(),
+  role: Joi.number(),
 });
 
 export async function validate(data) {

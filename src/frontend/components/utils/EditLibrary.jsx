@@ -9,7 +9,6 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -23,58 +22,57 @@ import Typography from '@material-ui/core/Typography';
 // icon imports
 import ClearIcon from '@material-ui/icons/Clear';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   appBar: {
-    backgroundColor: "#fff",
-    borderBottom: "1px solid rgba(0, 0, 0, 0.54)",
-    boxShadow: "none",
+    backgroundColor: '#fff',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.54)',
+    boxShadow: 'none',
   },
-  cancelButton: {
-  },
+  cancelButton: {},
   closeButton: {
-    marginTop: "15px",
-    position: "absolute",
-    right: "0",
-    top: "0"
+    marginTop: '15px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
   },
   dialog: {
-    position: "relative"
+    position: 'relative',
   },
   dialogTitleRoot: {
     // marginTop: "30px",
   },
   dialogTitleText: {
-    fontSize: "2.25rem",
-    textAlign: "center"
+    fontSize: '2.25rem',
+    textAlign: 'center',
   },
   form: {
-    padding: "50px",
+    padding: '50px',
   },
   formControl: {
-    width: "100%",
+    width: '100%',
   },
   formField: {
-    marginBottom: "30px",
+    marginBottom: '30px',
   },
   grid: {
     // marginLeft: "",
-    marginTop: "50px",
+    marginTop: '50px',
   },
   gridItem: {
-    marginLeft: "30px",
+    marginLeft: '30px',
   },
   inline: {
-    marginLeft: "20px",
+    marginLeft: '20px',
   },
   saveButton: {
-    marginBottom: "0",
+    marginBottom: '0',
   },
   saveButtonContainer: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    textAlign: "center",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    textAlign: 'center',
   },
-}))
+}));
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -109,28 +107,31 @@ function a11yProps(index) {
   };
 }
 
-const useForm = (callback) => {
+const useForm = callback => {
   const [inputs, setInputs] = useState({});
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     callback();
-  }
-  const handleInputChange = (event) => {
+  };
+  const handleInputChange = event => {
     event.persist();
-    setInputs(inputs => ({...inputs, [event.target.name]: event.target.value}));
-  }
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value,
+    }));
+  };
   return {
     handleSubmit,
     handleInputChange,
-    inputs
+    inputs,
   };
-}
+};
 
 export default function EditLibrary(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, row } = props;
 
   //handle tabs
   const [value, setValue] = React.useState(0);
@@ -146,36 +147,60 @@ export default function EditLibrary(props) {
 
   const submitData = () => {
     console.log(inputs);
-    fetch(`api/v1/libraries/${props.row.id}`, {
-      method: "PUT",
+    fetch(`api/v1/libraries/${row.id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
-    .then(response => response.json())
-    .then(results => {
-      // onRowUpdate(results.data[0]);
-      alert('User edited successfully.');
-    })
-    .catch(error => {
-      console.log(error);
-      alert('An error occurred. Please try again or contact an administrator.');
-    });
+      .then(response => response.json())
+      .then(() => {
+        // onRowUpdate(results.data[0]);
+        alert('User edited successfully.');
+        return;
+      })
+      .catch(error => {
+        console.log(error);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
 
     onClose();
-  }
+  };
 
-  const {inputs, handleInputChange, handleSubmit} = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
   return (
-    <Dialog onClose={handleClose} modal={true} open={open} aria-labelledby="add-library-title" fullWidth={ true } maxWidth={"lg"} className={classes.dialog}>
-      <Button label="Close" primary={true} onClick={handleClose} className={classes.closeButton}>
+    <Dialog
+      onClose={handleClose}
+      modal={true}
+      open={open}
+      aria-labelledby="add-library-title"
+      fullWidth={true}
+      maxWidth={'lg'}
+      className={classes.dialog}
+    >
+      <Button
+        label="Close"
+        primary={true}
+        onClick={handleClose}
+        className={classes.closeButton}
+      >
         <ClearIcon />
       </Button>
-      <Grid container alignItems="center" justify="flex-start" className={classes.grid}>
+      <Grid
+        container
+        alignItems="center"
+        justify="flex-start"
+        className={classes.grid}
+      >
         <Grid item className={classes.gridItem}>
-          <DialogTitle id="add-library-title" className={classes.dialogTitleRoot}>
+          <DialogTitle
+            id="add-library-title"
+            className={classes.dialogTitleRoot}
+          >
             <div className={classes.dialogTitleText}>Edit Library</div>
           </DialogTitle>
         </Grid>
@@ -188,12 +213,19 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}>
+            primary={true}
+          >
             Save
           </Button>
         </Grid>
         <Grid item className={classes.gridItem}>
-          <Button size="small" label="Cancel" primary={true} onClick={handleClose} className={classes.cancelButton}>
+          <Button
+            size="small"
+            label="Cancel"
+            primary={true}
+            onClick={handleClose}
+            className={classes.cancelButton}
+          >
             Cancel
           </Button>
         </Grid>
@@ -205,7 +237,8 @@ export default function EditLibrary(props) {
             textColor="primary"
             value={value}
             onChange={handleChange}
-            aria-label="edit library tabs">
+            aria-label="edit library tabs"
+          >
             <Tab label="Basic info" {...a11yProps(0)} />
             <Tab label="Network" {...a11yProps(1)} />
             <Tab label="Devices" {...a11yProps(2)} />
@@ -217,19 +250,23 @@ export default function EditLibrary(props) {
             Library Details
           </Typography>
           <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="library-system-name">Library System Name (if applicable)</InputLabel>
+            <InputLabel id="library-system-name">
+              Library System Name (if applicable)
+            </InputLabel>
             <Select
               labelId="library-system-name"
               className={classes.formField}
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue={props.row.name}
+              defaultValue={row.name}
               // onChange={handleInputChange}
               value={inputs.name}
               disabled
             >
-              <MenuItem value={props.row.name} selected>{props.row.name}</MenuItem>
+              <MenuItem value={row.name} selected>
+                {row.name}
+              </MenuItem>
             </Select>
           </FormControl>
           <TextField
@@ -239,7 +276,7 @@ export default function EditLibrary(props) {
             name="physical_address"
             fullWidth
             variant="outlined"
-            defaultValue={props.row.physical_address}
+            defaultValue={row.physical_address}
             onChange={handleInputChange}
             value={inputs.physical_address}
           />
@@ -251,7 +288,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.shipping_address}
+            defaultValue={row.shipping_address}
             value={inputs.shipping_address}
           />
           <TextField
@@ -262,7 +299,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.timezone}
+            defaultValue={row.timezone}
             value={inputs.timezone}
           />
           <TextField
@@ -273,7 +310,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.coordinates}
+            defaultValue={row.coordinates}
             value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -287,7 +324,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.primary_contact_name}
+            defaultValue={row.primary_contact_name}
             value={inputs.primary_contact_name}
           />
           <TextField
@@ -298,7 +335,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.primary_contact_email}
+            defaultValue={row.primary_contact_email}
             value={inputs.primary_contact_email}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -312,7 +349,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.opening_hours}
+            defaultValue={row.opening_hours}
             value={inputs.opening_hours}
           />
         </TabPanel>
@@ -325,7 +362,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.network_name}
+            defaultValue={row.network_name}
             value={inputs.network_name}
           />
           <TextField
@@ -336,7 +373,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.isp}
+            defaultValue={row.isp}
             value={inputs.isp}
           />
           <Grid container alignItems="center">
@@ -353,7 +390,7 @@ export default function EditLibrary(props) {
                 name="contracted_speed_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.contracted_speed_download}
+                defaultValue={row.contracted_speed_download}
                 value={inputs.contracted_speed_download}
               />
             </Grid>
@@ -365,7 +402,7 @@ export default function EditLibrary(props) {
                 name="contracted_speed_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.contracted_speed_upload}
+                defaultValue={row.contracted_speed_upload}
                 value={inputs.contracted_speed_upload}
               />
             </Grid>
@@ -378,7 +415,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.ip}
+            defaultValue={row.ip}
             value={inputs.ip}
           />
           <Grid container alignItems="center">
@@ -395,7 +432,7 @@ export default function EditLibrary(props) {
                 name="bandwith_cap_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.bandwith_cap_download}
+                defaultValue={row.bandwith_cap_download}
                 value={inputs.bandwith_cap_download}
               />
             </Grid>
@@ -407,7 +444,7 @@ export default function EditLibrary(props) {
                 name="bandwith_cap_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.bandwith_cap_upload}
+                defaultValue={row.bandwith_cap_upload}
                 value={inputs.bandwith_cap_upload}
               />
             </Grid>
@@ -422,7 +459,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_name}
+            defaultValue={row.device_name}
             value={inputs.device_name}
           />
           <TextField
@@ -433,7 +470,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_location}
+            defaultValue={row.device_location}
             value={inputs.device_location}
           />
           <FormControl variant="outlined" className={classes.formControl}>
@@ -444,7 +481,7 @@ export default function EditLibrary(props) {
               id="library-network-type"
               label="Network Type"
               name="device_network_type"
-              defaultValue={props.row.device_network_type}
+              defaultValue={row.device_network_type}
               onChange={handleInputChange}
               value={inputs.device_network_type}
             >
@@ -453,14 +490,16 @@ export default function EditLibrary(props) {
             </Select>
           </FormControl>
           <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="library-connection-type">Connection type</InputLabel>
+            <InputLabel id="library-connection-type">
+              Connection type
+            </InputLabel>
             <Select
               labelId="library-connection-type"
               className={classes.formField}
               id="library-connection-type"
               label="Connection Type"
               name="device_connection_type"
-              defaultValue={props.row.device_connection_type}
+              defaultValue={row.device_connection_type}
               onChange={handleInputChange}
               value={inputs.device_connection_type}
             >
@@ -476,7 +515,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_dns}
+            defaultValue={row.device_dns}
             value={inputs.device_dns}
           />
           <TextField
@@ -486,7 +525,7 @@ export default function EditLibrary(props) {
             name="device_ip"
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_ip}
+            defaultValue={row.device_ip}
             value={inputs.device_ip}
           />
           <TextField
@@ -497,7 +536,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_gateway}
+            defaultValue={row.device_gateway}
             value={inputs.device_gateway}
           />
           <TextField
@@ -508,7 +547,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_mac_address}
+            defaultValue={row.device_mac_address}
             value={inputs.device_mac_address}
           />
         </TabPanel>
@@ -524,7 +563,8 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}>
+            primary={true}
+          >
             Save
           </Button>
         </div>
@@ -536,9 +576,5 @@ export default function EditLibrary(props) {
 EditLibrary.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
-  rowsBasic: PropTypes.object.isRequired,
-  rowsNetwork: PropTypes.object.isRequired,
-  rowsDevices: PropTypes.object.isRequired,
-  rowsUsers: PropTypes.object.isRequired,
+  row: PropTypes.object.isRequired,
 };

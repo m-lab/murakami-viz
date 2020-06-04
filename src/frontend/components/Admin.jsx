@@ -71,7 +71,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Admin(props) {
   const classes = useStyles();
-  const user = props.user || props.location.state.user;
+  const user = props.user;
 
   return (
     <Container className={classes.root}>
@@ -93,7 +93,7 @@ export default function Admin(props) {
               <p>
                 {user.firstName} {user.lastName}
                 <br />
-                {user.role}
+                {user.role_name}
               </p>
             </div>
             <IconButton color="inherit" href="/api/v1/logout">
