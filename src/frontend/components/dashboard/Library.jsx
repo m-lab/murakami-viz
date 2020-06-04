@@ -70,7 +70,7 @@ export default function Library(props) {
 
   const showAddDevice = () => {
     setOpenAddDevice(true);
-  }
+  } 
 
   const closeAddDevice = () => {
     setOpenAddDevice(false);
@@ -432,7 +432,7 @@ export default function Library(props) {
                   >
                     Add a device
                   </Button>
-                  <AddLibraryDevice open={openAddDevice} onClose={closeAddDevice}/>
+                  <AddLibraryDevice open={openAddDevice} onClose={closeAddDevice} row={library}/>
                 </TableCell>
               </TableRow>
             </TableBody>
