@@ -175,6 +175,13 @@ function Home(props) {
     setMetric(nextMetric);
   };
 
+  // handle group by change
+  const [group, setGroup] = React.useState('all');
+
+  const handleGroup = (event, nextGroup) => {
+    setGroup(nextGroup);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -401,27 +408,32 @@ function Home(props) {
                   connections={connections}
                   testTypes={testTypes}
                   metric={metric}
-                />
+                  group={group} />
               </Grid>
             </Grid>
           </Box>
           <Grid container justify="space-between" alignItems="center">
-            <Grid container item spacing={2} xs={12} sm={10}>
+            <Grid container alignItems="center" item spacing={2} xs={12} sm={10}>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
-                  View
+                  Group by
                 </Typography>
               </Grid>
               <Grid item>
-                <ButtonGroup
-                  color="primary"
-                  aria-label="outlined primary button group"
-                >
-                  <Button>All tests</Button>
-                  <Button>By hour</Button>
-                  <Button>By day</Button>
-                  <Button>By month</Button>
-                </ButtonGroup>
+                <ToggleButtonGroup
+                  value={group}
+                  exclusive
+                  onChange={handleGroup}>
+                  <ToggleButton value="all" aria-label="All tests">
+                    All tests
+                  </ToggleButton>
+                  <ToggleButton value="hourly" aria-label="By hour">
+                    By hour
+                  </ToggleButton>
+                  <ToggleButton value="daily" aria-label="By day">
+                    By day
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
             </Grid>
             <Grid item xs={12} sm={2}>

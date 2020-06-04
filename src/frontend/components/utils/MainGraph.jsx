@@ -1,28 +1,45 @@
 // base imports
 import React from 'react';
 import Plot from 'react-plotly.js';
+import moment from 'moment';
 
 // module imports
 import Loading from '../Loading.jsx';
 
-let xAxis = [],
-  yAxis = [];
+let xAxis = [], yAxis = [];
+let hourMedian = 0, dayMedian = 0, hourRuns = 0, dayRuns = 0;
 
-function handleData(runs, metric) {
+function handleData(runs, metric, group) {
   xAxis = [];
   yAxis = [];
 
+  if ( group === 'hourly' ) {
+
+    let hourTotalMbps = 0, dayTotalMbps = 0;
+
+    let currentRunTime = moment(runs[0].DownloadTestStartTime.substr(0, 14));
+
+    runs.map( (run, index) => {
+      const runDate = moment(run.DownloadTestStartTime.substr(0, 14));
+      if ( runDate.format('YYYY-MM-DD hh') === currentRunTime.format('YYYY-MM-DD hh') ) {
+        hourTotalMbps += run[metric].toFixed(2);
+        currentRunTime = moment(runs[index].DownloadTestStartTime.substr(0, 14));
+      }
+    })
+  }
+
   runs.map(run => {
-    // const runDate = moment(run.DownloadTestStar tTime.substr(0, 10));
+    const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
+
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
     yAxis.push(run[metric].toFixed(2));
   });
 }
 
 export default function MainGraph(props) {
-  const [testSummary, setTestSummary] = React.useState(null);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  const { runs, connections, testTypes, metric } = props;
+  const [ testSummary, setTestSummary ] = React.useState(null);
+  const [ isLoaded, setIsLoaded ] = React.useState(false);
+  const { runs, connections, testTypes, metric, group } = props;
 
   React.useEffect(() => {
     if (runs) {
@@ -43,7 +60,7 @@ export default function MainGraph(props) {
       console.log(filteredRuns);
 
       setTestSummary(filteredRuns);
-      handleData(filteredRuns, metric);
+      handleData(filteredRuns, metric, group);
     }
     setIsLoaded(true);
   }, [connections, testTypes, metric]);
