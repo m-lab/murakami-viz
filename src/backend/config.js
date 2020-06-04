@@ -11,10 +11,6 @@ dotenv.config();
 const defaults = {
   loglevel: process.env.MURAKAMI_VIZ_LOG_LEVEL || 'error',
   secrets: process.env.MURAKAMI_VIZ_SECRETS,
-  admin: {
-    user: process.env.MURAKAMI_VIZ_ADMIN_USERNAME || 'admin',
-    password: process.env.MURAKAMI_VIZ_ADMIN_PASSWORD,
-  },
   cfaccess: {
     audience: process.env.MURAKAMI_VIZ_CFACCESS_AUDIENCE,
     url: process.env.MURAKAMI_VIZ_CFACCESS_URL,
@@ -30,6 +26,7 @@ const defaults = {
     timeout: process.env.MURAKAMI_VIZ_DB_TIMEOUT || 0,
   },
   server: {
+    host: process.env.MURAKAMI_VIZ_HOST || 'localhost',
     port: process.env.MURAKAMI_VIZ_PORT || 3000,
   },
 };
@@ -184,16 +181,10 @@ export default program
   .description(process.env.npm_package_description)
   .version(process.env.npm_package_version)
   .option(
-    '--username <username>',
-    'Admin username',
-    validateUser,
-    defaults.admin.user,
-  )
-  .option(
-    '--password <password>',
-    'Admin password',
-    validatePassword,
-    defaults.admin.password,
+    '-h, --host <number>',
+    'Host for the app to bind to',
+    validateHost,
+    defaults.server.host,
   )
   .option(
     '-p, --port <number>',

@@ -128,7 +128,7 @@ const useToolbarStyles = makeStyles(theme => ({
 
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
-  const { updateRows } = props;
+  const { updateRows, library } = props;
 
   // handle add note
   const [open, setOpen] = React.useState(false);
@@ -161,7 +161,7 @@ const EnhancedTableToolbar = props => {
           >
             Add a note
           </Button>
-          <AddNote open={open} onClose={handleClose} />
+          <AddNote open={open} onClose={handleClose} library={library} />
         </Grid>
       </Grid>
     </Toolbar>
@@ -257,27 +257,27 @@ export default function EnhancedTable(props) {
 
   React.useEffect(() => {
     let status;
-    fetch(`/api/v1/libraries/${library.id}/runs`)
+    fetch(`/api/v1/libraries/${library.id}/notes`)
       .then(res => {
         status = res.status;
         return res.json();
       })
-      .then(runs => {
+      .then(notes => {
         if (status === 200) {
-          setRows(runs.data);
+          setRows(notes.data);
           emptyRows =
             rowsPerPage -
             Math.min(rowsPerPage, rows.length - page * rowsPerPage);
           setIsLoaded(true);
           return;
         } else {
-          processError(runs);
+          processError(notes);
           throw new Error(`Error in response from server.`);
         }
       })
       .catch(error => {
         setError(error);
-        console.err(error.name + error.message);
+        console.error(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -290,7 +290,7 @@ export default function EnhancedTable(props) {
     return (
       <Suspense>
         <div className={classes.root}>
-          <EnhancedTableToolbar updateRows={addData} />
+          <EnhancedTableToolbar updateRows={addData} library={library} />
           <TableContainer>
             <Table
               className={classes.table}

@@ -20,8 +20,7 @@ import Loading from '../Loading.jsx';
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => ({
-}));
+const useStyles = makeStyles(theme => ({}));
 
 function getStyles(connection, connectionType, theme) {
   return {
@@ -53,6 +52,6 @@ export default function Home(props) {
       <Suspense>
         <HomeTabs />
       </Suspense>
-    )
+    );
   }
 }

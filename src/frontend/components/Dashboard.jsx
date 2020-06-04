@@ -93,7 +93,7 @@ export default function Dashboard(props) {
               <p>
                 {user.firstName} {user.lastName}
                 <br />
-                {user.role}
+                {user.role_name}
               </p>
             </div>
             <IconButton color="inherit" href="/api/v1/logout">

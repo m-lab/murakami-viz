@@ -103,6 +103,11 @@ dist
 # DynamoDB Local files
 .dynamodb/
 
+# ctags
+tags
+tags.lock
+tags.temp
+
 # TernJS port file
 .tern-port
 

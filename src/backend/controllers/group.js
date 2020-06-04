@@ -43,7 +43,7 @@ export default function controller(groups, thisUser) {
     let group;
 
     try {
-      group = await groups.create(ctx.request.body);
+      group = await groups.create(ctx.request.body.data);
 
       // workaround for sqlite
       if (Number.isInteger(group)) {
@@ -126,7 +126,7 @@ export default function controller(groups, thisUser) {
     let group;
 
     try {
-      group = await groups.update(ctx.params.id, ctx.request.body);
+      group = await groups.update(ctx.params.id, ctx.request.body.data);
 
       // workaround for sqlite
       if (Number.isInteger(group)) {

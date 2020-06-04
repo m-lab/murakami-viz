@@ -80,7 +80,7 @@ const useForm = callback => {
 
 export default function AddUser(props) {
   const classes = useStyles();
-  const { onClose, open } = props;
+  const { onClose, open, user, library } = props;
 
   const handleClose = () => {
     onClose();
@@ -100,12 +100,13 @@ export default function AddUser(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(response => response.json())
-      .then(results => {
+      .then(() => {
         alert('User submitted successfully.');
         onClose(inputs);
+        return;
       })
       .catch(error => {
         console.log(error);
@@ -122,20 +123,80 @@ export default function AddUser(props) {
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [libraries, setLibraries] = React.useState([]);
+  const [groups, setGroups] = React.useState([]);
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
 
   React.useEffect(() => {
+    let status;
     fetch('/api/v1/libraries')
-      .then(res => res.json())
-      .then(
-        results => {
-          setLibraries(results.data);
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(libraries => {
+        if (status === 200) {
+          setLibraries(libraries.data);
+          return;
+        } else {
+          processError(libraries);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .then(() => fetch('/api/v1/groups'))
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(groups => {
+        if (status === 200) {
+          setGroups(groups.data);
           setIsLoaded(true);
-        },
-        error => {
-          setError(error);
+          return;
+        } else {
+          processError(groups);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    let status;
+    fetch(`/api/v1/groups`)
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(groups => {
+        if (status === 200) {
+          setGroups(groups.data);
           setIsLoaded(true);
-        },
-      );
+          return;
+        } else {
+          processError(groups);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
   }, []);
 
   if (error) {
@@ -224,18 +285,14 @@ export default function AddUser(props) {
               />
             </FormControl>
             <FormControl variant="outlined" className={classes.formControl}>
-              <InputLabel id="user-role">Role</InputLabel>
-              <Select
-                labelId="user-role"
-                className={classes.formField}
+              <Autocomplete
                 id="user-role"
-                label="Role"
-                name="role"
-                onChange={handleInputChange}
-              >
-                <MenuItem value="editor">Editor</MenuItem>
-                <MenuItem value="viewer">Viewer</MenuItem>
-              </Select>
+                options={groups}
+                getOptionLabel={option => option.name}
+                renderInput={params => (
+                  <TextField {...params} label="Roles" variant="outlined" />
+                )}
+              />
             </FormControl>
             <Grid container alignItems="center" justify="space-between">
               <Grid item>
@@ -258,7 +315,7 @@ export default function AddUser(props) {
                   disableElevation
                   color="primary"
                   primary={true}
-                  onClick={submitData}
+                  onClick={handleSubmit}
                 >
                   Save
                 </Button>

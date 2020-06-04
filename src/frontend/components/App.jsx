@@ -32,7 +32,7 @@ function PrivateRoute({
   const path = { ...rest };
 
   if (user) {
-    if (user.role !== 'Admin' && path.path === '/admin') {
+    if (user.role !== 1 && path.path === '/admin') {
       return (
         <Route
           {...rest}
@@ -138,7 +138,7 @@ export default function App() {
         })
         .catch(error => {
           setError(error);
-          console.err(error.name + error.message);
+          console.error(error.name + error.message);
           setIsLoaded(true);
         });
     } else {

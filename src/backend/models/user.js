@@ -57,19 +57,8 @@ export default class User {
           lastName: user.lastName,
           username: user.username,
           email: user.email,
-          location: user.location,
-          role: user.role,
         },
-        [
-          'id',
-          'firstName',
-          'lastName',
-          'username',
-          'email',
-          'password',
-          'location',
-          'role',
-        ],
+        ['id', 'firstName', 'lastName', 'username', 'email', 'password'],
       )
       .returning('*');
   }
@@ -90,6 +79,7 @@ export default class User {
     from: from,
     to: to,
     library: library,
+    group: group,
   }) {
     const rows = await this._db
       .select({
@@ -97,17 +87,19 @@ export default class User {
         username: 'users.username',
         firstName: 'users.firstName',
         lastName: 'users.lastName',
-        location: 'users.location',
-        role: 'users.role',
+        location: 'libraries.id',
+        location_name: 'libraries.name',
+        location_address: 'libraries.physical_address',
+        role: 'groups.id',
+        role_name: 'groups.name',
         email: 'users.email',
         isActive: 'users.isActive',
-        library_id: 'libraries.id',
-        library_name: 'libraries.name',
-        library_address: 'libraries.physical_address',
       })
       .from('users')
       .leftJoin('library_users', 'users.id', 'library_users.uid')
       .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+      .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+      .leftJoin('groups', 'groups.id', 'user_groups.gid')
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);
@@ -118,7 +110,11 @@ export default class User {
         }
 
         if (library) {
-          queryBuilder.where('library_id', '=', library);
+          queryBuilder.where('location', '=', library);
+        }
+
+        if (group) {
+          queryBuilder.where('role', '=', group);
         }
 
         if (asc) {
@@ -146,19 +142,25 @@ export default class User {
    */
   async findById(id) {
     return this._db
-      .table('users')
-      .column(
-        'id',
-        'username',
-        'firstName',
-        'lastName',
-        'location',
-        'role',
-        'email',
-        'isActive',
-      )
-      .select()
-      .where({ id: parseInt(id) });
+      .select({
+        id: 'users.id',
+        username: 'users.username',
+        firstName: 'users.firstName',
+        lastName: 'users.lastName',
+        location: 'libraries.id',
+        location_name: 'libraries.name',
+        location_address: 'libraries.physical_address',
+        role: 'groups.id',
+        role_name: 'groups.name',
+        email: 'users.email',
+        isActive: 'users.isActive',
+      })
+      .from('users')
+      .leftJoin('library_users', 'users.id', 'library_users.uid')
+      .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+      .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+      .leftJoin('groups', 'groups.id', 'user_groups.gid')
+      .where({ 'users.id': parseInt(id) });
   }
 
   /**
@@ -169,25 +171,48 @@ export default class User {
   async findByUsername(username, privileged = false) {
     if (privileged) {
       return this._db
-        .table('users')
-        .select('*')
-        .where({ username: username })
+        .select({
+          id: 'users.id',
+          username: 'users.username',
+          password: 'users.password',
+          firstName: 'users.firstName',
+          lastName: 'users.lastName',
+          location: 'libraries.id',
+          location_name: 'libraries.name',
+          location_address: 'libraries.physical_address',
+          role: 'groups.id',
+          role_name: 'groups.name',
+          email: 'users.email',
+          isActive: 'users.isActive',
+        })
+        .from('users')
+        .leftJoin('library_users', 'users.id', 'library_users.uid')
+        .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+        .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+        .leftJoin('groups', 'groups.id', 'user_groups.gid')
+        .where({ 'users.username': username })
         .first();
     } else {
       return this._db
-        .table('users')
-        .column(
-          'id',
-          'username',
-          'firstName',
-          'lastName',
-          'location',
-          'role',
-          'email',
-          'isActive',
-        )
-        .select()
-        .where({ username: username })
+        .select({
+          id: 'users.id',
+          username: 'users.username',
+          firstName: 'users.firstName',
+          lastName: 'users.lastName',
+          location: 'libraries.id',
+          location_name: 'libraries.name',
+          location_address: 'libraries.physical_address',
+          role: 'groups.id',
+          role_name: 'groups.name',
+          email: 'users.email',
+          isActive: 'users.isActive',
+        })
+        .from('users')
+        .leftJoin('library_users', 'users.id', 'library_users.uid')
+        .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+        .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+        .leftJoin('groups', 'groups.id', 'user_groups.gid')
+        .where({ 'users.username': username })
         .first();
     }
   }
