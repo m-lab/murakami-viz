@@ -102,8 +102,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const connections = ['Wired', 'Wifi', 'Other'];
-
 function formatDate(date) {
   return date.substr(0, 10);
 }
@@ -353,7 +351,7 @@ function Home(props) {
                     <ToggleButton value="wired" aria-label="wired">
                       Wired
                     </ToggleButton>
-                    <ToggleButton value="wireless" aria-label="wireless">
+                    <ToggleButton value="wifi" aria-label="wifi">
                       Wireless
                     </ToggleButton>
                   </ToggleButtonGroup>

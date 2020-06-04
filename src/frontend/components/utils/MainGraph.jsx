@@ -8,16 +8,14 @@ import Loading from '../Loading.jsx';
 let xAxis = [], yAxis = [];
 
 function handleData(runs) {
+  xAxis = [];
+  yAxis = [];
+
   runs.map(run => {
-    // const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
+    // const runDate = moment(run.DownloadTestStar tTime.substr(0, 10));
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
     yAxis.push(run.DownloadRetransValue.toFixed(2));
   });
-
-  console.log(runs);
-
-  console.log(xAxis);
-  console.log(yAxis);
 }
 
 export default function MainGraph(props) {
@@ -27,18 +25,23 @@ export default function MainGraph(props) {
 
   React.useEffect(() => {
     if (runs) {
-      console.log(connections);
-
-      // const found = arr1.some(r=> arr2.includes(r))
-      //
       const filteredRuns = runs.filter( run => {
-        // return connections.some(run => {
-        //   run.TestName;
-        // })
+        if ( connections.length ) {
+          if (connections.indexOf(run.MurakamiConnectionType) > -1) {
+              return run;
+          }
+        }
+        if ( testTypes.length ) {
+          if (connections.indexOf(run.TestName) > -1) {
+              return run;
+          }
+        }
       });
 
+      console.log(filteredRuns);
+
       setTestSummary(filteredRuns);
-      handleData(runs);
+      handleData(filteredRuns);
     }
     setIsLoaded(true);
   }, [connections, testTypes, metric])
