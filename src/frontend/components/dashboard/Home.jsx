@@ -1,6 +1,7 @@
 // base imports
 import React, { Suspense } from 'react';
-import { CSVLink } from "react-csv";
+import { CSVLink } from 'react-csv';
+import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
@@ -8,8 +9,8 @@ import Plot from 'react-plotly.js';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+// import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
-import { TextField } from "@material-ui/core";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typography from '@material-ui/core/Typography';
@@ -125,7 +126,7 @@ const MenuProps = {
 export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { library } = props;
+  const { user, library } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -171,6 +172,13 @@ export default function Home(props) {
     setMetric(nextMetric);
   };
 
+  // handle group by change
+  const [group, setGroup] = React.useState('all');
+
+  const handleGroup = (event, nextGroup) => {
+    setGroup(nextGroup);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -207,7 +215,7 @@ export default function Home(props) {
       })
       .catch(error => {
         setError(error);
-        console.error(error.name + error.message);
+        console.err(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -242,7 +250,7 @@ export default function Home(props) {
                 >
                   Add a note
                 </Button>
-                <AddNote open={open} onClose={handleClose} library={library} />
+                <AddNote open={open} onClose={handleClose} />
               </Grid>
             </Grid>
             <Grid container item spacing={1} xs={6}>
@@ -294,26 +302,6 @@ export default function Home(props) {
             </Grid>
           </Grid>
           <Box mt={5}>
-            <div>
-              <Typography variant="overline" display="block" gutterBottom>
-                Date range
-              </Typography>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disableToolbar
-                  variant="inline"
-                  format="MM/dd/yyyy"
-                  margin="normal"
-                  id="date-picker-inline"
-                  label="Date range"
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  KeyboardButtonProps={{
-                    'aria-label': 'change date',
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-            </div>
             <Grid
               container
               className={classes.grid}
@@ -326,10 +314,16 @@ export default function Home(props) {
                 container
                 item
                 direction="column"
-                spacing={4}
+                spacing={3}
                 xs={12}
                 md={2}
               >
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Date range
+                  </Typography>
+                  <DatePicker />
+                </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
                     Connection
@@ -391,76 +385,39 @@ export default function Home(props) {
                   </ToggleButtonGroup>
                 </Grid>
               </Grid>
-              <Grid item xs={12} md={10}>
+              <Grid item xs={12} md={9}>
                 <MainGraph
                   runs={runs}
                   connections={connections}
                   testTypes={testTypes}
                   metric={metric}
-                />
+                  group={group} />
               </Grid>
             </Grid>
           </Box>
-        </Box>
-        <Box mt={5}>
-          <Grid
-            container
-            className={classes.grid}
-            justify="space-between"
-            spacing={2}
-            xs={12}
-            md={12}
-          >
-            <Grid container item direction="column" spacing={4} xs={12} md={3}>
+          <Grid container justify="space-between" alignItems="center">
+            <Grid container alignItems="center" item spacing={2} xs={12} sm={10}>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
-                  Date range
-                </Typography>
-                <DatePicker />
-              </Grid>
-              <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
-                  View
+                  Group by
                 </Typography>
               </Grid>
               <Grid item>
-                <ButtonGroup
-                  color="primary"
-                  aria-label="outlined primary button group"
-                >
-                  <Button>All tests</Button>
-                  <Button>By hour</Button>
-                  <Button>By day</Button>
-                  <Button>By month</Button>
-                </ButtonGroup>
+                <ToggleButtonGroup
+                  value={group}
+                  exclusive
+                  onChange={handleGroup}>
+                  <ToggleButton value="all" aria-label="All tests">
+                    All tests
+                  </ToggleButton>
+                  <ToggleButton value="hourly" aria-label="By hour">
+                    By hour
+                  </ToggleButton>
+                  <ToggleButton value="daily" aria-label="By day">
+                    By day
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
-            </Grid>
-            <Grid item xs={12} md={9}>
-              <Plot
-                data={[
-                  {
-                    x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                    y: [2, 6, 3, 1, 10, 4, 9, 7, 12, 4, 5, 11],
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    marker: { color: 'red' },
-                  },
-                ]}
-                layout={{
-                  width: 820,
-                  height: 440,
-                  yaxis: {
-                    title: {
-                      text: 'Download Speed (Mbit/s)',
-                      font: {
-                        family: 'Roboto, monospace',
-                        size: 14,
-                      }
-                    }
-                  },
-                  title: false,
-                }}
-              />
             </Grid>
             <Grid item xs={12} sm={2}>
               <Button variant="contained">Export</Button>

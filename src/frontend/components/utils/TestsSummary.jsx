@@ -70,6 +70,14 @@ function handleData(runs) {
 
     weekMedian = weekTotalMbps / weekRuns;
     dayMedian = dayTotalMbps / dayRuns;
+
+    if ( isNaN(weekMedian) ) {
+      weekMedian = 0;
+    }
+
+    if ( isNaN(dayMedian) ) {
+      dayMedian = 0;
+    }
   }
 }
 
