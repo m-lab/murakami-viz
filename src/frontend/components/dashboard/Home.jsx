@@ -175,6 +175,13 @@ function Home(props) {
     setMetric(nextMetric);
   };
 
+  // handle group by change
+  const [group, setGroup] = React.useState('all');
+
+  const handleGroup = (event, nextGroup) => {
+    setGroup(nextGroup);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -401,6 +408,7 @@ function Home(props) {
                   connections={connections}
                   testTypes={testTypes}
                   metric={metric}
+                  group={group}
                 />
               </Grid>
             </Grid>
@@ -413,19 +421,28 @@ function Home(props) {
                 </Typography>
               </Grid>
               <Grid item>
-                <ButtonGroup
-                  color="primary"
-                  aria-label="outlined primary button group"
-                >
-                  <Button>All tests</Button>
-                  <Button>By hour</Button>
-                  <Button>By day</Button>
-                  // <Button>By month</Button>
-                </ButtonGroup>
+              <ToggleButtonGroup
+                value={group}
+                exclusive
+                onChange={handleGroup}>
+                <ToggleButton value="all" aria-label="All tests">
+                  All tests
+                </ToggleButton>
+                <ToggleButton value="hourly" aria-label="By hour">
+                  By hour
+                </ToggleButton>
+                <ToggleButton value="daily" aria-label="By day">
+                  By day
+                </ToggleButton>
+              </ToggleButtonGroup>
               </Grid>
             </Grid>
             <Grid item xs={12} sm={2}>
-              <Button variant="contained">Export</Button>
+              <Button variant="contained">
+                <CSVLink data={data} headers={headers}>
+                  Export
+                </CSVLink>
+              </Button>
             </Grid>
           </Grid>
         </Box>
