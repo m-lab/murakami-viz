@@ -5,7 +5,8 @@ import Plot from 'react-plotly.js';
 // module imports
 import Loading from '../Loading.jsx';
 
-let xAxis = [], yAxis = [];
+let xAxis = [],
+  yAxis = [];
 
 function handleData(runs, metric) {
   xAxis = [];
@@ -19,23 +20,24 @@ function handleData(runs, metric) {
 }
 
 export default function MainGraph(props) {
-  const [ testSummary, setTestSummary ] = React.useState(null);
-  const [ isLoaded, setIsLoaded ] = React.useState(false);
+  const [testSummary, setTestSummary] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const { runs, connections, testTypes, metric } = props;
 
   React.useEffect(() => {
     if (runs) {
-      const filteredRuns = runs.filter( run => {
-        if ( connections.length ) {
-          if (connections.indexOf(run.MurakamiConnectionType) > -1) {
-              return run;
+      const filteredRuns = runs.filter(run => {
+        if (connections.length) {
+          if (!connections.includes(run.MurakamiConnectionType)) {
+            return false;
           }
         }
-        if ( testTypes.length ) {
-          if (connections.indexOf(run.TestName) > -1) {
-              return run;
+        if (testTypes.length) {
+          if (!testTypes.includes(run.TestName)) {
+            return false;
           }
         }
+        return connections.length && testTypes.length;
       });
 
       console.log(filteredRuns);
@@ -44,11 +46,11 @@ export default function MainGraph(props) {
       handleData(filteredRuns, metric);
     }
     setIsLoaded(true);
-  }, [connections, testTypes, metric])
+  }, [connections, testTypes, metric]);
 
-  if ( !isLoaded ) {
+  if (!isLoaded) {
     return <Loading />;
-  } else if ( !runs ) {
+  } else if (!runs) {
     return <div>No data to display. Is a device running?</div>;
   } else {
     return (

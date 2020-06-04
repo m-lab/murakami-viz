@@ -155,14 +155,14 @@ function Home(props) {
   };
 
   // handle connection change
-  const [ connections, setConnections ] = React.useState(['wired']);
+  const [connections, setConnections] = React.useState(['wired']);
 
   const handleConnection = (event, newConnections) => {
     setConnections(newConnections);
   };
 
   // handle test type change
-  const [ testTypes, setTestTypes ] = React.useState(['ndt7']);
+  const [testTypes, setTestTypes] = React.useState(['ndt7']);
 
   const handleTestType = (event, newTestTypes) => {
     setTestTypes(newTestTypes);
@@ -342,7 +342,8 @@ function Home(props) {
                     orientation="vertical"
                     value={connections}
                     onChange={handleConnection}
-                    aria-label="connection type">
+                    aria-label="connection type"
+                  >
                     <ToggleButton value="wired" aria-label="wired">
                       Wired
                     </ToggleButton>
@@ -357,7 +358,10 @@ function Home(props) {
                   </Typography>
                   <ToggleButtonGroup
                     orientation="vertical"
-                    value={testTypes} onChange={handleTestType} aria-label="connection type">
+                    value={testTypes}
+                    onChange={handleTestType}
+                    aria-label="connection type"
+                  >
                     <ToggleButton value="ndt7" aria-label="NDT">
                       NDT
                     </ToggleButton>
@@ -374,14 +378,18 @@ function Home(props) {
                     orientation="vertical"
                     value={metric}
                     exclusive
-                    onChange={handleMetric}>
+                    onChange={handleMetric}
+                  >
                     <ToggleButton value="DownloadValue" aria-label="Download">
                       Download
                     </ToggleButton>
                     <ToggleButton value="UploadValue" aria-label="Upload">
                       Upload
                     </ToggleButton>
-                    <ToggleButton value="DownloadRetransValue" aria-label="Latency">
+                    <ToggleButton
+                      value="DownloadRetransValue"
+                      aria-label="Latency"
+                    >
                       Latency
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -392,7 +400,8 @@ function Home(props) {
                   runs={runs}
                   connections={connections}
                   testTypes={testTypes}
-                  metric={metric} />
+                  metric={metric}
+                />
               </Grid>
             </Grid>
           </Box>
