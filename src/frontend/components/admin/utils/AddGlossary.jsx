@@ -43,10 +43,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function formatDate(date) {
-  return date.toISOString().substring(0, 19);
-}
-
 const useForm = callback => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
@@ -69,18 +65,18 @@ const useForm = callback => {
   };
 };
 
-export default function AddNote(props) {
+export default function AddGlossary(props) {
   const classes = useStyles();
-  const { onClose, open, library } = props;
+  const { onClose, open } = props;
 
   const handleClose = () => {
     onClose();
   };
 
-  // submit new note to api
+  // submit new glossary to api
   const submitData = () => {
     let status;
-    fetch(`api/v1/libraries/${library.id}/notes`, {
+    fetch('api/v1/glossaries', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +89,7 @@ export default function AddNote(props) {
       })
       .then(() => {
         if (status === 201) {
-          alert('Note submitted successfully.');
+          alert('Glossary submitted successfully.');
           onClose(inputs);
           return;
         } else {
@@ -116,7 +112,7 @@ export default function AddNote(props) {
       onClose={handleClose}
       modal={true}
       open={open}
-      aria-labelledby="add-note-title"
+      aria-labelledby="add-glossary-title"
       fullWidth={true}
       maxWidth={'lg'}
       className={classes.dialog}
@@ -129,38 +125,24 @@ export default function AddNote(props) {
       >
         <ClearIcon />
       </Button>
-      <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a Note</div>
+      <DialogTitle id="add-glossary-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Add a Glossary</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="note-subject"
-          label="Subject"
-          name="subject"
+          id="glossary-term"
+          label="Term"
+          name="term"
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            className={classes.textField}
-            defaultValue={formatDate(new Date())}
-            onChange={handleInputChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
         <TextField
           className={classes.formField}
-          id="note-description"
-          label="Description"
-          name="description"
+          id="glossary-definition"
+          label="Definition"
+          name="definition"
           multiline="true"
           rows="5"
           fullWidth
@@ -199,7 +181,7 @@ export default function AddNote(props) {
   );
 }
 
-AddNote.propTypes = {
+AddGlossary.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   library: PropTypes.object,

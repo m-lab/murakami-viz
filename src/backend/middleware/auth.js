@@ -38,6 +38,10 @@ function fixLocalhost(list) {
 const authWrapper = (groups, libraries) => {
   const roles = new Roles();
 
+  roles.isMemberOf = (group, id) => {
+    return groups.isMemberOf(group, id);
+  };
+
   roles.use('access private pages', ctx => ctx.isAuthenticated());
 
   roles.use('access admin pages', ctx => {

@@ -43,10 +43,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function formatDate(date) {
-  return date.toISOString().substring(0, 19);
-}
-
 const useForm = callback => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
@@ -69,42 +65,33 @@ const useForm = callback => {
   };
 };
 
-export default function AddNote(props) {
+export default function EditFaq(props) {
   const classes = useStyles();
-  const { onClose, open, library } = props;
+  const { onClose, open, row } = props;
 
   const handleClose = () => {
     onClose();
   };
 
-  // submit new note to api
   const submitData = () => {
-    let status;
-    fetch(`api/v1/libraries/${library.id}/notes`, {
-      method: 'POST',
+    fetch(`api/v1/faqs/${row.id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(() => {
-        if (status === 201) {
-          alert('Note submitted successfully.');
-          onClose(inputs);
-          return;
-        } else {
-          throw new Error(`Error in response from server.`);
-        }
+      .then(response => response.json())
+      .then(results => {
+        alert('Faq edited successfully.');
+        onClose(results.data[0]);
+        return;
       })
       .catch(error => {
+        console.error(error.name + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
-        console.error(error.name + error.message);
         onClose();
       });
   };
@@ -116,7 +103,7 @@ export default function AddNote(props) {
       onClose={handleClose}
       modal={true}
       open={open}
-      aria-labelledby="add-note-title"
+      aria-labelledby="edit-faq-title"
       fullWidth={true}
       maxWidth={'lg'}
       className={classes.dialog}
@@ -129,43 +116,33 @@ export default function AddNote(props) {
       >
         <ClearIcon />
       </Button>
-      <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a Note</div>
+      <DialogTitle id="edit-faq-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Edit Faq</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="note-subject"
-          label="Subject"
-          name="subject"
+          id="faq-question"
+          label="Question"
+          name="question"
           fullWidth
           variant="outlined"
+          defaultValue={row.question}
           onChange={handleInputChange}
+          value={inputs.question}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            className={classes.textField}
-            defaultValue={formatDate(new Date())}
-            onChange={handleInputChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
         <TextField
           className={classes.formField}
-          id="note-description"
-          label="Description"
-          name="description"
+          id="faq-answer"
+          label="Answer"
+          name="answer"
           multiline="true"
           rows="5"
           fullWidth
           variant="outlined"
+          defaultValue={row.answer}
           onChange={handleInputChange}
+          value={inputs.answer}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -183,12 +160,12 @@ export default function AddNote(props) {
             <Button
               type="submit"
               label="Save"
+              onClick={handleSubmit}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
               color="primary"
               primary={true}
-              onClick={handleSubmit}
             >
               Save
             </Button>
@@ -199,8 +176,8 @@ export default function AddNote(props) {
   );
 }
 
-AddNote.propTypes = {
+EditFaq.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  library: PropTypes.object,
+  row: PropTypes.object.isRequired,
 };

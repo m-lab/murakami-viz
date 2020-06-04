@@ -131,7 +131,7 @@ const useForm = callback => {
 
 export default function EditLibrary(props) {
   const classes = useStyles();
-  const { onClose, open, row, onRowUpdate } = props;
+  const { onClose, open, row } = props;
 
   //handle tabs
   const [value, setValue] = React.useState(0);
@@ -147,17 +147,18 @@ export default function EditLibrary(props) {
 
   const submitData = () => {
     console.log(inputs);
-    fetch(`api/v1/libraries/${props.row.id}`, {
+    fetch(`api/v1/libraries/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(response => response.json())
-      .then(results => {
+      .then(() => {
         // onRowUpdate(results.data[0]);
         alert('User edited successfully.');
+        return;
       })
       .catch(error => {
         console.log(error);
@@ -258,13 +259,13 @@ export default function EditLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue={props.row.name}
+              defaultValue={row.name}
               // onChange={handleInputChange}
               value={inputs.name}
               disabled
             >
-              <MenuItem value={props.row.name} selected>
-                {props.row.name}
+              <MenuItem value={row.name} selected>
+                {row.name}
               </MenuItem>
             </Select>
           </FormControl>
@@ -275,7 +276,7 @@ export default function EditLibrary(props) {
             name="physical_address"
             fullWidth
             variant="outlined"
-            defaultValue={props.row.physical_address}
+            defaultValue={row.physical_address}
             onChange={handleInputChange}
             value={inputs.physical_address}
           />
@@ -287,7 +288,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.shipping_address}
+            defaultValue={row.shipping_address}
             value={inputs.shipping_address}
           />
           <TextField
@@ -298,7 +299,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.timezone}
+            defaultValue={row.timezone}
             value={inputs.timezone}
           />
           <TextField
@@ -309,7 +310,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.coordinates}
+            defaultValue={row.coordinates}
             value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -323,7 +324,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.primary_contact_name}
+            defaultValue={row.primary_contact_name}
             value={inputs.primary_contact_name}
           />
           <TextField
@@ -334,7 +335,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.primary_contact_email}
+            defaultValue={row.primary_contact_email}
             value={inputs.primary_contact_email}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -348,7 +349,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.opening_hours}
+            defaultValue={row.opening_hours}
             value={inputs.opening_hours}
           />
         </TabPanel>
@@ -361,7 +362,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.network_name}
+            defaultValue={row.network_name}
             value={inputs.network_name}
           />
           <TextField
@@ -372,7 +373,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.isp}
+            defaultValue={row.isp}
             value={inputs.isp}
           />
           <Grid container alignItems="center">
@@ -389,7 +390,7 @@ export default function EditLibrary(props) {
                 name="contracted_speed_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.contracted_speed_download}
+                defaultValue={row.contracted_speed_download}
                 value={inputs.contracted_speed_download}
               />
             </Grid>
@@ -401,7 +402,7 @@ export default function EditLibrary(props) {
                 name="contracted_speed_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.contracted_speed_upload}
+                defaultValue={row.contracted_speed_upload}
                 value={inputs.contracted_speed_upload}
               />
             </Grid>
@@ -414,7 +415,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.ip}
+            defaultValue={row.ip}
             value={inputs.ip}
           />
           <Grid container alignItems="center">
@@ -431,7 +432,7 @@ export default function EditLibrary(props) {
                 name="bandwith_cap_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.bandwith_cap_download}
+                defaultValue={row.bandwith_cap_download}
                 value={inputs.bandwith_cap_download}
               />
             </Grid>
@@ -443,7 +444,7 @@ export default function EditLibrary(props) {
                 name="bandwith_cap_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={props.row.bandwith_cap_upload}
+                defaultValue={row.bandwith_cap_upload}
                 value={inputs.bandwith_cap_upload}
               />
             </Grid>
@@ -458,7 +459,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_name}
+            defaultValue={row.device_name}
             value={inputs.device_name}
           />
           <TextField
@@ -469,7 +470,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_location}
+            defaultValue={row.device_location}
             value={inputs.device_location}
           />
           <FormControl variant="outlined" className={classes.formControl}>
@@ -480,7 +481,7 @@ export default function EditLibrary(props) {
               id="library-network-type"
               label="Network Type"
               name="device_network_type"
-              defaultValue={props.row.device_network_type}
+              defaultValue={row.device_network_type}
               onChange={handleInputChange}
               value={inputs.device_network_type}
             >
@@ -498,7 +499,7 @@ export default function EditLibrary(props) {
               id="library-connection-type"
               label="Connection Type"
               name="device_connection_type"
-              defaultValue={props.row.device_connection_type}
+              defaultValue={row.device_connection_type}
               onChange={handleInputChange}
               value={inputs.device_connection_type}
             >
@@ -514,7 +515,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_dns}
+            defaultValue={row.device_dns}
             value={inputs.device_dns}
           />
           <TextField
@@ -524,7 +525,7 @@ export default function EditLibrary(props) {
             name="device_ip"
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_ip}
+            defaultValue={row.device_ip}
             value={inputs.device_ip}
           />
           <TextField
@@ -535,7 +536,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_gateway}
+            defaultValue={row.device_gateway}
             value={inputs.device_gateway}
           />
           <TextField
@@ -546,7 +547,7 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={props.row.device_mac_address}
+            defaultValue={row.device_mac_address}
             value={inputs.device_mac_address}
           />
         </TabPanel>
@@ -575,9 +576,5 @@ export default function EditLibrary(props) {
 EditLibrary.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
-  rowsBasic: PropTypes.object.isRequired,
-  rowsNetwork: PropTypes.object.isRequired,
-  rowsDevices: PropTypes.object.isRequired,
-  rowsUsers: PropTypes.object.isRequired,
+  row: PropTypes.object.isRequired,
 };

@@ -2,14 +2,9 @@ import { UnprocessableError } from '../../common/errors.js';
 import Joi from '@hapi/joi';
 
 const schema = Joi.object({
-  username: Joi.string(),
-  password: Joi.string(),
   id: Joi.number(),
-  firstName: Joi.string(),
-  lastName: Joi.string(),
-  location: Joi.string(),
-  email: Joi.string(),
-  role: Joi.number(),
+  question: Joi.string(),
+  answer: Joi.string(),
 });
 
 export async function validate(data) {

@@ -43,7 +43,7 @@ export default function controller(runs, thisUser) {
     }
 
     try {
-      run = await runs.create(ctx.request.body, lid);
+      run = await runs.create(ctx.request.body.data, lid);
 
       // workaround for sqlite
       if (Number.isInteger(run)) {
@@ -141,7 +141,7 @@ export default function controller(runs, thisUser) {
       if (ctx.params.lid) {
         run = await runs.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
-        run = await runs.update(ctx.params.id, ctx.request.body);
+        run = await runs.update(ctx.params.id, ctx.request.body.data);
       }
 
       // workaround for sqlite

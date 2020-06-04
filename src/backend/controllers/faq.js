@@ -4,7 +4,7 @@ import Joi from '@hapi/joi';
 import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
 
-const log = getLogger('backend:controllers:note');
+const log = getLogger('backend:controllers:faq');
 
 const query_schema = Joi.object({
   start: Joi.number()
@@ -17,7 +17,6 @@ const query_schema = Joi.object({
   sort_by: Joi.string(),
   from: Joi.string(),
   to: Joi.string(),
-  author: Joi.number().integer(),
 });
 
 async function validate_query(query) {
@@ -30,36 +29,31 @@ async function validate_query(query) {
 }
 
 // eslint-disable-next-line no-unused-vars
-export default function controller(notes, thisUser) {
+export default function controller(faqs, thisUser) {
   const router = new Router();
 
-  router.post('/notes', thisUser.can('access private pages'), async ctx => {
-    log.debug('Adding new note.');
-    let note, lid;
-
-    if (ctx.params.lid) {
-      lid = ctx.params.lid;
-    }
+  router.post('/faqs', thisUser.can('access private pages'), async ctx => {
+    log.debug('Adding new faq.');
+    let faq;
 
     try {
-      ctx.request.body.data.author = ctx.state.user[0].id;
-      note = await notes.create(ctx.request.body.data, lid);
+      faq = await faqs.create(ctx.request.body.data);
 
       // workaround for sqlite
-      if (Number.isInteger(note)) {
-        note = await notes.findById(note);
+      if (Number.isInteger(faq)) {
+        faq = await faqs.findById(faq);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
-      ctx.throw(400, `Failed to parse note schema: ${err}`);
+      ctx.throw(400, `Failed to parse faq schema: ${err}`);
     }
 
-    ctx.response.body = { statusCode: 201, status: 'created', data: note };
+    ctx.response.body = { statusCode: 201, status: 'created', data: faq };
     ctx.response.status = 201;
   });
 
-  router.get('/notes', thisUser.can('view this library'), async ctx => {
-    log.debug(`Retrieving notes.`);
+  router.get('/faqs', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving faqs.`);
     let res;
     try {
       const query = await validate_query(ctx.query);
@@ -81,15 +75,13 @@ export default function controller(notes, thisUser) {
         }
         to = timestamp.toISOString();
       }
-      res = await notes.find({
+      res = await faqs.find({
         start: query.start,
         end: query.end,
         asc: query.asc,
         sort_by: query.sort_by,
         from: from,
         to: to,
-        author: query.author,
-        library: ctx.params.lid,
       });
       ctx.response.body = {
         statusCode: 200,
@@ -103,82 +95,74 @@ export default function controller(notes, thisUser) {
     }
   });
 
-  router.get('/notes/:id', thisUser.can('view this library'), async ctx => {
-    log.debug(`Retrieving note ${ctx.params.id}.`);
-    let note;
+  router.get('/faqs/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving faq ${ctx.params.id}.`);
+    let faq;
 
     try {
-      note = await notes.findById(ctx.params.id);
+      faq = await faqs.findById(ctx.params.id);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (note.length) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: note };
+    if (faq.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: faq };
       ctx.response.status = 200;
     } else {
       log.error(
-        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+        `HTTP 404 Error: That faq with ID ${ctx.params.id} does not exist.`,
       );
-      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
+      ctx.throw(404, `That faq with ID ${ctx.params.id} does not exist.`);
     }
   });
 
-  router.put('/notes/:id', thisUser.can('view this library'), async ctx => {
-    log.debug(`Updating note ${ctx.params.id}.`);
-    let note;
+  router.put('/faqs/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Updating faq ${ctx.params.id}.`);
+    let faq;
 
     try {
-      if (ctx.params.lid) {
-        note = await notes.addToLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        note = await notes.update(ctx.params.id, ctx.request.body.data);
-      }
+      faq = await faqs.update(ctx.params.id, ctx.request.body.data);
 
       // workaround for sqlite
-      if (Number.isInteger(note)) {
-        note = await notes.findById(ctx.params.id);
+      if (Number.isInteger(faq)) {
+        faq = await faqs.findById(ctx.params.id);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (note.length && note.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: note };
+    if (faq.length && faq.length > 0) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: faq };
       ctx.response.status = 200;
     } else {
       log.error(
-        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+        `HTTP 404 Error: That faq with ID ${ctx.params.id} does not exist.`,
       );
-      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
+      ctx.throw(404, `That faq with ID ${ctx.params.id} does not exist.`);
     }
   });
 
-  router.delete('/notes/:id', thisUser.can('view this library'), async ctx => {
-    log.debug(`Deleting note ${ctx.params.id}.`);
-    let note;
+  router.delete('/faqs/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Deleting faq ${ctx.params.id}.`);
+    let faq;
 
     try {
-      if (ctx.params.lid) {
-        note = await notes.removeFromLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        note = await notes.delete(ctx.params.id);
-      }
+      faq = await faqs.delete(ctx.params.id);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (note.length && note.length > 0) {
-      ctx.response.body = { status: 'success', data: note };
+    if (faq.length && faq.length > 0) {
+      ctx.response.body = { status: 'success', data: faq };
       ctx.response.status = 200;
     } else {
       log.error(
-        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
+        `HTTP 404 Error: That faq with ID ${ctx.params.id} does not exist.`,
       );
-      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
+      ctx.throw(404, `That faq with ID ${ctx.params.id} does not exist.`);
     }
   });
 

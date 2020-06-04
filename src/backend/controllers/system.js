@@ -36,7 +36,7 @@ export default function controller(systems, thisUser) {
     log.debug('Adding new system.');
     let system;
     try {
-      system = await systems.create(ctx.request.body);
+      system = await systems.create(ctx.request.body.data);
 
       // workaround for sqlite
       if (Number.isInteger(system)) {
@@ -112,7 +112,7 @@ export default function controller(systems, thisUser) {
     log.debug(`Updating system ${ctx.params.id}.`);
     let system;
     try {
-      system = await systems.update(ctx.params.id, ctx.request.body);
+      system = await systems.update(ctx.params.id, ctx.request.body.data);
 
       // workaround for sqlite
       if (Number.isInteger(system)) {

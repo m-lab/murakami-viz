@@ -69,18 +69,18 @@ const useForm = callback => {
   };
 };
 
-export default function AddNote(props) {
+export default function AddFaq(props) {
   const classes = useStyles();
-  const { onClose, open, library } = props;
+  const { onClose, open } = props;
 
   const handleClose = () => {
     onClose();
   };
 
-  // submit new note to api
+  // submit new faq to api
   const submitData = () => {
     let status;
-    fetch(`api/v1/libraries/${library.id}/notes`, {
+    fetch('api/v1/faqs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export default function AddNote(props) {
       })
       .then(() => {
         if (status === 201) {
-          alert('Note submitted successfully.');
+          alert('Faq submitted successfully.');
           onClose(inputs);
           return;
         } else {
@@ -116,7 +116,7 @@ export default function AddNote(props) {
       onClose={handleClose}
       modal={true}
       open={open}
-      aria-labelledby="add-note-title"
+      aria-labelledby="add-faq-title"
       fullWidth={true}
       maxWidth={'lg'}
       className={classes.dialog}
@@ -129,38 +129,24 @@ export default function AddNote(props) {
       >
         <ClearIcon />
       </Button>
-      <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a Note</div>
+      <DialogTitle id="add-faq-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Add a Faq</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="note-subject"
-          label="Subject"
-          name="subject"
+          id="faq-question"
+          label="Question"
+          name="question"
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            className={classes.textField}
-            defaultValue={formatDate(new Date())}
-            onChange={handleInputChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
         <TextField
           className={classes.formField}
-          id="note-description"
-          label="Description"
-          name="description"
+          id="faq-answer"
+          label="Answer"
+          name="answer"
           multiline="true"
           rows="5"
           fullWidth
@@ -199,7 +185,7 @@ export default function AddNote(props) {
   );
 }
 
-AddNote.propTypes = {
+AddFaq.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   library: PropTypes.object,

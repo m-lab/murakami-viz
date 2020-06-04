@@ -3,11 +3,10 @@ import Joi from '@hapi/joi';
 
 const schema = Joi.object({
   id: Joi.number(),
-  author: Joi.string(),
+  author: Joi.number(),
   subject: Joi.string(),
+  date: Joi.string().isoDate(),
   description: Joi.string(),
-  created_at: Joi.string(),
-  updated_at: Joi.string(),
 });
 
 export async function validate(data) {

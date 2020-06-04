@@ -17,7 +17,7 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 // modules imports
-import EditUser from '../utils/EditUser.jsx';
+import EditGlossary from './EditGlossary.jsx';
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -60,15 +60,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function formatName(first, last) {
-  return `${first} ${last}`;
-}
-
-function formatRole(role) {
-  return role.charAt(0).toUpperCase() + role.slice(1);
-}
-
-export default function ViewUser(props) {
+export default function ViewGlossary(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { onClose, open, rows, index } = props;
@@ -77,43 +69,43 @@ export default function ViewUser(props) {
     onClose(row);
   };
 
-  const [row, setRow] = React.useState(props.rows[props.index]);
+  const [row, setRow] = React.useState(rows[index]);
 
   const updateRow = row => {
     setRow(row);
   };
 
-  // handle edit user
+  // handle edit glossary
   const [openEdit, setOpenEdit] = React.useState(false);
 
   const handleClickOpenEdit = () => {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = user => {
-    if (user) {
-      updateRow(user);
+  const handleCloseEdit = glossary => {
+    if (glossary) {
+      updateRow(glossary);
     }
     setOpenEdit(false);
   };
 
   // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.index);
-  const maxSteps = props.rows.length;
+  const [activeStep, setActiveStep] = React.useState(index);
+  const maxSteps = rows.length;
 
   React.useEffect(() => {
-    setRow(props.rows[props.index]);
-    setActiveStep(props.index);
-  }, [props.index]);
+    setRow(rows[index]);
+    setActiveStep(index);
+  }, [index]);
 
   const handleNext = () => {
     setActiveStep(activeStep => activeStep + 1);
-    setRow(props.rows[activeStep + 1]);
+    setRow(rows[activeStep + 1]);
   };
 
   const handleBack = () => {
     setActiveStep(activeStep => activeStep - 1);
-    setRow(props.rows[activeStep - 1]);
+    setRow(rows[activeStep - 1]);
   };
 
   return (
@@ -121,7 +113,7 @@ export default function ViewUser(props) {
       onClose={() => handleClose(row)}
       modal={true}
       open={open}
-      aria-labelledby="view-user-title"
+      aria-labelledby="view-glossary-title"
       fullWidth={true}
       maxWidth={'md'}
       className={classes.dialog}
@@ -158,8 +150,11 @@ export default function ViewUser(props) {
       />
       <Grid container justify="center" alignItems="center">
         <Grid item xs={12} sm={7}>
-          <DialogTitle id="view-user-title" className={classes.dialogTitleRoot}>
-            <div className={classes.dialogTitleText}>View User</div>
+          <DialogTitle
+            id="view-glossary-title"
+            className={classes.dialogTitleRoot}
+          >
+            <div className={classes.dialogTitleText}>View Glossary</div>
           </DialogTitle>
         </Grid>
         <Grid item xs={12} sm={5}>
@@ -172,26 +167,15 @@ export default function ViewUser(props) {
           >
             Edit
           </Button>
-          <EditUser
-            row={row}
-            onRowUpdate={updateRow}
-            open={openEdit}
-            onClose={handleCloseEdit}
-          />
+          <EditGlossary row={row} open={openEdit} onClose={handleCloseEdit} />
         </Grid>
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          {formatName(row.firstName, row.lastName)}
+          {row.term}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {row.email}
-        </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
-          {row.location_name}
-        </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
-          {formatRole(row.role_name)}
+          {row.definition}
         </Typography>
       </Box>
       <Button
@@ -210,9 +194,9 @@ export default function ViewUser(props) {
   );
 }
 
-ViewUser.propTypes = {
+ViewGlossary.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
-  rows: PropTypes.number.isRequired,
+  rows: PropTypes.object.isRequired,
 };

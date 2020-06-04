@@ -1,5 +1,5 @@
 // base imports
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -43,58 +43,32 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function formatDate(date) {
-  return date.toISOString().substring(0, 19);
-}
-
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
-  const handleSubmit = event => {
-    if (event) {
-      event.preventDefault();
-    }
-    callback();
-  };
-  const handleInputChange = event => {
-    event.persist();
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  return {
-    handleSubmit,
-    handleInputChange,
-    inputs,
-  };
-};
-
-export default function AddNote(props) {
+export default function EditForum(props) {
   const classes = useStyles();
-  const { onClose, open, library } = props;
+  const { onClose, open, forumValue } = props;
+  const [forum, setForum] = useState('https://example.com');
 
   const handleClose = () => {
-    onClose();
+    onClose(forum);
   };
 
-  // submit new note to api
   const submitData = () => {
     let status;
-    fetch(`api/v1/libraries/${library.id}/notes`, {
-      method: 'POST',
+    fetch('api/v1/settings/forum', {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: forum }),
     })
       .then(res => {
         status = res.status;
         return res.json();
       })
       .then(() => {
-        if (status === 201) {
-          alert('Note submitted successfully.');
-          onClose(inputs);
+        if (status === 200 || status === 201) {
+          alert('Forum link submitted successfully.');
+          onClose(forum);
           return;
         } else {
           throw new Error(`Error in response from server.`);
@@ -109,14 +83,16 @@ export default function AddNote(props) {
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  useEffect(() => {
+    setForum(forumValue);
+  }, [forumValue]);
 
   return (
     <Dialog
       onClose={handleClose}
       modal={true}
       open={open}
-      aria-labelledby="add-note-title"
+      aria-labelledby="edit-note-title"
       fullWidth={true}
       maxWidth={'lg'}
       className={classes.dialog}
@@ -129,43 +105,20 @@ export default function AddNote(props) {
       >
         <ClearIcon />
       </Button>
-      <DialogTitle id="add-note-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a Note</div>
+      <DialogTitle id="edit-note-title" className={classes.dialogTitleRoot}>
+        <div className={classes.dialogTitleText}>Edit Forum Link</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
           className={classes.formField}
-          id="note-subject"
-          label="Subject"
-          name="subject"
+          id="forum"
+          label="Forum"
+          name="forum"
+          multiline="false"
           fullWidth
           variant="outlined"
-          onChange={handleInputChange}
-        />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            className={classes.textField}
-            defaultValue={formatDate(new Date())}
-            onChange={handleInputChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
-        <TextField
-          className={classes.formField}
-          id="note-description"
-          label="Description"
-          name="description"
-          multiline="true"
-          rows="5"
-          fullWidth
-          variant="outlined"
-          onChange={handleInputChange}
+          onChange={e => setForum(e.currentTarget.value)}
+          value={forum}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -183,12 +136,12 @@ export default function AddNote(props) {
             <Button
               type="submit"
               label="Save"
+              onClick={submitData}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
               color="primary"
               primary={true}
-              onClick={handleSubmit}
             >
               Save
             </Button>
@@ -199,8 +152,8 @@ export default function AddNote(props) {
   );
 }
 
-AddNote.propTypes = {
+EditForum.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  library: PropTypes.object,
+  forumValue: PropTypes.string.isRequired,
 };
