@@ -1,7 +1,6 @@
 // base imports
 import React, { Suspense } from 'react';
 import { CSVLink } from 'react-csv';
-import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 
@@ -11,16 +10,13 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 // import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
+import DatePicker from '../datepicker/DatePicker.jsx';
 import Loading from '../Loading.jsx';
 import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
@@ -126,10 +122,10 @@ const MenuProps = {
   },
 };
 
-function Home(props) {
+export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { library } = props;
+  const { user, library } = props;
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -175,6 +171,13 @@ function Home(props) {
     setMetric(nextMetric);
   };
 
+  // handle group by change
+  const [group, setGroup] = React.useState('all');
+
+  const handleGroup = (event, nextGroup) => {
+    setGroup(nextGroup);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -211,7 +214,7 @@ function Home(props) {
       })
       .catch(error => {
         setError(error);
-        console.error(error.name + error.message);
+        console.err(error.name + error.message);
         setIsLoaded(true);
       });
   }, []);
@@ -246,7 +249,7 @@ function Home(props) {
                 >
                   Add a note
                 </Button>
-                <AddNote open={open} onClose={handleClose} library={library} />
+                <AddNote open={open} onClose={handleClose} />
               </Grid>
             </Grid>
             <Grid container item spacing={1} xs={6}>
@@ -298,26 +301,6 @@ function Home(props) {
             </Grid>
           </Grid>
           <Box mt={5}>
-            <div>
-              <Typography variant="overline" display="block" gutterBottom>
-                Date range
-              </Typography>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disableToolbar
-                  variant="inline"
-                  format="MM/dd/yyyy"
-                  margin="normal"
-                  id="date-picker-inline"
-                  label="Date range"
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  KeyboardButtonProps={{
-                    'aria-label': 'change date',
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-            </div>
             <Grid
               container
               className={classes.grid}
@@ -330,10 +313,16 @@ function Home(props) {
                 container
                 item
                 direction="column"
-                spacing={4}
+                spacing={3}
                 xs={12}
                 md={2}
               >
+                <Grid item>
+                  <Typography variant="overline" display="block" gutterBottom>
+                    Date range
+                  </Typography>
+                  <DatePicker />
+                </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
                     Connection
@@ -395,37 +384,47 @@ function Home(props) {
                   </ToggleButtonGroup>
                 </Grid>
               </Grid>
-              <Grid item xs={12} md={10}>
+              <Grid item xs={12} md={9}>
                 <MainGraph
                   runs={runs}
                   connections={connections}
                   testTypes={testTypes}
                   metric={metric}
+                  group={group}
                 />
               </Grid>
             </Grid>
           </Box>
           <Grid container justify="space-between" alignItems="center">
-            <Grid container item spacing={2} xs={12} sm={10}>
+            <Grid container alignItems="center" item spacing={2} xs={12} sm={10}>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
-                  View
+                  Group by
                 </Typography>
               </Grid>
               <Grid item>
-                <ButtonGroup
-                  color="primary"
-                  aria-label="outlined primary button group"
-                >
-                  <Button>All tests</Button>
-                  <Button>By hour</Button>
-                  <Button>By day</Button>
-                  <Button>By month</Button>
-                </ButtonGroup>
+                <ToggleButtonGroup
+                  value={group}
+                  exclusive
+                  onChange={handleGroup}>
+                  <ToggleButton value="all" aria-label="All tests">
+                    All tests
+                  </ToggleButton>
+                  <ToggleButton value="hourly" aria-label="By hour">
+                    By hour
+                  </ToggleButton>
+                  <ToggleButton value="daily" aria-label="By day">
+                    By day
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
             </Grid>
             <Grid item xs={12} sm={2}>
-              <Button variant="contained">Export</Button>
+              <Button variant="contained">
+                <CSVLink data={data} headers={headers}>
+                  Export
+                </CSVLink>
+              </Button>
             </Grid>
           </Grid>
         </Box>
@@ -433,5 +432,3 @@ function Home(props) {
     );
   }
 }
-
-export default Home;

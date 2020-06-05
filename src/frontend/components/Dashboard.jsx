@@ -5,13 +5,14 @@ import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
 import AppBar from '@material-ui/core/AppBar';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 
 //icon imports
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import IconButton from '@material-ui/core/IconButton';
 
 // modules imports
@@ -100,16 +101,22 @@ export default function Dashboard(props) {
               onClick={() => setOpenEditUser(true)}
             >
               <AccountCircle />
-              <div>
+              <Box ml={1}>
                 <p>
                   {user.firstName} {user.lastName}
                   <br />
                   {user.role_name}
                 </p>
-              </div>
-            </IconButton>
-            <IconButton color="inherit" href="/api/v1/logout">
-              <ExitToAppIcon />
+              </Box>
+              <Box ml={1}>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  href="/api/v1/logout"
+                >
+                  Log out
+                </Button>
+              </Box>
             </IconButton>
           </div>
         </Toolbar>

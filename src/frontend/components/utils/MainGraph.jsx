@@ -20,9 +20,10 @@ function handleData(runs, metric) {
 }
 
 export default function MainGraph(props) {
-  const [testSummary, setTestSummary] = React.useState(null);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  const { runs, connections, testTypes, metric } = props;
+  const [ testSummary, setTestSummary ] = React.useState(null);
+  const [ titleText, setTitleText ] = React.useState(null);
+  const [ isLoaded, setIsLoaded ] = React.useState(false);
+  const { runs, connections, testTypes, metric, group } = props;
 
   React.useEffect(() => {
     if (runs) {
@@ -40,13 +41,19 @@ export default function MainGraph(props) {
         return connections.length && testTypes.length;
       });
 
-      console.log(filteredRuns);
+      if ( metric === 'DownloadValue' ) {
+        setTitleText('Download Speed (Mbit/s)');
+      } else if ( metric === 'UploadValue' ) {
+        setTitleText('Upload Speed (Mbit/s)');
+      } else if ( metric === 'DownloadRetransValue' ) {
+        setTitleText('Latency (Mbit/s)');
+      }
 
       setTestSummary(filteredRuns);
       handleData(filteredRuns, metric);
     }
     setIsLoaded(true);
-  }, [connections, testTypes, metric]);
+  }, [connections, testTypes, metric, group]);
 
   if (!isLoaded) {
     return <Loading />;
@@ -66,14 +73,19 @@ export default function MainGraph(props) {
         ]}
         layout={{
           autosize: true,
-          // width: 820,
-          // height: 440,
           title: false,
           xaxis: {
             showgrid: false,
           },
           yaxis: {
             showgrid: false,
+            title: {
+              text: titleText,
+              font: {
+                family: 'Roboto, monospace',
+                size: 14,
+              }
+            }
           },
         }}
       />

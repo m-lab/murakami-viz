@@ -16,6 +16,8 @@ export function seed(knex) {
             firstName: 'Admin',
             lastName: 'User',
             email: 'admin@mlbn.org',
+            phone: '1-555-867-5309',
+            extension: '111',
           },
           {
             id: 2,
@@ -24,6 +26,8 @@ export function seed(knex) {
             firstName: 'Rae',
             lastName: 'Gaines',
             email: 'rae@throneless.tech',
+            phone: '1-555-867-5309',
+            extension: '112',
           },
         ]),
         knex('library_users').insert([
