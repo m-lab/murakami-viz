@@ -8,11 +8,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 
 // icons imports
@@ -82,6 +78,7 @@ export default function EditUser(props) {
   };
 
   const submitData = () => {
+    let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -89,11 +86,18 @@ export default function EditUser(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        alert('User edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status === 200) {
+          alert('User edited successfully.');
+          onClose(results.data[0]);
+          return;
+        } else {
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         console.error(error.name + error.message);
@@ -129,6 +133,7 @@ export default function EditUser(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          disabled
           className={classes.formField}
           id="user-username"
           label="Username"
@@ -172,33 +177,57 @@ export default function EditUser(props) {
           onChange={handleInputChange}
           value={inputs.email}
         />
+        <Grid container>
+          <Grid item>
+            <TextField
+              className={classes.formField}
+              id="user-phone"
+              label="Phone"
+              name="phone"
+              fullWidth
+              variant="outlined"
+              defaultValue={row.phone}
+              onChange={handleInputChange}
+              value={inputs.phone}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              className={classes.formField}
+              id="user-extension"
+              label="Extension"
+              name="extension"
+              variant="outlined"
+              defaultValue={row.extension}
+              onChange={handleInputChange}
+              value={inputs.extension}
+            />
+          </Grid>
+        </Grid>
         <TextField
           className={classes.formField}
-          id="user-location"
-          label="Location"
-          name="location"
+          id="user-oldpassword"
+          label="Old Password"
+          name="oldPassword"
           fullWidth
+          type="password"
           variant="outlined"
-          defaultValue={row.location}
+          defaultValue={row.oldPassword}
           onChange={handleInputChange}
-          value={inputs.location}
+          value={inputs.oldPassword}
         />
-        <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="user-role">Role</InputLabel>
-          <Select
-            labelId="user-role"
-            className={classes.formField}
-            id="user-role"
-            label="Role"
-            name="role"
-            defaultValue={row.role_name}
-            onChange={handleInputChange}
-            value={inputs.role_name}
-          >
-            <MenuItem value="editor">Editor</MenuItem>
-            <MenuItem value="viewer">Viewer</MenuItem>
-          </Select>
-        </FormControl>
+        <TextField
+          className={classes.formField}
+          id="user-newpassword"
+          label="New Password"
+          name="newPassword"
+          fullWidth
+          type="password"
+          variant="outlined"
+          defaultValue={row.newPassword}
+          onChange={handleInputChange}
+          value={inputs.newPassword}
+        />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
             <Button

@@ -1,6 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { validate } from '../../common/schemas/user.js';
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, ForbiddenError } from '../../common/errors.js';
+
+function comparePass(userPassword, databasePassword) {
+  return bcrypt.compareSync(userPassword, databasePassword);
+}
 
 /**
  * Initialize the QueueManager data model
@@ -57,10 +61,50 @@ export default class User {
           lastName: user.lastName,
           username: user.username,
           email: user.email,
+          phone: user.phone,
+          extension: user.extension,
         },
-        ['id', 'firstName', 'lastName', 'username', 'email', 'password'],
+        ['id', 'firstName', 'lastName', 'username', 'email'],
       )
       .returning('*');
+  }
+
+  async updateSelf(id, user) {
+    try {
+      await validate(user, true);
+    } catch (err) {
+      throw new BadRequestError('Failed to update user: ', err);
+    }
+
+    const query = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      extension: user.extension,
+    };
+
+    try {
+      if (user.oldPassword && user.newPassword) {
+        console.debug('about to get user record: ', user);
+        const record = await this.findById(id, true);
+        console.debug('user record: ', record);
+        if (!comparePass(user.oldPassword, record[0].password)) {
+          throw new Error('Authentication failed.');
+        }
+        const salt = bcrypt.genSaltSync();
+        const hash = bcrypt.hashSync(user.newPassword, salt);
+        query.password = hash;
+      }
+    } catch (err) {
+      throw new ForbiddenError('Failed to update user: ', err);
+    }
+
+    return this._db
+      .table('users')
+      .update(query)
+      .where({ id: parseInt(id) });
   }
 
   async delete(id) {
@@ -93,6 +137,8 @@ export default class User {
         role: 'groups.id',
         role_name: 'groups.name',
         email: 'users.email',
+        phone: 'users.phone',
+        extension: 'users.extension',
         isActive: 'users.isActive',
       })
       .from('users')
@@ -140,27 +186,55 @@ export default class User {
    *
    * @param {integer} id - Find user by id
    */
-  async findById(id) {
-    return this._db
-      .select({
-        id: 'users.id',
-        username: 'users.username',
-        firstName: 'users.firstName',
-        lastName: 'users.lastName',
-        location: 'libraries.id',
-        location_name: 'libraries.name',
-        location_address: 'libraries.physical_address',
-        role: 'groups.id',
-        role_name: 'groups.name',
-        email: 'users.email',
-        isActive: 'users.isActive',
-      })
-      .from('users')
-      .leftJoin('library_users', 'users.id', 'library_users.uid')
-      .leftJoin('libraries', 'libraries.id', 'library_users.lid')
-      .leftJoin('user_groups', 'users.id', 'user_groups.uid')
-      .leftJoin('groups', 'groups.id', 'user_groups.gid')
-      .where({ 'users.id': parseInt(id) });
+  async findById(id, privileged = false) {
+    if (privileged) {
+      return this._db
+        .select({
+          id: 'users.id',
+          username: 'users.username',
+          password: 'users.password',
+          firstName: 'users.firstName',
+          lastName: 'users.lastName',
+          location: 'libraries.id',
+          location_name: 'libraries.name',
+          location_address: 'libraries.physical_address',
+          role: 'groups.id',
+          role_name: 'groups.name',
+          email: 'users.email',
+          phone: 'users.phone',
+          extension: 'users.extension',
+          isActive: 'users.isActive',
+        })
+        .from('users')
+        .leftJoin('library_users', 'users.id', 'library_users.uid')
+        .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+        .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+        .leftJoin('groups', 'groups.id', 'user_groups.gid')
+        .where({ 'users.id': parseInt(id) });
+    } else {
+      return this._db
+        .select({
+          id: 'users.id',
+          username: 'users.username',
+          firstName: 'users.firstName',
+          lastName: 'users.lastName',
+          location: 'libraries.id',
+          location_name: 'libraries.name',
+          location_address: 'libraries.physical_address',
+          role: 'groups.id',
+          role_name: 'groups.name',
+          email: 'users.email',
+          phone: 'users.phone',
+          extension: 'users.extension',
+          isActive: 'users.isActive',
+        })
+        .from('users')
+        .leftJoin('library_users', 'users.id', 'library_users.uid')
+        .leftJoin('libraries', 'libraries.id', 'library_users.lid')
+        .leftJoin('user_groups', 'users.id', 'user_groups.uid')
+        .leftJoin('groups', 'groups.id', 'user_groups.gid')
+        .where({ 'users.id': parseInt(id) });
+    }
   }
 
   /**
@@ -183,6 +257,8 @@ export default class User {
           role: 'groups.id',
           role_name: 'groups.name',
           email: 'users.email',
+          phone: 'users.phone',
+          extension: 'users.extension',
           isActive: 'users.isActive',
         })
         .from('users')
@@ -205,6 +281,8 @@ export default class User {
           role: 'groups.id',
           role_name: 'groups.name',
           email: 'users.email',
+          phone: 'users.phone',
+          extension: 'users.extension',
           isActive: 'users.isActive',
         })
         .from('users')

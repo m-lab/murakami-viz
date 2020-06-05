@@ -1,5 +1,5 @@
 // base imports
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -16,6 +16,7 @@ import IconButton from '@material-ui/core/IconButton';
 
 // modules imports
 import NavTabs from './utils/Tabs.jsx';
+import EditSelf from './utils/EditSelf.jsx';
 
 const drawerWidth = 240;
 
@@ -54,6 +55,10 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   appBarSpacer: theme.mixins.toolbar,
+  appBarUserWidget: {
+    fontSize: '0.875rem',
+    color: 'inherit',
+  },
   sectionDesktop: {
     display: 'none',
     [theme.breakpoints.up('md')]: {
@@ -71,7 +76,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { user, library } = props;
+  const { library } = props;
+  const user = props.user || props.location.state.user;
+  const [openEditUser, setOpenEditUser] = useState(false);
 
   return (
     <Container className={classes.root}>
@@ -88,14 +95,19 @@ export default function Dashboard(props) {
           </Typography>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <AccountCircle />
-            <div>
-              <p>
-                {user.firstName} {user.lastName}
-                <br />
-                {user.role_name}
-              </p>
-            </div>
+            <IconButton
+              className={classes.appBarUserWidget}
+              onClick={() => setOpenEditUser(true)}
+            >
+              <AccountCircle />
+              <div>
+                <p>
+                  {user.firstName} {user.lastName}
+                  <br />
+                  {user.role_name}
+                </p>
+              </div>
+            </IconButton>
             <IconButton color="inherit" href="/api/v1/logout">
               <ExitToAppIcon />
             </IconButton>
@@ -108,6 +120,11 @@ export default function Dashboard(props) {
           <NavTabs user={user} library={library} />
         </Container>
       </main>
+      <EditSelf
+        open={openEditUser}
+        onClose={() => setOpenEditUser(false)}
+        row={user}
+      />
     </Container>
   );
 }
@@ -115,4 +132,5 @@ export default function Dashboard(props) {
 Dashboard.propTypes = {
   user: PropTypes.object.isRequired,
   library: PropTypes.object.isRequired,
+  location: PropTypes.object,
 };
