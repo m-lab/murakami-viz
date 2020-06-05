@@ -95,8 +95,6 @@ export default function AddLibraryDevice(props) {
     }));
   }
 
-  console.log(inputs)
-
   const handleSubmit = event => {
     event.preventDefault();
 

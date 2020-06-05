@@ -8,6 +8,10 @@ import Cookies from 'js-cookie'
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -87,7 +91,7 @@ export default function Library(props) {
     .then(devices => {
       if (status === 200) {
         console.log("devices response: ", devices.data)
-        // setDevices(devices.data)
+        setDevices(devices.data)
       }
     })
   }, [])
@@ -106,7 +110,6 @@ export default function Library(props) {
       })
       .then(libraryIPs => {
         if (ipStatus === 200 && libraryIPs.ipCount > 0) {
-          console.log("libraryIPs: ", libraryIPs)
           setLibraryIPs(
             libraryIPs.data.map(libraryIP => libraryIP.ip) // get just the IP addresses 
           );
@@ -115,7 +118,6 @@ export default function Library(props) {
           setLibraryIPs([])
           return;
         } else {
-          console.log("what's up? ", libraryIPs)
           throw new Error(error);
         }
       })
@@ -365,86 +367,99 @@ export default function Library(props) {
           { devices && devices.length > 0 ? 
             devices.map(device => {
              return <>
-                  <TableRow>
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      Name
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_name}
+               <ExpansionPanel>
+                 <ExpansionPanelSummary
+                   expandIcon={<ExpandMoreIcon />}
+                   aria-controls="panel1a-content"
+                   id="panel1a-header"
+                 >
+                   <Typography variant="overline" display="block" gutterBottom>{device.name}</Typography>
+                 </ExpansionPanelSummary>
+                 <ExpansionPanelDetails>
+                  <Table className={classes.table} aria-label="basic information table">
+                   <TableRow>
+                     <TableCell
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       Name
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
+                     <TableCell className={classes.tableCell}>
+                       {device.name}
+                     </TableCell>
+                   </TableRow>
+                   <TableRow>
                     <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      Location
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_location}
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       Location
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
+                     <TableCell className={classes.tableCell}>
+                       {device.location}
+                     </TableCell>
+                   </TableRow>
+                   <TableRow>
                     <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      Network type
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_network_type}
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       Network type
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
+                     <TableCell className={classes.tableCell}>
+                       {device.network_type}
+                     </TableCell>
+                   </TableRow>
+                   <TableRow>
                     <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      Connection Type
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_connection_type}
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       Connection Type
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
+                    <TableCell className={classes.tableCell}>
+                      {device.connection_type} 
+                    </TableCell>
+                   </TableRow>
+                   <TableRow>
                     <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      DNS server
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_dns}
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       DNS server
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
+                     <TableCell className={classes.tableCell}>
+                       {device.dns}
+                     </TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       IP address
+                     </TableCell>
+                     <TableCell className={classes.tableCell}>
+                       {device.ip}
+                     </TableCell>
+                   </TableRow>
+                   <TableRow>
+                     <TableCell
+                       className={`${classes.tableCell} ${classes.tableKey}`}
+                     >
+                       Gateway
+                     </TableCell>
+                     <TableCell className={classes.tableCell}>
+                       {device.gateway} */}
+                    </TableCell>
+                   </TableRow>
+                   <TableRow>
                     <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
+                       className={`${classes.tableCell} ${classes.tableKey}`}
                     >
-                      IP address
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.ip}
+                       MAC address
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      Gateway
-                  </TableCell>
                     <TableCell className={classes.tableCell}>
-                      {library.device_gateway}
+                       {device.mac_address} 
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell
-                      className={`${classes.tableCell} ${classes.tableKey}`}
-                    >
-                      MAC address
-                  </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      {library.device_mac_address}
-                    </TableCell>
-                  </TableRow>
+                   </TableRow>
+                  </Table>
+                 </ExpansionPanelDetails>
+               </ExpansionPanel>
                   </>
           }) : null
           }
@@ -522,7 +537,7 @@ export default function Library(props) {
                       onClick={closeTextfield}
                     >
                       Cancel
-                </Button>
+                  </Button>
                 </TableCell>
               </TableRow>
               : 
