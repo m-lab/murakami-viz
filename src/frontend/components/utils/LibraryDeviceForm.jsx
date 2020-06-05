@@ -108,13 +108,29 @@ export default function LibraryDeviceForm(props) {
       body: JSON.stringify(inputs)
     })
     .then(response => response.json())
-    .then(console.log)
-
+    .then(results => {
+      if (results.statusCode === 200) {
+        console.log(results)
+      }
+    })
   }
 
-  const handleEdit = () => {
-    console.log("submitting edit")
+  const handleEdit = deviceToEdit => {
+    fetch(`api/v1/devices/${deviceToEdit.id}`, {
+      method: 'PUT',
+      headers: {
+      'Content-Type': 'application/json',
+    },
+      body: JSON.stringify(inputs)
+    })
+    .then(response => response.json())
+    .then(results => {
+      if (results.statusCode === 200) {
+        console.log(results)
+      }
+    })
   }
+
 
   return (
     <Dialog
@@ -283,7 +299,7 @@ export default function LibraryDeviceForm(props) {
             <Button
               type="submit"
               label="Save"
-              onClick={editMode ? handleEdit : handleSubmit}
+              onClick={editMode ? ()=>handleEdit(device) : handleSubmit}
               className={classes.cancelButton}
               variant="contained"
               disableElevation

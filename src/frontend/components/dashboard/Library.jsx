@@ -89,10 +89,6 @@ export default function Library(props) {
     setDeviceToEdit(device)
   }
 
-  const handleDeviceDelete = () => {
-    console.log("device delete")
-  }
-
   React.useEffect(() => {
     let status;
 
@@ -108,6 +104,29 @@ export default function Library(props) {
       }
     })
   }, [])
+
+  const handleDeviceDelete = deviceToDelete => {
+    console.log("to delete: ", deviceToDelete)
+    fetch(`api/v1/devices/${deviceToDelete.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(results => {
+      if (results.statusCode === 200) {
+        let updatedDevices = devices.filter( device => device.id !== deviceToDelete.id )
+        setDevices(updatedDevices)
+      }
+    })
+    .catch(error => {
+      console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
+      alert(
+        'An error occurred. Please try again or contact an administrator.',
+      );
+    });
+  }
 
   // handle existing whitelisted IPs
   const [libraryIPs, setLibraryIPs] = React.useState([])
@@ -189,7 +208,7 @@ export default function Library(props) {
     setIpValue(null);
   };
 
-  const handleIpDelete = (ipToDelete) => {
+  const handleIpDelete = ipToDelete => {
     fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
       method: 'DELETE',
       headers: {
@@ -495,7 +514,7 @@ export default function Library(props) {
                         variant="contained"
                         disableElevation
                         color="primary"
-                        onClick={handleDeviceDelete}
+                        onClick={()=>handleDeviceDelete(device)}
                       >
                         Delete device
                       </Button>
