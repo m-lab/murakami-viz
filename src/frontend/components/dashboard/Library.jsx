@@ -25,7 +25,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
-import AddLibraryDevice from '../utils/AddLibraryDevice.jsx';
+import LibraryDeviceForm from '../utils/LibraryDeviceForm.jsx';
 
 const TableCell = withStyles({
   root: {
@@ -71,6 +71,8 @@ export default function Library(props) {
 
   const [devices, setDevices] = React.useState([]);
   const [openAddDevice, setOpenAddDevice] = React.useState(false);
+  const [edit, setEdit] = React.useState(false)
+  const [deviceToEdit, setDeviceToEdit] = React.useState({})
 
   const showAddDevice = () => {
     setOpenAddDevice(true);
@@ -78,6 +80,17 @@ export default function Library(props) {
 
   const closeAddDevice = () => {
     setOpenAddDevice(false);
+    setEdit(false);
+  }
+
+  const openEdit = device => {
+    setOpenAddDevice(true);
+    setEdit(true);
+    setDeviceToEdit(device)
+  }
+
+  const handleDeviceDelete = () => {
+    console.log("device delete")
   }
 
   React.useEffect(() => {
@@ -378,24 +391,34 @@ export default function Library(props) {
                  <ExpansionPanelDetails>
                   <Table className={classes.table} aria-label="basic information table">
                    <TableRow>
-                     <TableCell
-                       className={`${classes.tableCell} ${classes.tableKey}`}
-                     >
-                       Name
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Name
                     </TableCell>
-                     <TableCell className={classes.tableCell}>
-                       {device.name}
-                     </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {device.name}
+                    </TableCell>
                    </TableRow>
+                    <TableRow>
+                      <TableCell
+                        className={`${classes.tableCell} ${classes.tableKey}`}
+                      >
+                        DeviceID
+                      </TableCell>
+                      <TableCell className={classes.tableCell}>
+                        {device.deviceid}
+                      </TableCell>
+                    </TableRow>
                    <TableRow>
                     <TableCell
                        className={`${classes.tableCell} ${classes.tableKey}`}
                      >
                        Location
                     </TableCell>
-                     <TableCell className={classes.tableCell}>
+                    <TableCell className={classes.tableCell}>
                        {device.location}
-                     </TableCell>
+                    </TableCell>
                    </TableRow>
                    <TableRow>
                     <TableCell
@@ -424,7 +447,7 @@ export default function Library(props) {
                        DNS server
                     </TableCell>
                      <TableCell className={classes.tableCell}>
-                       {device.dns}
+                       {device.dns_server}
                      </TableCell>
                    </TableRow>
                    <TableRow>
@@ -444,7 +467,7 @@ export default function Library(props) {
                        Gateway
                      </TableCell>
                      <TableCell className={classes.tableCell}>
-                       {device.gateway} */}
+                       {device.gateway}
                     </TableCell>
                    </TableRow>
                    <TableRow>
@@ -454,13 +477,34 @@ export default function Library(props) {
                        MAC address
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                       {device.mac_address} 
+                       {device.mac} 
                     </TableCell>
                    </TableRow>
+                   <TableRow>
+                    <TableCell className={classes.tableCell}>
+                      <Button
+                        type="submit"
+                        label="Submit"
+                        variant="contained"
+                        disableElevation
+                        color="primary"
+                        onClick={()=>openEdit(device)}
+                      >
+                        Edit device
+                      </Button> <Button
+                        variant="contained"
+                        disableElevation
+                        color="primary"
+                        onClick={handleDeviceDelete}
+                      >
+                        Delete device
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                   </Table>
                  </ExpansionPanelDetails>
                </ExpansionPanel>
-                  </>
+              </>
           }) : null
           }
               <TableRow>
@@ -473,7 +517,13 @@ export default function Library(props) {
                   >
                     Add a device
                   </Button>
-                  <AddLibraryDevice open={openAddDevice} onClose={closeAddDevice} row={library}/>
+                  <LibraryDeviceForm 
+                    open={openAddDevice} 
+                    onClose={closeAddDevice} 
+                    row={library}
+                    editMode={edit}
+                    device={deviceToEdit}
+                  />
                 </TableCell>
               </TableRow>
             </TableBody>

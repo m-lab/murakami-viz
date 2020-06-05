@@ -74,9 +74,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function AddLibraryDevice(props) {
+export default function LibraryDeviceForm(props) {
   const classes = useStyles();
-  const { onClose, open, row } = props;
+  const { onClose, open, row, editMode, device } = props;
 
   console.log("library ? ", row)
 
@@ -86,7 +86,9 @@ export default function AddLibraryDevice(props) {
 
   const [inputs, setInputs] = React.useState({})
   
-  
+  console.log("we editing or nah? ", editMode)
+  console.log("editing which one?", device)
+
   const handleInputChange = (event) => {
     event.persist();
     setInputs(inputs => ({
@@ -107,6 +109,11 @@ export default function AddLibraryDevice(props) {
     })
     .then(response => response.json())
     .then(console.log)
+
+  }
+
+  const handleEdit = () => {
+    console.log("submitting edit")
   }
 
   return (
@@ -134,7 +141,7 @@ export default function AddLibraryDevice(props) {
             id="add-library-title"
             className={classes.dialogTitleRoot}
           >
-            <div className={classes.dialogTitleText}>Add a new device</div>
+            <div className={classes.dialogTitleText}>{ editMode ? `Edit device` : `Add a new device` } </div>
           </DialogTitle>
         </Grid>
         <Grid item className={classes.gridItem}>
@@ -171,8 +178,8 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_name}
-              // value={inputs.device_name}
+              defaultValue={ editMode ? device.name : `` }
+              value={inputs.name}
             />
             <TextField
               className={classes.formField}
@@ -182,8 +189,8 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_mac_address}
-            // value={inputs.device_mac_address}
+              defaultValue={editMode ? device.deviceid : ``}
+            value={inputs.deviceid}
             />
             <TextField
               className={classes.formField}
@@ -193,8 +200,8 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_location}
-              // value={inputs.device_location}
+              defaultValue={editMode ? device.location : ``}
+              value={inputs.location}
             />
             <FormControl variant="outlined" className={classes.formControl}>
               <InputLabel id="library-network-type">Network type</InputLabel>
@@ -204,9 +211,9 @@ export default function AddLibraryDevice(props) {
                 id="library-network-type"
                 label="Network Type"
                 name="network_type"
-                defaultValue={props.row.device_network_type}
+                defaultValue={editMode ? device.network_type : ``}
                 onChange={handleInputChange}
-                // value={inputs.device_network_type}
+                value={inputs.network_type}
               >
                 <MenuItem value="public">Public</MenuItem>
                 <MenuItem value="private">Private</MenuItem>
@@ -222,9 +229,9 @@ export default function AddLibraryDevice(props) {
                 id="library-connection-type"
                 label="Connection Type"
                 name="connection_type"
-                defaultValue={props.row.device_connection_type}
+                defaultValue={ editMode ? device.connection_type : `` }
                 onChange={handleInputChange}
-                // value={inputs.device_connection_type}
+                value={inputs.connection_type}
               >
                 <MenuItem value="wired">Wired</MenuItem>
                 <MenuItem value="wireless">Wireless</MenuItem>
@@ -238,8 +245,8 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_dns}
-              // value={inputs.device_dns}
+              defaultValue={editMode ? device.dns_server : ``}
+              value={inputs.dns_server}
             />
             <TextField
               className={classes.formField}
@@ -248,8 +255,8 @@ export default function AddLibraryDevice(props) {
               name="ip"
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_ip}
-              // value={inputs.device_ip}
+              defaultValue={editMode ? device.ip : ``}
+              value={inputs.ip}
             />
             <TextField
               className={classes.formField}
@@ -259,8 +266,8 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_gateway}
-              // value={inputs.device_gateway}
+              defaultValue={editMode ? device.gateway : ``}
+              value={inputs.gateway}
             />
             <TextField
               className={classes.formField}
@@ -270,13 +277,13 @@ export default function AddLibraryDevice(props) {
               fullWidth
               variant="outlined"
               onChange={handleInputChange}
-              defaultValue={props.row.device_mac_address}
-              // value={inputs.device_mac_address}
+              defaultValue={editMode ? device.mac : ``}
+              value={inputs.mac}
             />
             <Button
               type="submit"
               label="Save"
-              onClick={handleSubmit}
+              onClick={editMode ? handleEdit : handleSubmit}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
@@ -292,7 +299,9 @@ export default function AddLibraryDevice(props) {
 
 }
 
-AddLibraryDevice.propTypes = {
+LibraryDeviceForm.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  editMode: PropTypes.bool,
+  device: PropTypes.object
 } 
