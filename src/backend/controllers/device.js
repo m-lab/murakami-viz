@@ -43,7 +43,8 @@ export default function controller(devices, thisUser) {
     }
 
     try {
-      device = await devices.create(ctx.request.body.data, lid);
+      device = await devices.create(ctx.request.body, lid);
+      log.debug("device: ", device)
 
       // workaround for sqlite
       if (Number.isInteger(device)) {

@@ -76,9 +76,21 @@ export default function Library(props) {
     setOpenAddDevice(false);
   }
 
-  // React.useEffect(() => {
-  //   fetch(`/api/v1/libraries/${library.id}/devices`)
-  // }, [])
+  React.useEffect(() => {
+    let status;
+
+    fetch(`/api/v1/libraries/${library.id}/devices`)
+    .then(response => {
+      status = response.status;
+      return response.json();
+    })
+    .then(devices => {
+      if (status === 200) {
+        console.log("devices response: ", devices.data)
+        // setDevices(devices.data)
+      }
+    })
+  }, [])
 
   // handle existing whitelisted IPs
   const [libraryIPs, setLibraryIPs] = React.useState([])
@@ -350,86 +362,92 @@ export default function Library(props) {
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
             <TableBody>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  Name
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_name}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  Location
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_location}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  Network type
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_network_type}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  Connection Type
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_connection_type}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  DNS server
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_dns}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  IP address
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.ip}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  Gateway
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_gateway}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  className={`${classes.tableCell} ${classes.tableKey}`}
-                >
-                  MAC address
-                </TableCell>
-                <TableCell className={classes.tableCell}>
-                  {library.device_mac_address}
-                </TableCell>
-              </TableRow>
+          { devices && devices.length > 0 ? 
+            devices.map(device => {
+             return <>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Name
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_name}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Location
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_location}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Network type
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_network_type}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Connection Type
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_connection_type}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      DNS server
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_dns}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      IP address
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.ip}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      Gateway
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_gateway}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={`${classes.tableCell} ${classes.tableKey}`}
+                    >
+                      MAC address
+                  </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      {library.device_mac_address}
+                    </TableCell>
+                  </TableRow>
+                  </>
+          }) : null
+          }
               <TableRow>
                 <TableCell className={classes.tableCell}>
                   <Button

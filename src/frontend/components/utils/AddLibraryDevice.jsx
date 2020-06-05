@@ -100,22 +100,15 @@ export default function AddLibraryDevice(props) {
   const handleSubmit = event => {
     event.preventDefault();
 
-    const data = {
-      ...inputs,
-      lid: row.id
-    }
-
-    console.log(data)
-
-    // fetch(`/api/v1/libraries/${row.id}/devices`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(data)
-    // })
-    // .then(response => response.json())
-    // .then(console.log(results))
+    fetch(`/api/v1/libraries/${row.id}/devices`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs)
+    })
+    .then(response => response.json())
+    .then(console.log)
   }
 
   return (

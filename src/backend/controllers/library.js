@@ -85,11 +85,12 @@ export default function controller(libraries, thisUser) {
       }
 
       if (ip.length >= 0) {
-        ctx.response.body = { 
-          statusCode: 200, 
-          status: 'ok', 
+        ctx.response.body = {
+          statusCode: 200,
+          status: 'ok',
           data: ip,
-          ipCount: ip.length };
+          ipCount: ip.length,
+        };
         ctx.response.status = 200;
       } else {
         log.error(
