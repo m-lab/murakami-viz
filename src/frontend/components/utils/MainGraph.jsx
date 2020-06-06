@@ -15,7 +15,6 @@ function handleData(runs, metric) {
   yAxis = [];
 
   runs.map(run => {
-    // const runDate = moment(run.DownloadTestStar tTime.substr(0, 10));
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
     yAxis.push(run[metric].toFixed(2));
   });
@@ -25,10 +24,11 @@ function handleGroupedData(runs, metric) {
   xAxis = [];
   yAxis = [];
 
+  console.log(runs);
+
   Object.entries(runs)
     .sort((a, b) =>
-      moment(a[0].DownloadTestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
-        moment(b[0].DownloadTestStartTime, 'YYYY-MM-DDThh:mm:ss'),
+        moment(a[0]).diff(moment(b[0]),
       ),
     )
     .map(([date, run]) => {
