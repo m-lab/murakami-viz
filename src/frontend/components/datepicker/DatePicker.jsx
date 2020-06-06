@@ -21,12 +21,13 @@ import DatepickerContext from './DatePickerContext.jsx';
 const today = new Date();
 const weekAgo = new Date(today.setDate(today.getDate() - 7));
 
-export default function Datepicker() {
+export default function Datepicker(props) {
   const [state, setState] = useState({
     startDate: weekAgo,
     endDate: new Date(),
     focusedInput: START_DATE,
   });
+  const { dateRange, handleDateSubmit } = props;
 
   const {
     firstDayOfWeek,
@@ -81,11 +82,12 @@ export default function Datepicker() {
     setOpen(true);
   };
 
-  const handleClose = value => {
+  const handleClose = () => {
     setOpen(false);
   };
 
-  const handleSubmit = value => {
+  const handleSubmit = () => {
+    handleDateSubmit(state);
     setOpen(false);
   };
 

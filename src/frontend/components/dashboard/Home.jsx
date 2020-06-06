@@ -4,11 +4,11 @@ import { CSVLink } from 'react-csv';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import _ from 'lodash/core';
 import moment from 'moment';
+import { START_DATE } from '@datepicker-react/hooks';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-// import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -139,6 +139,19 @@ export default function Home(props) {
       setSummary(newSummary);
     }
   };
+
+  // handle date range
+  const today = new Date();
+  const weekAgo = new Date(today.setDate(today.getDate() - 7));
+  const [ dateRange, setDateRange ] = React.useState({
+    startDate: weekAgo,
+    endDate: new Date(),
+    focusedInput: START_DATE,
+  });
+
+  const handleDateSubmit = (range) => {
+    setDateRange(range);
+  }
 
   // handle connection change
   const [connections, setConnections] = React.useState(['wired']);
@@ -319,7 +332,7 @@ export default function Home(props) {
                   <Typography variant="overline" display="block" gutterBottom>
                     Date range
                   </Typography>
-                  <DatePicker />
+                  <DatePicker dateRange={dateRange} handleDateSubmit={handleDateSubmit} />
                 </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
@@ -389,6 +402,7 @@ export default function Home(props) {
                   testTypes={testTypes}
                   metric={metric}
                   group={group}
+                  dateRange={dateRange}
                 />
               </Grid>
             </Grid>

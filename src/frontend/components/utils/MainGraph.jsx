@@ -14,8 +14,6 @@ function handleData(runs, metric) {
   xAxis = [];
   yAxis = [];
 
-  console.log('runs: ', runs);
-
   runs.map(run => {
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
     yAxis.push(run[metric].toFixed(2));
@@ -51,7 +49,7 @@ export default function MainGraph(props) {
   const [testSummary, setTestSummary] = React.useState(null);
   const [titleText, setTitleText] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const { runs, connections, testTypes, metric, group } = props;
+  const { runs, connections, testTypes, metric, group, dateRange } = props;
 
   React.useEffect(() => {
     if (runs) {
@@ -127,6 +125,10 @@ export default function MainGraph(props) {
           title: false,
           xaxis: {
             showgrid: false,
+            range: [
+              dateRange.startDate,
+              dateRange.endDate
+            ]
           },
           yaxis: {
             showgrid: false,
