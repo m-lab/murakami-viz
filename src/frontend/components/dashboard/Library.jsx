@@ -542,6 +542,8 @@ export default function Library(props) {
                     row={library}
                     editMode={edit}
                     device={deviceToEdit}
+                    devices={devices}
+                    setDevices={setDevices}
                   />
                 </TableCell>
               </TableRow>

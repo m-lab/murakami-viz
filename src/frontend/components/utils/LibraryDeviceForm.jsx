@@ -76,7 +76,7 @@ const useStyles = makeStyles(() => ({
 
 export default function LibraryDeviceForm(props) {
   const classes = useStyles();
-  const { onClose, open, row, editMode, device } = props;
+  const { onClose, open, row, editMode, device, devices, setDevices } = props;
 
   console.log("library ? ", row)
 
@@ -109,10 +109,15 @@ export default function LibraryDeviceForm(props) {
     })
     .then(response => response.json())
     .then(results => {
-      if (results.statusCode === 200) {
-        console.log(results)
-      }
+       if (results.statusCode === 201) {
+         let updatedDevices = devices.concat(inputs);
+         setDevices(updatedDevices)
+       }
     })
+    .catch(error => {
+      alert("An error occurred. Please try again or contact an administrator.")
+    })
+    onClose();
   }
 
   const handleEdit = deviceToEdit => {
@@ -129,6 +134,7 @@ export default function LibraryDeviceForm(props) {
         console.log(results)
       }
     })
+    onClose();
   }
 
 
@@ -319,5 +325,7 @@ LibraryDeviceForm.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   editMode: PropTypes.bool,
-  device: PropTypes.object
+  device: PropTypes.object,
+  devices: PropTypes.array,
+  setDevices: PropTypes.func
 } 
