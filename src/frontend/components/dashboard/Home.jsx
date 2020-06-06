@@ -135,35 +135,45 @@ export default function Home(props) {
   const [summary, setSummary] = React.useState('ndt7');
 
   const handleSummary = (event, newSummary) => {
-    setSummary(newSummary);
+    if ( newSummary.length ) {
+      setSummary(newSummary);
+    }
   };
 
   // handle connection change
   const [connections, setConnections] = React.useState(['wired']);
 
   const handleConnection = (event, newConnections) => {
-    setConnections(newConnections);
+    if ( newConnections.length ) {
+      setConnections(newConnections);
+    }
   };
 
   // handle test type change
   const [testTypes, setTestTypes] = React.useState(['ndt7']);
 
   const handleTestType = (event, newTestTypes) => {
-    setTestTypes(newTestTypes);
+    if ( newTestTypes.length ) {
+      setTestTypes(newTestTypes);
+    }
   };
 
   // handle metric change
   const [metric, setMetric] = React.useState('DownloadValue');
 
-  const handleMetric = (event, nextMetric) => {
-    setMetric(nextMetric);
+  const handleMetric = (event, newMetric) => {
+    if ( newMetric.length ) {
+      setMetric(newMetric);
+    }
   };
 
   // handle group by change
   const [group, setGroup] = React.useState('all');
 
-  const handleGroup = (event, nextGroup) => {
-    setGroup(nextGroup);
+  const handleGroup = (event, newGroup) => {
+    if ( newGroup.length ) {
+      setGroup(newGroup);
+    }
   };
 
   // fetch api data

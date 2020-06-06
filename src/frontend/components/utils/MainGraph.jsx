@@ -14,6 +14,8 @@ function handleData(runs, metric) {
   xAxis = [];
   yAxis = [];
 
+  console.log('runs: ', runs);
+
   runs.map(run => {
     xAxis.push(run.DownloadTestStartTime.substr(0, 10));
     yAxis.push(run[metric].toFixed(2));
@@ -23,8 +25,6 @@ function handleData(runs, metric) {
 function handleGroupedData(runs, metric) {
   xAxis = [];
   yAxis = [];
-
-  console.log(runs);
 
   Object.entries(runs)
     .sort((a, b) =>
@@ -97,11 +97,14 @@ export default function MainGraph(props) {
         setTitleText('Latency (Mbit/s)');
       }
 
-      setTestSummary(groupedRuns);
-      //handleData(groupedRuns, metric);
+      if ( groupedRuns ) {
+        setTestSummary(groupedRuns);
+      } else {
+        setTestSummary(filteredRuns);
+      }
     }
     setIsLoaded(true);
-  }, [connections, testTypes, metric, group]);
+  }, [ connections, testTypes, metric, group ]);
 
   if (!isLoaded) {
     return <Loading />;
