@@ -22,11 +22,11 @@ import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
 
 const headers = [
-  { label: 'id', key: 'run.id' },
-  { label: 'Test Name', key: 'run.TestName' },
+  { label: 'id', key: 'id' },
+  { label: 'Test Name', key: 'TestName' },
   { label: 'Test Error', key: 'TestError' },
   { label: 'Server Name', key: 'ServerName' },
-  { label: 'Server IP', key: 'server.ip' },
+  { label: 'Server IP', key: 'ServerIP' },
   { label: 'Client IP', key: 'ClientIP' },
   { label: 'Murakami Location', key: 'MurakamiLocation' },
   { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
@@ -43,18 +43,6 @@ const headers = [
   { label: 'Upload Unit', key: 'UploadUnit' },
   { label: 'Min RTT Value', key: 'MinRTTValue' },
   { label: 'Min RTT Unit', key: 'MinRTTUnit' },
-];
-
-const data = [
-  {
-    run: {
-      id: 1,
-      TestName: 'ndt7',
-    },
-    server: {
-      ip: '0.0.0.0',
-    },
-  },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -429,7 +417,7 @@ export default function Home(props) {
             </Grid>
             <Grid item xs={12} sm={2}>
               <Button variant="contained">
-                <CSVLink data={data} headers={headers}>
+                <CSVLink data={runs} headers={headers}>
                   Export
                 </CSVLink>
               </Button>
