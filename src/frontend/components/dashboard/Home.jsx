@@ -2,12 +2,12 @@
 import React, { Suspense } from 'react';
 import { CSVLink } from 'react-csv';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Plot from 'react-plotly.js';
+import _ from 'lodash/core';
+import moment from 'moment';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 // import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -396,7 +396,14 @@ export default function Home(props) {
             </Grid>
           </Box>
           <Grid container justify="space-between" alignItems="center">
-            <Grid container alignItems="center" item spacing={2} xs={12} sm={10}>
+            <Grid
+              container
+              alignItems="center"
+              item
+              spacing={2}
+              xs={12}
+              sm={10}
+            >
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
                   Group by
@@ -406,7 +413,8 @@ export default function Home(props) {
                 <ToggleButtonGroup
                   value={group}
                   exclusive
-                  onChange={handleGroup}>
+                  onChange={handleGroup}
+                >
                   <ToggleButton value="all" aria-label="All tests">
                     All tests
                   </ToggleButton>
