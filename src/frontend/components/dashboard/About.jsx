@@ -69,7 +69,6 @@ export default function About() {
         .then(res => {
           if (status === 200 && res.data) {
             const settings = new Map(res.data.map(i => [i.key, i.value]));
-            console.log('about: ', settings.get('about'));
             setAbout(settings.get('about'));
             setContact(settings.get('contact'));
             setForum(settings.get('forum'));
@@ -110,7 +109,6 @@ export default function About() {
         })
         .then(res => {
           if (status === 200 && res.data) {
-            console.debug('glossaries: ', res.data);
             setGlossaries(res.data);
             return;
           } else {

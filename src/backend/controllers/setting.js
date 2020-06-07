@@ -38,7 +38,7 @@ export default function controller(settings, thisUser) {
     },
   );
 
-  router.get('/settings', thisUser.can('access admin pages'), async ctx => {
+  router.get('/settings', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving settings.`);
     let setting;
 

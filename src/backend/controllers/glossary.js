@@ -60,7 +60,7 @@ export default function controller(glossaries, thisUser) {
     },
   );
 
-  router.get('/glossaries', thisUser.can('view this library'), async ctx => {
+  router.get('/glossaries', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving glossaries.`);
     let res;
     try {

@@ -172,7 +172,6 @@ export default class LibraryManager {
         user_count: this._db.raw('COUNT(library_users.uid)'),
       })
       .from('libraries')
-      .leftJoin('library_users', 'libraries.id', 'library_users.lid')
       .modify(queryBuilder => {
         if (from) {
           queryBuilder.where('created_at', '>', from);
@@ -197,10 +196,15 @@ export default class LibraryManager {
         }
 
         if (of_user) {
-          queryBuilder.join(
+          queryBuilder.join('library_users', {
+            'libraries.id': 'library_users.lid',
+            'library_users.uid': knex.raw('?', [of_user]),
+          });
+        } else {
+          queryBuilder.leftJoin(
             'library_users',
-            'library_users.uid',
-            knex.raw('?', [of_user]),
+            'libraries.id',
+            'library_users.lid',
           );
         }
       });

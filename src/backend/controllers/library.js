@@ -172,7 +172,7 @@ export default function controller(libraries, thisUser) {
         sort_by: query.sort_by,
         from: from,
         to: to,
-        of_user: query.user,
+        of_user: query.of_user,
       });
       ctx.response.body = {
         statusCode: 200,

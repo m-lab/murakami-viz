@@ -32,7 +32,7 @@ async function validate_query(query) {
 export default function controller(faqs, thisUser) {
   const router = new Router();
 
-  router.post('/faqs', thisUser.can('access private pages'), async ctx => {
+  router.post('/faqs', thisUser.can('access admin pages'), async ctx => {
     log.debug('Adding new faq.');
     let faq;
 
@@ -52,7 +52,7 @@ export default function controller(faqs, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/faqs', thisUser.can('view this library'), async ctx => {
+  router.get('/faqs', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving faqs.`);
     let res;
     try {

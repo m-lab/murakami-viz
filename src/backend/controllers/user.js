@@ -228,16 +228,13 @@ export default function controller(users, thisUser) {
     }
   });
 
-  router.get('/users/:id', thisUser.can('view this library'), async ctx => {
+  router.get('/users/:id', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving user ${ctx.params.id}.`);
     let user;
 
     try {
       if (!Number.isInteger(parseInt(ctx.params.id))) {
         user = await users.findByUsername(ctx.params.id);
-        console.log('+++++++++++++++++++++++++++++++++++');
-        console.log(user);
-        console.log('+++++++++++++++++++++++++++++++++++');
       } else {
         user = await users.findById(ctx.params.id);
       }
