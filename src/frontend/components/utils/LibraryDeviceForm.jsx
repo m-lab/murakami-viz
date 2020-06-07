@@ -14,10 +14,7 @@ import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-// import Tabs from '@material-ui/core/Tabs';
-// import Tab from '@material-ui/core/Tab';
 import TextField from '@material-ui/core/TextField';
-// import Typography from '@material-ui/core/Typography';
 
 // icon imports
 import ClearIcon from '@material-ui/icons/Clear';
@@ -78,16 +75,11 @@ export default function LibraryDeviceForm(props) {
   const classes = useStyles();
   const { onClose, open, row, editMode, device, devices, setDevices } = props;
 
-  console.log("library ? ", row)
-
   const handleClose = () => {
     onClose();
   }
 
   const [inputs, setInputs] = React.useState({})
-  
-  console.log("we editing or nah? ", editMode)
-  console.log("editing which one?", device)
 
   const handleInputChange = (event) => {
     event.persist();
@@ -100,34 +92,34 @@ export default function LibraryDeviceForm(props) {
   const handleSubmit = event => {
     event.preventDefault();
 
-    inputs.deviceid || inputs.deviceid !== '' ? 
-
-    fetch(`/api/v1/libraries/${row.id}/devices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(inputs)
-    })
-    .then(response => response.json())
-    .then(results => {
-       if (results.statusCode === 201) {
-         let updatedDevices = devices.concat(inputs);
-         setDevices(updatedDevices)
-         onClose();
-         setInputs({})
-       }
-    })
-    .catch(error => {
-      alert("An error occurred. Please try again or contact an administrator.")
-    })    
-    : alert("Measurement devices must have a deviceid")
+    if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
+      fetch(`/api/v1/libraries/${row.id}/devices`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputs)
+      })
+      .then(response => response.json())
+      .then(results => {
+        if (results.statusCode === 201) {
+          let updatedDevices = devices.concat(inputs);
+          setDevices(updatedDevices)
+          onClose();
+          setInputs({})
+        }
+      })
+      .catch(error => {
+        alert("An error occurred. Please try again or contact an administrator.")
+      })    
+   } else {
+     alert("Measurement devices must have a name and a deviceid.")
+   }
   }
 
   const handleEdit = deviceToEdit => {
 
-    if (inputs.deviceid !== '') {
-
+    if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
       const data = {
         data: inputs,
       };
@@ -142,8 +134,11 @@ export default function LibraryDeviceForm(props) {
         .then(response => response.json())
         .then(results => {
           if (results.statusCode === 200) {
-            let updatedDevices = devices.map(device => device.id === results.data[0].id ? results.data[0] : device)
+            let updatedDevices = devices.map(device =>
+              device.id === results.data[0].id ? results.data[0] : device,
+            );
             setDevices(updatedDevices);
+            setInputs({});
             onClose();
           }
         })
@@ -153,7 +148,7 @@ export default function LibraryDeviceForm(props) {
           );
         });
     } else {
-      alert("Measurement devices must have a deviceid")
+      alert('Measurement devices must have a name and a deviceid.');
     }
   }
 

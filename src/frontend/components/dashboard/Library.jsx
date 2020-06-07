@@ -70,21 +70,21 @@ export default function Library(props) {
   };
 
   const [devices, setDevices] = React.useState([]);
-  const [openAddDevice, setOpenAddDevice] = React.useState(false);
+  const [openDevice, setOpenDevice] = React.useState(false);
   const [edit, setEdit] = React.useState(false)
   const [deviceToEdit, setDeviceToEdit] = React.useState({})
 
   const showAddDevice = () => {
-    setOpenAddDevice(true);
+    setOpenDevice(true);
   } 
 
-  const closeAddDevice = () => {
-    setOpenAddDevice(false);
+  const closeDevice = () => {
+    setOpenDevice(false);
     setEdit(false);
   }
 
   const openEdit = device => {
-    setOpenAddDevice(true);
+    setOpenDevice(true);
     setEdit(true);
     setDeviceToEdit(device)
   }
@@ -99,14 +99,15 @@ export default function Library(props) {
     })
     .then(devices => {
       if (status === 200) {
-        console.log("devices response: ", devices.data)
         setDevices(devices.data)
       }
+    })
+    .catch(error => {
+      alert('An error occurred. Please try again or contact an administrator.');
     })
   }, [])
 
   const handleDeviceDelete = deviceToDelete => {
-    console.log("to delete: ", deviceToDelete)
     fetch(`api/v1/devices/${deviceToDelete.id}`, {
       method: 'DELETE',
       headers: {
@@ -121,7 +122,6 @@ export default function Library(props) {
       }
     })
     .catch(error => {
-      console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
       alert(
         'An error occurred. Please try again or contact an administrator.',
       );
@@ -222,7 +222,6 @@ export default function Library(props) {
         }
       })
       .catch(error => {
-        console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -537,8 +536,8 @@ export default function Library(props) {
                     Add a device
                   </Button>
                   <LibraryDeviceForm 
-                    open={openAddDevice} 
-                    onClose={closeAddDevice} 
+                    open={openDevice} 
+                    onClose={closeDevice} 
                     row={library}
                     editMode={edit}
                     device={deviceToEdit}
