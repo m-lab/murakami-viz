@@ -20,6 +20,8 @@ export function up(knex) {
         .unique()
         .index()
         .notNullable();
+      table.string('phone').index();
+      table.string('extension').index();
       table.boolean('isActive').defaultTo(true);
       table.timestamps(true, true);
     })

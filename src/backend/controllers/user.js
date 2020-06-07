@@ -250,15 +250,25 @@ export default function controller(users, thisUser) {
     }
   });
 
-  router.put('/users/:id', thisUser.can('access admin pages'), async ctx => {
+  router.put('/users/:id', thisUser.can('access private pages'), async ctx => {
     log.debug(`Updating user ${ctx.params.id}.`);
     let user;
 
     try {
       if (ctx.params.lid) {
+        if (!thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
+          ctx.throw(403, 'Access denied.');
+        }
         user = await users.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
-        user = await users.update(ctx.params.id, ctx.request.body.data);
+        const id = parseInt(ctx.params.id);
+        if (id === ctx.state.user[0].id) {
+          user = await users.updateSelf(ctx.params.id, ctx.request.body.data);
+        } else if (thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
+          user = await users.update(ctx.params.id, ctx.request.body.data);
+        } else {
+          ctx.throw(403, 'Access denied.');
+        }
       }
 
       // workaround for sqlite

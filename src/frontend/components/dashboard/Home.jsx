@@ -2,13 +2,13 @@
 import React, { Suspense } from 'react';
 import { CSVLink } from 'react-csv';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Plot from 'react-plotly.js';
+import _ from 'lodash/core';
+import moment from 'moment';
+import { START_DATE } from '@datepicker-react/hooks';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-// import { DateRangePicker } from 'material-ui-datetime-range-picker';
 import Grid from '@material-ui/core/Grid';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -22,11 +22,11 @@ import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
 
 const headers = [
-  { label: 'id', key: 'run.id' },
-  { label: 'Test Name', key: 'run.TestName' },
+  { label: 'id', key: 'id' },
+  { label: 'Test Name', key: 'TestName' },
   { label: 'Test Error', key: 'TestError' },
   { label: 'Server Name', key: 'ServerName' },
-  { label: 'Server IP', key: 'server.ip' },
+  { label: 'Server IP', key: 'ServerIP' },
   { label: 'Client IP', key: 'ClientIP' },
   { label: 'Murakami Location', key: 'MurakamiLocation' },
   { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
@@ -43,18 +43,6 @@ const headers = [
   { label: 'Upload Unit', key: 'UploadUnit' },
   { label: 'Min RTT Value', key: 'MinRTTValue' },
   { label: 'Min RTT Unit', key: 'MinRTTUnit' },
-];
-
-const data = [
-  {
-    run: {
-      id: 1,
-      TestName: 'ndt7',
-    },
-    server: {
-      ip: '0.0.0.0',
-    },
-  },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -147,35 +135,58 @@ export default function Home(props) {
   const [summary, setSummary] = React.useState('ndt7');
 
   const handleSummary = (event, newSummary) => {
-    setSummary(newSummary);
+    if ( newSummary.length ) {
+      setSummary(newSummary);
+    }
   };
+
+  // handle date range
+  const today = new Date();
+  const weekAgo = new Date(today.setDate(today.getDate() - 7));
+  const [ dateRange, setDateRange ] = React.useState({
+    startDate: weekAgo,
+    endDate: new Date(),
+    focusedInput: START_DATE,
+  });
+
+  const handleDateSubmit = (range) => {
+    setDateRange(range);
+  }
 
   // handle connection change
   const [connections, setConnections] = React.useState(['wired']);
 
   const handleConnection = (event, newConnections) => {
-    setConnections(newConnections);
+    if ( newConnections.length ) {
+      setConnections(newConnections);
+    }
   };
 
   // handle test type change
   const [testTypes, setTestTypes] = React.useState(['ndt7']);
 
   const handleTestType = (event, newTestTypes) => {
-    setTestTypes(newTestTypes);
+    if ( newTestTypes.length ) {
+      setTestTypes(newTestTypes);
+    }
   };
 
   // handle metric change
   const [metric, setMetric] = React.useState('DownloadValue');
 
-  const handleMetric = (event, nextMetric) => {
-    setMetric(nextMetric);
+  const handleMetric = (event, newMetric) => {
+    if ( newMetric.length ) {
+      setMetric(newMetric);
+    }
   };
 
   // handle group by change
   const [group, setGroup] = React.useState('all');
 
-  const handleGroup = (event, nextGroup) => {
-    setGroup(nextGroup);
+  const handleGroup = (event, newGroup) => {
+    if ( newGroup.length ) {
+      setGroup(newGroup);
+    }
   };
 
   // fetch api data
@@ -321,7 +332,7 @@ export default function Home(props) {
                   <Typography variant="overline" display="block" gutterBottom>
                     Date range
                   </Typography>
-                  <DatePicker />
+                  <DatePicker dateRange={dateRange} handleDateSubmit={handleDateSubmit} />
                 </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>
@@ -391,12 +402,20 @@ export default function Home(props) {
                   testTypes={testTypes}
                   metric={metric}
                   group={group}
+                  dateRange={dateRange}
                 />
               </Grid>
             </Grid>
           </Box>
           <Grid container justify="space-between" alignItems="center">
-            <Grid container alignItems="center" item spacing={2} xs={12} sm={10}>
+            <Grid
+              container
+              alignItems="center"
+              item
+              spacing={2}
+              xs={12}
+              sm={10}
+            >
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
                   Group by
@@ -406,7 +425,8 @@ export default function Home(props) {
                 <ToggleButtonGroup
                   value={group}
                   exclusive
-                  onChange={handleGroup}>
+                  onChange={handleGroup}
+                >
                   <ToggleButton value="all" aria-label="All tests">
                     All tests
                   </ToggleButton>
@@ -421,7 +441,7 @@ export default function Home(props) {
             </Grid>
             <Grid item xs={12} sm={2}>
               <Button variant="contained">
-                <CSVLink data={data} headers={headers}>
+                <CSVLink data={runs} headers={headers}>
                   Export
                 </CSVLink>
               </Button>

@@ -9,12 +9,34 @@ const schema = Joi.object({
   lastName: Joi.string(),
   location: Joi.string(),
   email: Joi.string(),
+  phone: Joi.string(),
+  extension: Joi.number(),
   role: Joi.number(),
 });
 
-export async function validate(data) {
+// schema for users editing their own account
+const userSchema = Joi.object({
+  username: Joi.string(),
+  oldPassword: Joi.string().allow(''),
+  newPassword: Joi.string().allow(''),
+  id: Joi.number(),
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  location: Joi.string(),
+  email: Joi.string(),
+  phone: Joi.string(),
+  extension: Joi.number(),
+  role: Joi.number(),
+});
+
+export async function validate(data, user = false) {
   try {
-    const value = await schema.validateAsync(data);
+    let value;
+    if (user) {
+      value = await userSchema.validateAsync(data);
+    } else {
+      value = await schema.validateAsync(data);
+    }
     return value;
   } catch (err) {
     throw new UnprocessableError('Unable to validate test JSON: ', err);
