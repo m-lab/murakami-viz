@@ -87,9 +87,7 @@ export default class User {
 
     try {
       if (user.oldPassword && user.newPassword) {
-        console.debug('about to get user record: ', user);
         const record = await this.findById(id, true);
-        console.debug('user record: ', record);
         if (!comparePass(user.oldPassword, record[0].password)) {
           throw new Error('Authentication failed.');
         }
