@@ -114,6 +114,7 @@ export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { user, library } = props;
+  console.log(props);
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {

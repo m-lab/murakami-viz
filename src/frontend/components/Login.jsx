@@ -61,10 +61,28 @@ export default function Login(props) {
               state: { user: results.user },
             });
           } else {
-            return history.push({
-              pathname: '/dashboard',
-              state: { user: results.user },
-            });
+            let libraryStatus;
+            fetch(`/api/v1/libraries?of_user=${results.user.id}`)
+              .then(librariesResponse => {
+                libraryStatus = librariesResponse.status;
+                return librariesResponse.json();
+              })
+              .then(libraries => {
+                if (libraryStatus === 200) {
+                  console.log(libraries.data[0]
+                  );
+                  return history.push({
+                    pathname: '/dashboard',
+                    state: {
+                      library: libraries.data[0],
+                      user: results.user,
+                    },
+                  });
+                } else {
+                  const error = processError(libraries);
+                  throw new Error(error);
+                }
+              })
           }
         } else {
           setError(true);

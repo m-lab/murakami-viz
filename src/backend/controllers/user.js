@@ -87,6 +87,9 @@ export default function controller(users, thisUser) {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await users.findByUsername(username, true);
+        console.log('****************************');
+        console.log(user);
+        console.log('****************************');
         if (!comparePass(password, user.password)) {
           done(null, false);
         } else {
@@ -232,6 +235,9 @@ export default function controller(users, thisUser) {
     try {
       if (!Number.isInteger(parseInt(ctx.params.id))) {
         user = await users.findByUsername(ctx.params.id);
+        console.log('+++++++++++++++++++++++++++++++++++');
+        console.log(user);
+        console.log('+++++++++++++++++++++++++++++++++++');
       } else {
         user = await users.findById(ctx.params.id);
       }
