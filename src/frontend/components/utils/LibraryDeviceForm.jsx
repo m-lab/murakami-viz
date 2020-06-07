@@ -100,6 +100,8 @@ export default function LibraryDeviceForm(props) {
   const handleSubmit = event => {
     event.preventDefault();
 
+    inputs.deviceid || inputs.deviceid !== '' ? 
+
     fetch(`/api/v1/libraries/${row.id}/devices`, {
       method: 'POST',
       headers: {
@@ -112,29 +114,47 @@ export default function LibraryDeviceForm(props) {
        if (results.statusCode === 201) {
          let updatedDevices = devices.concat(inputs);
          setDevices(updatedDevices)
+         onClose();
+         setInputs({})
        }
     })
     .catch(error => {
       alert("An error occurred. Please try again or contact an administrator.")
-    })
-    onClose();
+    })    
+    : alert("Measurement devices must have a deviceid")
   }
 
   const handleEdit = deviceToEdit => {
-    fetch(`api/v1/devices/${deviceToEdit.id}`, {
-      method: 'PUT',
-      headers: {
-      'Content-Type': 'application/json',
-    },
-      body: JSON.stringify(inputs)
-    })
-    .then(response => response.json())
-    .then(results => {
-      if (results.statusCode === 200) {
-        console.log(results)
-      }
-    })
-    onClose();
+
+    if (inputs.deviceid !== '') {
+
+      const data = {
+        data: inputs,
+      };
+
+      fetch(`api/v1/devices/${deviceToEdit.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(results => {
+          if (results.statusCode === 200) {
+            let updatedDevices = devices.map(device => device.id === results.data[0].id ? results.data[0] : device)
+            setDevices(updatedDevices);
+            onClose();
+          }
+        })
+        .catch(error => {
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+        });
+    } else {
+      alert("Measurement devices must have a deviceid")
+    }
   }
 
 
@@ -170,7 +190,7 @@ export default function LibraryDeviceForm(props) {
           <Button
             type="submit"
             label="Save"
-            onClick={handleSubmit}
+            onClick={editMode ? ()=>handleEdit(device) : handleSubmit}
             className={classes.cancelButton}
             variant="contained"
             disableElevation

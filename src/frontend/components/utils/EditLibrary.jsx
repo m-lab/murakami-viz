@@ -241,8 +241,7 @@ export default function EditLibrary(props) {
           >
             <Tab label="Basic info" {...a11yProps(0)} />
             <Tab label="Network" {...a11yProps(1)} />
-            <Tab label="Devices" {...a11yProps(2)} />
-            <Tab label="Users" {...a11yProps(3)} />
+            <Tab label="Users" {...a11yProps(2)} />
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
@@ -450,7 +449,7 @@ export default function EditLibrary(props) {
             </Grid>
           </Grid>
         </TabPanel>
-        <TabPanel value={value} index={2}>
+        {/* <TabPanel value={value} index={2}>
           <TextField
             className={classes.formField}
             id="library-device-name"
@@ -550,7 +549,7 @@ export default function EditLibrary(props) {
             defaultValue={row.device_mac_address}
             value={inputs.device_mac_address}
           />
-        </TabPanel>
+        </TabPanel> */}
         <TabPanel value={value} index={3}>
           Users
         </TabPanel>
