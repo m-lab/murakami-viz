@@ -65,7 +65,9 @@ function formatName(first, last) {
 }
 
 function formatRole(role) {
-  return role.charAt(0).toUpperCase() + role.slice(1);
+  if (typeof role === 'string' || role instanceof String) {
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  }
 }
 
 export default function ViewUser(props) {
