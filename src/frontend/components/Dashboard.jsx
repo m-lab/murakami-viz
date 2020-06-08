@@ -81,6 +81,8 @@ export default function Dashboard(props) {
   const [library, setLibrary] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
 
+  console.log(user);
+
   React.useEffect(() => {
     if (!props.location.state) {
       setLibrary(props.library);
@@ -134,6 +136,18 @@ export default function Dashboard(props) {
                   {user.role_name}
                 </p>
               </Box>
+              {
+                user.role_name === 'admins' &&
+                  <Box ml={1}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      href="/admin"
+                    >
+                      Admin
+                    </Button>
+                  </Box>
+              }
               <Box ml={1}>
                 <Button
                   variant="outlined"

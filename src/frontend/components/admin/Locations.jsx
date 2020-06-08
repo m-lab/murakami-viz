@@ -20,7 +20,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
-import AddLibrary from '../utils/AddLibrary.jsx';
+import AddLibrary from './utils/AddLibrary.jsx';
 import Loading from '../Loading.jsx';
 // import ViewUser from '../utils/ViewUser.jsx';
 
