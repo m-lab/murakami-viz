@@ -2,7 +2,7 @@
  * Middleware shim to get current library and add it to context.
  *
  * @param {Object} ctx - the koa context object
- * @param {funtion} next - continue to next middleware
+ * @param {function} next - continue to next middleware
  */
 
 const currentLibrary = () => {

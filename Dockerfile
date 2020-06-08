@@ -37,13 +37,14 @@ EXPOSE 3000
 
 WORKDIR /app
 
-COPY --from=build /src/node_modules node_modules
-COPY --from=build /src/dist dist
+COPY --from=build /src .
 
 HEALTHCHECK --interval=5s \
             --timeout=5s \
             --retries=6 \
             CMD curl -fs http://localhost:3000/ || exit 1
+
+ENV NODE_ENV=production
 
 USER node
 

@@ -7,7 +7,6 @@ import bodyParser from 'koa-body';
 import flash from 'koa-better-flash';
 import mount from 'koa-mount';
 import serveStatic from 'koa-static';
-import session from 'koa-session';
 import passport from 'koa-passport';
 import koa404handler from 'koa-404-handler';
 import errorHandler from 'koa-better-error-handler';
@@ -15,6 +14,7 @@ import db from './db.js';
 import authHandler from './middleware/auth.js';
 import cloudflareAccess from './middleware/cloudflare.js';
 import currentLibrary from './middleware/library.js';
+import sessionWrapper from './middleware/session.js';
 //import ssr from './middleware/ssr.js';
 import UserController from './controllers/user.js';
 import GroupController from './controllers/group.js';
@@ -107,21 +107,23 @@ export default function configServer(config) {
     settings.allowedMethods(),
     systems.routes(),
     systems.allowedMethods(),
+    ctx => ctx.throw(404, 'Not a valid API method.'), //fallthrough
   ]);
-
-  // Set session secrets
-  server.keys = Array.isArray(config.secrets)
-    ? config.secrets
-    : [config.secrets];
 
   // Set custom error handler
   server.context.onerror = errorHandler;
 
   // Specify that this is our backend API (for better-errror-handler)
-  // server.context.api = true;
+  server.context.api = true;
+
+  // Setup session middleware
+  server.use(async (ctx, next) => {
+    let session = await sessionWrapper(server, db);
+    await session(ctx, next);
+  });
 
   // If we're running behind Cloudflare, set the access parameters.
-  if (config.cfaccess_url) {
+  if (config.cfaccess_url && config.cfaccess_audience) {
     server.use(async (ctx, next) => {
       let cfa = await cloudflareAccess();
       await cfa(ctx, next);
@@ -148,12 +150,16 @@ export default function configServer(config) {
 
   server
     .use(bodyParser({ multipart: true, json: true }))
-    .use(session(server))
-    .use(koa404handler)
-    .use(flash())
     .use(passport.initialize())
     .use(passport.session())
     .use(cors())
+    .use(mount('/api/v1', apiV1Router));
+
+  server.context.api = false;
+  server
+    .use(koa404handler)
+    .use(flash())
+    .use(mount('/static', serveStatic(STATIC_DIR)))
     .use(
       mount('/admin', async (ctx, next) => {
         if (ctx.isAuthenticated()) {
@@ -165,14 +171,12 @@ export default function configServer(config) {
         }
       }),
     )
-    .use(mount('/api/v1', apiV1Router))
-    .use(mount('/static', serveStatic(STATIC_DIR)))
-    .use(
-      async (ctx, next) =>
-        await serveStatic(STATIC_DIR)(
-          Object.assign(ctx, { path: 'index.html' }),
-          next,
-        ),
-    );
+    .use(async (ctx, next) => {
+      ctx.api = false;
+      await serveStatic(STATIC_DIR)(
+        Object.assign(ctx, { path: 'index.html' }),
+        next,
+      );
+    });
   return server.callback();
 }

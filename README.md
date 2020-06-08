@@ -4,17 +4,16 @@ A visualization service of Murakami tests using Koa and React.
 
 ## Requirements
 
-- [Node.js](https://nodejs.org) of version `>=10`
+- [Node.js](https://nodejs.org) of version `>=12`
 - `npm`
 
 ## Structure
 
-Murakami-viz is composed of 3 different parts:
+Murakami-viz is composed of 2 different parts:
 
 - A [React](https://reactjs.org/)-based **frontend**.
 - A [Koa](https://koajs.com)-based **backend** that renders & serves the
   frontend and exposes an API used by the frontend.
-- A standalone Javascript **worker**.
 
 These parts are located here in this repository:
 
@@ -22,7 +21,6 @@ These parts are located here in this repository:
 src/backend  # The backend components
 src/common   # Common code and assets
 src/frontend # The React frontend
-src/worker   # The standalone worker
 ```
 
 ## Configuration
@@ -51,7 +49,7 @@ install Murakami-viz's dependencies:
 npm install
 ```
 
-Then, build all three components:
+Then, build all components:
 
 ```
 npm run build
