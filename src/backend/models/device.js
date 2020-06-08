@@ -11,6 +11,10 @@ export default class DeviceManager {
   }
 
   async create(device, lid) {
+    console.log('***************************');
+    console.log(device);
+    console.log(lid);
+    console.log('***************************');
     try {
       await validate(device);
       let ids;

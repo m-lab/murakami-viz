@@ -157,7 +157,7 @@ export default function EditLibrary(props) {
       .then(response => response.json())
       .then(() => {
         // onRowUpdate(results.data[0]);
-        alert('User edited successfully.');
+        alert('Library edited successfully.');
         return;
       })
       .catch(error => {
@@ -241,7 +241,6 @@ export default function EditLibrary(props) {
           >
             <Tab label="Basic info" {...a11yProps(0)} />
             <Tab label="Network" {...a11yProps(1)} />
-            <Tab label="Users" {...a11yProps(2)} />
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
@@ -448,9 +447,6 @@ export default function EditLibrary(props) {
               />
             </Grid>
           </Grid>
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          Users
         </TabPanel>
         <div className={classes.saveButtonContainer}>
           <Button

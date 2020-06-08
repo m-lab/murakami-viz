@@ -76,7 +76,7 @@ export default function Library(props) {
 
   const showAddDevice = () => {
     setOpenDevice(true);
-  } 
+  }
 
   const closeDevice = () => {
     setOpenDevice(false);
@@ -143,7 +143,7 @@ export default function Library(props) {
       .then(libraryIPs => {
         if (ipStatus === 200 && libraryIPs.ipCount > 0) {
           setLibraryIPs(
-            libraryIPs.data.map(libraryIP => libraryIP.ip) // get just the IP addresses 
+            libraryIPs.data.map(libraryIP => libraryIP.ip) // get just the IP addresses
           );
           return;
         } else if (ipStatus === 200 && libraryIPs.ipCount === 0) {
@@ -395,7 +395,7 @@ export default function Library(props) {
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
             <TableBody>
-          { devices && devices.length > 0 ? 
+          { devices && devices.length > 0 ?
             devices.map(device => {
              return <>
                <ExpansionPanel>
@@ -455,7 +455,7 @@ export default function Library(props) {
                        Connection Type
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                      {device.connection_type} 
+                      {device.connection_type}
                     </TableCell>
                    </TableRow>
                    <TableRow>
@@ -495,7 +495,7 @@ export default function Library(props) {
                        MAC address
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                       {device.mac} 
+                       {device.mac}
                     </TableCell>
                    </TableRow>
                    <TableRow>
@@ -535,9 +535,9 @@ export default function Library(props) {
                   >
                     Add a device
                   </Button>
-                  <LibraryDeviceForm 
-                    open={openDevice} 
-                    onClose={closeDevice} 
+                  <LibraryDeviceForm
+                    open={openDevice}
+                    onClose={closeDevice}
                     row={library}
                     editMode={edit}
                     device={deviceToEdit}
@@ -556,7 +556,7 @@ export default function Library(props) {
         </Typography>
         <TableContainer>
           <Table className={classes.table} aria-label="basic information table">
-            <TableBody> 
+            <TableBody>
               { libraryIPs && libraryIPs.length > 0 ?
                 libraryIPs.map(ipAddress => {
                    return <TableRow>
@@ -564,7 +564,7 @@ export default function Library(props) {
                               {ipAddress}
                             </TableCell>
                             <TableCell>
-                              <IconButton 
+                              <IconButton
                                 aria-label="delete"
                                 onClick={()=>handleIpDelete(ipAddress)}
                               >
@@ -610,7 +610,7 @@ export default function Library(props) {
                   </Button>
                 </TableCell>
               </TableRow>
-              : 
+              :
               <TableRow>
                 <TableCell className={classes.tableCell}>
                   <Button

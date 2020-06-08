@@ -91,6 +91,7 @@ export default function LibraryDeviceForm(props) {
 
   const handleSubmit = event => {
     event.preventDefault();
+    console.log(inputs);
 
     if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
       fetch(`/api/v1/libraries/${row.id}/devices`, {
@@ -111,20 +112,20 @@ export default function LibraryDeviceForm(props) {
       })
       .catch(error => {
         alert("An error occurred. Please try again or contact an administrator.")
-      })    
+      })
    } else {
      alert("Measurement devices must have a name and a deviceid.")
    }
   }
 
-  const handleEdit = deviceToEdit => {
+  const handleEdit = inputs => {
 
     if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
       const data = {
         data: inputs,
       };
 
-      fetch(`api/v1/devices/${deviceToEdit.id}`, {
+      fetch(`api/v1/devices/${inputs.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -229,17 +230,22 @@ export default function LibraryDeviceForm(props) {
               defaultValue={editMode ? device.deviceid : ``}
             value={inputs.deviceid}
             />
-            <TextField
-              className={classes.formField}
-              id="library-device-location"
-              label="Location"
-              name="location"
-              fullWidth
-              variant="outlined"
-              onChange={handleInputChange}
-              defaultValue={editMode ? device.location : ``}
-              value={inputs.location}
-            />
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="library-device-location-label">Location</InputLabel>
+              <Select
+                labelId="library-device-location-label"
+                className={classes.formField}
+                id="library-device-location"
+                label="Location"
+                name="location"
+                onChange={handleInputChange}
+                defaultValue={row.id}
+                value={inputs.location}
+                disabled
+              >
+                <MenuItem value={row.id} selected>{row.name}</MenuItem>
+              </Select>
+            </FormControl>
             <FormControl variant="outlined" className={classes.formControl}>
               <InputLabel id="library-network-type">Network type</InputLabel>
               <Select
@@ -343,4 +349,4 @@ LibraryDeviceForm.propTypes = {
   device: PropTypes.object,
   devices: PropTypes.array,
   setDevices: PropTypes.func
-} 
+}
