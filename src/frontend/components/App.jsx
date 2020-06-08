@@ -145,7 +145,7 @@ export default function App() {
       setAuthenticated(false);
       setIsLoaded(true);
     }
-  }, []);
+  }, [authenticated]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
