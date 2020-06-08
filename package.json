@@ -208,6 +208,7 @@
   },
   "jest": {
     "verbose": true,
+    "testTimeout": 30000,
     "setupFiles": [
       "./.jest/env.js"
     ]
