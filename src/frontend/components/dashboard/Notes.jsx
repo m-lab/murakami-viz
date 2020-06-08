@@ -7,6 +7,7 @@ import Moment from 'react-moment';
 import Truncate from 'react-truncate';
 
 // material ui imports
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -257,35 +258,51 @@ export default function EnhancedTable(props) {
 
   React.useEffect(() => {
     let status;
-    fetch(`/api/v1/libraries/${library.id}/notes`)
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(notes => {
-        if (status === 200) {
-          setRows(notes.data);
-          emptyRows =
-            rowsPerPage -
-            Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+    if ( library ) {
+      fetch(`/api/v1/libraries/${library.id}/notes`)
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(notes => {
+          if (status === 200) {
+            setRows(notes.data);
+            emptyRows =
+              rowsPerPage -
+              Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+            setIsLoaded(true);
+            return;
+          } else {
+            processError(notes);
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .catch(error => {
+          setError(error);
+          console.error(error.name + error.message);
           setIsLoaded(true);
-          return;
-        } else {
-          processError(notes);
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        setError(error);
-        console.error(error.name + error.message);
-        setIsLoaded(true);
-      });
+        });
+    } else {
+      setIsLoaded(true);
+    }
+
   }, []);
 
-  if (error) {
+  if ( error ) {
     return <div>Error: {error.message}</div>;
-  } else if (!isLoaded) {
+  } else if ( !isLoaded ) {
     return <Loading />;
+  } else if ( !library ) {
+    return (
+      <Suspense>
+        <Box mb={9} >
+          <Typography component="p" variant="body1">
+            No notes to display.
+          </Typography>
+        </Box>
+      </Suspense>
+    );
   } else {
     return (
       <Suspense>

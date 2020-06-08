@@ -208,32 +208,50 @@ export default function Home(props) {
 
   React.useEffect(() => {
     let status;
-    fetch(`/api/v1/libraries/${library.id}/runs`)
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(response => {
-        if (status === 200) {
-          setRuns(response.data);
+    if ( library ) {
+      fetch(`/api/v1/libraries/${library.id}/runs`)
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(response => {
+          if (status === 200) {
+            setRuns(response.data);
+            setIsLoaded(true);
+            return;
+          } else {
+            processError(response);
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .catch(error => {
+          setError(error);
+          console.err(error.name + error.message);
           setIsLoaded(true);
-          return;
-        } else {
-          processError(response);
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        setError(error);
-        console.err(error.name + error.message);
-        setIsLoaded(true);
-      });
+        });
+    } else {
+      setIsLoaded(true);
+    }
+
   }, []);
 
-  if (error) {
+  if ( error ) {
     return <div>Error: {error.message}</div>;
-  } else if (!isLoaded) {
+  } else if ( !isLoaded ) {
     return <Loading />;
+  } else if ( !library ) {
+    return (
+      <Suspense>
+        <Box mb={9} >
+          <Typography component="h1" variant="h3">
+            MLBN Data Visualization
+          </Typography>
+          <Typography component="p" variant="body1">
+            No library to display. Contact an admin for help.
+          </Typography>
+        </Box>
+      </Suspense>
+    );
   } else {
     return (
       <Suspense>
