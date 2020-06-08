@@ -257,16 +257,26 @@ export default function EditLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue={row.name}
+              defaultValue=''
               // onChange={handleInputChange}
-              value={inputs.name}
+              value={0}
               disabled
             >
-              <MenuItem value={row.name} selected>
-                {row.name}
+              <MenuItem value='' selected>
               </MenuItem>
             </Select>
           </FormControl>
+          <TextField
+            className={classes.formField}
+            id="library-name"
+            label="Library Name"
+            name="name"
+            fullWidth
+            variant="outlined"
+            defaultValue={row.name}
+            onChange={handleInputChange}
+            value={inputs.name}
+          />
           <TextField
             className={classes.formField}
             id="library-physical-address"

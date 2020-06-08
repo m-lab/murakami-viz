@@ -81,8 +81,6 @@ export default function Dashboard(props) {
   const [library, setLibrary] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
 
-  console.log(user);
-
   React.useEffect(() => {
     if (!props.location.state) {
       setLibrary(props.library);
