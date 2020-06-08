@@ -154,7 +154,7 @@ export default class User {
         }
 
         if (library) {
-          queryBuilder.where('location', '=', library);
+          queryBuilder.where('libraries.id', '=', library);
         }
 
         if (group) {
