@@ -136,7 +136,7 @@ export default function Home(props) {
   const [summary, setSummary] = React.useState('ndt7');
 
   const handleSummary = (event, newSummary) => {
-    if ( newSummary.length ) {
+    if (newSummary.length) {
       setSummary(newSummary);
     }
   };
@@ -144,21 +144,21 @@ export default function Home(props) {
   // handle date range
   const today = new Date();
   const weekAgo = new Date(today.setDate(today.getDate() - 7));
-  const [ dateRange, setDateRange ] = React.useState({
+  const [dateRange, setDateRange] = React.useState({
     startDate: weekAgo,
     endDate: new Date(),
     focusedInput: START_DATE,
   });
 
-  const handleDateSubmit = (range) => {
+  const handleDateSubmit = range => {
     setDateRange(range);
-  }
+  };
 
   // handle connection change
   const [connections, setConnections] = React.useState(['wired']);
 
   const handleConnection = (event, newConnections) => {
-    if ( newConnections.length ) {
+    if (newConnections.length) {
       setConnections(newConnections);
     }
   };
@@ -167,7 +167,7 @@ export default function Home(props) {
   const [testTypes, setTestTypes] = React.useState(['ndt7']);
 
   const handleTestType = (event, newTestTypes) => {
-    if ( newTestTypes.length ) {
+    if (newTestTypes.length) {
       setTestTypes(newTestTypes);
     }
   };
@@ -176,7 +176,7 @@ export default function Home(props) {
   const [metric, setMetric] = React.useState('DownloadValue');
 
   const handleMetric = (event, newMetric) => {
-    if ( newMetric.length ) {
+    if (newMetric.length) {
       setMetric(newMetric);
     }
   };
@@ -185,7 +185,7 @@ export default function Home(props) {
   const [group, setGroup] = React.useState('all');
 
   const handleGroup = (event, newGroup) => {
-    if ( newGroup.length ) {
+    if (newGroup.length) {
       setGroup(newGroup);
     }
   };
@@ -303,7 +303,7 @@ export default function Home(props) {
                 <Grid item xs={4}>
                   <Typography component="div">
                     Last Test:{' '}
-                    {runs
+                    {runs.length
                       ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
@@ -333,7 +333,10 @@ export default function Home(props) {
                   <Typography variant="overline" display="block" gutterBottom>
                     Date range
                   </Typography>
-                  <DatePicker dateRange={dateRange} handleDateSubmit={handleDateSubmit} />
+                  <DatePicker
+                    dateRange={dateRange}
+                    handleDateSubmit={handleDateSubmit}
+                  />
                 </Grid>
                 <Grid item>
                   <Typography variant="overline" display="block" gutterBottom>

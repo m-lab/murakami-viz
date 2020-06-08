@@ -72,7 +72,7 @@ export default function controller(libraries, thisUser) {
 
   router.get(
     '/libraries/:id/ip',
-    thisUser.can('get this library'),
+    thisUser.can('view this library'),
     async ctx => {
       log.debug(`Retrieving IPs for library ${ctx.params.id}.`);
       let ip;
@@ -84,8 +84,13 @@ export default function controller(libraries, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (ip.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: ip };
+      if (ip.length >= 0) {
+        ctx.response.body = {
+          statusCode: 200,
+          status: 'ok',
+          data: ip,
+          ipCount: ip.length,
+        };
         ctx.response.status = 200;
       } else {
         log.error(
@@ -119,6 +124,40 @@ export default function controller(libraries, thisUser) {
 
       ctx.response.body = { statusCode: 201, status: 'created', data: ip };
       ctx.response.status = 201;
+    },
+  );
+
+  router.delete(
+    '/libraries/:id/ip/:address',
+    thisUser.can('edit this library'),
+    async ctx => {
+      log.debug(
+        `Deleting IP address ${ctx.params.address} from library ${
+          ctx.params.id
+        }.`,
+      );
+      let address;
+
+      try {
+        if (ctx.params.id) {
+          address = await libraries.deleteIp(ctx.params.id, ctx.params.address);
+        }
+      } catch (err) {
+        log.error('HTTP 400 Error: ', err);
+        ctx.throw(400, `Failed to parse query: ${err}`);
+      }
+
+      if (address) {
+        ctx.response.body = { statusCode: 200, status: 'ok', data: address };
+        ctx.response.status = 200;
+      } else {
+        log.error(
+          `HTTP 404 Error: The IP address ${
+            ctx.params.address
+          } does not exist.`,
+        );
+        ctx.throw(404, `The IP address ${ctx.params.address} does not exist.`);
+      }
     },
   );
 
