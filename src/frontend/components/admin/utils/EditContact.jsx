@@ -45,7 +45,7 @@ const useStyles = makeStyles(() => ({
 
 export default function EditContact(props) {
   const classes = useStyles();
-  const { onClose, open, contactValue } = props;
+  const { onClose, open, selectedContactValue } = props;
   const [contact, setContact] = useState('');
 
   const handleClose = () => {
@@ -84,8 +84,8 @@ export default function EditContact(props) {
   };
 
   useEffect(() => {
-    setContact(contactValue);
-  }, [contactValue]);
+    setContact(selectedContactValue);
+  }, [selectedContactValue]);
 
   return (
     <Dialog
@@ -156,5 +156,5 @@ export default function EditContact(props) {
 EditContact.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  contactValue: PropTypes.string.isRequired,
+  selectedContactValue: PropTypes.string.isRequired,
 };
