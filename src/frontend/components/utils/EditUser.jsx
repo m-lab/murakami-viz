@@ -4,19 +4,20 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
 // material ui imports
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
+
+// module imports
+import Loading from '../Loading.jsx';
 
 const useStyles = makeStyles(() => ({
   cancelButton: {},
@@ -76,6 +77,10 @@ const useForm = callback => {
 export default function EditUser(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [libraries, setLibraries] = React.useState([]);
+  const [groups, setGroups] = React.useState([]);
 
   const handleClose = () => {
     onClose();
@@ -104,131 +109,182 @@ export default function EditUser(props) {
       });
   };
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
+  React.useEffect(() => {
+    let status;
+    fetch('/api/v1/libraries')
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(libraries => {
+        if (status === 200) {
+          setLibraries(libraries.data);
+          return;
+        } else {
+          processError(libraries);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .then(() => fetch('/api/v1/groups'))
+      .then(res => {
+        status = res.status;
+        return res.json();
+      })
+      .then(groups => {
+        if (status === 200) {
+          setGroups(groups.data);
+          setIsLoaded(true);
+          return;
+        } else {
+          processError(groups);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
+  }, []);
+
   const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
-  return (
-    <Dialog
-      onClose={handleClose}
-      modal={true}
-      open={open}
-      aria-labelledby="edit-user-title"
-      fullWidth={true}
-      maxWidth={'lg'}
-      lassName={classes.dialog}
-    >
-      <Button
-        label="Close"
-        primary={true}
-        onClick={handleClose}
-        className={classes.closeButton}
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  } else if (!isLoaded) {
+    return <Loading />;
+  } else {
+    return (
+      <Dialog
+        onClose={handleClose}
+        modal={true}
+        open={open}
+        aria-labelledby="edit-user-title"
+        fullWidth={true}
+        maxWidth={'lg'}
+        lassName={classes.dialog}
       >
-        <ClearIcon />
-      </Button>
-      <DialogTitle id="edit-user-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Edit User</div>
-      </DialogTitle>
-      <Box className={classes.form}>
-        <TextField
-          className={classes.formField}
-          id="user-username"
-          label="Username"
-          name="username"
-          fullWidth
-          variant="outlined"
-          defaultValue={row.username}
-          onChange={handleInputChange}
-          value={inputs.username}
-        />
-        <TextField
-          className={classes.formField}
-          id="user-first-name"
-          label="First Name"
-          name="firstName"
-          fullWidth
-          variant="outlined"
-          defaultValue={row.firstName}
-          onChange={handleInputChange}
-          value={inputs.firstName}
-        />
-        <TextField
-          className={classes.formField}
-          id="user-last-name"
-          label="Last Name"
-          name="lastName"
-          fullWidth
-          variant="outlined"
-          defaultValue={row.lastName}
-          onChange={handleInputChange}
-          value={inputs.lastName}
-        />
-        <TextField
-          className={classes.formField}
-          id="user-email"
-          label="Email"
-          name="email"
-          fullWidth
-          variant="outlined"
-          defaultValue={row.email}
-          onChange={handleInputChange}
-          value={inputs.email}
-        />
-        <TextField
-          className={classes.formField}
-          id="user-location"
-          label="Location"
-          name="location"
-          fullWidth
-          variant="outlined"
-          defaultValue={row.location}
-          onChange={handleInputChange}
-          value={inputs.location}
-        />
-        <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="user-role">Role</InputLabel>
-          <Select
-            labelId="user-role"
+        <Button
+          label="Close"
+          primary={true}
+          onClick={handleClose}
+          className={classes.closeButton}
+        >
+          <ClearIcon />
+        </Button>
+        <DialogTitle id="edit-user-title" className={classes.dialogTitleRoot}>
+          <div className={classes.dialogTitleText}>Edit User</div>
+        </DialogTitle>
+        <Box className={classes.form}>
+          <TextField
             className={classes.formField}
-            id="user-role"
-            label="Role"
-            name="role"
-            defaultValue={row.role_name}
+            id="user-username"
+            label="Username"
+            name="username"
+            fullWidth
+            variant="outlined"
+            defaultValue={row.username}
             onChange={handleInputChange}
-            value={inputs.role_name}
-          >
-            <MenuItem value="editor">Editor</MenuItem>
-            <MenuItem value="viewer">Viewer</MenuItem>
-          </Select>
-        </FormControl>
-        <Grid container alignItems="center" justify="space-between">
-          <Grid item>
-            <Button
-              size="small"
-              label="Cancel"
-              primary={true}
-              onClick={handleClose}
-              className={classes.cancelButton}
-            >
-              Cancel
-            </Button>
+            value={inputs.username}
+            required
+          />
+          <TextField
+            className={classes.formField}
+            id="user-first-name"
+            label="First Name"
+            name="firstName"
+            fullWidth
+            variant="outlined"
+            defaultValue={row.firstName}
+            onChange={handleInputChange}
+            value={inputs.firstName}
+          />
+          <TextField
+            className={classes.formField}
+            id="user-last-name"
+            label="Last Name"
+            name="lastName"
+            fullWidth
+            variant="outlined"
+            defaultValue={row.lastName}
+            onChange={handleInputChange}
+            value={inputs.lastName}
+          />
+          <TextField
+            className={classes.formField}
+            id="user-email"
+            label="Email"
+            name="email"
+            fullWidth
+            variant="outlined"
+            defaultValue={row.email}
+            onChange={handleInputChange}
+            value={inputs.email}
+            required
+          />
+          <FormControl variant="outlined" className={classes.formControl}>
+            <Autocomplete
+              id="library-select"
+              options={libraries}
+              getOptionLabel={option => option.name}
+              renderInput={params => (
+                <TextField {...params} label="Location" variant="outlined" />
+              )}
+            />
+          </FormControl>
+          <FormControl variant="outlined" className={classes.formControl}>
+            <Autocomplete
+              id="user-role"
+              options={groups}
+              getOptionLabel={option => option.name}
+              renderInput={params => (
+                <TextField {...params} label="Roles" variant="outlined" />
+              )}
+            />
+          </FormControl>
+          <Grid container alignItems="center" justify="space-between">
+            <Grid item>
+              <Button
+                size="small"
+                label="Cancel"
+                primary={true}
+                onClick={handleClose}
+                className={classes.cancelButton}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                type="submit"
+                label="Save"
+                onClick={handleSubmit}
+                className={classes.cancelButton}
+                variant="contained"
+                disableElevation
+                color="primary"
+                primary={true}
+              >
+                Save
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button
-              type="submit"
-              label="Save"
-              onClick={handleSubmit}
-              className={classes.cancelButton}
-              variant="contained"
-              disableElevation
-              color="primary"
-              primary={true}
-            >
-              Save
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-    </Dialog>
-  );
+        </Box>
+      </Dialog>
+    );
+  }
 }
 
 EditUser.propTypes = {

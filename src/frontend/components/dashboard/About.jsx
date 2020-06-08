@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense } from 'react';
+import parse from 'html-react-parser';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -166,14 +167,14 @@ export default function About() {
                 <Typography component="h2" variant="h4">
                   Contact
                 </Typography>
-                <Typography>{contact}</Typography>
+                <Typography>{parse('<div>' + contact + '</div>')}</Typography>
               </Box>
               <Box>
                 <Typography component="h2" variant="h4">
                   About
                 </Typography>
                 <Typography paragraph="true" variant="body1">
-                  {about}
+                  {parse('<div>' + about + '</div>')}
                 </Typography>
               </Box>
             </Box>
@@ -183,18 +184,22 @@ export default function About() {
               <Box key={index}>
                 <Typography component="h2" variant="h4">
                   {console.log('item: ', item)}
-                  {item.question}
+                  {parse('<div>' + item.question + '</div>')}
                 </Typography>
-                <Typography>{item.answer}</Typography>
+                <Typography>
+                  {parse('<div>' + item.answer + '</div>')}
+                </Typography>
               </Box>
             ))}
           {showGlossary &&
             glossaries.map((item, index) => (
               <Box key={index}>
                 <Typography component="h2" variant="h4">
-                  {item.term}
+                  {parse('<div>' + item.term + '</div>')}
                 </Typography>
-                <Typography>{item.definition}</Typography>
+                <Typography>
+                  {parse('<div>' + item.definition + '</div>')}
+                </Typography>
               </Box>
             ))}
         </Container>

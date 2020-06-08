@@ -1,5 +1,6 @@
 // base imports
 import React, { Suspense, useEffect } from 'react';
+import parse from 'html-react-parser';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -129,7 +130,7 @@ export default function About() {
           </Grid>
           <div>
             <Typography component="p" variant="body1">
-              {selectedAboutValue}
+              {parse('<div>' + selectedAboutValue + '</div>')}
             </Typography>
           </div>
         </Box>
@@ -158,7 +159,7 @@ export default function About() {
           </Grid>
           <div>
             <Typography component="p" variant="body1">
-              {selectedContactValue}
+              {parse('<div>' + selectedContactValue + '</div>')}
             </Typography>
           </div>
         </Box>

@@ -11,9 +11,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 
 // icons imports
@@ -95,6 +92,7 @@ export default function AddUser(props) {
 
   // submit new user to api
   const submitData = () => {
+    let status;
     fetch('api/v1/users', {
       method: 'POST',
       headers: {
@@ -102,14 +100,23 @@ export default function AddUser(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
-      .then(() => {
-        alert('User submitted successfully.');
-        onClose(inputs);
-        return;
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        if (status === 201) {
+          alert('User submitted successfully.');
+          onClose(inputs);
+          return;
+        } else {
+          const error = processError(result);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
-        console.log(error);
+        setError(error);
+        console.error(error.name + ': ' + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -175,30 +182,6 @@ export default function AddUser(props) {
       });
   }, []);
 
-  React.useEffect(() => {
-    let status;
-    fetch(`/api/v1/groups`)
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(groups => {
-        if (status === 200) {
-          setGroups(groups.data);
-          setIsLoaded(true);
-          return;
-        } else {
-          processError(groups);
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        setError(error);
-        console.error(error.name + error.message);
-        setIsLoaded(true);
-      });
-  }, []);
-
   if (error) {
     return <div>Error: {error.message}</div>;
   } else if (!isLoaded) {
@@ -234,6 +217,7 @@ export default function AddUser(props) {
               name="username"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
@@ -245,6 +229,7 @@ export default function AddUser(props) {
               autoComplete="current-password"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
@@ -272,6 +257,7 @@ export default function AddUser(props) {
               name="email"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <FormControl variant="outlined" className={classes.formControl}>

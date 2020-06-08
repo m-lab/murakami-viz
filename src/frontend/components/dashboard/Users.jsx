@@ -28,7 +28,9 @@ function formatName(first, last) {
 }
 
 function formatRole(role) {
-  return role.charAt(0).toUpperCase() + role.slice(1);
+  if (typeof role === 'string' || role instanceof String) {
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  }
 }
 
 function descendingComparator(a, b, orderBy) {
@@ -149,7 +151,8 @@ const EnhancedTableToolbar = props => {
     setOpen(false);
   };
 
-  if (userRole === 'Admin') {
+  console.debug('userRole: ', userRole);
+  if (userRole === 'admins') {
     return (
       <Toolbar className={clsx(classes.root)}>
         <Grid container spacing={2} alignItems="center" justify="flex-start">
@@ -339,7 +342,7 @@ export default function EnhancedTable(props) {
                   .map((row, index) => {
                     const labelId = `data-row-${index}`;
 
-                    if (row) {
+                    if (row && row.id) {
                       return (
                         <TableRow
                           hover
