@@ -172,7 +172,11 @@ export default class Group {
     let gid;
     if (isString(group)) {
       const found = await this.findByGroupname(group);
-      gid = found.id;
+      if (found && found.id) {
+        gid = found.id;
+      } else {
+        return false;
+      }
     } else {
       gid = group;
     }
