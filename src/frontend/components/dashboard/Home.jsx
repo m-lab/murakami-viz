@@ -114,7 +114,6 @@ export default function Home(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { user, library } = props;
-  console.log(props);
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const handleDateChange = date => {
@@ -303,7 +302,7 @@ export default function Home(props) {
                 <Grid item xs={4}>
                   <Typography component="div">
                     Last Test:{' '}
-                    {runs
+                    {runs.length
                       ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>

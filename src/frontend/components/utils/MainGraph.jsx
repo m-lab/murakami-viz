@@ -106,7 +106,7 @@ export default function MainGraph(props) {
 
   if (!isLoaded) {
     return <Loading />;
-  } else if (!runs) {
+  } else if (!runs.length) {
     return <div>No data to display. Is a device running?</div>;
   } else {
     return (
