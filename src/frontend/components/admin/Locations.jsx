@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 // material ui imports
 import Button from '@material-ui/core/Button';
@@ -129,8 +130,8 @@ const EnhancedTableToolbar = props => {
   // handle add library
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = (lid) => {
-    console.log(lid);
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
   const handleClose = library => {
@@ -189,6 +190,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EnhancedTable(props) {
+  const history = useHistory();
   const classes = useStyles();
   const { library } = props;
 
@@ -214,9 +216,11 @@ export default function EnhancedTable(props) {
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = index => {
-    setIndex(index);
-    setOpen(true);
+  const handleClickOpen = id => {
+    history.push({
+      pathname: '/dashboard',
+      state: { library: id },
+    });
   };
 
   const handleClose = library => {
@@ -274,16 +278,15 @@ export default function EnhancedTable(props) {
       })
       .then(() => fetch('api/v1/users'))
       .then(usersResponse => {
-        console.log(usersResponse);
         userStatus = usersResponse.status;
         return usersResponse.json();
       })
       .then(users => {
         if (userStatus === 200) {
-          console.log();
+          console.log(users.data);
           setUsers(users.data);
           setIsLoaded(true);
-          return users.data;
+          return;
         } else {
           const error = processError(users);
           throw new Error(error);
@@ -331,7 +334,7 @@ export default function EnhancedTable(props) {
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(index);
+                            handleClickOpen(row.id);
                           }}
                           key={row.id}
                         >

@@ -224,7 +224,8 @@ export default function Home(props) {
   };
 
   React.useEffect(() => {
-    let status;
+    let status, glossaryStatus;
+
     if ( library ) {
       fetch(`/api/v1/libraries/${library.id}/runs`)
         .then(res => {
@@ -239,30 +240,35 @@ export default function Home(props) {
             throw new Error(`Error in response from server.`);
           }
         })
-        .then(() => fetch('api/v1/glossaries'))
-        .then(glossaryRes => {
-          return glossaryRes.json();
-        })
-        .then(glossaryResponse => {
-          if (status === 200) {
-            setGlossary(glossaryResponse.data);
-            setIsLoaded(true);
-            return;
-          } else {
-            processError(response);
-            throw new Error(`Error in response from server.`);
-          }
-        })
         .catch(error => {
           setError(error);
           console.error(error.name + error.message);
-          setIsLoaded(true);
+          // setIsLoaded(true);
         });
-    } else {
-      setIsLoaded(true);
     }
 
-  }, []);
+    fetch('/api/v1/glossaries')
+      .then(glossaryRes => {
+        glossaryStatus = glossaryRes.status;
+        return glossaryRes.json();
+      })
+      .then(glossaryResponse => {
+        if (glossaryStatus === 200) {
+          setGlossary(glossaryResponse.data);
+          setIsLoaded(true);
+          return;
+        } else {
+          processError(glossaryResponse);
+          throw new Error(`Error in response from server.`);
+        }
+      })
+      .catch(error => {
+        setError(error);
+        console.error(error.name + error.message);
+        setIsLoaded(true);
+      });
+
+  }, [ library ]);
 
   if ( error ) {
     return <div>Error: {error.message}</div>;
@@ -349,13 +355,13 @@ export default function Home(props) {
                 <Grid item xs={4}>
                   <Typography component="div">
                     Last Test:{' '}
-                    {runs.length
+                    {runs && runs.length
                       ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>
               </Grid>
-              <TestsSummary runs={runs} summary={summary} />
+              <TestsSummary runs={runs ? runs : []} summary={summary} />
             </Grid>
           </Grid>
           <Box mt={5}>
@@ -496,7 +502,7 @@ export default function Home(props) {
             </Grid>
             <Grid item xs={12} sm={2}>
               <Button variant="contained">
-                <CSVLink data={runs} headers={headers}>
+                <CSVLink data={runs ? runs : '' } headers={headers}>
                   Export
                 </CSVLink>
               </Button>

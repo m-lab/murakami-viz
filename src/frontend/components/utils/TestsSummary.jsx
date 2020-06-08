@@ -98,7 +98,7 @@ export default function TestsSummary(props) {
       handleData(filteredRuns);
       setIsLoaded(true);
     }
-  }, [summary]);
+  }, [ runs, summary ]);
 
   if (!isLoaded) {
     return <Loading />;
