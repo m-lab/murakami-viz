@@ -26,6 +26,12 @@ export function seed(knex) {
             lid: 1,
           },
         ]),
+        knex('user_groups').insert([
+          {
+            gid: 1,
+            uid: 1,
+          },
+        ]),
       ]);
     });
 }
