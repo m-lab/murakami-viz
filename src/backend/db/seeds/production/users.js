@@ -20,16 +20,6 @@ export function seed(knex) {
             extension: '111',
           },
         ]),
-        knex('library_users').insert([
-          {
-            uid: 1,
-            lid: 1,
-          },
-          {
-            uid: 2,
-            lid: 2,
-          },
-        ]),
       ]);
     });
 }
