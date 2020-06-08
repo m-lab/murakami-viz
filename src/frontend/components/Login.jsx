@@ -69,7 +69,6 @@ export default function Login(props) {
               })
               .then(libraries => {
                 if (libraryStatus === 200) {
-                  console.log(libraries.data[0]
                   );
                   return history.push({
                     pathname: '/dashboard',
