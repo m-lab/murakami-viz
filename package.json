@@ -2,10 +2,11 @@
   "name": "murakami-viz",
   "version": "0.1.0",
   "description": "A visualization service of results from Murakami tests.",
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "contributors": [
     "Josh King <josh@throneless.tech",
-    "Rae Gaines <rae@throneless.tech"
+    "Rae Gaines <rae@throneless.tech",
+    "Harum Helmy <harum@throneless.tech"
   ],
   "keywords": [
     "vizualization",
