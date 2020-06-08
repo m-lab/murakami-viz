@@ -12,11 +12,17 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+
+// icon imports
+import IconButton from '@material-ui/core/IconButton';
+import InfoIcon from '@material-ui/icons/Info';
 
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
 import DatePicker from '../datepicker/DatePicker.jsx';
+import GlossaryTooltip from '../utils/GlossaryTooltip.jsx';
 import Loading from '../Loading.jsx';
 import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
@@ -66,6 +72,11 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginTop: '40px',
+  },
+  iconButton: {
+    padding: '0',
+    position: 'absolute',
+    right: '-35px',
   },
   inputLabel: {
     position: 'absolute',
@@ -140,6 +151,11 @@ export default function Home(props) {
     }
   };
 
+  // handle glossary terms
+  const handleGlossary = term => {
+    return (glossary.find(word => word.term.toLowerCase() === term.toLowerCase()));
+  }
+
   // handle date range
   const today = new Date();
   const weekAgo = new Date(today.setDate(today.getDate() - 7));
@@ -193,6 +209,7 @@ export default function Home(props) {
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [runs, setRuns] = React.useState(null);
+  const [glossary, setGlossary] = React.useState(null);
 
   const processError = res => {
     let errorString;
@@ -217,6 +234,18 @@ export default function Home(props) {
         .then(response => {
           if (status === 200) {
             setRuns(response.data);
+          } else {
+            processError(response);
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .then(() => fetch('api/v1/glossaries'))
+        .then(glossaryRes => {
+          return glossaryRes.json();
+        })
+        .then(glossaryResponse => {
+          if (status === 200) {
+            setGlossary(glossaryResponse.data);
             setIsLoaded(true);
             return;
           } else {
@@ -385,9 +414,11 @@ export default function Home(props) {
                   >
                     <ToggleButton value="ndt7" aria-label="NDT">
                       NDT
+                      <GlossaryTooltip term={handleGlossary('NDT')} />
                     </ToggleButton>
                     <ToggleButton value="ookla" aria-label="Ookla">
                       Ookla
+                      <GlossaryTooltip term={handleGlossary('Ookla')} />
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
@@ -403,15 +434,18 @@ export default function Home(props) {
                   >
                     <ToggleButton value="DownloadValue" aria-label="Download">
                       Download
+                      <GlossaryTooltip term={handleGlossary('Download')} />
                     </ToggleButton>
                     <ToggleButton value="UploadValue" aria-label="Upload">
                       Upload
+                      <GlossaryTooltip term={handleGlossary('Upload')} />
                     </ToggleButton>
                     <ToggleButton
                       value="DownloadRetransValue"
                       aria-label="Latency"
                     >
                       Latency
+                      <GlossaryTooltip term={handleGlossary('Latency')} />
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
