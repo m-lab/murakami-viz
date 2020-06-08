@@ -133,7 +133,7 @@ export default function Library(props) {
 
   // fetch existing whitelisted IPs
   React.useEffect(() => {
-    let ipStatus;
+    let ipStatus; 
 
     fetch(`/api/v1/libraries/${library.id}/ip`)
       .then(response => {

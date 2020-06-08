@@ -91,7 +91,6 @@ export default function LibraryDeviceForm(props) {
 
   const handleSubmit = event => {
     event.preventDefault();
-    console.log(inputs);
 
     if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
       fetch(`/api/v1/libraries/${row.id}/devices`, {
@@ -104,7 +103,11 @@ export default function LibraryDeviceForm(props) {
       .then(response => response.json())
       .then(results => {
         if (results.statusCode === 201) {
-          let updatedDevices = devices.concat(inputs);
+          let newDevice = {
+            ...inputs,
+            id: results.data[0]
+          }
+          let updatedDevices = devices.concat(newDevice);
           setDevices(updatedDevices)
           onClose();
           setInputs({})
@@ -139,8 +142,8 @@ export default function LibraryDeviceForm(props) {
               device.id === results.data[0].id ? results.data[0] : device,
             );
             setDevices(updatedDevices);
-            setInputs({});
             onClose();
+            setInputs({});
           }
         })
         .catch(error => {
