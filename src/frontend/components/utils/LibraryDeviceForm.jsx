@@ -121,39 +121,43 @@ export default function LibraryDeviceForm(props) {
    }
   }
 
-  const handleEdit = inputs => {
-
-    if (inputs.deviceid && inputs.deviceid !== '' && inputs.name && inputs.deviceid !== '') {
-      const data = {
-        data: inputs,
-      };
-
-      fetch(`api/v1/devices/${inputs.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-        .then(response => response.json())
-        .then(results => {
-          if (results.statusCode === 200) {
-            let updatedDevices = devices.map(device =>
-              device.id === results.data[0].id ? results.data[0] : device,
-            );
-            setDevices(updatedDevices);
-            onClose();
-            setInputs({});
-          }
-        })
-        .catch(error => {
-          alert(
-            'An error occurred. Please try again or contact an administrator.',
+  const editFetch = (data, deviceToEdit) => {
+    fetch(`api/v1/devices/${deviceToEdit.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.json())
+      .then(results => {
+        if (results.statusCode === 200) {
+          let updatedDevices = devices.map(device =>
+            device.id === results.data[0].id ? results.data[0] : device,
           );
-        });
-    } else {
-      alert('Measurement devices must have a name and a deviceid.');
-    }
+          setDevices(updatedDevices);
+          onClose();
+          setInputs({});
+        } else {
+          alert("An error occurred. Please try again or contact an administrator.")
+        } 
+      })
+      .catch(error => {
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  }
+
+  const handleEdit = deviceToEdit => {  
+    if (inputs.deviceid === '' || inputs.name === '') {
+      alert("Device name and/or deviceid can't be blank.")
+    } else if (!inputs.deviceid || !inputs.name) {
+        const data = {
+          data: inputs,
+        }
+        editFetch(data, deviceToEdit);
+    }    
   }
 
 
@@ -231,7 +235,7 @@ export default function LibraryDeviceForm(props) {
               variant="outlined"
               onChange={handleInputChange}
               defaultValue={editMode ? device.deviceid : ``}
-            value={inputs.deviceid}
+              value={inputs.deviceid}
             />
             <FormControl variant="outlined" className={classes.formControl}>
               <InputLabel id="library-device-location-label">Location</InputLabel>
@@ -243,7 +247,7 @@ export default function LibraryDeviceForm(props) {
                 name="location"
                 onChange={handleInputChange}
                 defaultValue={row.id}
-                value={inputs.location}
+                value={row.id}
                 disabled
               >
                 <MenuItem value={row.id} selected>{row.name}</MenuItem>

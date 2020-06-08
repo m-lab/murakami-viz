@@ -178,6 +178,8 @@ export default function Library(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    if (ipValue && ipValue !== '') {
+
     const data = {
       id: library.id,
       ip: ipValue
@@ -195,17 +197,21 @@ export default function Library(props) {
         if (results.statusCode === 201) {
           let updatedIPs = libraryIPs.concat(ipValue);
           setLibraryIPs(updatedIPs)
+          closeTextfield();
+          setIpValue(null);
         }
       })
       .catch(error => {
-        console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
+        //TODO: figure out if this is gonna be graceful enough
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
       });
-
-    closeTextfield();
-    setIpValue(null);
+    } else {
+      alert(
+        "IP address can't be blank."
+      )
+    }
   };
 
   const handleIpDelete = ipToDelete => {
@@ -435,7 +441,7 @@ export default function Library(props) {
                        Location
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                       {device.location}
+                       {library.name}
                     </TableCell>
                    </TableRow>
                    <TableRow>
