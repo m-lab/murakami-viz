@@ -4,13 +4,27 @@ services:
     build: .
     depends_on:
       - murakami-db
+    networks:
+      - murakami-private
+      - murakami-public
     ports:
       - "3000:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      MURAKAMI_VIZ_LOG_LEVEL: ${MURAKAMI_VIZ_LOG_LEVEL:-debug}
+      MURAKAMI_VIZ_HOST: ${MURAKAMI_VIZ_HOST:-0.0.0.0}
+      MURAKAMI_VIZ_PORT: ${MURAKAMI_VIZ_PORT:-3000}
+      MURAKAMI_VIZ_DB_HOST: ${MURAKAMI_VIZ_DB_USER:-murakami-db}
+      MURAKAMI_VIZ_DB_USER: ${MURAKAMI_VIZ_DB_USER:-murakami}
+      MURAKAMI_VIZ_DB_PASSWORD: ${MURAKAMI_VIZ_DB_PASSWORD:-murakami}
+      MURAKAMI_VIZ_DB_DATABASE: ${MURAKAMI_VIZ_DB_DATABASE:-murakami}
 
   murakami-db:
     image: postgres:12-alpine
     volumes:
       - murakami-db_data:/var/lib/postgresql/data
+    networks:
+      - murakami-private
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_USER: ${MURAKAMI_VIZ_DB_USER:-murakami}
@@ -19,3 +33,8 @@ services:
 
 volumes:
   murakami-db_data: {}
+
+networks:
+  murakami-private:
+    internal: true
+  murakami-public:

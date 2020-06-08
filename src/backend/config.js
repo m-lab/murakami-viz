@@ -10,7 +10,6 @@ dotenv.config();
 
 const defaults = {
   loglevel: process.env.MURAKAMI_VIZ_LOG_LEVEL || 'error',
-  secrets: process.env.MURAKAMI_VIZ_SECRETS,
   cfaccess: {
     audience: process.env.MURAKAMI_VIZ_CFACCESS_AUDIENCE,
     url: process.env.MURAKAMI_VIZ_CFACCESS_URL,
@@ -231,12 +230,6 @@ export default program
     'Database password',
     validatePassword,
     defaults.db.password,
-  )
-  .option(
-    '-s, --secrets <string>',
-    'Session secret(s)',
-    validateArray,
-    defaults.secrets,
   )
   .option(
     '--cfaccess_url <url>',

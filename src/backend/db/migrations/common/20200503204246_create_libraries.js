@@ -15,7 +15,7 @@ export function up(knex) {
           .notNullable();
         table.text('physical_address');
         table.text('shipping_address');
-        table.specificType('timezone', 'TIMEZONETZ');
+        table.text('timezone');
         table.specificType('coordinates', 'POINT');
         table.text('primary_contact_name');
         table.text('primary_contact_email');
