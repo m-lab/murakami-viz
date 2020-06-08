@@ -102,7 +102,7 @@ export default function App() {
 
   // fetch api data
   React.useEffect(() => {
-    let userStatus, libraryStatus;
+    let userStatus, libraryStatus, ipStatus;
     const username = Cookies.get('mv_user');
     if (username) {
       // TODO: Add separate case for admin
@@ -130,7 +130,7 @@ export default function App() {
           if (libraryStatus === 200) {
             setLibrary(libraries.data[0]);
             setIsLoaded(true);
-            return;
+            return libraries.data[0];
           } else {
             const error = processError(libraries);
             throw new Error(error);

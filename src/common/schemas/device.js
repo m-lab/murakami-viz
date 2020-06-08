@@ -8,6 +8,8 @@ const schema = Joi.object({
   dns_server: Joi.string().ip(),
   ip: Joi.string().ip(),
   gateway: Joi.string().ip(),
+  deviceid: Joi.string(),
+  location: Joi.string(),
   mac: Joi.string().pattern(
     /^[0-9a-f]{1,2}([.:-])[0-9a-f]{1,2}(?:\1[0-9a-f]{1,2}){4}$/,
   ),

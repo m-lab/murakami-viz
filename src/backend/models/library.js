@@ -169,7 +169,6 @@ export default class LibraryManager {
         contracted_speed_download: 'libraries.contracted_speed_download',
         bandwidth_cap_upload: 'libraries.bandwidth_cap_upload',
         bandwidth_cap_download: 'libraries.bandwidth_cap_download',
-        user_count: this._db.raw('COUNT(library_users.uid)'),
       })
       .from('libraries')
       .modify(queryBuilder => {
@@ -200,12 +199,6 @@ export default class LibraryManager {
             'libraries.id': 'library_users.lid',
             'library_users.uid': knex.raw('?', [of_user]),
           });
-        } else {
-          queryBuilder.leftJoin(
-            'library_users',
-            'libraries.id',
-            'library_users.lid',
-          );
         }
       });
 

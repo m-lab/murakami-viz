@@ -1,6 +1,9 @@
 import knex from 'knex';
 import { validate } from '../../common/schemas/device.js';
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:models:device');
 
 export default class DeviceManager {
   constructor(db) {
@@ -8,6 +11,10 @@ export default class DeviceManager {
   }
 
   async create(device, lid) {
+    console.log('***************************');
+    console.log(device);
+    console.log(lid);
+    console.log('***************************');
     try {
       await validate(device);
       let ids;
@@ -93,11 +100,11 @@ export default class DeviceManager {
         }
 
         if (library) {
-          queryBuilder.join(
-            'library_devices',
-            'library_devices.lid',
-            knex.raw('?', [library]),
-          );
+          log.debug('Filtering on library: ', library);
+          queryBuilder.join('library_devices', {
+            'devices.id': 'library_devices.did',
+            'library_devices.lid': knex.raw('?', [library]),
+          });
         }
 
         if (asc) {

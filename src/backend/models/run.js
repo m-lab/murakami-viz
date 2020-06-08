@@ -90,7 +90,6 @@ export default class RunManager {
               'devices.id': 'library_devices.did',
               'library_devices.lid': knex.raw('?', [library]),
             });
-          //.andOn('library_devices.lid', knex.raw('?', [library]));
         }
 
         if (asc) {
