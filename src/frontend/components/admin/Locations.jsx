@@ -58,8 +58,8 @@ const headCells = [
     disablePadding: false,
     label: 'Location',
   },
-  { id: 'users', numeric: false, disablePadding: false, label: 'Users' },
-  { id: 'devices', numeric: false, disablePadding: false, label: 'Devices' },
+  // { id: 'users', numeric: false, disablePadding: false, label: 'Users' },
+  // { id: 'devices', numeric: false, disablePadding: false, label: 'Devices' },
 ];
 
 function EnhancedTableHead(props) {
@@ -265,7 +265,6 @@ export default function EnhancedTable(props) {
       })
       .then(librarys => {
         if (status === 200) {
-          console.log(librarys.data);
           setRows(librarys.data);
           emptyRows =
             rowsPerPage -
@@ -283,7 +282,6 @@ export default function EnhancedTable(props) {
       })
       .then(users => {
         if (userStatus === 200) {
-          console.log(users.data);
           setUsers(users.data);
           setIsLoaded(true);
           return;
@@ -347,8 +345,6 @@ export default function EnhancedTable(props) {
                             {row.name}
                           </TableCell>
                           <TableCell>{row.physical_address}</TableCell>
-                          <TableCell>{users.length} users</TableCell>
-                          <TableCell>{row.devices}</TableCell>
                         </TableRow>
                       );
                     }
