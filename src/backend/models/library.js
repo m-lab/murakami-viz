@@ -145,7 +145,7 @@ export default class LibraryManager {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'id',
+    sort_by: sort_by = 'libraries.id',
     from: from,
     to: to,
     of_user: of_user,

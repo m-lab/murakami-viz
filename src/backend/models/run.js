@@ -59,7 +59,7 @@ export default class RunManager {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'id',
+    sort_by: sort_by = 'runs.id',
     from: from,
     to: to,
     test: test,

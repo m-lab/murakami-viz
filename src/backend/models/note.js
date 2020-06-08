@@ -67,7 +67,7 @@ export default class NoteManager {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'id',
+    sort_by: sort_by = 'notes.id',
     from: from,
     to: to,
     author: author,

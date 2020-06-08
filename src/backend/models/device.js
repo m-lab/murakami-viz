@@ -82,7 +82,7 @@ export default class DeviceManager {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'id',
+    sort_by: sort_by = 'device.id',
     from: from,
     to: to,
     library: library,
