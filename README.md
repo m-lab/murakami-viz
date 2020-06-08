@@ -55,6 +55,18 @@ Then, build all components:
 npm run build
 ```
 
+Create the database:
+
+```
+npm run db:migrations
+```
+
+and to optionally populate it with test data:
+
+```
+npm run db:seeds
+```
+
 And start the running processes (with necessary environment variables if not
 defined in `.env`):
 
@@ -62,20 +74,35 @@ defined in `.env`):
 npm run start
 ```
 
+(use `npm run start:dev` to run in development mode)
+
 Additionally, components can be built or started individually using for example
 `npm run build:backend`, `npm run start:worker`, etc.
 
 ### Docker
 
-TODO
+You can deploy this tool using [Docker](https://docker.io). There is an included `docker-compose.yml` file that will allow you to run it in a production configuration. First, clone the repo and from this directory run docker-compose:
 
-## API
+```
+docker-compose up --build -d
+```
 
-TODO
+This will build the docker container from the current repository, download the official Postgres docker image, and configure them both (the `-d` flag will detach from the current shell so that you can leave it running, but you can omit it in order to leave the log output attached).
+
+If this is the first time you've run it on this system, you'll want to run the database migrations to initialize the database:
+
+```
+docker-compose run murakami npm run db:migrations
+```
+
+and then optionally seed the database with a default admin user:
+
+```
+docker-compose run murakami npm run db:seeds
+```
+
+By default, it runs on [http://localhost:3000](http://localhost:3000), but you can place it behind a proxy such as [Nginx](https://nginx.com) in order to provide TLS support and other features.
 
 ## License
 
-[<img src="https://www.gnu.org/graphics/agplv3-155x51.png" alt="AGPLv3" >](http://www.gnu.org/licenses/agpl-3.0.html)
-
-Murakami-viz is a free software project licensed under the GNU Affero General
-Public License v3.0 (AGPLv3) by [Throneless Tech](https://throneless.tech).
+Murakami-viz is an open-source software project licensed under the Apache License v2.0 by [Measurement Lab](https://measurementlab.net) and [Throneless Tech](https://throneless.tech).
