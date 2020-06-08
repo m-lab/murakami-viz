@@ -226,7 +226,7 @@ export default function Home(props) {
         })
         .catch(error => {
           setError(error);
-          console.err(error.name + error.message);
+          console.error(error.name + error.message);
           setIsLoaded(true);
         });
     } else {
