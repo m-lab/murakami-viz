@@ -22,8 +22,8 @@ const schema = Joi.object({
   contracted_speed_upload: Joi.string(),
   contracted_speed_download: Joi.string(),
   ip: Joi.array().items(Joi.string().ip()),
-  bandwith_cap_upload: Joi.string(),
-  bandwith_cap_download: Joi.string(),
+  bandwidth_cap_upload: Joi.string(),
+  bandwidth_cap_download: Joi.string(),
 });
 
 export async function validate(data) {

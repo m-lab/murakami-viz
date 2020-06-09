@@ -449,10 +449,10 @@ export default function AddLibrary(props) {
                 className={`${classes.formField} ${classes.inline}`}
                 id="library-bandwidth-cap-download"
                 label="Download"
-                name="bandwith_cap_download"
+                name="bandwidth_cap_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                value={inputs.bandwith_cap_download}
+                value={inputs.bandwidth_cap_download}
               />
             </Grid>
             <Grid item>
@@ -460,10 +460,10 @@ export default function AddLibrary(props) {
                 className={`${classes.formField} ${classes.inline}`}
                 id="library-bandwidth-cap-upload"
                 label="Upload"
-                name="bandwith_cap_upload"
+                name="bandwidth_cap_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                value={inputs.bandwith_cap_upload}
+                value={inputs.bandwidth_cap_upload}
               />
             </Grid>
           </Grid>
