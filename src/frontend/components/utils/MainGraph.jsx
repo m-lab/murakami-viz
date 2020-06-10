@@ -52,6 +52,7 @@ export default function MainGraph(props) {
   const { runs, connections, testTypes, metric, group, dateRange } = props;
 
   React.useEffect(() => {
+    console.log(runs);
     if (runs) {
       const filteredRuns = runs.filter(run => {
         if (connections.length) {
@@ -102,7 +103,7 @@ export default function MainGraph(props) {
       }
     }
     setIsLoaded(true);
-  }, [ connections, testTypes, metric, group ]);
+  }, [ connections, testTypes, metric, group, runs ]);
 
   if (!isLoaded) {
     return <Loading />;

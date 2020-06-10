@@ -252,34 +252,16 @@ export default function EnhancedTable(props) {
   };
 
   React.useEffect(() => {
-    let status, userStatus;
+    let status;
 
-    fetch('/api/v1/libraries')
-      .then(res => {
-        status = res.status;
-        return res.json();
-      })
-      .then(librarys => {
-        if (status === 200) {
-          console.log(librarys.data);
-          setRows(librarys.data);
-          emptyRows =
-            rowsPerPage -
-            Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-          return;
-        } else {
-          processError(librarys);
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .then(() => fetch('api/v1/users'))
-      .then(usersResponse => {
-        console.log(usersResponse);
-        userStatus = usersResponse.status;
-        return usersResponse.json();
+    fetch('api/v1/users')
+      .then(response => {
+        console.log(response);
+        status = response.status;
+        return response.json();
       })
       .then(users => {
-        if (userStatus === 200) {
+        if (status === 200) {
           console.log();
           setUsers(users.data);
           setIsLoaded(true);

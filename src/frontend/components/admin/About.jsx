@@ -79,7 +79,6 @@ export default function About() {
       .then(res => {
         if (status === 200 && res.data) {
           const settings = new Map(res.data.map(i => [i.key, i.value]));
-          console.log('about: ', settings.get('about'));
           setSelectedAboutValue(settings.get('about'));
           setSelectedContactValue(settings.get('contact'));
           setSelectedForumValue(settings.get('forum'));
