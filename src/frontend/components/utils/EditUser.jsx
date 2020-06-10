@@ -87,13 +87,40 @@ export default function EditUser(props) {
     onClose();
   };
 
+  const [role, setRole] = React.useState(row.role);
+  const [location, setLocation] = React.useState(row.location);
+
+  const handleRoleChange = (event, values) => {
+    console.log("role changing: ", role)
+    setRole(values.id);
+  };
+
+  const handleLocationChange = (event, values) => {
+    console.log("location changing: ", location)
+    setLocation(values.id)
+  }
+
+  console.log("user? ", row)
+  console.log("role? ", role)
+  console.log("location? ", location)
+  console.log("libraries? ", libraries)
+
   const submitData = () => {
+
+    const toSubmit = {
+        ...inputs,
+        location: location,
+        role: role
+      }
+    
+    console.log("data at submit: ", {data: toSubmit})
+
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({data: toSubmit}),
     })
       .then(response => response.json())
       .then(results => {
@@ -241,9 +268,8 @@ export default function EditUser(props) {
               options={libraries}
               getOptionLabel={option => option.name}
               getOptionSelected={(option, value) => option.name === value}
-              defaultValue={row.location}
-              onChange={handleInputChange}
-              value={inputs.location}
+              defaultValue={libraries.find(library => library.id === row.location)}
+              onChange={handleLocationChange}
               renderInput={params => (
                 <TextField {...params} label="Location" variant="outlined" />
               )}
@@ -255,9 +281,8 @@ export default function EditUser(props) {
               options={groups}
               getOptionLabel={option => option.name}
               getOptionSelected={(option, value) => option.name === value}
-              defaultValue={row.role}
-              onChange={handleInputChange}
-              value={inputs.role}
+              defaultValue={groups.find(group => group.id === row.role)}
+              onChange={handleRoleChange}
               renderInput={params => (
                 <TextField {...params} label="Roles" variant="outlined" />
               )}

@@ -83,22 +83,37 @@ export default function AddUser(props) {
     onClose();
   };
 
-  // handle role select
-  const [role, setRole] = React.useState('');
+  // handles value changes for Autocomplete Mui components
+  const [role, setRole] = React.useState(null);
+  const [location, setLocation] = React.useState(null);
 
-  const handleRoleChange = event => {
-    setRole(event.target.value);
+  const handleRoleChange = (event, values) => {
+    setRole(values.id);
   };
+
+  const handleLocationChange = (event, values) => {
+    setLocation(values.id)
+  }
 
   // submit new user to api
   const submitData = () => {
     let status;
-    fetch('api/v1/users', {
+
+    // combining inputs with the location and role values from the autocomplete component
+    const toSubmit = {
+        ...inputs,
+        location: location,
+        role: role
+    }
+
+    console.log("data at submit: ", toSubmit)
+
+    fetch(`api/v1/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({data: toSubmit}),
     })
       .then(response => {
         status = response.status;
@@ -266,7 +281,7 @@ export default function AddUser(props) {
                 options={libraries}
                 getOptionLabel={option => option.name}
                 getOptionSelected={(option, value) => option.name === value}
-                onChange={handleInputChange}
+                onChange={handleLocationChange}
                 renderInput={params => (
                   <TextField {...params} label="Location" variant="outlined" />
                 )}
@@ -278,7 +293,7 @@ export default function AddUser(props) {
                 options={groups}
                 getOptionLabel={option => option.name}
                 getOptionSelected={(option, value) => option.name === value}
-                onChange={handleInputChange}
+                onChange={handleRoleChange}
                 renderInput={params => (
                   <TextField {...params} label="Roles" variant="outlined" />
                 )}
