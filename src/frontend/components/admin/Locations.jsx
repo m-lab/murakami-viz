@@ -134,8 +134,9 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = library => {
+  const handleClose = (library, id) => {
     if (library) {
+      library.id = id;
       updateRows(library);
     }
     setOpen(false);
@@ -217,19 +218,11 @@ export default function EnhancedTable(props) {
   const [index, setIndex] = React.useState(0);
 
   const handleClickOpen = id => {
+    console.log(id);
     history.push({
       pathname: '/dashboard',
       state: { library: id },
     });
-  };
-
-  const handleClose = library => {
-    if (library) {
-      let editedLibraries = [...rows];
-      editedLibraries[index] = library;
-      setRows(editedLibraries);
-    }
-    setOpen(false);
   };
 
   const addData = row => {
