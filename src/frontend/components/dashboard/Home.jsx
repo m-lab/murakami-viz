@@ -295,7 +295,8 @@ export default function Home(props) {
             className={classes.header}
             container
             spacing={2}
-            alignItems="space-between"
+            alignItems="center"
+            justify="space-between"
           >
             <Grid container item direction="column" spacing={2} xs={6}>
               <Grid item>
@@ -370,8 +371,6 @@ export default function Home(props) {
               className={classes.grid}
               justify="space-between"
               spacing={2}
-              xs={12}
-              md={12}
             >
               <Grid
                 container
@@ -474,8 +473,6 @@ export default function Home(props) {
               alignItems="center"
               item
               spacing={2}
-              xs={12}
-              sm={10}
             >
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
