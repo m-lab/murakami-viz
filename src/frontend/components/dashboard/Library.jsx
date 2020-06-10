@@ -54,17 +54,23 @@ const useStyles = makeStyles(theme => ({
 
 export default function Library(props) {
   const classes = useStyles();
-  const { library } = props;
+  const [ library, setLibrary ] =  React.useState(props.library);
 
-  // console.log('library: ', library);
   // handle edit library
   const [open, setOpen] = React.useState(false);
+
+  const updateLibrary = library => {
+    setLibrary(library);
+  }
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = library => {
+    if (library) {
+      updateLibrary(library);
+    }
     setOpen(false);
   };
 
@@ -312,7 +318,12 @@ export default function Library(props) {
               >
                 Edit
               </Button>
-              <EditLibrary open={open} onClose={handleClose} row={library} />
+              <EditLibrary
+                open={open}
+                onLibraryUpdate={updateLibrary}
+                onClose={handleClose}
+                row={library}
+               />
             </Grid>
           </Grid>
         </Box>
