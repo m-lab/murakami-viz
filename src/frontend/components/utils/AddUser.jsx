@@ -265,6 +265,8 @@ export default function AddUser(props) {
                 id="library-select"
                 options={libraries}
                 getOptionLabel={option => option.name}
+                getOptionSelected={(option, value) => option.name === value}
+                onChange={handleInputChange}
                 renderInput={params => (
                   <TextField {...params} label="Location" variant="outlined" />
                 )}
@@ -275,6 +277,8 @@ export default function AddUser(props) {
                 id="user-role"
                 options={groups}
                 getOptionLabel={option => option.name}
+                getOptionSelected={(option, value) => option.name === value}
+                onChange={handleInputChange}
                 renderInput={params => (
                   <TextField {...params} label="Roles" variant="outlined" />
                 )}

@@ -41,6 +41,7 @@ const useStyles = makeStyles(() => ({
     padding: '50px',
   },
   formControl: {
+    marginBottom: '30px',
     width: '100%',
   },
   formField: {
@@ -239,6 +240,10 @@ export default function EditUser(props) {
               id="library-select"
               options={libraries}
               getOptionLabel={option => option.name}
+              getOptionSelected={(option, value) => option.name === value}
+              defaultValue={row.location}
+              onChange={handleInputChange}
+              value={inputs.location}
               renderInput={params => (
                 <TextField {...params} label="Location" variant="outlined" />
               )}
@@ -249,6 +254,10 @@ export default function EditUser(props) {
               id="user-role"
               options={groups}
               getOptionLabel={option => option.name}
+              getOptionSelected={(option, value) => option.name === value}
+              defaultValue={row.role}
+              onChange={handleInputChange}
+              value={inputs.role}
               renderInput={params => (
                 <TextField {...params} label="Roles" variant="outlined" />
               )}
