@@ -54,14 +54,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function Library(props) {
   const classes = useStyles();
-  const [ library, setLibrary ] =  React.useState(props.library);
+  const [library, setLibrary] = React.useState(props.library);
 
   // handle edit library
   const [open, setOpen] = React.useState(false);
 
   const updateLibrary = library => {
     setLibrary(library);
-  }
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -323,7 +323,7 @@ export default function Library(props) {
                 onLibraryUpdate={updateLibrary}
                 onClose={handleClose}
                 row={library}
-               />
+              />
             </Grid>
           </Grid>
         </Box>
@@ -482,162 +482,160 @@ export default function Library(props) {
             >
               <TableBody>
                 {devices && devices.length > 0
-                  ? devices.map(device => {
+                  ? devices.map((device, index) => {
                       return (
-                        <>
-                          <ExpansionPanel>
-                            <ExpansionPanelSummary
-                              expandIcon={<ExpandMoreIcon />}
-                              aria-controls="panel1a-content"
-                              id="panel1a-header"
+                        <ExpansionPanel key={index}>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                          >
+                            <Typography
+                              variant="overline"
+                              display="block"
+                              gutterBottom
                             >
-                              <Typography
-                                variant="overline"
-                                display="block"
-                                gutterBottom
-                              >
-                                {device.name}
-                              </Typography>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails>
-                              <Table
-                                className={classes.table}
-                                aria-label="basic information table"
-                              >
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
+                              {device.name}
+                            </Typography>
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Table
+                              className={classes.table}
+                              aria-label="basic information table"
+                            >
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Name
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.name}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  DeviceID
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.deviceid}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Location
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {library.name}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Network type
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.network_type}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Connection Type
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.connection_type}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  DNS server
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.dns_server}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  IP address
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.ip}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Gateway
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.gateway}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  MAC address
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.mac}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className={classes.tableCell}>
+                                  <Button
+                                    type="submit"
+                                    label="Submit"
+                                    variant="contained"
+                                    disableElevation
+                                    color="primary"
+                                    onClick={() => openEdit(device)}
                                   >
-                                    Name
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.name}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
+                                    Edit device
+                                  </Button>{' '}
+                                  <Button
+                                    variant="contained"
+                                    disableElevation
+                                    color="primary"
+                                    onClick={() => handleDeviceDelete(device)}
                                   >
-                                    DeviceID
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.deviceid}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    Location
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {library.name}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    Network type
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.network_type}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    Connection Type
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.connection_type}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    DNS server
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.dns_server}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    IP address
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.ip}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    Gateway
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.gateway}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell
-                                    className={`${classes.tableCell} ${
-                                      classes.tableKey
-                                    }`}
-                                  >
-                                    MAC address
-                                  </TableCell>
-                                  <TableCell className={classes.tableCell}>
-                                    {device.mac}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className={classes.tableCell}>
-                                    <Button
-                                      type="submit"
-                                      label="Submit"
-                                      variant="contained"
-                                      disableElevation
-                                      color="primary"
-                                      onClick={() => openEdit(device)}
-                                    >
-                                      Edit device
-                                    </Button>{' '}
-                                    <Button
-                                      variant="contained"
-                                      disableElevation
-                                      color="primary"
-                                      onClick={() => handleDeviceDelete(device)}
-                                    >
-                                      Delete device
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              </Table>
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
-                        </>
+                                    Delete device
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            </Table>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
                       );
                     })
                   : null}
