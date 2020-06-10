@@ -156,5 +156,5 @@ export default function EditAbout(props) {
 EditAbout.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  aboutValue: PropTypes.string.isRequired,
+  aboutValue: PropTypes.string,
 };

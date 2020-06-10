@@ -85,8 +85,12 @@ export default function Dashboard(props) {
     if (!props.location.state) {
       setLibrary(props.library);
     } else {
-      let status;
-      const lid = props.location.state.library;
+      let lid, status;
+      if ( isNaN(props.location.state.library) ) {
+        lid = props.location.state.library.id;
+      } else {
+        lid = props.location.state.library;
+      }
       fetch(`api/v1/libraries/${lid}`)
         .then(response => {
           status = response.status;

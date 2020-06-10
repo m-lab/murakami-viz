@@ -218,7 +218,6 @@ export default function EnhancedTable(props) {
   const [index, setIndex] = React.useState(0);
 
   const handleClickOpen = id => {
-    console.log(id);
     history.push({
       pathname: '/dashboard',
       state: { library: id },
