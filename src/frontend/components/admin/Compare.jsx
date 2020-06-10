@@ -92,7 +92,8 @@ export default function Compare(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { libraries } = props;
-  const [ library, setLibrary ] = React.useState([libraries[0]]);
+  const [ libraryName, setLibraryName ] = React.useState([libraries[0].name]);
+  const [ libraryId, setLibraryId ] = React.useState([libraries[0].id]);
 
   // handle date range
   const today = new Date();
@@ -109,7 +110,16 @@ export default function Compare(props) {
 
   // handle library select
   const handleLibraryChange = (event) => {
-    setLibrary(event.target.value);
+    let newLibrary = [];
+    setLibraryName(event.target.value);
+    const filteredLibraries = libraries.find(library => {
+      if (event.target.value.includes(library.name)) {
+        newLibrary = [...newLibrary, library.id];
+        newLibrary = [...new Set(newLibrary)]
+        setLibraryId(newLibrary);
+        return;
+      }
+    })
   };
 
   // handle connection change
@@ -231,8 +241,7 @@ export default function Compare(props) {
                       id="libraries"
                       multiple
                       displayEmpty
-                      defaultValue={libraries[0].name}
-                      value={library.name}
+                      value={libraryName}
                       onChange={handleLibraryChange}
                       input={<Input id="select-libraries" />}
                       renderValue={selected => (
@@ -245,7 +254,7 @@ export default function Compare(props) {
                       MenuProps={MenuProps}
                     >
                       {libraries.map(library => (
-                        <MenuItem key={library.id} value={library.id} style={getStyles(library.name, library, theme)}>
+                        <MenuItem key={library.id} value={library.name} style={getStyles(library.name, library, theme)}>
                           {library.name}
                         </MenuItem>
                       ))}
@@ -324,6 +333,7 @@ export default function Compare(props) {
               </Grid>
               <Grid item xs={12} md={9}>
                 <MainGraph
+                  lid={libraryId}
                   runs={runs}
                   connections={connections}
                   testTypes={testTypes}

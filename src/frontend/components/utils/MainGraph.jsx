@@ -49,12 +49,16 @@ export default function MainGraph(props) {
   const [testSummary, setTestSummary] = React.useState(null);
   const [titleText, setTitleText] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const { runs, connections, testTypes, metric, group, dateRange } = props;
+  const { lid, runs, connections, testTypes, metric, group, dateRange } = props;
 
   React.useEffect(() => {
-    console.log(runs);
     if (runs) {
       const filteredRuns = runs.filter(run => {
+        if (lid.length) {
+          if (!lid.includes(run.lid)) {
+            return false;
+          }
+        }
         if (connections.length) {
           if (!connections.includes(run.MurakamiConnectionType)) {
             return false;
@@ -103,7 +107,7 @@ export default function MainGraph(props) {
       }
     }
     setIsLoaded(true);
-  }, [ connections, testTypes, metric, group, runs ]);
+  }, [ connections, testTypes, metric, group, runs, lid ]);
 
   if (!isLoaded) {
     return <Loading />;
