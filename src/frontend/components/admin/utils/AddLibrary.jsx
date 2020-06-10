@@ -102,8 +102,8 @@ TabPanel.propTypes = {
 
 function a11yProps(index) {
   return {
-    id: `edit-library-tab-${index}`,
-    'aria-controls': `edit-library-tabpanel-${index}`,
+    id: `add-library-tab-${index}`,
+    'aria-controls': `add-library-tabpanel-${index}`,
   };
 }
 
@@ -129,9 +129,27 @@ const useForm = callback => {
   };
 };
 
-export default function EditLibrary(props) {
+export default function AddLibrary(props) {
   const classes = useStyles();
-  const { onClose, open, row } = props;
+  const { onClose, open } = props;
+
+  // handle api data errors
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [libraries, setLibraries] = React.useState([]);
+  const [groups, setGroups] = React.useState([]);
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
 
   //handle tabs
   const [value, setValue] = React.useState(0);
@@ -146,18 +164,27 @@ export default function EditLibrary(props) {
   };
 
   const submitData = () => {
-    fetch(`api/v1/libraries/${row.id}`, {
-      method: 'PUT',
+    let status;
+    fetch(`api/v1/libraries/`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
-      .then(results => {
-        onClose(results.data[0]);
-        alert('Library edited successfully.');
-        return;
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        if (status === 201) {
+          alert('Library submitted successfully.');
+          onClose(inputs, result.data[0]);
+          return;
+        } else {
+          const error = processError(result);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
         console.log(error);
@@ -200,7 +227,7 @@ export default function EditLibrary(props) {
             id="add-library-title"
             className={classes.dialogTitleRoot}
           >
-            <div className={classes.dialogTitleText}>Edit Library</div>
+            <div className={classes.dialogTitleText}>Add Library</div>
           </DialogTitle>
         </Grid>
         <Grid item className={classes.gridItem}>
@@ -236,7 +263,7 @@ export default function EditLibrary(props) {
             textColor="primary"
             value={value}
             onChange={handleChange}
-            aria-label="edit library tabs"
+            aria-label="add library tabs"
           >
             <Tab label="Basic info" {...a11yProps(0)} />
             <Tab label="Network" {...a11yProps(1)} />
@@ -256,7 +283,6 @@ export default function EditLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue=''
               // onChange={handleInputChange}
               value={0}
               disabled
@@ -272,7 +298,6 @@ export default function EditLibrary(props) {
             name="name"
             fullWidth
             variant="outlined"
-            defaultValue={row.name}
             onChange={handleInputChange}
             value={inputs.name}
           />
@@ -283,7 +308,6 @@ export default function EditLibrary(props) {
             name="physical_address"
             fullWidth
             variant="outlined"
-            defaultValue={row.physical_address}
             onChange={handleInputChange}
             value={inputs.physical_address}
           />
@@ -295,7 +319,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.shipping_address}
             value={inputs.shipping_address}
           />
           <TextField
@@ -306,7 +329,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.timezone}
             value={inputs.timezone}
           />
           <TextField
@@ -317,7 +339,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.coordinates}
             value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -331,7 +352,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.primary_contact_name}
             value={inputs.primary_contact_name}
           />
           <TextField
@@ -342,7 +362,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.primary_contact_email}
             value={inputs.primary_contact_email}
           />
           <Typography variant="overline" display="block" gutterBottom>
@@ -356,7 +375,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.opening_hours}
             value={inputs.opening_hours}
           />
         </TabPanel>
@@ -369,7 +387,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.network_name}
             value={inputs.network_name}
           />
           <TextField
@@ -380,7 +397,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.isp}
             value={inputs.isp}
           />
           <Grid container alignItems="center">
@@ -397,7 +413,6 @@ export default function EditLibrary(props) {
                 name="contracted_speed_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={row.contracted_speed_download}
                 value={inputs.contracted_speed_download}
               />
             </Grid>
@@ -409,7 +424,6 @@ export default function EditLibrary(props) {
                 name="contracted_speed_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={row.contracted_speed_upload}
                 value={inputs.contracted_speed_upload}
               />
             </Grid>
@@ -422,7 +436,6 @@ export default function EditLibrary(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={row.ip}
             value={inputs.ip}
           />
           <Grid container alignItems="center">
@@ -439,7 +452,6 @@ export default function EditLibrary(props) {
                 name="bandwidth_cap_download"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={row.bandwidth_cap_download}
                 value={inputs.bandwidth_cap_download}
               />
             </Grid>
@@ -451,7 +463,6 @@ export default function EditLibrary(props) {
                 name="bandwidth_cap_upload"
                 variant="outlined"
                 onChange={handleInputChange}
-                defaultValue={row.bandwidth_cap_upload}
                 value={inputs.bandwidth_cap_upload}
               />
             </Grid>
@@ -476,8 +487,7 @@ export default function EditLibrary(props) {
   );
 }
 
-EditLibrary.propTypes = {
+AddLibrary.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  row: PropTypes.object.isRequired,
 };

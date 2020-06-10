@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 // material ui imports
 import Button from '@material-ui/core/Button';
@@ -19,7 +20,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 // modules imports
-import AddLibrary from '../utils/AddLibrary.jsx';
+import AddLibrary from './utils/AddLibrary.jsx';
 import Loading from '../Loading.jsx';
 // import ViewUser from '../utils/ViewUser.jsx';
 
@@ -57,8 +58,8 @@ const headCells = [
     disablePadding: false,
     label: 'Location',
   },
-  { id: 'users', numeric: false, disablePadding: false, label: 'Users' },
-  { id: 'devices', numeric: false, disablePadding: false, label: 'Devices' },
+  // { id: 'users', numeric: false, disablePadding: false, label: 'Users' },
+  // { id: 'devices', numeric: false, disablePadding: false, label: 'Devices' },
 ];
 
 function EnhancedTableHead(props) {
@@ -129,12 +130,13 @@ const EnhancedTableToolbar = props => {
   // handle add library
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = (lid) => {
-    console.log(lid);
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
-  const handleClose = library => {
+  const handleClose = (library, id) => {
     if (library) {
+      library.id = id;
       updateRows(library);
     }
     setOpen(false);
@@ -189,6 +191,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EnhancedTable(props) {
+  const history = useHistory();
   const classes = useStyles();
   const { library } = props;
 
@@ -214,18 +217,12 @@ export default function EnhancedTable(props) {
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
 
-  const handleClickOpen = index => {
-    setIndex(index);
-    setOpen(true);
-  };
-
-  const handleClose = library => {
-    if (library) {
-      let editedLibraries = [...rows];
-      editedLibraries[index] = library;
-      setRows(editedLibraries);
-    }
-    setOpen(false);
+  const handleClickOpen = id => {
+    console.log(id);
+    history.push({
+      pathname: '/dashboard',
+      state: { library: id },
+    });
   };
 
   const addData = row => {
@@ -261,7 +258,6 @@ export default function EnhancedTable(props) {
       })
       .then(librarys => {
         if (status === 200) {
-          console.log(librarys.data);
           setRows(librarys.data);
           emptyRows =
             rowsPerPage -
@@ -274,16 +270,14 @@ export default function EnhancedTable(props) {
       })
       .then(() => fetch('api/v1/users'))
       .then(usersResponse => {
-        console.log(usersResponse);
         userStatus = usersResponse.status;
         return usersResponse.json();
       })
       .then(users => {
         if (userStatus === 200) {
-          console.log();
           setUsers(users.data);
           setIsLoaded(true);
-          return users.data;
+          return;
         } else {
           const error = processError(users);
           throw new Error(error);
@@ -331,7 +325,7 @@ export default function EnhancedTable(props) {
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(index);
+                            handleClickOpen(row.id);
                           }}
                           key={row.id}
                         >
@@ -344,8 +338,6 @@ export default function EnhancedTable(props) {
                             {row.name}
                           </TableCell>
                           <TableCell>{row.physical_address}</TableCell>
-                          <TableCell>{users.length} users</TableCell>
-                          <TableCell>{row.devices}</TableCell>
                         </TableRow>
                       );
                     }

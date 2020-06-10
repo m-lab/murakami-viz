@@ -77,9 +77,35 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { library } = props;
   const user = props.user || props.location.state.user;
+  const [library, setLibrary] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
+
+  React.useEffect(() => {
+    if (!props.location.state) {
+      setLibrary(props.library);
+    } else {
+      let status;
+      const lid = props.location.state.library;
+      fetch(`api/v1/libraries/${lid}`)
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(libraries => {
+          if (status === 200) {
+            setLibrary(libraries.data[0]);
+            return;
+          } else {
+            const error = processError(libraries);
+            throw new Error(error);
+          }
+        })
+        .catch(error => {
+          console.error(error.name + error.message);
+        });
+    }
+  }, []);
 
   return (
     <Container className={classes.root}>
@@ -108,6 +134,18 @@ export default function Dashboard(props) {
                   {user.role_name}
                 </p>
               </Box>
+              {
+                user.role_name === 'admins' &&
+                  <Box ml={1}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      href="/admin"
+                    >
+                      Admin
+                    </Button>
+                  </Box>
+              }
               <Box ml={1}>
                 <Button
                   variant="outlined"

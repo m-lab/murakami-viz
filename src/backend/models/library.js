@@ -108,8 +108,8 @@ export default class LibraryManager {
           isp: library.isp,
           contracted_speed_upload: library.contracted_speed_upload,
           contracted_speed_download: library.contracted_speed_download,
-          bandwith_cap_upload: library.bandwith_cap_upload,
-          bandwith_cap_download: library.bandwith_cap_download,
+          bandwidth_cap_upload: library.bandwidth_cap_upload,
+          bandwidth_cap_download: library.bandwidth_cap_download,
         },
         [
           'id',
@@ -126,8 +126,8 @@ export default class LibraryManager {
           'isp',
           'contracted_speed_upload',
           'contracted_speed_download',
-          'bandwith_cap_upload',
-          'bandwith_cap_download',
+          'bandwidth_cap_upload',
+          'bandwidth_cap_download',
         ],
       )
       .returning('*');
