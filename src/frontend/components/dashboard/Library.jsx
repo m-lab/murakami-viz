@@ -1,8 +1,7 @@
 // base imports
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import Cookies from 'js-cookie';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -89,6 +88,18 @@ export default function Library(props) {
     setDeviceToEdit(device);
   };
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   React.useEffect(() => {
     let status;
 
@@ -100,9 +111,14 @@ export default function Library(props) {
       .then(devices => {
         if (status === 200) {
           setDevices(devices.data);
+          return;
+        } else {
+          const error = processError(devices);
+          throw new Error(error);
         }
       })
       .catch(error => {
+        console.error(error.name + ': ' + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -110,22 +126,31 @@ export default function Library(props) {
   }, []);
 
   const handleDeviceDelete = deviceToDelete => {
+    let status;
     fetch(`api/v1/devices/${deviceToDelete.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        if (results.statusCode === 200) {
+        if (status === 200) {
           let updatedDevices = devices.filter(
             device => device.id !== deviceToDelete.id,
           );
           setDevices(updatedDevices);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(error);
         }
       })
       .catch(error => {
+        console.error(error.name + ': ' + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
@@ -159,7 +184,9 @@ export default function Library(props) {
       })
       .catch(err => {
         console.error(err.name + ': ' + err.message);
-        throw err;
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
       });
   }, []);
 
@@ -191,6 +218,7 @@ export default function Library(props) {
         ip: ipValue,
       };
 
+      let status;
       fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
         method: 'POST',
         headers: {
@@ -198,18 +226,24 @@ export default function Library(props) {
         },
         body: JSON.stringify(data),
       })
-        .then(response => response.json())
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
         .then(results => {
-          if (results.statusCode === 201) {
+          if (status === 201) {
             let updatedIPs = libraryIPs.concat(ipValue);
             setLibraryIPs(updatedIPs);
             closeTextfield();
             setIpValue(null);
+            return;
+          } else {
+            const error = processError(results);
+            throw new Error(error);
           }
-          return;
         })
         .catch(error => {
-          console.error('error :', error); //TODO: figure out if this is gonna be graceful enough
+          console.error(error.name + ': ' + error.message);
           alert(
             'An error occurred. Please try again or contact an administrator.',
           );
@@ -220,18 +254,25 @@ export default function Library(props) {
   };
 
   const handleIpDelete = ipToDelete => {
+    let status;
     fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        if (results.statusCode === 200) {
+        if (status === 200) {
           let updatedIPs = libraryIPs.filter(ip => ip !== ipToDelete);
           setLibraryIPs(updatedIPs);
           return;
+        } else {
+          const error = processError(results);
+          throw new Error(error);
         }
       })
       .catch(error => {
@@ -625,9 +666,9 @@ export default function Library(props) {
             >
               <TableBody>
                 {libraryIPs && libraryIPs.length > 0
-                  ? libraryIPs.map(ipAddress => {
+                  ? libraryIPs.map((ipAddress, index) => {
                       return (
-                        <TableRow>
+                        <TableRow key={index}>
                           <TableCell
                             className={`${classes.tableCell} ${
                               classes.tableKey
