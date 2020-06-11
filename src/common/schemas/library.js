@@ -6,12 +6,13 @@ const schema = Joi.object({
   physical_address: Joi.string(),
   shipping_address: Joi.string(),
   timezone: Joi.string(),
-  coordinates: Joi.object()
-    .keys({
-      lat: Joi.number(),
-      long: Joi.number(),
-    })
-    .and('lat', 'long'),
+  coordinates: Joi.string(),
+  //coordinates: Joi.object()
+  //  .keys({
+  //    lat: Joi.number(),
+  //    long: Joi.number(),
+  //  })
+  //  .and('lat', 'long'),
   primary_contact_name: Joi.string(),
   primary_contact_email: Joi.string().email(),
   it_contact_name: Joi.string(),
