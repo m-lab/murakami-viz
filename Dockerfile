@@ -22,7 +22,7 @@ RUN npm run test
 ENV NODE_ENV=production
 
 # Avoid lscpu warning on Alpine
-ENV PARCEL_WORKERS=1
+#ENV PARCEL_WORKERS=1
 
 RUN npm run build
 
