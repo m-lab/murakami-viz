@@ -87,9 +87,6 @@ export default function controller(users, thisUser) {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await users.findByUsername(username, true);
-        console.log('****************************');
-        console.log(user);
-        console.log('****************************');
         if (!comparePass(password, user.password)) {
           done(null, false);
         } else {
@@ -283,7 +280,7 @@ export default function controller(users, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (user.length) {
+    if (user && user.length) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: user };
       ctx.response.status = 200;
     } else {

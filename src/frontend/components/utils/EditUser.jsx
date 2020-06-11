@@ -91,40 +91,39 @@ export default function EditUser(props) {
   const [location, setLocation] = React.useState(row.location);
 
   const handleRoleChange = (event, values) => {
-    console.log("role changing: ", role)
+    console.log('role changing: ', role);
     setRole(values.id);
   };
 
   const handleLocationChange = (event, values) => {
-    console.log("location changing: ", location)
-    setLocation(values.id)
-  }
+    console.log('location changing: ', location);
+    setLocation(values.id);
+  };
 
-  console.log("user? ", row)
-  console.log("role? ", role)
-  console.log("location? ", location)
-  console.log("libraries? ", libraries)
+  console.log('user? ', row);
+  console.log('role? ', role);
+  console.log('location? ', location);
+  console.log('libraries? ', libraries);
 
   const submitData = () => {
-
     const toSubmit = {
-        ...inputs,
-        location: location,
-        role: role
-      }
-    
-    console.log("data at submit: ", {data: toSubmit})
+      ...inputs,
+      location: location,
+      role: role,
+    };
+
+    console.log('data at submit: ', { data: toSubmit });
 
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({data: toSubmit}),
+      body: JSON.stringify({ data: toSubmit }),
     })
       .then(response => response.json())
       .then(results => {
-        alert('User edited successfully.');
+        alert(`User edited successfully. ${results.data[0]}`);
         onClose(results.data[0]);
         return;
       })
@@ -202,7 +201,7 @@ export default function EditUser(props) {
         aria-labelledby="edit-user-title"
         fullWidth={true}
         maxWidth={'lg'}
-        lassName={classes.dialog}
+        className={classes.dialog}
       >
         <Button
           label="Close"
@@ -268,7 +267,9 @@ export default function EditUser(props) {
               options={libraries}
               getOptionLabel={option => option.name}
               getOptionSelected={(option, value) => option.name === value}
-              defaultValue={libraries.find(library => library.id === row.location)}
+              defaultValue={libraries.find(
+                library => library.id === row.location,
+              )}
               onChange={handleLocationChange}
               renderInput={params => (
                 <TextField {...params} label="Location" variant="outlined" />
