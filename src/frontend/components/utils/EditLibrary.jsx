@@ -256,13 +256,12 @@ export default function EditLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue=''
+              defaultValue=""
               // onChange={handleInputChange}
               value={0}
               disabled
             >
-              <MenuItem value='' selected>
-              </MenuItem>
+              <MenuItem value="" selected />
             </Select>
           </FormControl>
           <TextField
