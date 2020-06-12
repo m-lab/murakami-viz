@@ -144,8 +144,9 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, id) => {
     if (user) {
+      user.id = id;
       updateRows(user);
     }
     setOpen(false);
@@ -306,7 +307,7 @@ export default function EnhancedTable(props) {
         console.error(error.name + error.message);
         setIsLoaded(true);
       });
-  }, [rows]);
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;
