@@ -114,7 +114,7 @@ export default function EditUser(props) {
     })
       .then(response => response.json())
       .then(results => {
-        alert(`User edited successfully. ${results.data[0]}`);
+        alert(`User edited successfully.`);
         onClose(results.data[0]);
         return;
       })
