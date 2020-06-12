@@ -1,7 +1,8 @@
 // base imports
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import DateFnUtils from '@date-io/date-fns';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -10,6 +11,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
@@ -38,40 +40,20 @@ const useStyles = makeStyles(() => ({
   formField: {
     marginBottom: '30px',
   },
+  datePicker: {
+    marginBottom: '30px',
+  },
   saveButton: {
     marginBottom: '0',
   },
 }));
 
-function formatDate(date) {
-  return date.toISOString().substring(0, 19);
-}
-
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
-  const handleSubmit = event => {
-    if (event) {
-      event.preventDefault();
-    }
-    callback();
-  };
-  const handleInputChange = event => {
-    event.persist();
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  return {
-    handleSubmit,
-    handleInputChange,
-    inputs,
-  };
-};
-
 export default function AddNote(props) {
   const classes = useStyles();
   const { onClose, open, library } = props;
+  const [date, setDate] = React.useState(new Date());
+  const [description, setDescription] = React.useState();
+  const [subject, setSubject] = React.useState();
 
   const handleClose = () => {
     onClose();
@@ -85,7 +67,9 @@ export default function AddNote(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({
+        data: { subject: subject, date: date, description: description },
+      }),
     })
       .then(res => {
         status = res.status;
@@ -94,7 +78,7 @@ export default function AddNote(props) {
       .then(() => {
         if (status === 201) {
           alert('Note submitted successfully.');
-          onClose(inputs);
+          onClose({ subject: subject, date: date, description: description });
           return;
         } else {
           throw new Error(`Error in response from server.`);
@@ -108,8 +92,6 @@ export default function AddNote(props) {
         onClose();
       });
   };
-
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
   return (
     <Dialog
@@ -140,22 +122,17 @@ export default function AddNote(props) {
           name="subject"
           fullWidth
           variant="outlined"
-          onChange={handleInputChange}
+          onChange={e => setSubject(e.target.value)}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            className={classes.textField}
-            defaultValue={formatDate(new Date())}
-            onChange={handleInputChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
+
+        <MuiPickersUtilsProvider utils={DateFnUtils}>
+          <DateTimePicker
+            className={classes.datePicker}
+            value={date}
+            onChange={e => setDate(e)}
           />
-        </div>
+        </MuiPickersUtilsProvider>
+
         <TextField
           className={classes.formField}
           id="note-description"
@@ -165,7 +142,7 @@ export default function AddNote(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          onChange={handleInputChange}
+          onChange={e => setDescription(e.target.value)}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -188,7 +165,7 @@ export default function AddNote(props) {
               disableElevation
               color="primary"
               primary={true}
-              onClick={handleSubmit}
+              onClick={submitData}
             >
               Save
             </Button>

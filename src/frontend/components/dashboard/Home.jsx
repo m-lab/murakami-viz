@@ -153,8 +153,10 @@ export default function Home(props) {
 
   // handle glossary terms
   const handleGlossary = term => {
-    return (glossary.find(word => word.term.toLowerCase() === term.toLowerCase()));
-  }
+    return glossary.find(
+      word => word.term.toLowerCase() === term.toLowerCase(),
+    );
+  };
 
   // handle date range
   const today = new Date();
@@ -226,7 +228,7 @@ export default function Home(props) {
   React.useEffect(() => {
     let status, glossaryStatus;
 
-    if ( library ) {
+    if (library) {
       fetch(`/api/v1/libraries/${library.id}/runs`)
         .then(res => {
           status = res.status;
@@ -267,17 +269,16 @@ export default function Home(props) {
         console.error(error.name + error.message);
         setIsLoaded(true);
       });
+  }, [library]);
 
-  }, [ library ]);
-
-  if ( error ) {
+  if (error) {
     return <div>Error: {error.message}</div>;
-  } else if ( !isLoaded ) {
+  } else if (!isLoaded) {
     return <Loading />;
-  } else if ( !library ) {
+  } else if (!library) {
     return (
       <Suspense>
-        <Box mb={9} >
+        <Box mb={9}>
           <Typography component="h1" variant="h3">
             MLBN Data Visualization
           </Typography>
@@ -314,7 +315,7 @@ export default function Home(props) {
                 >
                   Add a note
                 </Button>
-                <AddNote open={open} onClose={handleClose} />
+                <AddNote open={open} onClose={handleClose} library={library} />
               </Grid>
             </Grid>
             <Grid container item spacing={1} xs={6}>
@@ -468,12 +469,7 @@ export default function Home(props) {
             </Grid>
           </Box>
           <Grid container justify="space-between" alignItems="center">
-            <Grid
-              container
-              alignItems="center"
-              item
-              spacing={2}
-            >
+            <Grid container alignItems="center" item spacing={2}>
               <Grid item>
                 <Typography variant="overline" display="block" gutterBottom>
                   Group by
@@ -499,7 +495,7 @@ export default function Home(props) {
             </Grid>
             <Grid item xs={12} sm={2}>
               <Button variant="contained">
-                <CSVLink data={runs ? runs : '' } headers={headers}>
+                <CSVLink data={runs ? runs : ''} headers={headers}>
                   Export
                 </CSVLink>
               </Button>
