@@ -151,7 +151,6 @@ const EnhancedTableToolbar = props => {
     setOpen(false);
   };
 
-  console.debug('userRole: ', userRole);
   if (userRole === 'admins') {
     return (
       <Toolbar className={clsx(classes.root)}>
@@ -243,7 +242,9 @@ export default function EnhancedTable(props) {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, index) => {
+    console.log('user: ', user);
+    console.log('index: ', index);
     if (user) {
       let editedUsers = [...rows];
       editedUsers[index] = user;
@@ -388,6 +389,7 @@ export default function EnhancedTable(props) {
               rows={stableSort(rows, getComparator(order, orderBy))}
               open={open}
               onClose={handleClose}
+              user={user}
             />
           )}
         </div>

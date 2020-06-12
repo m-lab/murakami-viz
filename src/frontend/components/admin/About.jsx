@@ -128,7 +128,7 @@ export default function About() {
             </Grid>
           </Grid>
           <div>
-            <Typography component="p" variant="body1">
+            <Typography component="div" variant="body1">
               {parse('<div>' + selectedAboutValue + '</div>')}
             </Typography>
           </div>
@@ -157,7 +157,7 @@ export default function About() {
             </Grid>
           </Grid>
           <div>
-            <Typography component="p" variant="body1">
+            <Typography component="div" variant="body1">
               {parse('<div>' + selectedContactValue + '</div>')}
             </Typography>
           </div>
@@ -186,7 +186,7 @@ export default function About() {
             </Grid>
           </Grid>
           <div>
-            <Typography component="p" variant="body1">
+            <Typography component="div" variant="body1">
               {selectedForumValue}
             </Typography>
           </div>
