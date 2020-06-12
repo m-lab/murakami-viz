@@ -61,8 +61,8 @@ export default function About() {
 
   useEffect(() => {
     let status;
-    return Promise.all([
-      fetch('/api/v1/settings')
+    async function fetchData() {
+      const settings = await fetch('/api/v1/settings')
         .then(res => {
           status = res.status;
           return res.json();
@@ -83,8 +83,8 @@ export default function About() {
           setError(error);
           console.error(error.name + error.message);
           setIsLoaded(true);
-        }),
-      fetch('/api/v1/faqs')
+        })
+      const faqs = await fetch('/api/v1/faqs')
         .then(res => {
           status = res.status;
           return res.json();
@@ -102,8 +102,8 @@ export default function About() {
           setError(error);
           console.error(error.name + error.message);
           setIsLoaded(true);
-        }),
-      fetch('/api/v1/glossaries')
+        })
+      const glossaries = await fetch('/api/v1/glossaries')
         .then(res => {
           status = res.status;
           return res.json();
@@ -121,8 +121,10 @@ export default function About() {
           setError(error);
           console.error(error.name + error.message);
           setIsLoaded(true);
-        }),
-    ]).then(() => {
+        })
+    }
+
+    fetchData().then(() => {
       setIsLoaded(true);
       return;
     });
@@ -167,13 +169,15 @@ export default function About() {
                 <Typography component="h2" variant="h4">
                   Contact
                 </Typography>
-                <Typography>{parse('<div>' + contact + '</div>')}</Typography>
+                <Typography component="div" variant="body1">
+                  {parse('<div>' + contact + '</div>')}
+                </Typography>
               </Box>
               <Box>
                 <Typography component="h2" variant="h4">
                   About
                 </Typography>
-                <Typography paragraph="true" variant="body1">
+                <Typography component="div" variant="body1">
                   {parse('<div>' + about + '</div>')}
                 </Typography>
               </Box>
