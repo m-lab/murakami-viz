@@ -167,13 +167,13 @@ export default function About() {
                 <Typography component="h2" variant="h4">
                   Contact
                 </Typography>
-                <Typography>{parse('<div>' + contact + '</div>')}</Typography>
+                <Typography component="div">{parse('<div>' + contact + '</div>')}</Typography>
               </Box>
               <Box>
                 <Typography component="h2" variant="h4">
                   About
                 </Typography>
-                <Typography paragraph="true" variant="body1">
+                <Typography component="div" variant="body1">
                   {parse('<div>' + about + '</div>')}
                 </Typography>
               </Box>
@@ -186,7 +186,7 @@ export default function About() {
                   {console.log('item: ', item)}
                   {parse('<div>' + item.question + '</div>')}
                 </Typography>
-                <Typography>
+                <Typography component="div">
                   {parse('<div>' + item.answer + '</div>')}
                 </Typography>
               </Box>
@@ -197,7 +197,7 @@ export default function About() {
                 <Typography component="h2" variant="h4">
                   {parse('<div>' + item.term + '</div>')}
                 </Typography>
-                <Typography>
+                <Typography component="div">
                   {parse('<div>' + item.definition + '</div>')}
                 </Typography>
               </Box>
