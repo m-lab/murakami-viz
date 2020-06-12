@@ -1,6 +1,7 @@
 // base imports
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import parse from 'html-react-parser';
 
 // material ui imports
 import Tooltip from '@material-ui/core/Tooltip';
@@ -26,7 +27,7 @@ export default function GlossaryTooltip(props) {
     return null;
   } else {
     return (
-      <Tooltip title={term.definition}>
+      <Tooltip title={parse('<div>' + term.definition + '</div>')}>
         <IconButton className={classes.iconButton} aria-label="ndt-test-tip">
         <InfoIcon />
         </IconButton>

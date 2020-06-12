@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
+import parse from 'html-react-parser';
 import Truncate from 'react-truncate';
 
 // material ui imports
@@ -315,7 +316,7 @@ export default function EnhancedTable(props) {
                           <TableCell>{row.term}</TableCell>
                           <TableCell>
                             <Truncate lines={1} width={300}>
-                              {row.definition}
+                              {parse('<div>' + row.definition + '</div>')}
                             </Truncate>
                           </TableCell>
                         </TableRow>

@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import parse from 'html-react-parser';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -175,7 +176,7 @@ export default function ViewGlossary(props) {
           {row.term}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
-          {row.definition}
+          {parse('<div>' + row.definition + '</div>')}
         </Typography>
       </Box>
       <Button
