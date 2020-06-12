@@ -1,7 +1,8 @@
 // base imports
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import DateFnUtils from '@date-io/date-fns';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -10,6 +11,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 
 // icons imports
 import ClearIcon from '@material-ui/icons/Clear';
@@ -38,40 +40,20 @@ const useStyles = makeStyles(() => ({
   formField: {
     marginBottom: '30px',
   },
+  datePicker: {
+    marginBottom: '30px',
+  },
   saveButton: {
     marginBottom: '0',
   },
 }));
 
-function formatDate(date) {
-  return date.replace(/ /g, 'T');
-}
-
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
-  const handleSubmit = event => {
-    if (event) {
-      event.preventDefault();
-    }
-    callback();
-  };
-  const handleInputChange = event => {
-    event.persist();
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.name]: event.target.value,
-    }));
-  };
-  return {
-    handleSubmit,
-    handleInputChange,
-    inputs,
-  };
-};
-
 export default function EditNote(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
+  const [date, setDate] = React.useState(row.date);
+  const [description, setDescription] = React.useState(row.description);
+  const [subject, setSubject] = React.useState(row.subject);
 
   const handleClose = () => {
     onClose();
@@ -83,7 +65,9 @@ export default function EditNote(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({
+        data: { subject: subject, date: date, description: description },
+      }),
     })
       .then(response => response.json())
       .then(results => {
@@ -99,8 +83,6 @@ export default function EditNote(props) {
         onClose();
       });
   };
-
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
 
   return (
     <Dialog
@@ -132,24 +114,17 @@ export default function EditNote(props) {
           fullWidth
           variant="outlined"
           defaultValue={row.subject}
-          onChange={handleInputChange}
-          value={inputs.subject}
+          onChange={e => setSubject(e.target.value)}
+          value={subject}
         />
-        <div className={classes.formField}>
-          <TextField
-            id="note-datetime"
-            label="Date"
-            name="updated_at"
-            type="datetime-local"
-            defaultValue={formatDate(row.updated_at)}
-            onChange={handleInputChange}
-            value={inputs.updated_at}
-            className={classes.textField}
-            InputLabelProps={{
-              shrink: true,
-            }}
+        <MuiPickersUtilsProvider utils={DateFnUtils}>
+          <DateTimePicker
+            className={classes.datePicker}
+            value={date}
+            onChange={e => setDate(e.target.value)}
           />
-        </div>
+        </MuiPickersUtilsProvider>
+
         <TextField
           className={classes.formField}
           id="note-description"
@@ -160,8 +135,8 @@ export default function EditNote(props) {
           fullWidth
           variant="outlined"
           defaultValue={row.description}
-          onChange={handleInputChange}
-          value={inputs.description}
+          onChange={e => setDescription(e.target.value)}
+          value={description}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -179,7 +154,7 @@ export default function EditNote(props) {
             <Button
               type="submit"
               label="Save"
-              onClick={handleSubmit}
+              onClick={submitData}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
