@@ -105,9 +105,7 @@ export default function AddUser(props) {
         location: location,
         role: role
     }
-
-    console.log("data at submit: ", toSubmit)
-
+    
     fetch(`api/v1/users`, {
       method: 'POST',
       headers: {

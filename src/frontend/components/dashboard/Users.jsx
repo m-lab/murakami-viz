@@ -243,8 +243,6 @@ export default function EnhancedTable(props) {
   };
 
   const handleClose = (user, index) => {
-    console.log('user: ', user);
-    console.log('index: ', index);
     if (user) {
       let editedUsers = [...rows];
       editedUsers[index] = user;
@@ -308,7 +306,7 @@ export default function EnhancedTable(props) {
         console.error(error.name + error.message);
         setIsLoaded(true);
       });
-  }, []);
+  }, [rows]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
