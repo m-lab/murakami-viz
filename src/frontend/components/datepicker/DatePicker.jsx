@@ -128,8 +128,6 @@ export default function Datepicker(props) {
         <Grid
           container
           justify="space-between"
-          xs={12}
-          sm={12}
           className={classes.buttons}
         >
           <Grid container item spacing={2} xs={12} sm={6}>
