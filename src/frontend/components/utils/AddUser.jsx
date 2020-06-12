@@ -88,11 +88,11 @@ export default function AddUser(props) {
   const [location, setLocation] = React.useState(null);
 
   const handleRoleChange = (event, values) => {
-    setRole(values.id);
+    setRole(values);
   };
 
   const handleLocationChange = (event, values) => {
-    setLocation(values.id)
+    setLocation(values)
   }
 
   // submit new user to api
@@ -102,8 +102,8 @@ export default function AddUser(props) {
     // combining inputs with the location and role values from the autocomplete component
     const toSubmit = {
         ...inputs,
-        location: location,
-        role: role
+        location: location.id,
+        role: role.id
     }
 
     fetch(`api/v1/users`, {
@@ -120,7 +120,7 @@ export default function AddUser(props) {
       .then(result => {
         if (status === 201) {
           alert('User submitted successfully.');
-          onClose(inputs, result.data[0].id);
+          onClose({...toSubmit, location: location.name, role: role.name}, result.data[0].id);
           return;
         } else {
           const error = processError(result);
@@ -294,7 +294,7 @@ export default function AddUser(props) {
                 onChange={handleRoleChange}
                 renderInput={params => (
                   <TextField {...params} label="Roles" variant="outlined" />
-                )}
+                  )}
               />
             </FormControl>
             <Grid container alignItems="center" justify="space-between">
