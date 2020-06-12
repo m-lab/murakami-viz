@@ -106,8 +106,6 @@ export default function AddUser(props) {
         role: role
     }
 
-    console.log("data at submit: ", toSubmit)
-
     fetch(`api/v1/users`, {
       method: 'POST',
       headers: {
@@ -122,7 +120,7 @@ export default function AddUser(props) {
       .then(result => {
         if (status === 201) {
           alert('User submitted successfully.');
-          onClose(inputs);
+          onClose(inputs, result.data[0].id);
           return;
         } else {
           const error = processError(result);

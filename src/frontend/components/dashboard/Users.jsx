@@ -144,14 +144,14 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, id) => {
     if (user) {
+      user.id = id;
       updateRows(user);
     }
     setOpen(false);
   };
 
-  console.debug('userRole: ', userRole);
   if (userRole === 'admins') {
     return (
       <Toolbar className={clsx(classes.root)}>
@@ -243,7 +243,7 @@ export default function EnhancedTable(props) {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, index) => {
     if (user) {
       let editedUsers = [...rows];
       editedUsers[index] = user;
@@ -388,6 +388,7 @@ export default function EnhancedTable(props) {
               rows={stableSort(rows, getComparator(order, orderBy))}
               open={open}
               onClose={handleClose}
+              user={user}
             />
           )}
         </div>

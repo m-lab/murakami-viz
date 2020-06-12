@@ -91,19 +91,12 @@ export default function EditUser(props) {
   const [location, setLocation] = React.useState(row.location);
 
   const handleRoleChange = (event, values) => {
-    console.log('role changing: ', role);
     setRole(values.id);
   };
 
   const handleLocationChange = (event, values) => {
-    console.log('location changing: ', location);
     setLocation(values.id);
   };
-
-  console.log('user? ', row);
-  console.log('role? ', role);
-  console.log('location? ', location);
-  console.log('libraries? ', libraries);
 
   const submitData = () => {
     const toSubmit = {
@@ -111,8 +104,6 @@ export default function EditUser(props) {
       location: location,
       role: role,
     };
-
-    console.log('data at submit: ', { data: toSubmit });
 
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
@@ -123,7 +114,7 @@ export default function EditUser(props) {
     })
       .then(response => response.json())
       .then(results => {
-        alert(`User edited successfully. ${results.data[0]}`);
+        alert(`User edited successfully.`);
         onClose(results.data[0]);
         return;
       })
@@ -142,6 +133,8 @@ export default function EditUser(props) {
       errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
     } else if (res.statusCode && res.status) {
       errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else if (res) {
+      errorString = res;
     } else {
       errorString = 'Error in response from server.';
     }

@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
   },
   dialogTitleText: {
     fontSize: '2.25rem',
-    textAlign: 'right',
+    textAlign: 'center',
   },
   editButton: {
     marginTop: '30px',
@@ -73,10 +73,10 @@ function formatRole(role) {
 export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, open, rows, index } = props;
+  const { onClose, open, rows, index, user } = props;
 
-  const handleClose = row => {
-    onClose(row);
+  const handleClose = (row, index) => {
+    onClose(row, index);
   };
 
   const [row, setRow] = React.useState(props.rows[props.index]);
@@ -86,6 +86,32 @@ export default function ViewUser(props) {
   };
 
   // handle edit user
+  const isAdmin = user => {
+    if ( user.role_name != 'admins' ) {
+      return null;
+    } else {
+      return (
+        <Grid item xs={12} sm={5}>
+          <Button
+            variant="contained"
+            disableElevation
+            color="primary"
+            onClick={handleClickOpenEdit}
+            className={classes.editButton}
+          >
+            Edit
+          </Button>
+          <EditUser
+            row={row}
+            open={openEdit}
+            onClose={handleCloseEdit}
+            user={user}
+          />
+        </Grid>
+      );
+    }
+  }
+
   const [openEdit, setOpenEdit] = React.useState(false);
 
   const handleClickOpenEdit = () => {
@@ -120,7 +146,7 @@ export default function ViewUser(props) {
 
   return (
     <Dialog
-      onClose={() => handleClose(row)}
+      onClose={() => handleClose(row, activeStep)}
       modal={true}
       open={open}
       aria-labelledby="view-user-title"
@@ -164,22 +190,7 @@ export default function ViewUser(props) {
             <div className={classes.dialogTitleText}>View User</div>
           </DialogTitle>
         </Grid>
-        <Grid item xs={12} sm={5}>
-          <Button
-            variant="contained"
-            disableElevation
-            color="primary"
-            onClick={handleClickOpenEdit}
-            className={classes.editButton}
-          >
-            Edit
-          </Button>
-          <EditUser
-            row={row}
-            open={openEdit}
-            onClose={handleCloseEdit}
-          />
-        </Grid>
+        { isAdmin(user) }
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
@@ -201,9 +212,8 @@ export default function ViewUser(props) {
         label="Close"
         color="primary"
         primary={true}
-        onClick={() => handleClose(row)}
+        onClick={() => handleClose(row, activeStep)}
         className={classes.closeButton}
-        gutterBottom
       >
         Close
       </Button>
@@ -215,5 +225,5 @@ ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
-  rows: PropTypes.number.isRequired,
+  rows: PropTypes.array.isRequired,
 };
