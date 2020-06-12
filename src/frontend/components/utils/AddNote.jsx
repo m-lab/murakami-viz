@@ -129,7 +129,7 @@ export default function AddNote(props) {
           <DateTimePicker
             className={classes.datePicker}
             value={date}
-            onChange={e => setDate(e.target.value)}
+            onChange={e => setDate(e)}
           />
         </MuiPickersUtilsProvider>
 
