@@ -98,5 +98,5 @@ export default function HomeTabs(props) {
 }
 
 HomeTabs.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
 };

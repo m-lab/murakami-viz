@@ -168,6 +168,7 @@ export default function controller(devices, thisUser) {
         `HTTP 404 Error: That device with ID ${ctx.params.id} does not exist.`,
       );
       ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
+      ctx.response.body = { error: 'Please try again.' };
     }
   });
 

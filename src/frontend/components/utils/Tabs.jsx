@@ -109,5 +109,5 @@ export default function NavTabs(props) {
 
 NavTabs.propTypes = {
   user: PropTypes.object.isRequired,
-  library: PropTypes.object.isRequired,
+  library: PropTypes.object,
 };

@@ -176,7 +176,6 @@ export default function ViewUser(props) {
           </Button>
           <EditUser
             row={row}
-            onRowUpdate={updateRow}
             open={openEdit}
             onClose={handleCloseEdit}
           />

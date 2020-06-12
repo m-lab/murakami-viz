@@ -155,5 +155,5 @@ export default function EditForum(props) {
 EditForum.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  forumValue: PropTypes.string.isRequired,
+  forumValue: PropTypes.string,
 };

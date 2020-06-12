@@ -2,7 +2,7 @@
 import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles, useTheme } from '@material-ui/core/styles';
+import { lighten, makeStyles } from '@material-ui/core/styles';
 import Moment from 'react-moment';
 import Truncate from 'react-truncate';
 
@@ -20,11 +20,9 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
-import EditNote from '../utils/EditNote.jsx';
 import Loading from '../Loading.jsx';
 import ViewNote from '../utils/ViewNote.jsx';
 
@@ -259,7 +257,7 @@ export default function EnhancedTable(props) {
   React.useEffect(() => {
     let status;
 
-    if ( library ) {
+    if (library) {
       fetch(`/api/v1/libraries/${library.id}/notes`)
         .then(res => {
           status = res.status;
@@ -286,17 +284,16 @@ export default function EnhancedTable(props) {
     } else {
       setIsLoaded(true);
     }
-
   }, []);
 
-  if ( error ) {
+  if (error) {
     return <div>Error: {error.message}</div>;
-  } else if ( !isLoaded ) {
+  } else if (!isLoaded) {
     return <Loading />;
-  } else if ( !library ) {
+  } else if (!library) {
     return (
       <Suspense>
-        <Box mb={9} >
+        <Box mb={9}>
           <Typography component="p" variant="body1">
             No notes to display.
           </Typography>
@@ -343,7 +340,7 @@ export default function EnhancedTable(props) {
                             padding="none"
                           >
                             <Moment
-                              date={row.updated_at}
+                              date={row.date}
                               format="MMMM D, YYYY, h:mma"
                             />
                           </TableCell>
