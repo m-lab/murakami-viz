@@ -156,5 +156,5 @@ export default function EditContact(props) {
 EditContact.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedContactValue: PropTypes.string.isRequired,
+  selectedContactValue: PropTypes.string,
 };

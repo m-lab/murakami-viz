@@ -90,11 +90,10 @@ export default class NoteManager {
         }
 
         if (library) {
-          queryBuilder.join(
-            'library_notes',
-            'library_notes.lid',
-            knex.raw('?', [library]),
-          );
+          queryBuilder.join('library_notes', {
+            'notes.id': 'library_notes.nid',
+            'library_notes.lid': knex.raw('?', [library]),
+          });
         }
 
         if (asc) {

@@ -21,13 +21,13 @@ const Loading = lazy(() => import('./Loading.jsx'));
 const Login = lazy(() => import('./Login.jsx'));
 const Admin = lazy(() => import('./Admin.jsx'));
 
-function PrivateRoute({
+const PrivateRoute = ({
   component: Component,
   authed,
   user,
   library,
   ...rest
-}) {
+}) => {
   const history = useHistory();
   const path = { ...rest };
 
@@ -72,7 +72,7 @@ function PrivateRoute({
 }
 
 PrivateRoute.propTypes = {
-  component: PropTypes.object.isRequired,
+  component: PropTypes.func.isRequired,
   authed: PropTypes.bool,
   user: PropTypes.object,
 };

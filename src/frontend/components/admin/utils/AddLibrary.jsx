@@ -179,7 +179,7 @@ export default function AddLibrary(props) {
       .then(result => {
         if (status === 201) {
           alert('Library submitted successfully.');
-          onClose(inputs);
+          onClose(inputs, result.data[0]);
           return;
         } else {
           const error = processError(result);

@@ -1,8 +1,7 @@
 // base imports
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import Cookies from 'js-cookie'
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -55,187 +54,245 @@ const useStyles = makeStyles(theme => ({
 
 export default function Library(props) {
   const classes = useStyles();
-  const { library } = props;
+  const [library, setLibrary] = React.useState(props.library);
 
-  // console.log('library: ', library);
   // handle edit library
   const [open, setOpen] = React.useState(false);
+
+  const updateLibrary = library => {
+    setLibrary(library);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = library => {
+    if (library) {
+      updateLibrary(library);
+    }
     setOpen(false);
   };
 
   const [devices, setDevices] = React.useState([]);
   const [openDevice, setOpenDevice] = React.useState(false);
-  const [edit, setEdit] = React.useState(false)
-  const [deviceToEdit, setDeviceToEdit] = React.useState({})
+  const [edit, setEdit] = React.useState(false);
+  const [deviceToEdit, setDeviceToEdit] = React.useState({});
 
   const showAddDevice = () => {
     setOpenDevice(true);
-  }
+  };
 
   const closeDevice = () => {
     setOpenDevice(false);
     setEdit(false);
-  }
+  };
 
   const openEdit = device => {
     setOpenDevice(true);
     setEdit(true);
-    setDeviceToEdit(device)
-  }
+    setDeviceToEdit(device);
+  };
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
 
   React.useEffect(() => {
     let status;
 
-    if ( library ) {
-      fetch(`/api/v1/libraries/${library.id}/devices`)
+    fetch(`/api/v1/libraries/${library.id}/devices`)
       .then(response => {
         status = response.status;
         return response.json();
       })
       .then(devices => {
         if (status === 200) {
-          setDevices(devices.data)
+          setDevices(devices.data);
+          return;
+        } else {
+          const error = processError(devices);
+          throw new Error(error);
         }
       })
       .catch(error => {
-        alert('An error occurred. Please try again or contact an administrator.');
-      })
-    }
-  }, [])
+        console.error(error.name + ': ' + error.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  }, []);
 
   const handleDeviceDelete = deviceToDelete => {
+    let status;
     fetch(`api/v1/devices/${deviceToDelete.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     })
-    .then(response => response.json())
-    .then(results => {
-      if (results.statusCode === 200) {
-        let updatedDevices = devices.filter( device => device.id !== deviceToDelete.id )
-        setDevices(updatedDevices)
-      }
-    })
-    .catch(error => {
-      alert(
-        'An error occurred. Please try again or contact an administrator.',
-      );
-    });
-  }
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(results => {
+        if (status === 200) {
+          let updatedDevices = devices.filter(
+            device => device.id !== deviceToDelete.id,
+          );
+          setDevices(updatedDevices);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(error);
+        }
+      })
+      .catch(error => {
+        console.error(error.name + ': ' + error.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  };
 
   // handle existing whitelisted IPs
-  const [libraryIPs, setLibraryIPs] = React.useState([])
+  const [libraryIPs, setLibraryIPs] = React.useState([]);
 
   // fetch existing whitelisted IPs
   React.useEffect(() => {
     let ipStatus;
 
-    if ( library ) {
-      fetch(`/api/v1/libraries/${library.id}/ip`)
-        .then(response => {
-          ipStatus = response.status;
-          return response.json();
-        })
-        .then(libraryIPs => {
-          if (ipStatus === 200 && libraryIPs.ipCount > 0) {
-            setLibraryIPs(
-              libraryIPs.data.map(libraryIP => libraryIP.ip) // get just the IP addresses
-            );
-            return;
-          } else if (ipStatus === 200 && libraryIPs.ipCount === 0) {
-            setLibraryIPs([])
-            return;
-          } else {
-            throw new Error(error);
-          }
-        })
-    }
+    fetch(`/api/v1/libraries/${library.id}/ip`)
+      .then(response => {
+        ipStatus = response.status;
+        return response.json();
+      })
+      .then(libraryIPs => {
+        if (ipStatus === 200 && libraryIPs.ipCount > 0) {
+          setLibraryIPs(
+            libraryIPs.data.map(libraryIP => libraryIP.ip), // get just the IP addresses
+          );
+          return;
+        } else if (ipStatus === 200 && libraryIPs.ipCount === 0) {
+          setLibraryIPs([]);
+          return;
+        } else {
+          throw new Error('Failed to get library IPs');
+        }
+      })
+      .catch(err => {
+        console.error(err.name + ': ' + err.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
   }, []);
 
   // handling IP whitelist add
   const [show, setShow] = React.useState(false);
-  const [ipValue, setIpValue] = React.useState(null)
-
+  const [ipValue, setIpValue] = React.useState(null);
 
   // next two functions toggle showing/hiding the TextField to whitelist an IP address
   const showTextfield = () => {
     setShow(true);
-  }
+  };
 
   const closeTextfield = () => {
     setShow(false);
-  }
+  };
 
   // handles value change
-  const handleIpInput = (event) => {
-    setIpValue(event.target.value)
-  }
+  const handleIpInput = event => {
+    setIpValue(event.target.value);
+  };
 
   // submits an IP address to the library_ips table
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     event.preventDefault();
 
-    const data = {
-      id: library.id,
-      ip: ipValue
-    };
+    if (ipValue && ipValue !== '') {
+      const data = {
+        id: library.id,
+        ip: ipValue,
+      };
 
-    fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => response.json())
-      .then(results => {
-        if (results.statusCode === 201) {
-          let updatedIPs = libraryIPs.concat(ipValue);
-          setLibraryIPs(updatedIPs)
-        }
+      let status;
+      fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       })
-      .catch(error => {
-        console.log("error :", error); //TODO: figure out if this is gonna be graceful enough
-        alert(
-          'An error occurred. Please try again or contact an administrator.',
-        );
-      });
-
-    closeTextfield();
-    setIpValue(null);
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(results => {
+          if (status === 201) {
+            let updatedIPs = libraryIPs.concat(ipValue);
+            setLibraryIPs(updatedIPs);
+            closeTextfield();
+            setIpValue(null);
+            return;
+          } else {
+            const error = processError(results);
+            throw new Error(error);
+          }
+        })
+        .catch(error => {
+          console.error(error.name + ': ' + error.message);
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+        });
+    } else {
+      alert("IP address can't be blank.");
+    }
   };
 
   const handleIpDelete = ipToDelete => {
+    let status;
     fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-      }})
-      .then(response => response.json())
+      },
+    })
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        if (results.statusCode === 200) {
+        if (status === 200) {
           let updatedIPs = libraryIPs.filter(ip => ip !== ipToDelete);
           setLibraryIPs(updatedIPs);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(error);
         }
       })
       .catch(error => {
+        console.error(error.name + ': ' + error.message);
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
       });
-  }
+  };
 
-  if ( !library ) {
+  if (!library) {
     return (
       <Suspense>
-        <Box mb={9} >
+        <Box mb={9}>
           <Typography component="p" variant="body1">
             No notes to display.
           </Typography>
@@ -261,7 +318,12 @@ export default function Library(props) {
               >
                 Edit
               </Button>
-              <EditLibrary open={open} onClose={handleClose} row={library} />
+              <EditLibrary
+                open={open}
+                onLibraryUpdate={updateLibrary}
+                onClose={handleClose}
+                row={library}
+              />
             </Grid>
           </Grid>
         </Box>
@@ -270,7 +332,10 @@ export default function Library(props) {
             Basic Information
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
                 <TableRow>
                   <TableCell
@@ -343,7 +408,10 @@ export default function Library(props) {
             ISP &amp; Library Network Information
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
                 <TableRow>
                   <TableCell
@@ -408,138 +476,169 @@ export default function Library(props) {
             Measurement Devices
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
-            { devices && devices.length > 0 ?
-              devices.map(device => {
-               return <>
-                 <ExpansionPanel>
-                   <ExpansionPanelSummary
-                     expandIcon={<ExpandMoreIcon />}
-                     aria-controls="panel1a-content"
-                     id="panel1a-header"
-                   >
-                     <Typography variant="overline" display="block" gutterBottom>{device.name}</Typography>
-                   </ExpansionPanelSummary>
-                   <ExpansionPanelDetails>
-                    <Table className={classes.table} aria-label="basic information table">
-                     <TableRow>
-                      <TableCell
-                        className={`${classes.tableCell} ${classes.tableKey}`}
-                      >
-                        Name
-                      </TableCell>
-                      <TableCell className={classes.tableCell}>
-                        {device.name}
-                      </TableCell>
-                     </TableRow>
-                      <TableRow>
-                        <TableCell
-                          className={`${classes.tableCell} ${classes.tableKey}`}
-                        >
-                          DeviceID
-                        </TableCell>
-                        <TableCell className={classes.tableCell}>
-                          {device.deviceid}
-                        </TableCell>
-                      </TableRow>
-                     <TableRow>
-                      <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         Location
-                      </TableCell>
-                      <TableCell className={classes.tableCell}>
-                         {device.location}
-                      </TableCell>
-                     </TableRow>
-                     <TableRow>
-                      <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         Network type
-                      </TableCell>
-                       <TableCell className={classes.tableCell}>
-                         {device.network_type}
-                       </TableCell>
-                     </TableRow>
-                     <TableRow>
-                      <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         Connection Type
-                      </TableCell>
-                      <TableCell className={classes.tableCell}>
-                        {device.connection_type}
-                      </TableCell>
-                     </TableRow>
-                     <TableRow>
-                      <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         DNS server
-                      </TableCell>
-                       <TableCell className={classes.tableCell}>
-                         {device.dns_server}
-                       </TableCell>
-                     </TableRow>
-                     <TableRow>
-                       <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         IP address
-                       </TableCell>
-                       <TableCell className={classes.tableCell}>
-                         {device.ip}
-                       </TableCell>
-                     </TableRow>
-                     <TableRow>
-                       <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                       >
-                         Gateway
-                       </TableCell>
-                       <TableCell className={classes.tableCell}>
-                         {device.gateway}
-                      </TableCell>
-                     </TableRow>
-                     <TableRow>
-                      <TableCell
-                         className={`${classes.tableCell} ${classes.tableKey}`}
-                      >
-                         MAC address
-                      </TableCell>
-                      <TableCell className={classes.tableCell}>
-                         {device.mac}
-                      </TableCell>
-                     </TableRow>
-                     <TableRow>
-                      <TableCell className={classes.tableCell}>
-                        <Button
-                          type="submit"
-                          label="Submit"
-                          variant="contained"
-                          disableElevation
-                          color="primary"
-                          onClick={()=>openEdit(device)}
-                        >
-                          Edit device
-                        </Button> <Button
-                          variant="contained"
-                          disableElevation
-                          color="primary"
-                          onClick={()=>handleDeviceDelete(device)}
-                        >
-                          Delete device
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    </Table>
-                   </ExpansionPanelDetails>
-                 </ExpansionPanel>
-                </>
-            }) : null
-            }
+                {devices && devices.length > 0
+                  ? devices.map((device, index) => {
+                      return (
+                        <ExpansionPanel key={index}>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                          >
+                            <Typography
+                              variant="overline"
+                              display="block"
+                              gutterBottom
+                            >
+                              {device.name}
+                            </Typography>
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Table
+                              className={classes.table}
+                              aria-label="basic information table"
+                            >
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Name
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.name}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  DeviceID
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.deviceid}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Location
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {library.name}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Network type
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.network_type}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Connection Type
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.connection_type}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  DNS server
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.dns_server}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  IP address
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.ip}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  Gateway
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.gateway}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell
+                                  className={`${classes.tableCell} ${
+                                    classes.tableKey
+                                  }`}
+                                >
+                                  MAC address
+                                </TableCell>
+                                <TableCell className={classes.tableCell}>
+                                  {device.mac}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className={classes.tableCell}>
+                                  <Button
+                                    type="submit"
+                                    label="Submit"
+                                    variant="contained"
+                                    disableElevation
+                                    color="primary"
+                                    onClick={() => openEdit(device)}
+                                  >
+                                    Edit device
+                                  </Button>{' '}
+                                  <Button
+                                    variant="contained"
+                                    disableElevation
+                                    color="primary"
+                                    onClick={() => handleDeviceDelete(device)}
+                                  >
+                                    Delete device
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            </Table>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                      );
+                    })
+                  : null}
                 <TableRow>
                   <TableCell className={classes.tableCell}>
                     <Button
@@ -570,75 +669,83 @@ export default function Library(props) {
             Whitelisted IP Addresses
           </Typography>
           <TableContainer>
-            <Table className={classes.table} aria-label="basic information table">
+            <Table
+              className={classes.table}
+              aria-label="basic information table"
+            >
               <TableBody>
-                { libraryIPs && libraryIPs.length > 0 ?
-                  libraryIPs.map(ipAddress => {
-                     return <TableRow>
-                              <TableCell className={`${classes.tableCell} ${classes.tableKey}`}>
-                                {ipAddress}
-                              </TableCell>
-                              <TableCell>
-                                <IconButton
-                                  aria-label="delete"
-                                  onClick={()=>handleIpDelete(ipAddress)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                  })
-                :
-                  null
-                }
-                { show ?
-                <TableRow>
-                  <TableCell className={classes.tableCell}>
-                    <TextField
-                      className={classes.formField}
-                      id="library-ip"
-                      label="New IP address"
-                      name="ip"
-                      fullWidth
-                      variant="outlined"
-                      onChange={handleIpInput}
-                      value={ipValue}
-                    />
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    <Button
-                      type="submit"
-                      label="Submit"
-                      variant="contained"
-                      disableElevation
-                      color="primary"
-                      onClick={handleSubmit}
-                    >
+                {libraryIPs && libraryIPs.length > 0
+                  ? libraryIPs.map((ipAddress, index) => {
+                      return (
+                        <TableRow key={index}>
+                          <TableCell
+                            className={`${classes.tableCell} ${
+                              classes.tableKey
+                            }`}
+                          >
+                            {ipAddress}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              aria-label="delete"
+                              onClick={() => handleIpDelete(ipAddress)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  : null}
+                {show ? (
+                  <TableRow>
+                    <TableCell className={classes.tableCell}>
+                      <TextField
+                        className={classes.formField}
+                        id="library-ip"
+                        label="New IP address"
+                        name="ip"
+                        fullWidth
+                        variant="outlined"
+                        onChange={handleIpInput}
+                        value={ipValue}
+                      />
+                    </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      <Button
+                        type="submit"
+                        label="Submit"
+                        variant="contained"
+                        disableElevation
+                        color="primary"
+                        onClick={handleSubmit}
+                      >
                         Submit
-                    </Button> <Button
+                      </Button>{' '}
+                      <Button
                         variant="contained"
                         disableElevation
                         color="primary"
                         onClick={closeTextfield}
                       >
                         Cancel
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                :
-                <TableRow>
-                  <TableCell className={classes.tableCell}>
-                    <Button
-                      variant="contained"
-                      disableElevation
-                      color="primary"
-                      onClick={showTextfield}
-                    >
-                      Whitelist a new IP address
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                }
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell className={classes.tableCell}>
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        color="primary"
+                        onClick={showTextfield}
+                      >
+                        Whitelist a new IP address
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

@@ -146,7 +146,6 @@ export default function EditLibrary(props) {
   };
 
   const submitData = () => {
-    console.log(inputs);
     fetch(`api/v1/libraries/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -155,8 +154,8 @@ export default function EditLibrary(props) {
       body: JSON.stringify({ data: inputs }),
     })
       .then(response => response.json())
-      .then(() => {
-        // onRowUpdate(results.data[0]);
+      .then(results => {
+        onClose(results.data[0]);
         alert('Library edited successfully.');
         return;
       })
@@ -257,13 +256,12 @@ export default function EditLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              defaultValue=''
+              defaultValue=""
               // onChange={handleInputChange}
               value={0}
               disabled
             >
-              <MenuItem value='' selected>
-              </MenuItem>
+              <MenuItem value="" selected />
             </Select>
           </FormControl>
           <TextField

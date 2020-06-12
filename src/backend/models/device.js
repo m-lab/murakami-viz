@@ -64,9 +64,9 @@ export default class DeviceManager {
         ids = await trx('devices')
           .del()
           .where({ id: parseInt(id) });
-        //await trx('library_devices')
-        //  .del()
-        //  .where({ did: parseInt(id) });
+        await trx('library_devices')
+          .del()
+          .where({ did: parseInt(id) });
       });
       return ids;
     } catch (err) {
@@ -78,7 +78,7 @@ export default class DeviceManager {
     start: start = 0,
     end: end,
     asc: asc = true,
-    sort_by: sort_by = 'device.id',
+    sort_by: sort_by = 'devices.id',
     from: from,
     to: to,
     library: library,
