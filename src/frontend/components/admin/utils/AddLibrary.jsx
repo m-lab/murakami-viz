@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import AppBar from '@material-ui/core/AppBar';
@@ -87,7 +88,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
@@ -107,13 +108,16 @@ function a11yProps(index) {
   };
 }
 
-const useForm = callback => {
+const useForm = (callback, validated) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      console.log('truly valid');
+      callback();
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -132,13 +136,59 @@ const useForm = callback => {
 export default function AddLibrary(props) {
   const classes = useStyles();
   const { onClose, open } = props;
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    name: '',
+  });
+
+  // handle form validation
+  const validateInputs = inputs => {
+    setErrors({});
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        name: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        name: 'This field is required.',
+      }));
+      return false;
+    } else {
+      if (!inputs.name || !inputs.email) {
+        if (!inputs.name) {
+          setErrors(errors => ({
+            ...errors,
+            name: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            name: 'Required',
+          }));
+        }
+        if (!validateEmail(inputs.email)) {
+          setErrors(errors => ({
+            ...errors,
+            email: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            email: 'Please enter a valid email address.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+  };
 
   // handle api data errors
-  const [error, setError] = React.useState(null);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  const [libraries, setLibraries] = React.useState([]);
-  const [groups, setGroups] = React.useState([]);
-
   const processError = res => {
     let errorString;
     if (res.statusCode && res.error && res.message) {
@@ -196,12 +246,14 @@ export default function AddLibrary(props) {
     onClose();
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(submitData, validateInputs);
+
+  React.useEffect(() => {}, [errors, helperText]);
 
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="add-library-title"
       fullWidth={true}
@@ -210,7 +262,7 @@ export default function AddLibrary(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
@@ -239,7 +291,7 @@ export default function AddLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>
@@ -248,7 +300,7 @@ export default function AddLibrary(props) {
           <Button
             size="small"
             label="Cancel"
-            primary={true}
+            primary="true"
             onClick={handleClose}
             className={classes.cancelButton}
           >
@@ -283,15 +335,16 @@ export default function AddLibrary(props) {
               id="library-name"
               label="Library System Name (if applicable)"
               name="library_name"
-              // onChange={handleInputChange}
-              value={0}
+              onChange={handleInputChange}
+              value=""
               disabled
             >
-              <MenuItem value='' selected>
-              </MenuItem>
+              <MenuItem value="" selected />
             </Select>
           </FormControl>
           <TextField
+            error={errors && errors.name}
+            helperText={helperText.name}
             className={classes.formField}
             id="library-name"
             label="Library Name"
@@ -300,6 +353,7 @@ export default function AddLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             value={inputs.name}
+            required
           />
           <TextField
             className={classes.formField}
@@ -355,6 +409,8 @@ export default function AddLibrary(props) {
             value={inputs.primary_contact_name}
           />
           <TextField
+            error={errors.email}
+            helperText={helperText.email}
             className={classes.formField}
             id="library-primary-contact-email"
             label="Email"
@@ -477,7 +533,7 @@ export default function AddLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>
