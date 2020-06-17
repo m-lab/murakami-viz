@@ -144,6 +144,7 @@ export default function AddLibrary(props) {
   // handle form validation
   const validateInputs = inputs => {
     setErrors({});
+    setHelperText({});
     if (_.isEmpty(inputs)) {
       setErrors(errors => ({
         ...errors,
@@ -155,7 +156,7 @@ export default function AddLibrary(props) {
       }));
       return false;
     } else {
-      if (!inputs.name || !inputs.email) {
+      if (!inputs.name || !inputs.primary_contact_email) {
         if (!inputs.name) {
           setErrors(errors => ({
             ...errors,
@@ -166,7 +167,7 @@ export default function AddLibrary(props) {
             name: 'Required',
           }));
         }
-        if (!validateEmail(inputs.email)) {
+        if (!validateEmail(inputs.primary_contact_email)) {
           setErrors(errors => ({
             ...errors,
             email: true,
