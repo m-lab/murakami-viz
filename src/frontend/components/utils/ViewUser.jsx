@@ -200,7 +200,7 @@ export default function ViewUser(props) {
         disableElevation
         label="Close"
         color="primary"
-        primary={true}
+        primary="true"
         onClick={() => handleClose(row)}
         className={classes.closeButton}
         gutterBottom
@@ -215,5 +215,5 @@ ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
-  rows: PropTypes.number.isRequired,
+  rows: PropTypes.array.isRequired,
 };

@@ -115,7 +115,6 @@ const useForm = (callback, validated) => {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      console.log('truly valid');
       callback();
     }
   };
@@ -247,7 +246,10 @@ export default function AddLibrary(props) {
     onClose();
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData, validateInputs);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
 
   React.useEffect(() => {}, [errors, helperText]);
 

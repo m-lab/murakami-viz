@@ -2,6 +2,7 @@
 import React, { Suspense, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -53,13 +54,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
+const useForm = (callback, validated) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback();
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -77,7 +80,69 @@ const useForm = callback => {
 
 export default function AddUser(props) {
   const classes = useStyles();
-  const { onClose, open, user, library } = props;
+  const { onClose, open } = props;
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    username: '',
+  });
+
+  // handle form validation
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        username: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        username: 'This field is required.',
+      }));
+      return false;
+    } else {
+      if (!inputs.username || !inputs.password || !inputs.email) {
+        if (!inputs.username) {
+          setErrors(errors => ({
+            ...errors,
+            username: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            username: 'Required',
+          }));
+        }
+        if (!inputs.password) {
+          setErrors(errors => ({
+            ...errors,
+            password: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            password: 'Required',
+          }));
+        }
+        if (!validateEmail(inputs.email)) {
+          setErrors(errors => ({
+            ...errors,
+            email: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            email: 'Please enter a valid email address.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+  };
 
   const handleClose = () => {
     onClose();
@@ -124,7 +189,10 @@ export default function AddUser(props) {
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
 
   // fetch library api data
   const [error, setError] = React.useState(null);
@@ -180,7 +248,7 @@ export default function AddUser(props) {
         console.error(error.name + error.message);
         setIsLoaded(true);
       });
-  }, []);
+  }, [errors, helperText]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -191,7 +259,7 @@ export default function AddUser(props) {
       <Suspense>
         <Dialog
           onClose={handleClose}
-          modal={true}
+          modal="true"
           open={open}
           aria-labelledby="add-user-title"
           fullWidth={true}
@@ -200,7 +268,7 @@ export default function AddUser(props) {
         >
           <Button
             label="Close"
-            primary={true}
+            primary="true"
             onClick={handleClose}
             className={classes.closeButton}
           >
@@ -211,6 +279,8 @@ export default function AddUser(props) {
           </DialogTitle>
           <Box className={classes.form}>
             <TextField
+              error={errors && errors.username}
+              helperText={helperText.username}
               className={classes.formField}
               id="user-username"
               label="Username"
@@ -221,6 +291,8 @@ export default function AddUser(props) {
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.password}
+              helperText={helperText.password}
               className={classes.formField}
               id="user-password"
               label="Password"
@@ -251,6 +323,8 @@ export default function AddUser(props) {
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.email}
+              helperText={helperText.email}
               className={classes.formField}
               id="user-email"
               label="Email"
@@ -285,7 +359,7 @@ export default function AddUser(props) {
                 <Button
                   size="small"
                   label="Cancel"
-                  primary={true}
+                  primary="true"
                   onClick={handleClose}
                   className={classes.cancelButton}
                 >
@@ -300,7 +374,7 @@ export default function AddUser(props) {
                   variant="contained"
                   disableElevation
                   color="primary"
-                  primary={true}
+                  primary="true"
                   onClick={handleSubmit}
                 >
                   Save
