@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -43,17 +44,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function formatDate(date) {
-  return date.toISOString().substring(0, 19);
-}
-
-const useForm = callback => {
+const useForm = (callback, validated) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback();
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -72,6 +71,16 @@ const useForm = callback => {
 export default function AddFaq(props) {
   const classes = useStyles();
   const { onClose, open } = props;
+
+  // handle form validation
+  const validateInputs = inputs => {
+    if (_.isEmpty(inputs)) {
+      onClose();
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleClose = () => {
     onClose();
@@ -109,12 +118,15 @@ export default function AddFaq(props) {
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
 
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="add-faq-title"
       fullWidth={true}
@@ -123,14 +135,14 @@ export default function AddFaq(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
         <ClearIcon />
       </Button>
       <DialogTitle id="add-faq-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a Faq</div>
+        <div className={classes.dialogTitleText}>Add a FAQ</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
@@ -147,7 +159,7 @@ export default function AddFaq(props) {
           id="faq-answer"
           label="Answer"
           name="answer"
-          multiline="true"
+          multiline={true}
           rows="5"
           fullWidth
           variant="outlined"
@@ -158,7 +170,7 @@ export default function AddFaq(props) {
             <Button
               size="small"
               label="Cancel"
-              primary={true}
+              primary="true"
               onClick={handleClose}
               className={classes.cancelButton}
             >
@@ -173,7 +185,7 @@ export default function AddFaq(props) {
               variant="contained"
               disableElevation
               color="primary"
-              primary={true}
+              primary="true"
               onClick={handleSubmit}
             >
               Save
