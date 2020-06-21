@@ -72,7 +72,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -359,9 +359,17 @@ export default function EnhancedTable(props) {
                           >
                             {formatName(row.firstName, row.lastName)}
                           </TableCell>
-                          <TableCell>{row.location_name ? row.location_name : row.location}</TableCell>
+                          <TableCell>
+                            {row.location_name
+                              ? row.location_name
+                              : row.location}
+                          </TableCell>
                           <TableCell>{row.email}</TableCell>
-                          <TableCell>{formatRole(row.role_name ? row.role_name : row.role)}</TableCell>
+                          <TableCell>
+                            {formatRole(
+                              row.role_name ? row.role_name : row.role,
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     }

@@ -74,20 +74,36 @@ export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { onClose, open, rows, index, user } = props;
+  const [row, setRow] = React.useState(rows[index]);
+  const [openEdit, setOpenEdit] = React.useState(false);
 
-  const handleClose = (row, index) => {
-    onClose(row, index);
+  // handle prev next
+  const [activeStep, setActiveStep] = React.useState(index);
+  const maxSteps = rows.length;
+
+  React.useEffect(() => {
+    setRow(rows[index]);
+    setActiveStep(index);
+  }, [index]);
+
+  const handleNext = () => {
+    setActiveStep(activeStep => activeStep + 1);
+    setRow(rows[activeStep + 1]);
   };
 
-  const [row, setRow] = React.useState(props.rows[props.index]);
+  const handleBack = () => {
+    setActiveStep(activeStep => activeStep - 1);
+    setRow(rows[activeStep - 1]);
+  };
 
-  const updateRow = row => {
-    setRow(row);
+  const handleClose = (row, index) => {
+    console.log('handleClose row: ', row);
+    onClose(row, index);
   };
 
   // handle edit user
   const isAdmin = user => {
-    if ( user.role_name != 'admins' ) {
+    if (user.role_name != 'admins') {
       return null;
     } else {
       return (
@@ -101,47 +117,23 @@ export default function ViewUser(props) {
           >
             Edit
           </Button>
-          <EditUser
-            row={row}
-            open={openEdit}
-            onClose={handleCloseEdit}
-            user={user}
-          />
+          <EditUser row={row} open={openEdit} onClose={handleCloseEdit} />
         </Grid>
       );
     }
-  }
-
-  const [openEdit, setOpenEdit] = React.useState(false);
+  };
 
   const handleClickOpenEdit = () => {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = user => {
-    if (user) {
-      updateRow(user);
+  const handleCloseEdit = rowChanges => {
+    const newRow = { ...row, ...rowChanges };
+    console.log('newRow: ', newRow);
+    if (rowChanges) {
+      setRow(newRow);
     }
     setOpenEdit(false);
-  };
-
-  // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.index);
-  const maxSteps = props.rows.length;
-
-  React.useEffect(() => {
-    setRow(props.rows[props.index]);
-    setActiveStep(props.index);
-  }, [props.index]);
-
-  const handleNext = () => {
-    setActiveStep(activeStep => activeStep + 1);
-    setRow(props.rows[activeStep + 1]);
-  };
-
-  const handleBack = () => {
-    setActiveStep(activeStep => activeStep - 1);
-    setRow(props.rows[activeStep - 1]);
   };
 
   return (
@@ -190,7 +182,7 @@ export default function ViewUser(props) {
             <div className={classes.dialogTitleText}>View User</div>
           </DialogTitle>
         </Grid>
-        { isAdmin(user) }
+        {isAdmin(user)}
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
@@ -226,4 +218,5 @@ ViewUser.propTypes = {
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
   rows: PropTypes.array.isRequired,
+  user: PropTypes.object.isRequired,
 };

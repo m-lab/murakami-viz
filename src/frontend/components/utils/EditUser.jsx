@@ -82,20 +82,23 @@ export default function EditUser(props) {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [libraries, setLibraries] = React.useState([]);
   const [groups, setGroups] = React.useState([]);
+  const [role, setRole] = React.useState(row.role);
+  const [roleName, setRoleName] = React.useState(row.role_name);
+  const [location, setLocation] = React.useState(row.location);
+  const [locationName, setLocationName] = React.useState(row.location_name);
 
   const handleClose = () => {
-    onClose();
+    onClose(row);
   };
-
-  const [role, setRole] = React.useState(row.role);
-  const [location, setLocation] = React.useState(row.location);
 
   const handleRoleChange = (event, values) => {
     setRole(values.id);
+    setRoleName(values.name);
   };
 
   const handleLocationChange = (event, values) => {
     setLocation(values.id);
+    setLocationName(values.name);
   };
 
   const submitData = () => {
@@ -105,6 +108,7 @@ export default function EditUser(props) {
       role: role,
     };
 
+    let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -112,11 +116,23 @@ export default function EditUser(props) {
       },
       body: JSON.stringify({ data: toSubmit }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        alert(`User edited successfully.`);
-        onClose(results.data[0]);
-        return;
+        if (status === 200 || status === 201 || status === 204) {
+          alert(`User edited successfully.`);
+          onClose({
+            ...toSubmit,
+            location_name: locationName,
+            role_name: roleName,
+          });
+          return;
+        } else {
+          processError(results);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         console.error(error.name + error.message);
