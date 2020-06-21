@@ -116,6 +116,7 @@ const useForm = (callback, validated) => {
     }
     if (validated(inputs)) {
       callback();
+      setInputs({});
     }
   };
   const handleInputChange = event => {
@@ -241,9 +242,9 @@ export default function AddLibrary(props) {
         alert(
           'An error occurred. Please try again or contact an administrator.',
         );
+        console.error(error.name + error.message);
+        onClose();
       });
-
-    onClose();
   };
 
   const { inputs, handleInputChange, handleSubmit } = useForm(

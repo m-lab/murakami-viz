@@ -62,6 +62,7 @@ const useForm = (callback, validated) => {
     }
     if (validated(inputs)) {
       callback();
+      setInputs({});
     }
   };
   const handleInputChange = event => {

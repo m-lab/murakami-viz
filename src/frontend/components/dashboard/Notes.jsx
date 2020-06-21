@@ -136,8 +136,9 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = note => {
+  const handleClose = (note, id) => {
     if (note) {
+      note.id = id;
       updateRows(note);
     }
     setOpen(false);
@@ -165,6 +166,11 @@ const EnhancedTableToolbar = props => {
       </Grid>
     </Toolbar>
   );
+};
+
+EnhancedTableToolbar.propTypes = {
+  updateRows: PropTypes.func.isRequired,
+  library: PropTypes.object,
 };
 
 const useStyles = makeStyles(theme => ({

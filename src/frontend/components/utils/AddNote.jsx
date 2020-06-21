@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import DateFnUtils from '@date-io/date-fns';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -48,15 +49,98 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const useForm = (callback, validated) => {
+  const [inputs, setInputs] = React.useState({});
+  const handleSubmit = event => {
+    if (event) {
+      event.preventDefault();
+    }
+    if (validated(inputs)) {
+      callback();
+      setInputs({});
+    }
+  };
+  const handleInputChange = event => {
+    event.persist();
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value,
+    }));
+  };
+  return {
+    handleSubmit,
+    handleInputChange,
+    inputs,
+  };
+};
+
 export default function AddNote(props) {
   const classes = useStyles();
   const { onClose, open, library } = props;
   const [date, setDate] = React.useState(new Date());
-  const [description, setDescription] = React.useState();
-  const [subject, setSubject] = React.useState();
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    name: '',
+  });
+
+  // handle form validation
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        subject: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        subject: 'Please enter a subject and description.',
+      }));
+      return false;
+    } else {
+      if (!inputs.subject || !inputs.description) {
+        if (!inputs.subject) {
+          setErrors(errors => ({
+            ...errors,
+            subject: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            subject: 'Please enter a subject.',
+          }));
+        }
+        if (!inputs.description) {
+          setErrors(errors => ({
+            ...errors,
+            description: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            description: 'Please enter a description.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
 
   const handleClose = () => {
     onClose();
+  };
+
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
   };
 
   // submit new note to api
@@ -67,21 +151,20 @@ export default function AddNote(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        data: { subject: subject, date: date, description: description },
-      }),
+      body: JSON.stringify({ data: inputs }),
     })
-      .then(res => {
-        status = res.status;
-        return res.json();
+      .then(response => {
+        status = response.status;
+        return response.json();
       })
-      .then(() => {
+      .then(result => {
         if (status === 201) {
           alert('Note submitted successfully.');
-          onClose({ subject: subject, date: date, description: description });
+          onClose(inputs, result.data[0]);
           return;
         } else {
-          throw new Error(`Error in response from server.`);
+          const error = processError(result);
+          throw new Error(`Error in response from server: ${error}`);
         }
       })
       .catch(error => {
@@ -92,6 +175,13 @@ export default function AddNote(props) {
         onClose();
       });
   };
+
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
+
+  React.useEffect(() => {}, [errors, helperText]);
 
   return (
     <Dialog
@@ -116,13 +206,16 @@ export default function AddNote(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={errors && errors.subject}
+          helperText={helperText.subject}
           className={classes.formField}
           id="note-subject"
           label="Subject"
           name="subject"
           fullWidth
           variant="outlined"
-          onChange={e => setSubject(e.target.value)}
+          onChange={handleInputChange}
+          value={inputs.subject}
         />
 
         <MuiPickersUtilsProvider utils={DateFnUtils}>
@@ -134,6 +227,8 @@ export default function AddNote(props) {
         </MuiPickersUtilsProvider>
 
         <TextField
+          error={errors && errors.description}
+          helperText={helperText.description}
           className={classes.formField}
           id="note-description"
           label="Description"
@@ -142,7 +237,8 @@ export default function AddNote(props) {
           rows="5"
           fullWidth
           variant="outlined"
-          onChange={e => setDescription(e.target.value)}
+          onChange={handleInputChange}
+          value={inputs.name}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
@@ -165,7 +261,7 @@ export default function AddNote(props) {
               disableElevation
               color="primary"
               primary={true}
-              onClick={submitData}
+              onClick={handleSubmit}
             >
               Save
             </Button>
