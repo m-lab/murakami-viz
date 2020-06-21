@@ -94,6 +94,8 @@ export default function App() {
       errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
     } else if (res.statusCode && res.status) {
       errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else if (res.message) {
+      errorString = res.message;
     } else {
       errorString = 'Error in response from server.';
     }

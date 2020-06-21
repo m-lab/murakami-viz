@@ -41,6 +41,7 @@ const useStyles = makeStyles(() => ({
     padding: '50px',
   },
   formControl: {
+    marginBottom: '30px',
     width: '100%',
   },
   formField: {
@@ -81,24 +82,57 @@ export default function EditUser(props) {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [libraries, setLibraries] = React.useState([]);
   const [groups, setGroups] = React.useState([]);
+  const [role, setRole] = React.useState(row.role);
+  const [roleName, setRoleName] = React.useState(row.role_name);
+  const [location, setLocation] = React.useState(row.location);
+  const [locationName, setLocationName] = React.useState(row.location_name);
 
   const handleClose = () => {
-    onClose();
+    onClose(row);
+  };
+
+  const handleRoleChange = (event, values) => {
+    setRole(values.id);
+    setRoleName(values.name);
+  };
+
+  const handleLocationChange = (event, values) => {
+    setLocation(values.id);
+    setLocationName(values.name);
   };
 
   const submitData = () => {
+    const toSubmit = {
+      ...inputs,
+      location: location,
+      role: role,
+    };
+
+    let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: toSubmit }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        alert('User edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status === 200 || status === 201 || status === 204) {
+          alert(`User edited successfully.`);
+          onClose({
+            ...toSubmit,
+            location_name: locationName,
+            role_name: roleName,
+          });
+          return;
+        } else {
+          processError(results);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
         console.error(error.name + error.message);
@@ -115,6 +149,8 @@ export default function EditUser(props) {
       errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
     } else if (res.statusCode && res.status) {
       errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else if (res) {
+      errorString = res;
     } else {
       errorString = 'Error in response from server.';
     }
@@ -174,7 +210,7 @@ export default function EditUser(props) {
         aria-labelledby="edit-user-title"
         fullWidth={true}
         maxWidth={'lg'}
-        lassName={classes.dialog}
+        className={classes.dialog}
       >
         <Button
           label="Close"
@@ -239,6 +275,11 @@ export default function EditUser(props) {
               id="library-select"
               options={libraries}
               getOptionLabel={option => option.name}
+              getOptionSelected={(option, value) => option.name === value}
+              defaultValue={libraries.find(
+                library => library.id === row.location,
+              )}
+              onChange={handleLocationChange}
               renderInput={params => (
                 <TextField {...params} label="Location" variant="outlined" />
               )}
@@ -249,6 +290,9 @@ export default function EditUser(props) {
               id="user-role"
               options={groups}
               getOptionLabel={option => option.name}
+              getOptionSelected={(option, value) => option.name === value}
+              defaultValue={groups.find(group => group.id === row.role)}
+              onChange={handleRoleChange}
               renderInput={params => (
                 <TextField {...params} label="Roles" variant="outlined" />
               )}

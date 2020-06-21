@@ -83,22 +83,35 @@ export default function AddUser(props) {
     onClose();
   };
 
-  // handle role select
-  const [role, setRole] = React.useState('');
+  // handles value changes for Autocomplete Mui components
+  const [role, setRole] = React.useState(null);
+  const [location, setLocation] = React.useState(null);
 
-  const handleRoleChange = event => {
-    setRole(event.target.value);
+  const handleRoleChange = (event, values) => {
+    setRole(values);
   };
+
+  const handleLocationChange = (event, values) => {
+    setLocation(values)
+  }
 
   // submit new user to api
   const submitData = () => {
     let status;
-    fetch('api/v1/users', {
+
+    // combining inputs with the location and role values from the autocomplete component
+    const toSubmit = {
+        ...inputs,
+        location: location.id,
+        role: role.id
+    }
+
+    fetch(`api/v1/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({data: toSubmit}),
     })
       .then(response => {
         status = response.status;
@@ -107,7 +120,7 @@ export default function AddUser(props) {
       .then(result => {
         if (status === 201) {
           alert('User submitted successfully.');
-          onClose(inputs);
+          onClose({...toSubmit, location: location.name, role: role.name}, result.data[0].id);
           return;
         } else {
           const error = processError(result);
@@ -265,6 +278,8 @@ export default function AddUser(props) {
                 id="library-select"
                 options={libraries}
                 getOptionLabel={option => option.name}
+                getOptionSelected={(option, value) => option.name === value}
+                onChange={handleLocationChange}
                 renderInput={params => (
                   <TextField {...params} label="Location" variant="outlined" />
                 )}
@@ -275,9 +290,11 @@ export default function AddUser(props) {
                 id="user-role"
                 options={groups}
                 getOptionLabel={option => option.name}
+                getOptionSelected={(option, value) => option.name === value}
+                onChange={handleRoleChange}
                 renderInput={params => (
                   <TextField {...params} label="Roles" variant="outlined" />
-                )}
+                  )}
               />
             </FormControl>
             <Grid container alignItems="center" justify="space-between">

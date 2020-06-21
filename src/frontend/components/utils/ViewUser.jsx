@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
   },
   dialogTitleText: {
     fontSize: '2.25rem',
-    textAlign: 'right',
+    textAlign: 'center',
   },
   editButton: {
     marginTop: '30px',
@@ -73,54 +73,72 @@ function formatRole(role) {
 export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, open, rows, index } = props;
+  const { onClose, open, rows, index, user } = props;
+  const [row, setRow] = React.useState(rows[index]);
+  const [openEdit, setOpenEdit] = React.useState(false);
 
-  const handleClose = row => {
-    onClose(row);
+  // handle prev next
+  const [activeStep, setActiveStep] = React.useState(index);
+  const maxSteps = rows.length;
+
+  React.useEffect(() => {
+    setRow(rows[index]);
+    setActiveStep(index);
+  }, [index]);
+
+  const handleNext = () => {
+    setActiveStep(activeStep => activeStep + 1);
+    setRow(rows[activeStep + 1]);
   };
 
-  const [row, setRow] = React.useState(props.rows[props.index]);
+  const handleBack = () => {
+    setActiveStep(activeStep => activeStep - 1);
+    setRow(rows[activeStep - 1]);
+  };
 
-  const updateRow = row => {
-    setRow(row);
+  const handleClose = (row, index) => {
+    console.log('handleClose row: ', row);
+    onClose(row, index);
   };
 
   // handle edit user
-  const [openEdit, setOpenEdit] = React.useState(false);
+  const isAdmin = user => {
+    if (user.role_name != 'admins') {
+      return null;
+    } else {
+      return (
+        <Grid item xs={12} sm={5}>
+          <Button
+            variant="contained"
+            disableElevation
+            color="primary"
+            onClick={handleClickOpenEdit}
+            className={classes.editButton}
+          >
+            Edit
+          </Button>
+          <EditUser row={row} open={openEdit} onClose={handleCloseEdit} />
+        </Grid>
+      );
+    }
+  };
 
   const handleClickOpenEdit = () => {
     setOpenEdit(true);
   };
 
-  const handleCloseEdit = user => {
-    if (user) {
-      updateRow(user);
+  const handleCloseEdit = rowChanges => {
+    const newRow = { ...row, ...rowChanges };
+    console.log('newRow: ', newRow);
+    if (rowChanges) {
+      setRow(newRow);
     }
     setOpenEdit(false);
   };
 
-  // handle prev next
-  const [activeStep, setActiveStep] = React.useState(props.index);
-  const maxSteps = props.rows.length;
-
-  React.useEffect(() => {
-    setRow(props.rows[props.index]);
-    setActiveStep(props.index);
-  }, [props.index]);
-
-  const handleNext = () => {
-    setActiveStep(activeStep => activeStep + 1);
-    setRow(props.rows[activeStep + 1]);
-  };
-
-  const handleBack = () => {
-    setActiveStep(activeStep => activeStep - 1);
-    setRow(props.rows[activeStep - 1]);
-  };
-
   return (
     <Dialog
-      onClose={() => handleClose(row)}
+      onClose={() => handleClose(row, activeStep)}
       modal={true}
       open={open}
       aria-labelledby="view-user-title"
@@ -164,22 +182,7 @@ export default function ViewUser(props) {
             <div className={classes.dialogTitleText}>View User</div>
           </DialogTitle>
         </Grid>
-        <Grid item xs={12} sm={5}>
-          <Button
-            variant="contained"
-            disableElevation
-            color="primary"
-            onClick={handleClickOpenEdit}
-            className={classes.editButton}
-          >
-            Edit
-          </Button>
-          <EditUser
-            row={row}
-            open={openEdit}
-            onClose={handleCloseEdit}
-          />
-        </Grid>
+        {isAdmin(user)}
       </Grid>
       <Box className={classes.box}>
         <Typography component="p" variant="subtitle2" gutterBottom>
@@ -201,9 +204,8 @@ export default function ViewUser(props) {
         label="Close"
         color="primary"
         primary={true}
-        onClick={() => handleClose(row)}
+        onClick={() => handleClose(row, activeStep)}
         className={classes.closeButton}
-        gutterBottom
       >
         Close
       </Button>
@@ -215,5 +217,6 @@ ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
-  rows: PropTypes.number.isRequired,
+  rows: PropTypes.array.isRequired,
+  user: PropTypes.object.isRequired,
 };

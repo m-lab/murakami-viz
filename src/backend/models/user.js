@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import _ from 'lodash/core';
 import { validate } from '../../common/schemas/user.js';
 import { BadRequestError, ForbiddenError } from '../../common/errors.js';
 
@@ -19,27 +20,72 @@ export default class User {
   async create(user, lid) {
     try {
       await validate(user);
-      let ids;
-      await this._db.transaction(async trx => {
-        let lids = [];
-        if (lid) {
+      return this._db.transaction(async trx => {
+        const location = user.location;
+        const role = user.role;
+        delete user.location;
+        delete user.role;
+
+        const query = {
+          username: user.username,
+          password: user.password,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          extension: user.extension,
+          isActive: user.isActive,
+        };
+
+        if (!_.isEmpty(user)) {
+          const salt = bcrypt.genSaltSync();
+          query.password = bcrypt.hashSync(user.password, salt);
+          await trx('users').insert(query);
+        }
+
+        let ids = [];
+        ids = await trx('users')
+          .select()
+          .where({ username: user.username });
+
+        if (location) {
+          let lids = [];
           lids = await trx('libraries')
-            .select()
-            .where({ id: parseInt(lid) });
-          if (lids.length === 0) {
+            .select('id')
+            .where({ id: parseInt(lid ? lid : location) });
+
+          if (!Array.isArray(lids) || lids.length < 1) {
             throw new BadRequestError('Invalid library ID.');
           }
-        }
-        const salt = bcrypt.genSaltSync();
-        user.password = bcrypt.hashSync(user.password, salt);
-        ids = await trx('users').insert(user);
 
-        if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], uid: id }));
-          await trx('library_users').insert(inserts);
+          await trx('library_users')
+            .del()
+            .where({ uid: ids[0].id });
+
+          await trx('library_users').insert({
+            lid: lids[0].id,
+            uid: ids[0].id,
+          });
         }
+
+        if (role) {
+          let gids = [];
+          gids = await trx('groups')
+            .select('id')
+            .where({ id: parseInt(role) });
+
+          if (!Array.isArray(gids) || gids.length < 1) {
+            throw new BadRequestError('Invalid group ID.');
+          }
+
+          await trx('user_groups')
+            .del()
+            .where({ uid: ids[0].id });
+
+          await trx('user_groups').insert({ gid: gids[0].id, uid: ids[0].id });
+        }
+        return ids;
       });
-      return ids;
     } catch (err) {
       throw new BadRequestError('Failed to create user: ', err);
     }
@@ -51,22 +97,77 @@ export default class User {
     } catch (err) {
       throw new BadRequestError('Failed to update user: ', err);
     }
-    return this._db
-      .table('users')
-      .update(user)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-          email: user.email,
-          phone: user.phone,
-          extension: user.extension,
-        },
-        ['id', 'firstName', 'lastName', 'username', 'email'],
-      )
-      .returning('*');
+    return this._db.transaction(async trx => {
+      const query = {
+        username: user.username,
+        password: user.password,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        extension: user.extension,
+        isActive: user.isActive,
+      };
+
+      if (user.location) {
+        let lids = await trx('libraries')
+          .select('id')
+          .where({ id: parseInt(user.location) });
+
+        lids = lids ? lids : [];
+
+        if (lids.length < 1) {
+          throw new BadRequestError('Invalid library ID.');
+        }
+
+        await trx('library_users')
+          .del()
+          .where({ uid: parseInt(id) });
+
+        await trx('library_users').insert({ lid: lids[0].id, uid: id });
+        delete user.location;
+      }
+
+      if (user.role) {
+        let gids = await trx('groups')
+          .select('id')
+          .where({ id: parseInt(user.role) });
+
+        gids = gids ? gids : [];
+
+        if (gids.length < 0) {
+          throw new BadRequestError('Invalid group ID.');
+        }
+
+        await trx('user_groups')
+          .del()
+          .where({ uid: parseInt(id) });
+
+        await trx('user_groups').insert({ gid: gids[0].id, uid: id });
+        delete user.role;
+      }
+
+      if (!_.isEmpty(user)) {
+        if (user.password) {
+          const salt = bcrypt.genSaltSync();
+          query.password = bcrypt.hashSync(user.password, salt);
+        }
+        return await trx('users')
+          .where({ id: parseInt(id) })
+          .update(query, [
+            'id',
+            'firstName',
+            'lastName',
+            'username',
+            'email',
+            'phone',
+            'extension',
+            'isActive',
+          ]);
+      } else {
+        return [id];
+      }
+    });
   }
 
   async updateSelf(id, user) {
@@ -321,6 +422,9 @@ export default class User {
       if (ids.length === 0) {
         throw new BadRequestError('Invalid user ID.');
       }
+      await trx('library_users')
+        .del()
+        .where({ uid: parseInt(id) });
 
       await trx('library_users').insert({ lid: lid, uid: id });
     });

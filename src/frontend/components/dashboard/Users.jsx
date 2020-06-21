@@ -72,7 +72,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -144,14 +144,14 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, id) => {
     if (user) {
+      user.id = id;
       updateRows(user);
     }
     setOpen(false);
   };
 
-  console.debug('userRole: ', userRole);
   if (userRole === 'admins') {
     return (
       <Toolbar className={clsx(classes.root)}>
@@ -243,7 +243,7 @@ export default function EnhancedTable(props) {
     setOpen(true);
   };
 
-  const handleClose = user => {
+  const handleClose = (user, index) => {
     if (user) {
       let editedUsers = [...rows];
       editedUsers[index] = user;
@@ -359,9 +359,17 @@ export default function EnhancedTable(props) {
                           >
                             {formatName(row.firstName, row.lastName)}
                           </TableCell>
-                          <TableCell>{row.location_name}</TableCell>
+                          <TableCell>
+                            {row.location_name
+                              ? row.location_name
+                              : row.location}
+                          </TableCell>
                           <TableCell>{row.email}</TableCell>
-                          <TableCell>{formatRole(row.role_name)}</TableCell>
+                          <TableCell>
+                            {formatRole(
+                              row.role_name ? row.role_name : row.role,
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     }
@@ -384,10 +392,11 @@ export default function EnhancedTable(props) {
           />
           {rows.length > 0 && (
             <ViewUser
-              index={index}
+              index={index + page * rowsPerPage}
               rows={stableSort(rows, getComparator(order, orderBy))}
               open={open}
               onClose={handleClose}
+              user={user}
             />
           )}
         </div>
