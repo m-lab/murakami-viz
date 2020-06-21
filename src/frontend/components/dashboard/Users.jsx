@@ -392,7 +392,7 @@ export default function EnhancedTable(props) {
           />
           {rows.length > 0 && (
             <ViewUser
-              index={index}
+              index={index + page * rowsPerPage}
               rows={stableSort(rows, getComparator(order, orderBy))}
               open={open}
               onClose={handleClose}
