@@ -186,7 +186,7 @@ export default function AddNote(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="add-note-title"
       fullWidth={true}
@@ -195,7 +195,7 @@ export default function AddNote(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
@@ -233,7 +233,7 @@ export default function AddNote(props) {
           id="note-description"
           label="Description"
           name="description"
-          multiline="true"
+          multiline={true}
           rows="5"
           fullWidth
           variant="outlined"
@@ -245,7 +245,7 @@ export default function AddNote(props) {
             <Button
               size="small"
               label="Cancel"
-              primary={true}
+              primary="true"
               onClick={handleClose}
               className={classes.cancelButton}
             >
@@ -260,7 +260,7 @@ export default function AddNote(props) {
               variant="contained"
               disableElevation
               color="primary"
-              primary={true}
+              primary="true"
               onClick={handleSubmit}
             >
               Save
