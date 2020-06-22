@@ -72,14 +72,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = (callback, validated) => {
+const useForm = (callback, validated, device) => {
   const [inputs, setInputs] = React.useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
+    if (device) {
+      const fullInputs = Object.assign(device, inputs);
+      setInputs(fullInputs);
+    }
     if (validated(inputs)) {
-      callback();
+      callback(device);
       setInputs({});
     }
   };
@@ -173,91 +177,83 @@ export default function AddEditDevice(props) {
   // submit new note to api
   const submitData = () => {
     let status;
-    fetch(`/api/v1/libraries/${row.id}/devices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(inputs),
-    })
-      .then(response => {
-        status = response.status;
-        return response.json();
+    if (editMode) {
+      fetch(`api/v1/devices/${inputs.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputs),
       })
-      .then(result => {
-        if (status === 201) {
-          let newDevice = {
-            ...inputs,
-            id: result.data[0],
-          };
-          let updatedDevices = devices.concat(newDevice);
-          setDevices(updatedDevices);
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(result => {
+          if (status === 200) {
+            let updatedDevices = devices.map(device =>
+              device.id === result.data[0].id ? result.data[0] : device,
+            );
+            setDevices(updatedDevices);
+            alert('Device updated successfully.');
+            onClose();
+            return;
+          } else {
+            const error = processError(result);
+            throw new Error(`Error in response from server: ${error}`);
+          }
+        })
+        .catch(error => {
+          alert(
+            `An error occurred. Please try again or contact an administrator. ${
+              error.name
+            }: ${error.message}`,
+          );
           onClose();
-          return;
-        } else {
-          const error = processError(result);
-          throw new Error(`Error in response from server: ${error}`);
-        }
+        });
+    } else {
+      fetch(`/api/v1/libraries/${row.id}/devices`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputs),
       })
-      .catch(error => {
-        alert(
-          'An error occurred. Please try again or contact an administrator.',
-        );
-        console.error(error.name + error.message);
-        onClose();
-      });
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(result => {
+          if (status === 201) {
+            let newDevice = {
+              ...inputs,
+              id: result.data[0],
+              location: row.id,
+            };
+            let updatedDevices = devices.concat(newDevice);
+            setDevices(updatedDevices);
+            onClose();
+            return;
+          } else {
+            const error = processError(result);
+            throw new Error(`Error in response from server: ${error}`);
+          }
+        })
+        .catch(error => {
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+          console.error(error.name + error.message);
+          onClose();
+        });
+    }
   };
 
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
+    device,
   );
-
-  const editFetch = (data, deviceToEdit) => {
-    let status;
-    fetch(`api/v1/devices/${deviceToEdit.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(result => {
-        if (status === 200) {
-          let updatedDevices = devices.map(device =>
-            device.id === result.data[0].id ? result.data[0] : device,
-          );
-          setDevices(updatedDevices);
-          alert('Device updated successfully.');
-          onClose();
-          return;
-        } else {
-          const error = processError(result);
-          throw new Error(`Error in response from server: ${error}`);
-        }
-      })
-      .catch(error => {
-        alert(
-          `An error occurred. Please try again or contact an administrator. ${
-            error.name
-          }: ${error.message}`,
-        );
-        onClose();
-      });
-  };
-
-  const handleEdit = deviceToEdit => {
-    const data = {
-      data: inputs,
-    };
-    if (validateInputs(data.inputs)) {
-      editFetch(data, deviceToEdit);
-    }
-  };
 
   React.useEffect(() => {}, [errors, helperText]);
 
@@ -291,7 +287,7 @@ export default function AddEditDevice(props) {
           <Button
             type="submit"
             label="Save"
-            onClick={editMode ? () => handleEdit(device) : handleSubmit}
+            onClick={handleSubmit}
             className={classes.cancelButton}
             variant="contained"
             disableElevation
@@ -323,8 +319,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.name : ``}
-            value={inputs.name ? inputs.name : undefined}
+            defaultValue={device.name || inputs.name || ''}
           />
           <TextField
             error={errors && errors.id}
@@ -336,8 +331,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.deviceid : ``}
-            value={inputs.deviceid}
+            defaultValue={device.deviceid || inputs.deviceid || ''}
           />
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="library-device-location-label">Location</InputLabel>
@@ -348,8 +342,7 @@ export default function AddEditDevice(props) {
               label="Location"
               name="location"
               onChange={handleInputChange}
-              defaultValue={row.id}
-              value={row.id}
+              defaultValue={device.location || row.id}
               disabled
             >
               <MenuItem value={row.id} selected>{row.name}</MenuItem>
@@ -363,9 +356,8 @@ export default function AddEditDevice(props) {
               id="library-network-type"
               label="Network Type"
               name="network_type"
-              defaultValue={editMode ? device.network_type : ``}
               onChange={handleInputChange}
-              value={inputs.network_type}
+              value={device.network_type || inputs.network_type || ''}
             >
               <MenuItem value="public">Public</MenuItem>
               <MenuItem value="private">Private</MenuItem>
@@ -381,9 +373,8 @@ export default function AddEditDevice(props) {
               id="library-connection-type"
               label="Connection Type"
               name="connection_type"
-              defaultValue={editMode ? device.connection_type : ``}
               onChange={handleInputChange}
-              value={inputs.connection_type}
+              value={device.connection_type || inputs.connection_type || ''}
             >
               <MenuItem value="wired">Wired</MenuItem>
               <MenuItem value="wireless">Wireless</MenuItem>
@@ -397,8 +388,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.dns_server : ``}
-            value={inputs.dns_server}
+            defaultValue={device.dns_server || inputs.dns_server || ''}
           />
           <TextField
             className={classes.formField}
@@ -407,8 +397,7 @@ export default function AddEditDevice(props) {
             name="ip"
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.ip : ``}
-            value={inputs.ip}
+            defaultValue={device.ip || inputs.ip || ''}
           />
           <TextField
             className={classes.formField}
@@ -418,8 +407,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.gateway : ``}
-            value={inputs.gateway}
+            defaultValue={device.gateway || inputs.gateway || ''}
           />
           <TextField
             className={classes.formField}
@@ -429,13 +417,12 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={editMode ? device.mac : ``}
-            value={inputs.mac}
+            defaultValue={device.mac || inputs.mac || ''}
           />
           <Button
             type="submit"
             label="Save"
-            onClick={editMode ? ()=>handleEdit(device) : handleSubmit}
+            onClick={handleSubmit}
             className={classes.cancelButton}
             variant="contained"
             disableElevation

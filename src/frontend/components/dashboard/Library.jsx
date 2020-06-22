@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
-import AddDevice from '../utils/AddDevice.jsx';
+import AddEditDevice from '../utils/AddEditDevice.jsx';
 
 const TableCell = withStyles({
   root: {
@@ -79,7 +79,7 @@ export default function Library(props) {
   const [edit, setEdit] = React.useState(false);
   const [deviceToEdit, setDeviceToEdit] = React.useState({});
 
-  const showAddDevice = () => {
+  const showAddEditDevice = () => {
     setOpenDevice(true);
   };
 
@@ -653,11 +653,11 @@ export default function Library(props) {
                       variant="contained"
                       disableElevation
                       color="primary"
-                      onClick={showAddDevice}
+                      onClick={showAddEditDevice}
                     >
                       Add a device
                     </Button>
-                    <AddDevice
+                    <AddEditDevice
                       open={openDevice}
                       onClose={closeDevice}
                       row={library}
