@@ -3,7 +3,6 @@ import React, { Suspense } from 'react';
 import { CSVLink } from 'react-csv';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import _ from 'lodash/core';
-import moment from 'moment';
 import { START_DATE } from '@datepicker-react/hooks';
 
 // material ui imports
