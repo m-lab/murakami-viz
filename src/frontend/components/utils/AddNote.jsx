@@ -169,9 +169,10 @@ export default function AddNote(props) {
       })
       .catch(error => {
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
-        console.error(error.name + error.message);
         onClose();
       });
   };
@@ -215,7 +216,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.subject}
+          value={inputs.subject || ""}
         />
 
         <MuiPickersUtilsProvider utils={DateFnUtils}>
@@ -238,7 +239,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.name}
+          value={inputs.description || ""}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

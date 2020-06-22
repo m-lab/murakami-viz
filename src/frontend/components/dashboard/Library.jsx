@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
-import LibraryDeviceForm from '../utils/LibraryDeviceForm.jsx';
+import AddDevice from '../utils/AddDevice.jsx';
 
 const TableCell = withStyles({
   root: {
@@ -481,164 +481,172 @@ export default function Library(props) {
               aria-label="basic information table"
             >
               <TableBody>
-                {devices && devices.length > 0
-                  ? devices.map((device, index) => {
-                      return (
-                        <ExpansionPanel key={index}>
-                          <ExpansionPanelSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                          >
-                            <Typography
-                              variant="overline"
-                              display="block"
-                              gutterBottom
-                            >
-                              {device.name}
-                            </Typography>
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails>
-                            <Table
-                              className={classes.table}
-                              aria-label="basic information table"
-                            >
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
+                <TableRow>
+                  <TableCell>
+                    {devices && devices.length > 0
+                      ? devices.map((device, index) => {
+                          return (
+                            <ExpansionPanel key={index}>
+                              <ExpansionPanelSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                              >
+                                <Typography
+                                  variant="overline"
+                                  display="block"
+                                  gutterBottom
                                 >
-                                  Name
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
                                   {device.name}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
+                                </Typography>
+                              </ExpansionPanelSummary>
+                              <ExpansionPanelDetails>
+                                <Table
+                                  className={classes.table}
+                                  aria-label="basic information table"
                                 >
-                                  DeviceID
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.deviceid}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  Location
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {library.name}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  Network type
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.network_type}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  Connection Type
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.connection_type}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  DNS server
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.dns_server}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  IP address
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.ip}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  Gateway
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.gateway}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className={`${classes.tableCell} ${
-                                    classes.tableKey
-                                  }`}
-                                >
-                                  MAC address
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                  {device.mac}
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell className={classes.tableCell}>
-                                  <Button
-                                    type="submit"
-                                    label="Submit"
-                                    variant="contained"
-                                    disableElevation
-                                    color="primary"
-                                    onClick={() => openEdit(device)}
-                                  >
-                                    Edit device
-                                  </Button>{' '}
-                                  <Button
-                                    variant="contained"
-                                    disableElevation
-                                    color="primary"
-                                    onClick={() => handleDeviceDelete(device)}
-                                  >
-                                    Delete device
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            </Table>
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                      );
-                    })
-                  : null}
+                                  <TableBody>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Name
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.name}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        DeviceID
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.deviceid}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Location
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {library.name}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Network type
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.network_type}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Connection Type
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.connection_type}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        DNS server
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.dns_server}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        IP address
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.ip}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Gateway
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.gateway}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        MAC address
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {device.mac}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className={classes.tableCell}>
+                                        <Button
+                                          type="submit"
+                                          label="Submit"
+                                          variant="contained"
+                                          disableElevation
+                                          color="primary"
+                                          onClick={() => openEdit(device)}
+                                        >
+                                          Edit device
+                                        </Button>{' '}
+                                        <Button
+                                          variant="contained"
+                                          disableElevation
+                                          color="primary"
+                                          onClick={() =>
+                                            handleDeviceDelete(device)
+                                          }
+                                        >
+                                          Delete device
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>
+                                </Table>
+                              </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                          );
+                        })
+                      : null}
+                  </TableCell>
+                </TableRow>
                 <TableRow>
                   <TableCell className={classes.tableCell}>
                     <Button
@@ -649,7 +657,7 @@ export default function Library(props) {
                     >
                       Add a device
                     </Button>
-                    <LibraryDeviceForm
+                    <AddDevice
                       open={openDevice}
                       onClose={closeDevice}
                       row={library}
