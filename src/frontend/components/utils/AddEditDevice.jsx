@@ -73,7 +73,11 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, device) => {
-  const [inputs, setInputs] = React.useState({});
+  const [inputs, setInputs] = React.useState({
+    connection_type: device.connection_type || 'wired',
+    dns_server: device.dns_server || '',
+    network_type: device.network_type || 'public',
+  });
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
@@ -85,7 +89,6 @@ const useForm = (callback, validated, device) => {
       delete inputs.did;
       delete inputs.id;
     });
-    console.log(inputs);
     if (validated(inputs)) {
       callback(device);
       setInputs({});
@@ -93,7 +96,6 @@ const useForm = (callback, validated, device) => {
   };
   const handleInputChange = event => {
     event.persist();
-    console.log('in change');
     setInputs(inputs => ({
       ...inputs,
       [event.target.name]: event.target.value,
@@ -102,6 +104,7 @@ const useForm = (callback, validated, device) => {
 
   React.useEffect(() => {
     if (device) {
+      // console.log(device);
       let fullInputs = Object.assign(device, inputs);
       fullInputs.location = device.lid;
       setInputs(fullInputs);
@@ -263,13 +266,33 @@ export default function AddEditDevice(props) {
     }
   };
 
+  const connectionValue = () => {
+    if (device) {
+      return device.connection_type;
+    } else if (inputs) {
+      return inputs.connection_type;
+    } else {
+      return 'wired';
+    }
+  };
+
+  const networkValue = () => {
+    if (device) {
+      return device.network_type;
+    } else if (inputs) {
+      return inputs.network_type;
+    } else {
+      return 'public';
+    }
+  };
+
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
     device,
   );
 
-  React.useEffect(() => {}, [errors, helperText]);
+  React.useEffect(() => {}, [device, errors, helperText]);
 
   return (
     <Dialog onClose={handleClose} modal="true" open={open}>
@@ -372,9 +395,7 @@ export default function AddEditDevice(props) {
               name="network_type"
               onChange={handleInputChange}
               displayEmpty={false}
-              renderValue={device => {
-                device ? device.network_type : inputs.network_type || ''
-              }}
+              value={networkValue()}
             >
               <MenuItem value="public">Public</MenuItem>
               <MenuItem value="private">Private</MenuItem>
@@ -392,9 +413,7 @@ export default function AddEditDevice(props) {
               name="connection_type"
               onChange={handleInputChange}
               displayEmpty={false}
-              renderValue={device => {
-                device ? device.connection_type : inputs.connection_type || ''
-              }}
+              value={connectionValue()}
             >
               <MenuItem value="wired">Wired</MenuItem>
               <MenuItem value="wireless">Wireless</MenuItem>

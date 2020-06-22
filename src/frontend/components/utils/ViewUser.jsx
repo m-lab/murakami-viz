@@ -97,7 +97,6 @@ export default function ViewUser(props) {
   };
 
   const handleClose = (row, index) => {
-    console.log('handleClose row: ', row);
     onClose(row, index);
   };
 
@@ -139,7 +138,7 @@ export default function ViewUser(props) {
   return (
     <Dialog
       onClose={() => handleClose(row, activeStep)}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="view-user-title"
       fullWidth={true}
