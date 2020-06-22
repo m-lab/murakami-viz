@@ -333,7 +333,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.name || inputs.name || ''}
+            defaultValue={device ? device.name : inputs.name}
           />
           <TextField
             error={errors && errors.id}
@@ -345,7 +345,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.deviceid || inputs.deviceid || ''}
+            defaultValue={device ? device.deviceid : inputs.deviceid}
           />
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="library-device-location-label">Location</InputLabel>
@@ -356,7 +356,7 @@ export default function AddEditDevice(props) {
               label="Location"
               name="location"
               onChange={handleInputChange}
-              defaultValue={device.location || row.id}
+              defaultValue={row.id}
               disabled
             >
               <MenuItem value={row.id} selected>{row.name}</MenuItem>
@@ -371,7 +371,10 @@ export default function AddEditDevice(props) {
               label="Network Type"
               name="network_type"
               onChange={handleInputChange}
-              value={inputs.network_type || device.network_type || ''}
+              displayEmpty={false}
+              renderValue={device => {
+                device ? device.network_type : inputs.network_type || ''
+              }}
             >
               <MenuItem value="public">Public</MenuItem>
               <MenuItem value="private">Private</MenuItem>
@@ -388,7 +391,10 @@ export default function AddEditDevice(props) {
               label="Connection Type"
               name="connection_type"
               onChange={handleInputChange}
-              value={inputs.connection_type || device.connection_type || ''}
+              displayEmpty={false}
+              renderValue={device => {
+                device ? device.connection_type : inputs.connection_type || ''
+              }}
             >
               <MenuItem value="wired">Wired</MenuItem>
               <MenuItem value="wireless">Wireless</MenuItem>
@@ -402,7 +408,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.dns_server || inputs.dns_server || ''}
+            defaultValue={device ? device.dns_server : inputs.dns_server}
           />
           <TextField
             className={classes.formField}
@@ -411,7 +417,7 @@ export default function AddEditDevice(props) {
             name="ip"
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.ip || inputs.ip || ''}
+            defaultValue={device ? device.ip : inputs.ip}
           />
           <TextField
             className={classes.formField}
@@ -421,7 +427,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.gateway || inputs.gateway || ''}
+            defaultValue={device ? device.gateway : inputs.gateway}
           />
           <TextField
             className={classes.formField}
@@ -431,7 +437,7 @@ export default function AddEditDevice(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={device.mac || inputs.mac || ''}
+            defaultValue={device ? device.mac : inputs.mac}
           />
           <Button
             type="submit"

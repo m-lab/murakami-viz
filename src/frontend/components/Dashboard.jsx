@@ -81,12 +81,27 @@ export default function Dashboard(props) {
   const [library, setLibrary] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
 
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   React.useEffect(() => {
     if (!props.location.state) {
       setLibrary(props.library);
     } else {
       let lid, status;
-      if ( isNaN(props.location.state.library) ) {
+      if (!props.location.state.library) {
+        lid = 1;
+      } else if (isNaN(props.location.state.library)) {
         lid = props.location.state.library.id;
       } else {
         lid = props.location.state.library;
