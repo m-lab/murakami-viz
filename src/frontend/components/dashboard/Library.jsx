@@ -294,7 +294,7 @@ export default function Library(props) {
       <Suspense>
         <Box mb={9}>
           <Typography component="p" variant="body1">
-            No notes to display.
+            No libraries to display.
           </Typography>
         </Box>
       </Suspense>
