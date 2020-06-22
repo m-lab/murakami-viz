@@ -78,10 +78,6 @@ const useForm = (callback, validated, device) => {
     if (event) {
       event.preventDefault();
     }
-    if (device) {
-      const fullInputs = Object.assign(device, inputs);
-      setInputs(fullInputs);
-    }
     if (validated(inputs)) {
       callback(device);
       setInputs({});
@@ -94,6 +90,15 @@ const useForm = (callback, validated, device) => {
       [event.target.name]: event.target.value,
     }));
   };
+
+  React.useEffect(() => {
+    if (device) {
+      let fullInputs = Object.assign(device, inputs);
+      fullInputs.location = device.lid;
+      setInputs(fullInputs);
+    }
+  }, [inputs]);
+
   return {
     handleSubmit,
     handleInputChange,
@@ -228,7 +233,7 @@ export default function AddEditDevice(props) {
             let newDevice = {
               ...inputs,
               id: result.data[0],
-              location: row.id,
+              location: row.name,
             };
             let updatedDevices = devices.concat(newDevice);
             setDevices(updatedDevices);
