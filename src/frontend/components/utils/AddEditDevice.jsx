@@ -208,9 +208,14 @@ export default function AddEditDevice(props) {
         })
         .then(result => {
           if (status === 200) {
-            let updatedDevices = devices.map(device =>
-              device.id === result.data[0].id ? result.data[0] : device,
-            );
+            let updatedDevices;
+            if (devices) {
+              updatedDevices = devices.map(device =>
+                device.id === inputs.id ? result.data[0] : device,
+              );
+            } else {
+              updatedDevices = [result.data[0]];
+            }
             setDevices(updatedDevices);
             alert('Device updated successfully.');
             onClose();
@@ -382,7 +387,9 @@ export default function AddEditDevice(props) {
               defaultValue={row.id}
               disabled
             >
-              <MenuItem value={row.id} selected>{row.name}</MenuItem>
+              <MenuItem value={row.id} selected>
+                {row.name}
+              </MenuItem>
             </Select>
           </FormControl>
           <FormControl variant="outlined" className={classes.formControl}>

@@ -5,7 +5,7 @@ export function up(knex) {
         .string('key')
         .primary()
         .unique();
-      table.string('value');
+      table.text('value');
     })
     .then(() => {
       return knex('settings').insert([
