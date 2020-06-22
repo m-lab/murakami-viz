@@ -106,7 +106,6 @@ const useForm = (callback, validated, device) => {
       fullInputs.location = device.lid;
       setInputs(fullInputs);
     }
-    console.log(inputs);
   }, [inputs]);
 
   return {
