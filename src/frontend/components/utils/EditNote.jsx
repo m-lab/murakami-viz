@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import DateFnUtils from '@date-io/date-fns';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -48,46 +49,167 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const useForm = (callback, validated, note) => {
+  const [inputs, setInputs] = React.useState({});
+  const handleSubmit = event => {
+    if (event) {
+      event.preventDefault();
+    }
+    setInputs(inputs => {
+      delete inputs.created_at;
+      delete inputs.updated_at;
+      delete inputs.lid;
+      delete inputs.nid;
+    });
+    if (validated(inputs)) {
+      callback(note);
+      setInputs({});
+    }
+  };
+  const handleInputChange = event => {
+    if (event instanceof Date) {
+      setInputs(inputs => ({
+        ...inputs,
+        date: event,
+      }));
+    } else {
+      event.persist();
+      setInputs(inputs => ({
+        ...inputs,
+        [event.target.name]: event.target.value,
+      }));
+    }
+  };
+
+  React.useEffect(() => {
+    if (note) {
+      let fullInputs = Object.assign(note, inputs);
+      fullInputs.date = note.updated_at;
+      setInputs(fullInputs);
+    }
+  }, [inputs]);
+
+  return {
+    handleSubmit,
+    handleInputChange,
+    inputs,
+  };
+};
+
 export default function EditNote(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
-  const [date, setDate] = React.useState(row.date);
-  const [description, setDescription] = React.useState(row.description);
-  const [subject, setSubject] = React.useState(row.subject);
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    name: '',
+  });
+
+  // handle form validation
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        subject: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        subject: 'Please enter a subject and description.',
+      }));
+      return false;
+    } else {
+      if (!inputs.subject || !inputs.description) {
+        if (!inputs.subject) {
+          setErrors(errors => ({
+            ...errors,
+            subject: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            subject: 'Please enter a subject.',
+          }));
+        }
+        if (!inputs.description) {
+          setErrors(errors => ({
+            ...errors,
+            description: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            description: 'Please enter a description.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
 
   const handleClose = () => {
     onClose();
   };
 
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   const submitData = () => {
+    let status;
+    console.log(inputs);
     fetch(`api/v1/notes/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        data: { subject: subject, date: date, description: description },
-      }),
+      body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
-      .then(results => {
-        alert('Note edited successfully.');
-        onClose(results.data[0]);
-        return;
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        if (status === 200) {
+          alert('Note edited successfully.');
+          onClose(inputs);
+          return;
+        } else {
+          const error = processError(result);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });
   };
 
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+    row,
+  );
+
+  React.useEffect(() => {}, [errors, helperText]);
+
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="edit-note-title"
       fullWidth={true}
@@ -96,7 +218,7 @@ export default function EditNote(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
@@ -107,43 +229,45 @@ export default function EditNote(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={errors && errors.subject}
+          helperText={helperText.subject}
           className={classes.formField}
           id="note-subject"
           label="Subject"
           name="subject"
           fullWidth
           variant="outlined"
-          defaultValue={row.subject}
-          onChange={e => setSubject(e.target.value)}
-          value={subject}
+          onChange={handleInputChange}
+          value={row.subject || inputs.subject || ''}
         />
         <MuiPickersUtilsProvider utils={DateFnUtils}>
           <DateTimePicker
             className={classes.datePicker}
-            value={date}
-            onChange={e => setDate(e)}
+            value={row.updated_at || inputs.updated_at || new Date()}
+            onChange={handleInputChange}
           />
         </MuiPickersUtilsProvider>
 
         <TextField
+          error={errors && errors.description}
+          helperText={helperText.description}
           className={classes.formField}
           id="note-description"
           label="Description"
           name="description"
-          multiline="true"
+          multiline={true}
           rows="5"
           fullWidth
           variant="outlined"
-          defaultValue={row.description}
-          onChange={e => setDescription(e.target.value)}
-          value={description}
+          onChange={handleInputChange}
+          value={row.description || inputs.description || ''}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
             <Button
               size="small"
               label="Cancel"
-              primary={true}
+              primary="true"
               onClick={handleClose}
               className={classes.cancelButton}
             >
@@ -154,12 +278,12 @@ export default function EditNote(props) {
             <Button
               type="submit"
               label="Save"
-              onClick={submitData}
+              onClick={handleSubmit}
               className={classes.cancelButton}
               variant="contained"
               disableElevation
               color="primary"
-              primary={true}
+              primary="true"
             >
               Save
             </Button>

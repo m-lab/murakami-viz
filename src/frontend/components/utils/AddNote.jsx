@@ -216,7 +216,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.subject || ""}
+          value={inputs.subject || ''}
         />
 
         <MuiPickersUtilsProvider utils={DateFnUtils}>
@@ -239,7 +239,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.description || ""}
+          value={inputs.description || ''}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

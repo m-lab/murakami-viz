@@ -188,7 +188,7 @@ export default function AddEditDevice(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;

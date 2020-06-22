@@ -112,7 +112,7 @@ export default function ViewNote(props) {
   return (
     <Dialog
       onClose={() => handleClose(row)}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="view-note-title"
       fullWidth={true}
@@ -184,10 +184,9 @@ export default function ViewNote(props) {
         disableElevation
         label="Close"
         color="primary"
-        primary={true}
+        primary="true"
         onClick={() => handleClose(row)}
         className={classes.closeButton}
-        gutterBottom
       >
         Close
       </Button>
