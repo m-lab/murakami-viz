@@ -78,6 +78,14 @@ const useForm = (callback, validated, device) => {
     if (event) {
       event.preventDefault();
     }
+    setInputs(inputs => {
+      delete inputs.created_at;
+      delete inputs.updated_at;
+      delete inputs.lid;
+      delete inputs.did;
+      delete inputs.id;
+    });
+    console.log(inputs);
     if (validated(inputs)) {
       callback(device);
       setInputs({});
@@ -85,6 +93,7 @@ const useForm = (callback, validated, device) => {
   };
   const handleInputChange = event => {
     event.persist();
+    console.log('in change');
     setInputs(inputs => ({
       ...inputs,
       [event.target.name]: event.target.value,
@@ -97,6 +106,7 @@ const useForm = (callback, validated, device) => {
       fullInputs.location = device.lid;
       setInputs(fullInputs);
     }
+    console.log(inputs);
   }, [inputs]);
 
   return {
@@ -362,7 +372,7 @@ export default function AddEditDevice(props) {
               label="Network Type"
               name="network_type"
               onChange={handleInputChange}
-              value={device.network_type || inputs.network_type || ''}
+              value={inputs.network_type || device.network_type || ''}
             >
               <MenuItem value="public">Public</MenuItem>
               <MenuItem value="private">Private</MenuItem>
@@ -379,7 +389,7 @@ export default function AddEditDevice(props) {
               label="Connection Type"
               name="connection_type"
               onChange={handleInputChange}
-              value={device.connection_type || inputs.connection_type || ''}
+              value={inputs.connection_type || device.connection_type || ''}
             >
               <MenuItem value="wired">Wired</MenuItem>
               <MenuItem value="wireless">Wireless</MenuItem>
