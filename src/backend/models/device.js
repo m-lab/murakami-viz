@@ -1,5 +1,4 @@
 import knex from 'knex';
-import { validate } from '../../common/schemas/device.js';
 import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
@@ -12,8 +11,7 @@ export default class DeviceManager {
 
   async create(device, lid) {
     try {
-      await validate(device);
-      let ids;
+      let devices;
       await this._db.transaction(async trx => {
         let lids = [];
         if (lid) {
@@ -24,14 +22,30 @@ export default class DeviceManager {
             throw new BadRequestError('Invalid library ID.');
           }
         }
-        ids = await trx('devices').insert(device);
+        devices = await trx('devices')
+          .insert(device)
+          .returning('*');
+
+        log.debug('*****************DEVICES******************:', devices);
+        log.debug('*****************DEVICE******************:', device);
+
+        // workaround for sqlite
+        if (Number.isInteger(devices[0])) {
+          devices = await trx('devices')
+            .select('id', 'created_at', 'updated_at')
+            .where({ deviceid: device[0].deviceid });
+          log.debug('*****************DEVICES2******************:', devices);
+        }
 
         if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], did: id }));
+          const inserts = devices.map(d => ({
+            lid: lid[0],
+            did: d.id,
+          }));
           await trx('library_devices').insert(inserts);
         }
       });
-      return ids;
+      return devices;
     } catch (err) {
       throw new BadRequestError('Failed to create device: ', err);
     }
@@ -39,22 +53,26 @@ export default class DeviceManager {
 
   async update(id, device) {
     try {
-      await validate(device);
+      let existing = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('devices')
+          .select('*')
+          .where({ id: parseInt(id) });
+
+        if (Array.isArray(existing) && existing.length > 0) {
+          await trx('devices')
+            .update(device)
+            .where({ id: parseInt(id) });
+          existing = true;
+        } else {
+          await trx('devices').insert({ ...device, id: id });
+          existing = false;
+        }
+      });
+      return existing;
     } catch (err) {
-      throw new BadRequestError('Failed to update device: ', err);
+      throw new BadRequestError(`Failed to update device with ID ${id}: `, err);
     }
-    return this._db
-      .table('devices')
-      .update(device)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          subject: device.subject,
-          description: device.description,
-          updated_at: device.updated_at,
-        },
-        ['id', 'subject', 'description', 'updated_at'],
-      );
   }
 
   async delete(id) {

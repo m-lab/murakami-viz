@@ -85,6 +85,7 @@
     "eslint-plugin-react": "^7.19.0",
     "husky": "2.3.0",
     "jest": "^25.5.4",
+    "jest-each": "^26.0.1",
     "jsdoc": "^3.6.4",
     "nodemon": "^2.0.3",
     "parcel-bundler": "^1.12.4",

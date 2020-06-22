@@ -1,8 +1,12 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/device.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:device');
 
@@ -43,12 +47,9 @@ export default function controller(devices, thisUser) {
     }
 
     try {
-      device = await devices.create(ctx.request.body, lid);
-
-      // workaround for sqlite
-      if (Number.isInteger(device)) {
-        device = await devices.findById(device);
-      }
+      await validateCreation(ctx.request.body.data);
+      device = await devices.create(ctx.request.body.data, lid);
+      log.debug('******************DEVICE******************:', device);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add device: ${err}`);
@@ -143,32 +144,31 @@ export default function controller(devices, thisUser) {
 
   router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating device ${ctx.params.id}.`);
-    let device = [];
+    let updated;
 
     try {
+      await validateUpdate(ctx.request.body.data);
       if (ctx.params.lid) {
-        device = await devices.addToLibrary(ctx.params.lid, ctx.params.id);
+        await devices.addToLibrary(ctx.params.lid, ctx.params.id);
+        updated = true;
       } else {
-        device = await devices.update(ctx.params.id, ctx.request.body.data);
-      }
-      // workaround for sqlite
-      if (Number.isInteger(device)) {
-        device = await devices.findById(ctx.params.id);
+        updated = await devices.update(ctx.params.id, ctx.request.body.data);
+        console.log('***UPDATED***: ', updated);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (device.length && device.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: device };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That device with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
-      ctx.response.body = { error: 'Please try again.' };
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: { id: ctx.params.id },
+      };
+      ctx.response.status = 201;
     }
   });
 
