@@ -239,7 +239,7 @@ export default function AddEditDevice(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;
@@ -260,7 +260,7 @@ export default function AddEditDevice(props) {
             return;
           } else {
             const error = processError(result);
-            throw new Error(`Error in response from server: ${error}`);
+            throw new Error(` in response from server: ${error}`);
           }
         })
         .catch(error => {
