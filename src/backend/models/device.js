@@ -12,17 +12,8 @@ export default class DeviceManager {
 
   async create(device, lid) {
     try {
-      console.log('***********************');
-      console.log('device: ', device);
-      console.log('++++++++++++++++++++++');
-      console.log('lid: ', lid);
-      console.log('***********************');
       await validate(device);
       let ids;
-
-      console.log('***********************');
-      console.log('Device validated.');
-      console.log('***********************');
 
       await this._db.transaction(async trx => {
         let lids = [];
@@ -38,13 +29,7 @@ export default class DeviceManager {
           .returning('id')
           .insert(device);
 
-        console.log('***********************');
-        console.log('ids: ', ids);
-        console.log('++++++++++++++++++++++');
-        console.log('lids: ', lids);
-        console.log('***********************');
-
-        if (!(Array.isArray(ids))) {
+        if (!Array.isArray(ids)) {
           ids = [ids];
         }
 
