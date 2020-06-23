@@ -1,4 +1,3 @@
-import knex from 'knex';
 import { BadRequestError, NotFoundError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 

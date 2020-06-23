@@ -1,4 +1,3 @@
-import knex from 'knex';
 import { validate } from '../../common/schemas/library.js';
 import { UnprocessableError } from '../../common/errors.js';
 import { getLogger } from '../log.js';

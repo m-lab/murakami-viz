@@ -1,4 +1,3 @@
-import knex from 'knex';
 import { validate } from '../../common/schemas/note.js';
 import { BadRequestError } from '../../common/errors.js';
 
