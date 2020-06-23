@@ -12,8 +12,18 @@ export default class DeviceManager {
 
   async create(device, lid) {
     try {
+      console.log('***********************');
+      console.log('device: ', device);
+      console.log('++++++++++++++++++++++');
+      console.log('lid: ', lid);
+      console.log('***********************');
       await validate(device);
       let ids;
+
+      console.log('***********************');
+      console.log('Device validated.');
+      console.log('***********************');
+
       await this._db.transaction(async trx => {
         let lids = [];
         if (lid) {
@@ -26,14 +36,14 @@ export default class DeviceManager {
         }
         ids = await trx('devices').insert(device);
 
+        console.log('***********************');
+        console.log('ids: ', ids);
+        console.log('++++++++++++++++++++++');
+        console.log('lids: ', lids);
+        console.log('***********************');
+
         if (lids.length > 0) {
           const inserts = ids.map(id => ({ lid: lid[0], did: id }));
-
-          console.log('***********************');
-          console.log(ids);
-          console.log('++++++++++++++++++++++');
-          console.log(inserts);
-          console.log('***********************');
 
           await trx('library_devices').insert(inserts);
         }
