@@ -28,6 +28,13 @@ export default class DeviceManager {
 
         if (lids.length > 0) {
           const inserts = ids.map(id => ({ lid: lid[0], did: id }));
+
+          console.log('***********************');
+          console.log(ids);
+          console.log('++++++++++++++++++++++');
+          console.log(inserts);
+          console.log('***********************');
+
           await trx('library_devices').insert(inserts);
         }
       });
