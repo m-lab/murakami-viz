@@ -34,13 +34,19 @@ export default class DeviceManager {
             throw new BadRequestError('Invalid library ID.');
           }
         }
-        ids = await trx('devices').insert(device);
+        ids = await trx('devices')
+          .returning('id')
+          .insert(device);
 
         console.log('***********************');
         console.log('ids: ', ids);
         console.log('++++++++++++++++++++++');
         console.log('lids: ', lids);
         console.log('***********************');
+
+        if (!(Array.isArray(ids))) {
+          ids = [ids];
+        }
 
         if (lids.length > 0) {
           const inserts = ids.map(id => ({ lid: lid[0], did: id }));
