@@ -187,8 +187,7 @@ export default function controller(devices, thisUser) {
       }
 
       if (device > 0) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: device };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That device with ID ${

@@ -32,6 +32,10 @@ export function seed(knex) {
             gid: 2,
             uid: 2,
           },
+          {
+            gid: 3,
+            uid: 3,
+          },
         ]);
       }),
   ]);

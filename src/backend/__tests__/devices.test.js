@@ -185,17 +185,11 @@ describe('Manage devices as an admin', () => {
   });
 
   test('Delete a device', async () => {
-    await session
-      .delete('/api/v1/devices/1')
-      .send({})
-      .expect(200);
+    await session.delete('/api/v1/devices/1').expect(204);
   });
 
   test('Attempt to delete a nonexistent device', async () => {
-    await session
-      .delete('/api/v1/devices/100')
-      .send({})
-      .expect(404);
+    await session.delete('/api/v1/devices/100').expect(404);
   });
 
   test('Verify device does not belong to library', async () => {
@@ -208,7 +202,7 @@ describe('Manage devices as an admin', () => {
   });
 
   test('Remove device from library', async () => {
-    await session.delete('/api/v1/libraries/2/devices/4').expect(200);
+    await session.delete('/api/v1/libraries/2/devices/4').expect(204);
     await session.get('/api/v1/libraries/2/devices/4').expect(404);
   });
 });

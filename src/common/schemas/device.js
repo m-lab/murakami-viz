@@ -47,7 +47,6 @@ export async function validateCreation(data) {
 
 export async function validateUpdate(data) {
   try {
-    console.log('******DATA*******: ', data);
     data = Array.isArray(data) ? data : [data];
     const value = await updateSchema.validateAsync(data);
     return value;

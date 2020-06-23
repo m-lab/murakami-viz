@@ -1,4 +1,3 @@
-import { validate } from '../../common/schemas/faq.js';
 import { BadRequestError } from '../../common/errors.js';
 
 export default class FaqManager {
@@ -7,11 +6,6 @@ export default class FaqManager {
   }
 
   async create(faq) {
-    try {
-      await validate(faq);
-    } catch (err) {
-      throw new BadRequestError('Failed to create library: ', err);
-    }
     return this._db
       .table('faqs')
       .insert(faq)
@@ -20,21 +14,26 @@ export default class FaqManager {
 
   async update(id, faq) {
     try {
-      await validate(faq);
+      let existing = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('faqs')
+          .select('*')
+          .where({ id: parseInt(id) });
+
+        if (Array.isArray(existing) && existing.length > 0) {
+          await trx('faqs')
+            .update(faq)
+            .where({ id: parseInt(id) });
+          existing = true;
+        } else {
+          await trx('faqs').insert({ ...faq, id: id });
+          existing = false;
+        }
+      });
+      return existing;
     } catch (err) {
-      throw new BadRequestError('Failed to update faq: ', err);
+      throw new BadRequestError(`Failed to update faq with ID ${id}: `, err);
     }
-    return this._db
-      .table('faqs')
-      .update(faq)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          question: faq.question,
-          answer: faq.answer,
-        },
-        ['id', 'question', 'answer'],
-      );
   }
 
   async delete(id) {
@@ -76,7 +75,7 @@ export default class FaqManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 

@@ -1,4 +1,3 @@
-import { validate } from '../../common/schemas/glossary.js';
 import { BadRequestError } from '../../common/errors.js';
 
 export default class GlossaryManager {
@@ -7,11 +6,6 @@ export default class GlossaryManager {
   }
 
   async create(glossary) {
-    try {
-      await validate(glossary);
-    } catch (err) {
-      throw new BadRequestError('Failed to create library: ', err);
-    }
     return this._db
       .table('glossaries')
       .insert(glossary)
@@ -20,21 +14,29 @@ export default class GlossaryManager {
 
   async update(id, glossary) {
     try {
-      await validate(glossary);
+      let existing = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('glossaries')
+          .select('*')
+          .where({ id: parseInt(id) });
+
+        if (Array.isArray(existing) && existing.length > 0) {
+          await trx('glossaries')
+            .update(glossary)
+            .where({ id: parseInt(id) });
+          existing = true;
+        } else {
+          await trx('glossaries').insert({ ...glossary, id: id });
+          existing = false;
+        }
+      });
+      return existing;
     } catch (err) {
-      throw new BadRequestError('Failed to update glossary: ', err);
-    }
-    return this._db
-      .table('glossaries')
-      .update(glossary)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          question: glossary.question,
-          answer: glossary.answer,
-        },
-        ['id', 'question', 'answer'],
+      throw new BadRequestError(
+        `Failed to update glossary with ID ${id}: `,
+        err,
       );
+    }
   }
 
   async delete(id) {
@@ -76,7 +78,7 @@ export default class GlossaryManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 

@@ -1,7 +1,6 @@
-import { getLogger } from '../log.js';
 import { isString } from '../../common/utils.js';
-import { validate } from '../../common/schemas/group.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:group');
 /**
@@ -15,11 +14,6 @@ export default class Group {
   }
 
   async create(group) {
-    try {
-      await validate(group);
-    } catch (err) {
-      throw new UnprocessableError('Failed to create group: ', err);
-    }
     return this._db
       .table('groups')
       .insert(group)
@@ -28,15 +22,26 @@ export default class Group {
 
   async update(id, group) {
     try {
-      await validate(group);
+      let existing = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('groups')
+          .select('*')
+          .where({ id: parseInt(id) });
+
+        if (Array.isArray(existing) && existing.length > 0) {
+          await trx('groups')
+            .update(group)
+            .where({ id: parseInt(id) });
+          existing = true;
+        } else {
+          await trx('groups').insert({ ...group, id: id });
+          existing = false;
+        }
+      });
+      return existing;
     } catch (err) {
-      throw new UnprocessableError('Failed to update group: ', err);
+      throw new BadRequestError(`Failed to update group with ID ${id}: `, err);
     }
-    return this._db
-      .table('groups')
-      .update(group)
-      .where({ id: parseInt(id) })
-      .returning('*');
   }
 
   async delete(id) {
@@ -78,7 +83,7 @@ export default class Group {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
@@ -94,8 +99,7 @@ export default class Group {
     return this._db
       .table('groups')
       .select('*')
-      .where({ id: parseInt(id) })
-      .first();
+      .where({ id: parseInt(id) });
   }
 
   /**

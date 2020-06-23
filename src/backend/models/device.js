@@ -113,7 +113,7 @@ export default class DeviceManager {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_devices', {
             'devices.id': 'library_devices.did',
-            'library_devices.lid': knex.raw('?', [library]),
+            'library_devices.lid': this._db.raw('?', [library]),
           });
         }
 
@@ -145,7 +145,7 @@ export default class DeviceManager {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_devices', {
             'devices.id': 'library_devices.did',
-            'library_devices.lid': knex.raw('?', [library]),
+            'library_devices.lid': this._db.raw('?', [library]),
           });
         }
       });

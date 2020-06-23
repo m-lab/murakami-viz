@@ -92,7 +92,7 @@ export default class NoteManager {
         if (library) {
           queryBuilder.join('library_notes', {
             'notes.id': 'library_notes.nid',
-            'library_notes.lid': knex.raw('?', [library]),
+            'library_notes.lid': this._db.raw('?', [library]),
           });
         }
 

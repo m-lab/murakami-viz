@@ -197,7 +197,7 @@ export default class LibraryManager {
         if (of_user) {
           queryBuilder.join('library_users', {
             'libraries.id': 'library_users.lid',
-            'library_users.uid': knex.raw('?', [of_user]),
+            'library_users.uid': this._db.raw('?', [of_user]),
           });
         }
       });
