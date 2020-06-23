@@ -252,7 +252,9 @@ export default function AddEditDevice(props) {
               id: result.data[0],
               location: row.name,
             };
-            let updatedDevices = devices.concat(newDevice);
+            let updatedDevices = devices
+              ? devices.concat(newDevice)
+              : [newDevice];
             setDevices(updatedDevices);
             onClose();
             return;
