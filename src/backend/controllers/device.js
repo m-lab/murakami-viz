@@ -49,7 +49,6 @@ export default function controller(devices, thisUser) {
     try {
       await validateCreation(ctx.request.body.data);
       device = await devices.create(ctx.request.body.data, lid);
-      log.debug('******************DEVICE******************:', device);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add device: ${err}`);
@@ -59,7 +58,7 @@ export default function controller(devices, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/devices', async ctx => {
+  router.get('/devices', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving devices.`);
     let res, library;
 
@@ -110,50 +109,43 @@ export default function controller(devices, thisUser) {
     }
   });
 
-  router.get(
-    '/devices/:id',
-    thisUser.can('access private pages'),
-    async ctx => {
-      log.debug(`Retrieving device ${ctx.params.id}.`);
-      let device, lid;
+  router.get('/devices/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving device ${ctx.params.id}.`);
+    let device, lid;
 
-      if (ctx.params.lid) {
-        lid = ctx.params.lid;
-      }
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
-      try {
-        device = await devices.findById(ctx.params.id, lid);
-      } catch (err) {
-        log.error('HTTP 400 Error: ', err);
-        ctx.throw(400, `Failed to parse query: ${err}`);
-      }
+    try {
+      device = await devices.findById(ctx.params.id, lid);
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
 
-      if (device.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: device };
-        ctx.response.status = 200;
-      } else {
-        log.error(
-          `HTTP 404 Error: That device with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
-      }
-    },
-  );
+    if (device.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: device };
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: That device with ID ${ctx.params.id} does not exist.`,
+      );
+      ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
+    }
+  });
 
   router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating device ${ctx.params.id}.`);
     let updated;
 
     try {
-      await validateUpdate(ctx.request.body.data);
       if (ctx.params.lid) {
         await devices.addToLibrary(ctx.params.lid, ctx.params.id);
         updated = true;
       } else {
+        await validateUpdate(ctx.request.body.data);
         updated = await devices.update(ctx.params.id, ctx.request.body.data);
-        console.log('***UPDATED***: ', updated);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);

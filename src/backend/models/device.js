@@ -1,5 +1,5 @@
 import knex from 'knex';
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, NotFoundError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:device');
@@ -26,15 +26,11 @@ export default class DeviceManager {
           .insert(device)
           .returning('*');
 
-        log.debug('*****************DEVICES******************:', devices);
-        log.debug('*****************DEVICE******************:', device);
-
         // workaround for sqlite
         if (Number.isInteger(devices[0])) {
           devices = await trx('devices')
             .select('id', 'created_at', 'updated_at')
             .where({ deviceid: device[0].deviceid });
-          log.debug('*****************DEVICES2******************:', devices);
         }
 
         if (lids.length > 0) {
@@ -132,18 +128,27 @@ export default class DeviceManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
     return rows || [];
   }
 
-  async findById(id) {
+  async findById(id, library) {
     return this._db
       .table('devices')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ id: parseInt(id) })
+      .modify(queryBuilder => {
+        if (library) {
+          log.debug('Filtering on library: ', library);
+          queryBuilder.join('library_devices', {
+            'devices.id': 'library_devices.did',
+            'library_devices.lid': knex.raw('?', [library]),
+          });
+        }
+      });
   }
 
   async findAll() {
@@ -158,7 +163,7 @@ export default class DeviceManager {
         .where({ id: parseInt(lid) });
 
       if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
+        throw new NotFoundError('Invalid library ID.');
       }
 
       let ids = [];
@@ -167,7 +172,7 @@ export default class DeviceManager {
         .where({ id: parseInt(id) });
 
       if (ids.length === 0) {
-        throw new BadRequestError('Invalid device ID.');
+        throw new NotFoundError('Invalid device ID.');
       }
 
       await trx('library_devices').insert({ lid: lid, did: id });
