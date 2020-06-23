@@ -87,6 +87,7 @@ export default function Login(props) {
           setHelperText('Incorrect username or password.');
           return;
         }
+        return;
       })
       .catch(error => {
         setError(true);

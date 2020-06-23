@@ -54,7 +54,7 @@ export default function MainGraph(props) {
   React.useEffect(() => {
     if (runs) {
       const filteredRuns = runs.filter(run => {
-        if (lid.length) {
+        if (lid && lid.length) {
           if (!lid.includes(run.lid)) {
             return false;
           }

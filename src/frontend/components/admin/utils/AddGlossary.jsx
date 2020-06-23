@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -43,13 +44,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
+const useForm = (callback, validated) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback();
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -68,6 +72,16 @@ const useForm = callback => {
 export default function AddGlossary(props) {
   const classes = useStyles();
   const { onClose, open } = props;
+
+  // handle form validation
+  const validateInputs = inputs => {
+    if (_.isEmpty(inputs)) {
+      onClose();
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleClose = () => {
     onClose();
@@ -105,7 +119,10 @@ export default function AddGlossary(props) {
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
 
   return (
     <Dialog

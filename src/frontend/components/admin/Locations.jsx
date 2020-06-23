@@ -159,14 +159,15 @@ const EnhancedTableToolbar = props => {
           >
             Add
           </Button>
-          <AddLibrary
-            open={open}
-            onClose={handleClose}
-          />
+          <AddLibrary open={open} onClose={handleClose} />
         </Grid>
       </Grid>
     </Toolbar>
   );
+};
+
+EnhancedTableToolbar.propTypes = {
+  updateRows: PropTypes.func.isRequired,
 };
 
 const useStyles = makeStyles(theme => ({

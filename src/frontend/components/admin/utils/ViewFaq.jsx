@@ -195,5 +195,5 @@ ViewFaq.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
-  rows: PropTypes.object.isRequired,
+  rows: PropTypes.array.isRequired,
 };

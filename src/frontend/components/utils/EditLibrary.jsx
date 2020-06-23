@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import AppBar from '@material-ui/core/AppBar';
@@ -107,13 +108,15 @@ function a11yProps(index) {
   };
 }
 
-const useForm = callback => {
+const useForm = (callback, validated) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback();
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -132,8 +135,55 @@ const useForm = callback => {
 export default function EditLibrary(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    name: '',
+  });
 
-  //handle tabs
+  // handle form validation
+  const validateInputs = (row, inputs) => {
+    console.log(row);
+    console.log(inputs);
+    setErrors({});
+    setHelperText({});
+    if (_.isEmpty(inputs)) {
+      onClose();
+      return false;
+    } else {
+      if (!inputs.name || !inputs.primary_contact_email) {
+        if (!inputs.name) {
+          setErrors(errors => ({
+            ...errors,
+            name: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            name: 'Required',
+          }));
+        }
+        if (!validateEmail(inputs.primary_contact_email)) {
+          setErrors(errors => ({
+            ...errors,
+            email: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            email: 'Please enter a valid email address.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+  };
+
+  // handle tabs
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -169,7 +219,12 @@ export default function EditLibrary(props) {
     onClose();
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
+
+  React.useEffect(() => {}, [errors, helperText]);
 
   return (
     <Dialog
@@ -265,6 +320,8 @@ export default function EditLibrary(props) {
             </Select>
           </FormControl>
           <TextField
+            error={errors && errors.name}
+            helperText={helperText.name}
             className={classes.formField}
             id="library-name"
             label="Library Name"
@@ -334,6 +391,8 @@ export default function EditLibrary(props) {
             value={inputs.primary_contact_name}
           />
           <TextField
+            error={errors.email}
+            helperText={helperText.email}
             className={classes.formField}
             id="library-primary-contact-email"
             label="Email"

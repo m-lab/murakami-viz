@@ -136,8 +136,9 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = note => {
+  const handleClose = (note, id) => {
     if (note) {
+      note.id = id;
       updateRows(note);
     }
     setOpen(false);
@@ -165,6 +166,11 @@ const EnhancedTableToolbar = props => {
       </Grid>
     </Toolbar>
   );
+};
+
+EnhancedTableToolbar.propTypes = {
+  updateRows: PropTypes.func.isRequired,
+  library: PropTypes.object,
 };
 
 const useStyles = makeStyles(theme => ({
@@ -205,11 +211,6 @@ export default function EnhancedTable(props) {
   // handle pagination changes
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
   };
 
   let emptyRows;
