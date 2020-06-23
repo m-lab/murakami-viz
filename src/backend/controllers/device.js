@@ -47,8 +47,8 @@ export default function controller(devices, thisUser) {
     }
 
     try {
-      await validateCreation(ctx.request.body.data);
-      device = await devices.create(ctx.request.body.data, lid);
+      const data = await validateCreation(ctx.request.body.data);
+      device = await devices.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add device: ${err}`);

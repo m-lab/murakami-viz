@@ -157,7 +157,7 @@ export default function AddEditDevice(props) {
             name: 'Please enter a device name.',
           }));
         }
-        if (!inputs.id) {
+        if (!inputs.deviceid) {
           setErrors(errors => ({
             ...errors,
             id: true,
@@ -195,7 +195,8 @@ export default function AddEditDevice(props) {
   const submitData = () => {
     let status;
     if (editMode) {
-      fetch(`api/v1/devices/${inputs.id}`, {
+      console.log('DEVICE:', device);
+      fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -207,14 +208,14 @@ export default function AddEditDevice(props) {
           return response.json();
         })
         .then(result => {
-          if (status === 200) {
+          if (status === 204) {
             let updatedDevices;
             if (devices) {
               updatedDevices = devices.map(device =>
-                device.id === inputs.id ? result.data[0] : device,
+                device.id === inputs.id ? inputs : device,
               );
             } else {
-              updatedDevices = [result.data[0]];
+              updatedDevices = [inputs];
             }
             setDevices(updatedDevices);
             alert('Device updated successfully.');
@@ -239,7 +240,7 @@ export default function AddEditDevice(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({ data: [inputs] }),
       })
         .then(response => {
           status = response.status;
@@ -377,23 +378,6 @@ export default function AddEditDevice(props) {
             onChange={handleInputChange}
             defaultValue={device ? device.deviceid : inputs.deviceid}
           />
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="library-device-location-label">Location</InputLabel>
-            <Select
-              labelId="library-device-location-label"
-              className={classes.formField}
-              id="library-device-location"
-              label="Location"
-              name="location"
-              onChange={handleInputChange}
-              defaultValue={row.id}
-              disabled
-            >
-              <MenuItem value={row.id} selected>
-                {row.name}
-              </MenuItem>
-            </Select>
-          </FormControl>
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="library-network-type">Network type</InputLabel>
             <Select

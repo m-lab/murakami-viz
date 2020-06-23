@@ -57,8 +57,9 @@ export default class DeviceManager {
 
         if (Array.isArray(existing) && existing.length > 0) {
           await trx('devices')
-            .update(device)
+            .del()
             .where({ id: parseInt(id) });
+          await trx('devices').insert({ ...device, id: parseInt(id) });
           existing = true;
         } else {
           await trx('devices').insert({ ...device, id: id });
