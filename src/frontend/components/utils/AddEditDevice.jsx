@@ -87,7 +87,6 @@ const useForm = (callback, validated, device) => {
       delete inputs.updated_at;
       delete inputs.lid;
       delete inputs.did;
-      delete inputs.id;
     });
     if (validated(inputs)) {
       callback(device);
@@ -96,6 +95,7 @@ const useForm = (callback, validated, device) => {
   };
   const handleInputChange = event => {
     event.persist();
+    console.log("....handleinputchange", inputs)
     setInputs(inputs => ({
       ...inputs,
       [event.target.name]: event.target.value,
@@ -104,7 +104,6 @@ const useForm = (callback, validated, device) => {
 
   React.useEffect(() => {
     if (device) {
-      // console.log(device);
       let fullInputs = Object.assign(device, inputs);
       fullInputs.location = device.lid;
       setInputs(fullInputs);
@@ -126,8 +125,22 @@ export default function AddEditDevice(props) {
     name: '',
   });
 
+  /** handles differences in inputs validation dependin gon
+   * whether adding or editing device
+   */
+
+  const validationConditionals = () => {
+    editMode
+      ? !inputs.name || !inputs.deviceid
+      : !inputs.name || inputs.name === '' || !inputs.deviceid || inputs.deviceid === ''
+  };
+
   // handle form validation
   const validateInputs = inputs => {
+    console.log("*****VALIDATE INPUTS*****", inputs)
+    console.log("*&****VALIDATE INPUTS", !inputs.name, inputs.name)
+    console.log('*&****VALIDATE INPUTS', !inputs.deviceid, inputs.deviceid);
+
     setErrors({});
     setHelperText({});
     if (_.isEmpty(inputs)) {
@@ -141,12 +154,7 @@ export default function AddEditDevice(props) {
       }));
       return false;
     } else {
-      if (
-        !inputs.name ||
-        inputs.name === '' ||
-        !inputs.deviceid ||
-        inputs.deviceid === ''
-      ) {
+      if (  validationConditionals()  ) {
         if (!inputs.name) {
           setErrors(errors => ({
             ...errors,
@@ -195,13 +203,14 @@ export default function AddEditDevice(props) {
   const submitData = () => {
     let status;
     if (editMode) {
-      console.log('DEVICE:', device);
+      console.log('DEVICE TO EDIT:', device);
+      console.log('...inputs in editMode!!!!!! ****', inputs)
       fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: inputs }),
+        body: JSON.stringify({ data: device }),
       })
         .then(response => {
           status = response.status;
