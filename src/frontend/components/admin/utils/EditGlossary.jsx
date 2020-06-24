@@ -69,6 +69,8 @@ export default function EditGlossary(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
 
+  console.log("row!!!", row)
+
   const handleClose = () => {
     onClose();
   };
@@ -88,21 +90,39 @@ export default function EditGlossary(props) {
 
   const submitData = () => {
     let status;
+
+    const toSubmit = () => {
+      if (inputs.term && inputs.definition) {
+        return inputs
+      } else if (inputs.term) {
+        console.log("!!!", inputs)
+        return {
+          ...inputs,
+          definition: row.definition
+        }
+      } else if (inputs.definition) {
+        return {
+          ...inputs,
+          term: row.term
+        }
+      }
+    }
+    
     fetch(`api/v1/glossaries/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: toSubmit() }),
     })
       .then(response => status = response.status)
       .then(results => {
         if (status === 204) {
           alert('Glossary edited successfully.');
-          onClose(inputs);
+          onClose({...toSubmit(), id: row.id});
           return;
         } else {
-          const error = processError(result);
+          const error = processError(results);
           throw new Error(`Error in response from server: ${error}`);
         }
       })
