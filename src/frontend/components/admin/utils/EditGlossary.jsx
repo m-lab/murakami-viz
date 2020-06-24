@@ -73,7 +73,21 @@ export default function EditGlossary(props) {
     onClose();
   };
 
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   const submitData = () => {
+    let status;
     fetch(`api/v1/glossaries/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -81,11 +95,16 @@ export default function EditGlossary(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
+      .then(response => status = response.status)
       .then(results => {
-        alert('Glossary edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status === 204) {
+          alert('Glossary edited successfully.');
+          onClose(inputs);
+          return;
+        } else {
+          const error = processError(result);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
         console.error(error.name + error.message);
