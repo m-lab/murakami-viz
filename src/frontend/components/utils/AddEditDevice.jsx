@@ -75,7 +75,6 @@ const useStyles = makeStyles(() => ({
 const useForm = (callback, validated, device) => {
   const [inputs, setInputs] = React.useState({
     connection_type: device.connection_type || 'wired',
-    dns_server: device.dns_server || '',
     network_type: device.network_type || 'public',
   });
   const handleSubmit = event => {
@@ -85,17 +84,17 @@ const useForm = (callback, validated, device) => {
     setInputs(inputs => {
       delete inputs.created_at;
       delete inputs.updated_at;
+      delete inputs.location;
       delete inputs.lid;
       delete inputs.did;
     });
     if (validated(inputs)) {
-      callback(device);
+      callback(inputs);
       setInputs({});
     }
   };
   const handleInputChange = event => {
     event.persist();
-    console.log("....handleinputchange", inputs)
     setInputs(inputs => ({
       ...inputs,
       [event.target.name]: event.target.value,
@@ -108,7 +107,7 @@ const useForm = (callback, validated, device) => {
       fullInputs.location = device.lid;
       setInputs(fullInputs);
     }
-  }, [inputs]);
+  }, [device, inputs]);
 
   return {
     handleSubmit,
@@ -125,22 +124,8 @@ export default function AddEditDevice(props) {
     name: '',
   });
 
-  /** handles differences in inputs validation dependin gon
-   * whether adding or editing device
-   */
-
-  const validationConditionals = () => {
-    editMode
-      ? !inputs.name || !inputs.deviceid
-      : !inputs.name || inputs.name === '' || !inputs.deviceid || inputs.deviceid === ''
-  };
-
   // handle form validation
   const validateInputs = inputs => {
-    console.log("*****VALIDATE INPUTS*****", inputs)
-    console.log("*&****VALIDATE INPUTS", !inputs.name, inputs.name)
-    console.log('*&****VALIDATE INPUTS', !inputs.deviceid, inputs.deviceid);
-
     setErrors({});
     setHelperText({});
     if (_.isEmpty(inputs)) {
@@ -154,7 +139,14 @@ export default function AddEditDevice(props) {
       }));
       return false;
     } else {
-      if (  validationConditionals()  ) {
+      if (
+        !inputs.name ||
+        !inputs.deviceid ||
+        !inputs.dns_server ||
+        !inputs.ip ||
+        !inputs.gateway ||
+        !inputs.mac
+      ) {
         if (!inputs.name) {
           setErrors(errors => ({
             ...errors,
@@ -173,6 +165,46 @@ export default function AddEditDevice(props) {
           setHelperText(helperText => ({
             ...helperText,
             id: 'Please enter a device id.',
+          }));
+        }
+        if (!inputs.dns_server) {
+          setErrors(errors => ({
+            ...errors,
+            dns_server: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            dns_server: 'Please enter a DNS server.',
+          }));
+        }
+        if (!inputs.ip) {
+          setErrors(errors => ({
+            ...errors,
+            ip: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            ip: 'Please enter a static IP.',
+          }));
+        }
+        if (!inputs.gateway) {
+          setErrors(errors => ({
+            ...errors,
+            gateway: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            gateway: 'Please enter a gateway.',
+          }));
+        }
+        if (!inputs.mac) {
+          setErrors(errors => ({
+            ...errors,
+            mac: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            mac: 'Please enter a device MAC address.',
           }));
         }
         return false;
@@ -203,14 +235,12 @@ export default function AddEditDevice(props) {
   const submitData = () => {
     let status;
     if (editMode) {
-      console.log('DEVICE TO EDIT:', device);
-      console.log('...inputs in editMode!!!!!! ****', inputs)
       fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: device }),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;
@@ -309,7 +339,7 @@ export default function AddEditDevice(props) {
     device,
   );
 
-  React.useEffect(() => {}, [device, errors, helperText]);
+  React.useEffect(() => {}, [errors, helperText]);
 
   return (
     <Dialog onClose={handleClose} modal="true" open={open}>
@@ -422,6 +452,8 @@ export default function AddEditDevice(props) {
             </Select>
           </FormControl>
           <TextField
+            error={errors && errors.dns_server}
+            helperText={helperText.dns_server}
             className={classes.formField}
             id="library-dns"
             label="DNS server"
@@ -432,6 +464,8 @@ export default function AddEditDevice(props) {
             defaultValue={device ? device.dns_server : inputs.dns_server}
           />
           <TextField
+            error={errors && errors.ip}
+            helperText={helperText.ip}
             className={classes.formField}
             id="library-device-ip"
             label="Static IP"
@@ -441,6 +475,8 @@ export default function AddEditDevice(props) {
             defaultValue={device ? device.ip : inputs.ip}
           />
           <TextField
+            error={errors && errors.gateway}
+            helperText={helperText.gateway}
             className={classes.formField}
             id="library-gateway"
             label="Gateway"
@@ -451,6 +487,8 @@ export default function AddEditDevice(props) {
             defaultValue={device ? device.gateway : inputs.gateway}
           />
           <TextField
+            error={errors && errors.mac}
+            helperText={helperText.mac}
             className={classes.formField}
             id="library-mac"
             label="MAC address"

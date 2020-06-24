@@ -145,6 +145,7 @@ export default function controller(devices, thisUser) {
         updated = true;
       } else {
         await validateUpdate(ctx.request.body.data);
+
         updated = await devices.update(ctx.params.id, ctx.request.body.data);
       }
     } catch (err) {
