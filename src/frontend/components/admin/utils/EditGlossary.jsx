@@ -91,11 +91,13 @@ export default function EditGlossary(props) {
   const submitData = () => {
     let status;
 
+    /** sending a complete glossary object
+     * to the backend to ensure idempotence 
+     */
     const toSubmit = () => {
       if (inputs.term && inputs.definition) {
         return inputs
       } else if (inputs.term) {
-        console.log("!!!", inputs)
         return {
           ...inputs,
           definition: row.definition
