@@ -244,7 +244,6 @@ export default function AddEditDevice(props) {
       })
         .then(response => {
           status = response.status;
-          return response.json();
         })
         .then(result => {
           if (status === 204) {
