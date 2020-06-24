@@ -101,7 +101,7 @@ export default function EditFaq(props) {
     })
       .then(response => status = response.status)
       .then(results => {
-        if (status = 204) {
+        if (status === 204) {
           alert('FAQ edited successfully.');
           onClose({...toSubmit(), id: row.id});
           return;
