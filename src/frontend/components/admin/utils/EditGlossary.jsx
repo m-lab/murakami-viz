@@ -92,7 +92,7 @@ export default function EditGlossary(props) {
     let status;
 
     /** sending a complete glossary object
-     * to the backend to ensure idempotence 
+     * to the backend because idempotency
      */
     const toSubmit = () => {
       if (inputs.term && inputs.definition) {

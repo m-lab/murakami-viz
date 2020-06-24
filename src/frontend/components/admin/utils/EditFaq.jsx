@@ -74,18 +74,38 @@ export default function EditFaq(props) {
   };
 
   const submitData = () => {
+    let status;
+
+    const toSubmit = () => {
+      if (inputs.question && inputs.answer) {
+        return inputs
+      } else if (inputs.question) {
+        return {
+          ...inputs,
+          answer: row.answer
+        }
+      } else if (inputs.answer) {
+        return {
+          ...inputs,
+          question: row.question
+        }
+      }
+    }
+
     fetch(`api/v1/faqs/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: toSubmit() }),
     })
-      .then(response => response.json())
+      .then(response => status = response.status)
       .then(results => {
-        alert('Faq edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status = 204) {
+          alert('FAQ edited successfully.');
+          onClose({...toSubmit(), id: row.id});
+          return;
+        }
       })
       .catch(error => {
         console.error(error.name + error.message);
