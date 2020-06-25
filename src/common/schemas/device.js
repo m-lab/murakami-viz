@@ -21,7 +21,6 @@ const creationSchema = Joi.array()
 const updateSchema = Joi.array()
   .items(
     Joi.object({
-      id: Joi.number().required(),
       name: Joi.string(),
       network_type: Joi.string(),
       connection_type: Joi.string(),

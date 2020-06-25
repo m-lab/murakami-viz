@@ -164,7 +164,7 @@ export default function AddEditDevice(props) {
           }));
           setHelperText(helperText => ({
             ...helperText,
-            id: 'Please enter a device id.',
+            id: 'Please enter a deviceid.',
           }));
         }
         if (!inputs.dns_server) {
@@ -234,13 +234,16 @@ export default function AddEditDevice(props) {
   // submit new note to api
   const submitData = () => {
     let status;
+    let copy = {...inputs}
+    delete copy.id 
+
     if (editMode) {
       fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: inputs }),
+        body: JSON.stringify({ data: copy }),
       })
         .then(response => {
           status = response.status;
