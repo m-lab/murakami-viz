@@ -62,6 +62,9 @@ const invalidLibrary = {
   bandwidth_cap_download: 0,
 };
 
+const ip1 = '192.0.2.1';
+const ip2 = '192.0.2.2';
+
 afterAll(async () => {
   return db.destroy();
 });
@@ -108,6 +111,50 @@ describe('Search libraries as an admin', () => {
       ...first_two.body.data,
       ...last_two.body.data,
     ]);
+  });
+});
+
+describe('Access IP addresses as an admin', () => {
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'admin', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Check for individual IP addresses', async () => {
+    await session.get(`/api/v1/libraries/1/ip/${ip1}`).expect(204);
+    await session.get(`/api/v1/libraries/2/ip/${ip2}`).expect(204);
+    await session.get(`/api/v1/libraries/1/ip/${ip2}`).expect(404);
+    await session.get(`/api/v1/libraries/2/ip/${ip1}`).expect(404);
+  });
+
+  test('Add IP address to library', async () => {
+    const ip3 = '192.0.2.3';
+    await session.post(`/api/v1/libraries/1/ip/${ip3}`).expect(201);
+    await session.get(`/api/v1/libraries/1/ip/${ip3}`).expect(204);
+  });
+
+  test('Get all IP addresses', async () => {
+    const ips1 = await session.get(`/api/v1/libraries/1/ip`).expect(200);
+    const ips2 = await session.get(`/api/v1/libraries/2/ip`).expect(200);
+    expect(ips1.body.data).toEqual(
+      expect.arrayContaining([{ lid: 1, ip: '192.0.2.1' }]),
+    );
+    expect(ips2.body.data).toEqual(
+      expect.arrayContaining([{ lid: 2, ip: '192.0.2.2' }]),
+    );
   });
 });
 
@@ -275,6 +322,47 @@ describe('Access libraries as an editor', () => {
   });
 });
 
+describe('Access IP addresses as an editor', () => {
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'editor', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Check for individual IP addresses', async () => {
+    await session.get(`/api/v1/libraries/1/ip/${ip1}`).expect(403);
+    await session.get(`/api/v1/libraries/2/ip/${ip2}`).expect(204);
+    await session.get(`/api/v1/libraries/1/ip/${ip2}`).expect(403);
+    await session.get(`/api/v1/libraries/2/ip/${ip1}`).expect(404);
+  });
+
+  test('Add IP address to library', async () => {
+    const ip3 = '192.0.2.3';
+    await session.post(`/api/v1/libraries/2/ip/${ip3}`).expect(201);
+    await session.get(`/api/v1/libraries/2/ip/${ip3}`).expect(204);
+  });
+
+  test('Get all IP addresses', async () => {
+    await session.get(`/api/v1/libraries/1/ip`).expect(403);
+    const ips2 = await session.get(`/api/v1/libraries/2/ip`).expect(200);
+    expect(ips2.body.data).toEqual(
+      expect.arrayContaining([{ lid: 2, ip: '192.0.2.2' }]),
+    );
+  });
+});
+
 describe('Access libraries as a viewer', () => {
   beforeAll(() => {
     return db.migrate.latest().then(() => db.seed.run());
@@ -338,5 +426,43 @@ describe('Access libraries as a viewer', () => {
       .delete('/api/v1/libraries/100')
       .send({})
       .expect(403);
+  });
+});
+
+describe('Access IP addresses as a viewer', () => {
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'viewer', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Attempt to check for individual IP addresses', async () => {
+    await session.get(`/api/v1/libraries/1/ip/${ip1}`).expect(403);
+    await session.get(`/api/v1/libraries/2/ip/${ip2}`).expect(403);
+  });
+
+  test('Attempt to add IP address to library', async () => {
+    const ip3 = '192.0.2.3';
+    await session.post(`/api/v1/libraries/1/ip/${ip3}`).expect(403);
+  });
+
+  test('Get all IP addresses', async () => {
+    const ips1 = await session.get(`/api/v1/libraries/1/ip`).expect(200);
+    await session.get(`/api/v1/libraries/2/ip`).expect(403);
+    expect(ips1.body.data).toEqual(
+      expect.arrayContaining([{ lid: 1, ip: '192.0.2.1' }]),
+    );
   });
 });

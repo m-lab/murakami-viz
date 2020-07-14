@@ -56,8 +56,7 @@ export default function controller(libraries, thisUser) {
       }
 
       if (ip.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: ip };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: Library with ID ${ctx.params.id} does not have IP ${
@@ -93,7 +92,6 @@ export default function controller(libraries, thisUser) {
           statusCode: 200,
           status: 'ok',
           data: ip,
-          ipCount: ip.length,
         };
         ctx.response.status = 200;
       } else {
