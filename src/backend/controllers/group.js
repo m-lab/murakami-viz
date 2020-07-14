@@ -44,8 +44,8 @@ export default function controller(groups, thisUser) {
     let group;
 
     try {
-      await validate(ctx.request.body.data);
-      group = await groups.create(ctx.request.body.data);
+      const data = await validate(ctx.request.body.data);
+      group = await groups.create(data);
 
       // workaround for sqlite
       if (Number.isInteger(group[0])) {
@@ -130,14 +130,10 @@ export default function controller(groups, thisUser) {
   router.put('/groups/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating group ${ctx.params.id}.`);
     let updated;
-    console.log(
-      '*************************************************************CTX.REQUEST.BODY.DATA**************************************************************************:',
-      ctx.request.body.data,
-    );
 
     try {
-      await validate(ctx.request.body.data);
-      updated = await groups.update(ctx.params.id, ctx.request.body.data);
+      const data = await validate(ctx.request.body.data);
+      updated = await groups.update(ctx.params.id, data);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);

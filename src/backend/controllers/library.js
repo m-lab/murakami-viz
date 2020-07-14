@@ -1,8 +1,12 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/library.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:library');
 
@@ -166,11 +170,12 @@ export default function controller(libraries, thisUser) {
     let library;
 
     try {
-      library = await libraries.create(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
+      library = await libraries.create(data);
 
       // workaround for sqlite
-      if (Number.isInteger(library)) {
-        library = await libraries.findById(library);
+      if (Number.isInteger(library[0])) {
+        library = await libraries.findById(library[0]);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
@@ -258,30 +263,27 @@ export default function controller(libraries, thisUser) {
     thisUser.can('access admin pages'),
     async ctx => {
       log.debug(`Updating library ${ctx.params.id}.`);
-      let library;
+      let updated;
 
       try {
-        library = await libraries.update(ctx.params.id, ctx.request.body.data);
-
-        // workaround for sqlite
-        if (Number.isInteger(library)) {
-          library = await libraries.findById(library);
-        }
+        console.log('***ctx.request.body***:', ctx.request.body);
+        const data = await validateUpdate(ctx.request.body.data);
+        updated = await libraries.update(ctx.params.id, data);
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
+      console.log('***UPDATED***:', updated);
 
-      if (library.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: library };
-        ctx.response.status = 200;
+      if (updated) {
+        ctx.response.status = 204;
       } else {
-        log.error(
-          `HTTP 404 Error: That library with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(404, `That library with ID ${ctx.params.id} does not exist.`);
+        ctx.response.body = {
+          statusCode: 201,
+          status: 'created',
+          data: { id: ctx.params.id },
+        };
+        ctx.response.status = 201;
       }
     },
   );
@@ -300,9 +302,8 @@ export default function controller(libraries, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (library.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: library };
-        ctx.response.status = 200;
+      if (library > 0) {
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That library with ID ${

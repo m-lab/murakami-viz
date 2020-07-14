@@ -4,7 +4,7 @@ import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:group');
 /**
- * Initialize the QueueManager data model
+ * Initialize the GroupManager data model
  *
  * @class
  */
@@ -29,12 +29,16 @@ export default class Group {
           .where({ id: parseInt(id) });
 
         if (Array.isArray(existing) && existing.length > 0) {
+          log.debug('Entry exists, deleting old version.');
           await trx('groups')
-            .update(group)
+            .del()
             .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          await trx('groups').insert({ ...group[0], id: parseInt(id) });
           existing = true;
         } else {
-          await trx('groups').insert({ ...group, id: id });
+          log.debug('Entry does not already exist, inserting.');
+          await trx('groups').insert({ ...group[0], id: parseInt(id) });
           existing = false;
         }
       });

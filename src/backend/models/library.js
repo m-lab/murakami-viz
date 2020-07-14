@@ -1,5 +1,4 @@
-import { validate } from '../../common/schemas/library.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:model:library');
@@ -50,7 +49,7 @@ export default class LibraryManager {
 
   async deleteIp(lid, ip) {
     if (!(lid || ip)) {
-      throw new UnprocessableError('Need to specify either library id or IP.');
+      throw new BadRequestError('Need to specify either library id or IP.');
     }
     return this._db
       .table('library_ips')
@@ -71,11 +70,6 @@ export default class LibraryManager {
   }
 
   async create(library) {
-    try {
-      await validate(library);
-    } catch (err) {
-      throw new UnprocessableError('Failed to create library: ', err);
-    }
     return this._db
       .table('libraries')
       .insert(library)
@@ -84,60 +78,46 @@ export default class LibraryManager {
 
   async update(id, library) {
     try {
-      await validate(library);
+      let existing = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('libraries')
+          .select('*')
+          .where({ id: parseInt(id) });
+
+        if (Array.isArray(existing) && existing.length > 0) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('libraries')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          await trx('libraries').insert({
+            ...library[0],
+            id: parseInt(id),
+          });
+          existing = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          await trx('libraries').insert({
+            ...library[0],
+            id: parseInt(id),
+          });
+          existing = false;
+        }
+      });
+      return existing;
     } catch (err) {
-      throw new UnprocessableError('Failed to update library: ', err);
+      throw new BadRequestError(
+        `Failed to update library with ID ${id}: `,
+        err,
+      );
     }
-    return this._db
-      .table('libraries')
-      .update(library)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          physical_address: library.physical_address,
-          shipping_address: library.shipping_address,
-          timezone: library.timezone,
-          coordinates: library.coordinates,
-          primary_contact_name: library.primary_contact_name,
-          primary_contact_email: library.primary_contact_email,
-          it_contact_name: library.it_contact_name,
-          it_contact_email: library.it_contact_email,
-          opening_hours: library.opening_hours,
-          network_name: library.network_name,
-          isp: library.isp,
-          contracted_speed_upload: library.contracted_speed_upload,
-          contracted_speed_download: library.contracted_speed_download,
-          bandwidth_cap_upload: library.bandwidth_cap_upload,
-          bandwidth_cap_download: library.bandwidth_cap_download,
-        },
-        [
-          'id',
-          'physical_address',
-          'shipping_address',
-          'timezone',
-          'coordinates',
-          'primary_contact_name',
-          'primary_contact_email',
-          'it_contact_name',
-          'it_contact_email',
-          'opening_hours',
-          'network_name',
-          'isp',
-          'contracted_speed_upload',
-          'contracted_speed_download',
-          'bandwidth_cap_upload',
-          'bandwidth_cap_download',
-        ],
-      )
-      .returning('*');
   }
 
   async delete(id) {
     return this._db
       .table('libraries')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -190,7 +170,7 @@ export default class LibraryManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
 
         if (of_user) {

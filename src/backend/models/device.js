@@ -55,13 +55,16 @@ export default class DeviceManager {
           .where({ id: parseInt(id) });
 
         if (Array.isArray(existing) && existing.length > 0) {
+          log.debug('Entry exists, deleting old version.');
           await trx('devices')
             .del()
             .where({ id: parseInt(id) });
-          await trx('devices').insert({ ...device, id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          await trx('devices').insert({ ...device[0], id: parseInt(id) });
           existing = true;
         } else {
-          await trx('devices').insert({ ...device, id: id });
+          log.debug('Entry does not already exist, inserting.');
+          await trx('devices').insert({ ...device[0], id: parseInt(id) });
           existing = false;
         }
       });

@@ -41,8 +41,8 @@ export default function controller(glossaries, thisUser) {
     let glossary;
 
     try {
-      await validateCreation(ctx.request.body.data);
-      glossary = await glossaries.create(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
+      glossary = await glossaries.create(data);
 
       // workaround for sqlite
       if (Number.isInteger(glossary[0])) {

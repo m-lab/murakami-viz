@@ -181,7 +181,7 @@ describe('Manage devices as an admin', () => {
     await session
       .put('/api/v1/devices/99')
       .send({ data: validDevice })
-      .expect(400);
+      .expect(201);
   });
 
   test('Delete a device', async () => {

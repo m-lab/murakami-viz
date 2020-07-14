@@ -1,4 +1,7 @@
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:models:faq');
 
 export default class FaqManager {
   constructor(db) {
@@ -21,12 +24,16 @@ export default class FaqManager {
           .where({ id: parseInt(id) });
 
         if (Array.isArray(existing) && existing.length > 0) {
+          log.debug('Entry exists, deleting old version.');
           await trx('faqs')
-            .update(faq)
+            .del()
             .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          await trx('faqs').insert({ ...faq[0], id: parseInt(id) });
           existing = true;
         } else {
-          await trx('faqs').insert({ ...faq, id: id });
+          log.debug('Entry does not already exist, inserting.');
+          await trx('faqs').insert({ ...faq[0], id: parseInt(id) });
           existing = false;
         }
       });

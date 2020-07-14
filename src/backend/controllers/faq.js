@@ -38,8 +38,8 @@ export default function controller(faqs, thisUser) {
     let faq;
 
     try {
-      await validateCreation(ctx.request.body.data);
-      faq = await faqs.create(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
+      faq = await faqs.create(data);
 
       // workaround for sqlite
       if (Number.isInteger(faq[0])) {

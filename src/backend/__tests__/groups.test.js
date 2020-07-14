@@ -16,6 +16,18 @@ const validGroup3 = {
   name: 'hyperadmins',
 };
 
+const validGroup4 = {
+  name: 'megaadmins',
+};
+
+const validGroup5 = {
+  name: 'gigaadmins',
+};
+
+const validGroup6 = {
+  name: 'teraadmins',
+};
+
 const invalidGroup = {
   name: undefined,
 };
@@ -112,7 +124,7 @@ describe('Manage groups as an admin', () => {
   ).test('Attempt to create group with invalid attribute %p', async invalid => {
     await session
       .post('/api/v1/groups')
-      .send({ data: [{ ...validGroup, ...invalid }] })
+      .send({ data: [{ ...validGroup2, ...invalid }] })
       .expect(400);
   });
 
@@ -124,11 +136,11 @@ describe('Manage groups as an admin', () => {
   });
 
   each(
-    Object.entries(validGroup2).map(([key, value]) => [{ [`${key}`]: value }]),
+    Object.entries(validGroup3).map(([key, value]) => [{ [`${key}`]: value }]),
   ).test('Edit a group with attribute %p', async attribute => {
     await session
       .put('/api/v1/groups/2')
-      .send({ data: attribute })
+      .send({ data: [{ ...validGroup4, ...attribute }] })
       .expect(204);
   });
 
@@ -139,7 +151,7 @@ describe('Manage groups as an admin', () => {
     async attribute => {
       await session
         .put('/api/v1/groups/1')
-        .send({ data: attribute })
+        .send({ data: [{ ...validGroup5, ...attribute }] })
         .expect(400);
     },
   );
@@ -147,7 +159,7 @@ describe('Manage groups as an admin', () => {
   test('Attempt to update a group that does not exist', async () => {
     await session
       .put('/api/v1/groups/99')
-      .send({ data: validGroup3 })
+      .send({ data: validGroup6 })
       .expect(201);
   });
 
@@ -217,14 +229,14 @@ describe('Access groups as an editor', () => {
   ).test('Edit a group with attribute %p', async attribute => {
     await session
       .put('/api/v1/groups/2')
-      .send({ data: attribute })
+      .send({ data: [{ ...validGroup3, ...attribute }] })
       .expect(403);
   });
 
   test('Attempt to update a group that does not exist', async () => {
     await session
       .put('/api/v1/groups/99')
-      .send({ data: validGroup3 })
+      .send({ data: validGroup4 })
       .expect(403);
   });
 
@@ -293,14 +305,14 @@ describe('Access groups as a viewer', () => {
   ).test('Edit a group with attribute %p', async attribute => {
     await session
       .put('/api/v1/groups/2')
-      .send({ data: attribute })
+      .send({ data: [{ ...validGroup3, ...attribute }] })
       .expect(403);
   });
 
   test('Attempt to update a group that does not exist', async () => {
     await session
       .put('/api/v1/groups/99')
-      .send({ data: validGroup3 })
+      .send({ data: validGroup4 })
       .expect(403);
   });
 
