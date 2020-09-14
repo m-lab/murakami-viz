@@ -166,7 +166,6 @@ export default function EditNote(props) {
 
   const submitData = () => {
     let status;
-    console.log(inputs);
     fetch(`api/v1/notes/${row.id}`, {
       method: 'PUT',
       headers: {
