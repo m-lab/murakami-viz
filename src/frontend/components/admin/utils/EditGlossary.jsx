@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -43,13 +44,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
+const useForm = (callback, validated, glossary) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback(glossary);
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -68,12 +72,74 @@ const useForm = callback => {
 export default function EditGlossary(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    term: '',
+    definition: '',
+  });
 
   const handleClose = () => {
     onClose();
   };
 
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        term: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        term: 'Please enter a term and definition.',
+      }));
+      return false;
+    } else {
+      if (!inputs.term || !inputs.definition) {
+        if (!inputs.term) {
+          setErrors(errors => ({
+            ...errors,
+            term: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            term: 'Please enter a term.',
+          }));
+        }
+        if (!inputs.definition) {
+          setErrors(errors => ({
+            ...errors,
+            definition: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            definition: 'Please enter a definition.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   const submitData = () => {
+    let status;
     fetch(`api/v1/glossaries/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -81,22 +147,35 @@ export default function EditGlossary(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        alert('Glossary edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status === 200) {
+          alert('Glossary edited successfully.');
+          onClose(results.data[0]);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+    row,
+  );
 
   return (
     <Dialog
@@ -121,6 +200,8 @@ export default function EditGlossary(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={errors && errors.term}
+          helperText={helperText.term}
           className={classes.formField}
           id="glossary-term"
           label="Term"
@@ -132,6 +213,8 @@ export default function EditGlossary(props) {
           value={inputs.term}
         />
         <TextField
+          error={errors && errors.definition}
+          helperText={helperText.definition}
           className={classes.formField}
           id="glossary-definition"
           label="Definition"
