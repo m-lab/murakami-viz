@@ -128,7 +128,6 @@ export default function ViewUser(props) {
 
   const handleCloseEdit = rowChanges => {
     const newRow = { ...row, ...rowChanges };
-    console.log('newRow: ', newRow);
     if (rowChanges) {
       setRow(newRow);
     }

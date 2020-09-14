@@ -141,8 +141,6 @@ export default function EditUser(props) {
       }
     } else {
       if (!inputs.username || !inputs.email || !location || !role) {
-        console.log('inputs: ', inputs);
-        console.log('row: ', row);
         if ((!inputs.username || inputs.username.length < 1) && !row.username) {
           setErrors(errors => ({
             ...errors,
@@ -154,7 +152,10 @@ export default function EditUser(props) {
           }));
           return false;
         }
-        if ((!validateEmail(row.email) || inputs.email.length < 1 ) && !validateEmail(inputs.email)) {
+        if (
+          (!validateEmail(row.email) || inputs.email.length < 1) &&
+          !validateEmail(inputs.email)
+        ) {
           setErrors(errors => ({
             ...errors,
             email: true,
