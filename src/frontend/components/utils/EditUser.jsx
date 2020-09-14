@@ -153,8 +153,8 @@ export default function EditUser(props) {
           return false;
         }
         if (
-          (!validateEmail(row.email) || inputs.email.length < 1) &&
-          !validateEmail(inputs.email)
+          (!validateEmail(inputs.email) || inputs.email.length < 1) &&
+          !validateEmail(row.email)
         ) {
           setErrors(errors => ({
             ...errors,
@@ -229,9 +229,10 @@ export default function EditUser(props) {
         }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });

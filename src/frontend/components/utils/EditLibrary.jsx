@@ -88,7 +88,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
@@ -108,14 +108,15 @@ function a11yProps(index) {
   };
 }
 
-const useForm = (callback, validated) => {
+const useForm = (callback, validated, library) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      callback();
+      callback(library);
+      setInputs({});
     }
   };
   const handleInputChange = event => {
@@ -141,37 +142,54 @@ export default function EditLibrary(props) {
   });
 
   // handle form validation
-  const validateInputs = (row, inputs) => {
-    console.log(row);
-    console.log(inputs);
+  const validateInputs = inputs => {
     setErrors({});
     setHelperText({});
     if (_.isEmpty(inputs)) {
-      onClose();
-      return false;
+      if (_.isEmpty(row)) {
+        setErrors(errors => ({
+          ...errors,
+          name: true,
+          primary_contact_email: true,
+        }));
+        setHelperText(helperText => ({
+          ...helperText,
+          name: 'This field is required.',
+          primary_contact_email: 'This field is required.',
+        }));
+        return false;
+      } else {
+        alert('No changes have been made.');
+        return false;
+      }
     } else {
       if (!inputs.name || !inputs.primary_contact_email) {
-        if (!inputs.name) {
+        if ((!inputs.name || inputs.name.length < 1) && !row.name) {
           setErrors(errors => ({
             ...errors,
             name: true,
           }));
           setHelperText(helperText => ({
             ...helperText,
-            name: 'Required',
+            name: 'This field is required.',
           }));
+          return false;
         }
-        if (!validateEmail(inputs.primary_contact_email)) {
+        if (
+          (!validateEmail(inputs.primary_contact_email) || inputs.primary_contact_email.length < 1) &&
+          !validateEmail(row.primary_contact_email)
+        ) {
           setErrors(errors => ({
             ...errors,
-            email: true,
+            primary_contact_email: true,
           }));
           setHelperText(helperText => ({
             ...helperText,
-            email: 'Please enter a valid email address.',
+            primary_contact_email: 'Please enter a valid email address.',
           }));
+          return false;
         }
-        return false;
+        return true;
       } else {
         return true;
       }
@@ -196,27 +214,55 @@ export default function EditLibrary(props) {
   };
 
   const submitData = () => {
+    const toSubmit = {
+      ...inputs,
+    };
+
+    let status;
     fetch(`api/v1/libraries/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: toSubmit }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        onClose(results.data[0]);
-        alert('Library edited successfully.');
-        return;
+        if (status === 200 || status === 201 || status === 204) {
+          alert(`Library edited successfully.`);
+          onClose(results.data[0]);
+          return;
+        } else {
+          processError(results);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
-        console.log(error);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
       });
 
     onClose();
+  };
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else if (res) {
+      errorString = res;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
   };
 
   const { inputs, handleInputChange, handleSubmit } = useForm(
@@ -229,7 +275,7 @@ export default function EditLibrary(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="add-library-title"
       fullWidth={true}
@@ -238,7 +284,7 @@ export default function EditLibrary(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
@@ -267,7 +313,7 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>
@@ -276,7 +322,7 @@ export default function EditLibrary(props) {
           <Button
             size="small"
             label="Cancel"
-            primary={true}
+            primary="true"
             onClick={handleClose}
             className={classes.cancelButton}
           >
@@ -308,9 +354,9 @@ export default function EditLibrary(props) {
             <Select
               labelId="library-system-name"
               className={classes.formField}
-              id="library-name"
+              id="library-system-name"
               label="Library System Name (if applicable)"
-              name="library_name"
+              name="library_system_name"
               defaultValue=""
               // onChange={handleInputChange}
               value={0}
@@ -391,8 +437,8 @@ export default function EditLibrary(props) {
             value={inputs.primary_contact_name}
           />
           <TextField
-            error={errors.email}
-            helperText={helperText.email}
+            error={errors.primary_contact_email}
+            helperText={helperText.primary_contact_email}
             className={classes.formField}
             id="library-primary-contact-email"
             label="Email"
@@ -524,7 +570,7 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>

@@ -91,9 +91,10 @@ export default function EditForum(props) {
         })
         .catch(error => {
           alert(
-            'An error occurred. Please try again or contact an administrator.',
+            `An error occurred. Please try again or contact an administrator. ${
+              error.name
+            }: ${error.message}`,
           );
-          console.error(error.name + error.message);
           onClose();
         });
     }
