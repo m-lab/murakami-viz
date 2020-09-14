@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -10,6 +11,7 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 
@@ -53,13 +55,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
+const useForm = (callback, validated, user) => {
   const [inputs, setInputs] = useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback(user);
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
@@ -86,6 +91,10 @@ export default function EditUser(props) {
   const [roleName, setRoleName] = React.useState(row.role_name);
   const [location, setLocation] = React.useState(row.location);
   const [locationName, setLocationName] = React.useState(row.location_name);
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    username: '',
+  });
 
   const handleClose = () => {
     onClose(row);
@@ -99,6 +108,90 @@ export default function EditUser(props) {
   const handleLocationChange = (event, values) => {
     setLocation(values.id);
     setLocationName(values.name);
+  };
+
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+
+    if (_.isEmpty(inputs)) {
+      if (_.isEmpty(row)) {
+        setErrors(errors => ({
+          ...errors,
+          username: true,
+          email: true,
+          location: true,
+          role: true,
+        }));
+        setHelperText(helperText => ({
+          ...helperText,
+          username: 'This field is required.',
+          email: 'This field is required.',
+          location: 'This field is required.',
+          role: 'This field is required.',
+        }));
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      if (!inputs.username || !inputs.email || !location || !role) {
+        console.log('inputs: ', inputs);
+        console.log('row: ', row);
+        if ((!inputs.username || inputs.username.length < 1) && !row.username) {
+          setErrors(errors => ({
+            ...errors,
+            username: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            username: 'This field is required.',
+          }));
+          return false;
+        }
+        if ((!validateEmail(row.email) || inputs.email.length < 1 ) && !validateEmail(inputs.email)) {
+          setErrors(errors => ({
+            ...errors,
+            email: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            email: 'Please enter a valid email address.',
+          }));
+          return false;
+        }
+        if (!location) {
+          setErrors(errors => ({
+            ...errors,
+            location: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            location: 'Please select a location with which to associate this user.',
+          }));
+          return false;
+        }
+        if (!role) {
+          setErrors(errors => ({
+            ...errors,
+            role: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            role: 'Please select a role for this user.',
+          }));
+          return false;
+        }
+        return true;
+      } else {
+        return true;
+      }
+    }
   };
 
   const submitData = () => {
@@ -195,7 +288,10 @@ export default function EditUser(props) {
       });
   }, []);
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+  );
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -205,7 +301,7 @@ export default function EditUser(props) {
     return (
       <Dialog
         onClose={handleClose}
-        modal={true}
+        modal="true"
         open={open}
         aria-labelledby="edit-user-title"
         fullWidth={true}
@@ -214,7 +310,7 @@ export default function EditUser(props) {
       >
         <Button
           label="Close"
-          primary={true}
+          primary="true"
           onClick={handleClose}
           className={classes.closeButton}
         >
@@ -225,6 +321,8 @@ export default function EditUser(props) {
         </DialogTitle>
         <Box className={classes.form}>
           <TextField
+            error={errors && errors.username}
+            helperText={helperText.username}
             className={classes.formField}
             id="user-username"
             label="Username"
@@ -259,6 +357,8 @@ export default function EditUser(props) {
             value={inputs.lastName}
           />
           <TextField
+            error={errors && errors.email}
+            helperText={helperText.email}
             className={classes.formField}
             id="user-email"
             label="Email"
@@ -270,12 +370,16 @@ export default function EditUser(props) {
             value={inputs.email}
             required
           />
-          <FormControl variant="outlined" className={classes.formControl}>
+          <FormControl
+            variant="outlined"
+            className={classes.formControl}
+            error={errors && errors.location}
+          >
             <Autocomplete
               id="library-select"
               options={libraries}
               getOptionLabel={option => option.name}
-              getOptionSelected={(option, value) => option.name === value}
+              getOptionSelected={(option, value) => option.name === value.name}
               defaultValue={libraries.find(
                 library => library.id === row.location,
               )}
@@ -284,26 +388,32 @@ export default function EditUser(props) {
                 <TextField {...params} label="Location" variant="outlined" />
               )}
             />
+            <FormHelperText>{helperText.location}</FormHelperText>
           </FormControl>
-          <FormControl variant="outlined" className={classes.formControl}>
+          <FormControl
+            variant="outlined"
+            className={classes.formControl}
+            error={errors && errors.role}
+          >
             <Autocomplete
               id="user-role"
               options={groups}
               getOptionLabel={option => option.name}
-              getOptionSelected={(option, value) => option.name === value}
+              getOptionSelected={(option, value) => option.name === value.name}
               defaultValue={groups.find(group => group.id === row.role)}
               onChange={handleRoleChange}
               renderInput={params => (
                 <TextField {...params} label="Roles" variant="outlined" />
               )}
             />
+            <FormHelperText>{helperText.role}</FormHelperText>
           </FormControl>
           <Grid container alignItems="center" justify="space-between">
             <Grid item>
               <Button
                 size="small"
                 label="Cancel"
-                primary={true}
+                primary="true"
                 onClick={handleClose}
                 className={classes.cancelButton}
               >
@@ -319,7 +429,7 @@ export default function EditUser(props) {
                 variant="contained"
                 disableElevation
                 color="primary"
-                primary={true}
+                primary="true"
               >
                 Save
               </Button>

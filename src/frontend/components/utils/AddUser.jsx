@@ -111,7 +111,13 @@ export default function AddUser(props) {
       }));
       return false;
     } else {
-      if (!inputs.username || !inputs.password || !inputs.email) {
+      if (
+        !inputs.username ||
+        !inputs.password ||
+        !inputs.email ||
+        !location ||
+        !role
+      ) {
         if (!inputs.username) {
           setErrors(errors => ({
             ...errors,
