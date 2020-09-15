@@ -257,6 +257,12 @@ export default function EnhancedTable(props) {
     setRows(newRow);
   };
 
+  const handleCloseDelete = userToDeleteId => {
+    let editedUsers = rows.filter(user => user.id !== Number(userToDeleteId));
+    setRows(editedUsers);
+    setOpen(false);
+  };
+
   // fetch api data
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -396,6 +402,7 @@ export default function EnhancedTable(props) {
               rows={stableSort(rows, getComparator(order, orderBy))}
               open={open}
               onClose={handleClose}
+              onCloseDelete={handleCloseDelete}
               user={user}
             />
           )}

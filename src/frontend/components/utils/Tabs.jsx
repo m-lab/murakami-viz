@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -67,11 +68,16 @@ const useStyles = makeStyles(theme => ({
 
 export default function NavTabs(props) {
   const classes = useStyles();
+  const history = useHistory();
   const [value, setValue] = React.useState(0);
   const { user, library } = props;
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleCloseDelete = () => {
+    history.push('/admin');
   };
 
   return (
@@ -98,7 +104,11 @@ export default function NavTabs(props) {
         <Users user={user} library={library} />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <Library library={library} />
+        <Library
+          user={user}
+          library={library}
+          onCloseDelete={handleCloseDelete}
+        />
       </TabPanel>
       <TabPanel value={value} index={4}>
         <About />
