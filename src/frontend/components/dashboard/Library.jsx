@@ -381,7 +381,7 @@ export default function Library(props) {
                   <TableCell
                     className={`${classes.tableCell} ${classes.tableKey}`}
                   >
-                    Primary Library Contact
+                    Library Contact for MLBN Devices
                   </TableCell>
                   <TableCell className={classes.tableCell}>
                     {library.primary_contact_name}

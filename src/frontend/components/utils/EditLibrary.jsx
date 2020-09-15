@@ -377,7 +377,7 @@ export default function EditLibrary(props) {
             value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
-            Primary Library Contact
+            Library Contact for MLBN Devices
           </Typography>
           <TextField
             className={classes.formField}
