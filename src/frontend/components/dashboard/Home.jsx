@@ -241,6 +241,7 @@ export default function Home(props) {
             processError(response);
             throw new Error(`Error in response from server.`);
           }
+          return;
         })
         .catch(error => {
           setError(error);

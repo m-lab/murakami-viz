@@ -10,7 +10,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   iconButton: {
     padding: '0',
     position: 'absolute',
@@ -18,18 +18,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-
 export default function GlossaryTooltip(props) {
   const classes = useStyles();
   const { term } = props;
 
-  if ( !term ) {
+  if (!term) {
     return null;
   } else {
     return (
       <Tooltip title={parse('<div>' + term.definition + '</div>')}>
         <IconButton className={classes.iconButton} aria-label="ndt-test-tip">
-        <InfoIcon />
+          <InfoIcon />
         </IconButton>
       </Tooltip>
     );
