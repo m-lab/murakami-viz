@@ -1,6 +1,6 @@
 // base imports
 import React from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Plot from 'react-plotly.js';
 import moment from 'moment';
 
@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 // module imports
 import Loading from '../Loading.jsx';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   gridBorder: {
     border: '1px solid #000',
     borderRadius: '10px',
@@ -28,8 +28,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-let xAxisDay = [], yAxisDay = [], xAxisWeek = [], yAxisWeek = [];
-let dayMedian = 0, weekMedian = 0, dayRuns = 0, weekRuns = 0;
+let xAxisDay = [],
+  yAxisDay = [],
+  xAxisWeek = [],
+  yAxisWeek = [];
+let dayMedian = 0,
+  weekMedian = 0,
+  dayRuns = 0,
+  weekRuns = 0;
 
 function handleData(runs) {
   xAxisDay = [];
@@ -37,14 +43,16 @@ function handleData(runs) {
   xAxisWeek = [];
   yAxisWeek = [];
 
-  if ( !runs.length ) {
+  if (!runs.length) {
     dayMedian = 0;
     weekMedian = 0;
     dayRuns = 0;
     weekRuns = 0;
     return;
   } else {
-    const weekAgo = moment().subtract(7,'d').format('YYYY-MM-DD');
+    const weekAgo = moment()
+      .subtract(7, 'd')
+      .format('YYYY-MM-DD');
     const today = moment().format('YYYY-MM-DD');
     let weekTotalMbps = 0, dayTotalMbps = 0;
     dayRuns = 0;
@@ -53,14 +61,14 @@ function handleData(runs) {
     runs.map(run => {
       const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
 
-      if ( runDate.isBetween(weekAgo, today, 'days', '[]') ) {
+      if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
         weekTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         weekRuns += 1;
         xAxisWeek.push(run.DownloadTestStartTime.substr(0, 10));
         yAxisWeek.push(run.DownloadValue.toFixed(2));
       }
 
-      if ( runDate.format('YYYY-MM-DD') === today ) {
+      if (runDate.format('YYYY-MM-DD') === today) {
         dayTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         dayRuns += 1;
         xAxisDay.push(run.DownloadTestStartTime.substr(0, 10));
@@ -71,11 +79,11 @@ function handleData(runs) {
     weekMedian = weekTotalMbps / weekRuns;
     dayMedian = dayTotalMbps / dayRuns;
 
-    if ( isNaN(weekMedian) ) {
+    if (isNaN(weekMedian)) {
       weekMedian = 0;
     }
 
-    if ( isNaN(dayMedian) ) {
+    if (isNaN(dayMedian)) {
       dayMedian = 0;
     }
   }
@@ -83,14 +91,13 @@ function handleData(runs) {
 
 export default function TestsSummary(props) {
   const classes = useStyles();
-  const theme = useTheme();
-  const [ testSummary, setTestSummary ] = React.useState(null);
+  const [testSummary, setTestSummary] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const { runs, summary } = props;
 
   React.useEffect(() => {
-    if ( runs ) {
-      const filteredRuns = runs.filter( run => {
+    if (runs) {
+      const filteredRuns = runs.filter(run => {
         return run.TestName === summary;
       });
 
@@ -98,13 +105,20 @@ export default function TestsSummary(props) {
       handleData(filteredRuns);
       setIsLoaded(true);
     }
-  }, [ runs, summary ]);
+  }, [runs, summary]);
 
   if (!isLoaded) {
     return <Loading />;
   } else {
     return (
-      <Grid container item direction="row" spacing={2} xs={12}>
+      <Grid
+        container
+        item
+        direction="row"
+        spacing={4}
+        xs={12}
+        className={classes.gridParent}
+      >
         <Grid
           item
           className={`${classes.grid} ${classes.gridBorder}`}
@@ -115,7 +129,7 @@ export default function TestsSummary(props) {
             7 day median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            { weekMedian }
+            {weekMedian}
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot
@@ -157,7 +171,7 @@ export default function TestsSummary(props) {
             component="div"
             className={`${classes.upper} ${classes.textBorder}`}
           >
-            Last 7 days: { weekRuns } tests
+            Last 7 days: {weekRuns} tests
           </Typography>
         </Grid>
         <Grid
@@ -170,7 +184,7 @@ export default function TestsSummary(props) {
             24 hour median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            { dayMedian }
+            {dayMedian}
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot
@@ -212,7 +226,7 @@ export default function TestsSummary(props) {
             component="div"
             className={`${classes.upper} ${classes.textBorder}`}
           >
-            Last 24 hours: { dayRuns } tests
+            Last 24 hours: {dayRuns} tests
           </Typography>
         </Grid>
       </Grid>
