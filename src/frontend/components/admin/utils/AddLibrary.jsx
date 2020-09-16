@@ -69,6 +69,7 @@ const useStyles = makeStyles(() => ({
     marginBottom: '0',
   },
   saveButtonContainer: {
+    marginBottom: '2em',
     marginLeft: 'auto',
     marginRight: 'auto',
     textAlign: 'center',
