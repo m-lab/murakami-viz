@@ -51,11 +51,11 @@ export default function EditForum(props) {
   const [forum, setForum] = useState('https://example.com');
 
   const handleClose = () => {
-    onClose(forum);
+    onClose(forumValue);
   };
 
   const validated = value => {
-    if (value && value.length !== 0) {
+    if (!!value.trim() && value.length !== 0) {
       setHelperText('');
       setError(false);
       return true;

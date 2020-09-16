@@ -51,11 +51,11 @@ export default function EditContact(props) {
   const [contact, setContact] = useState('');
 
   const handleClose = () => {
-    onClose(contact);
+    onClose(selectedContactValue);
   };
 
   const validated = value => {
-    if (value && value.length !== 0) {
+    if (!!value.trim() && value.length !== 0) {
       setHelperText('');
       setError(false);
       return true;

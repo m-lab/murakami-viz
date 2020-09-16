@@ -51,11 +51,11 @@ export default function EditAbout(props) {
   const [about, setAbout] = useState('');
 
   const handleClose = () => {
-    onClose(about);
+    onClose(aboutValue);
   };
 
   const validated = value => {
-    if (value && value.length !== 0) {
+    if (!!value.trim() && value.length !== 0) {
       setHelperText('');
       setError(false);
       return true;
