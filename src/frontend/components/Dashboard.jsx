@@ -1,5 +1,6 @@
 // base imports
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -77,9 +78,19 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
+  const history = useHistory();
   const user = props.user || props.location.state.user;
   const [library, setLibrary] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
+
+  // handle open and close edit self
+  const handleOpen = () => {
+    setOpenEditUser(true);
+  };
+
+  const handleClose = () => {
+    setOpenEditUser(false);
+  };
 
   // handle api data errors
   const processError = res => {
@@ -92,6 +103,27 @@ export default function Dashboard(props) {
       errorString = 'Error in response from server.';
     }
     return errorString;
+  };
+
+  // display link to admin if user is admin
+  const isAdmin = user => {
+    if (user.role_name != 'admins') {
+      return null;
+    } else {
+      return (
+        <Box ml={1}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => {
+              history.push('/admin');
+            }}
+          >
+            Admin
+          </Button>
+        </Box>
+      );
+    }
   };
 
   React.useEffect(() => {
@@ -143,7 +175,7 @@ export default function Dashboard(props) {
           <div className={classes.sectionDesktop}>
             <IconButton
               className={classes.appBarUserWidget}
-              onClick={() => setOpenEditUser(true)}
+              onClick={handleOpen}
             >
               <AccountCircle />
               <Box ml={1}>
@@ -153,18 +185,7 @@ export default function Dashboard(props) {
                   {user.role_name}
                 </p>
               </Box>
-              {
-                user.role_name === 'admins' &&
-                  <Box ml={1}>
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      href="/admin"
-                    >
-                      Admin
-                    </Button>
-                  </Box>
-              }
+              {isAdmin(user)}
               <Box ml={1}>
                 <Button
                   variant="outlined"
@@ -186,7 +207,7 @@ export default function Dashboard(props) {
       </main>
       <EditSelf
         open={openEditUser}
-        onClose={() => setOpenEditUser(false)}
+        onClose={handleClose}
         row={user}
       />
     </Container>
