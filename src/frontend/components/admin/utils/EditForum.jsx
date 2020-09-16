@@ -45,13 +45,16 @@ const useStyles = makeStyles(() => ({
 
 export default function EditForum(props) {
   const classes = useStyles();
-  const { onClose, open, forumValue } = props;
+  const { onClose, open, selectedForumValue } = props;
   const [error, setError] = useState(false);
   const [helperText, setHelperText] = useState('');
   const [forum, setForum] = useState('https://example.com');
 
+  console.log('forumValue............', selectedForumValue);
+  console.log("forum....", forum)
+
   const handleClose = () => {
-    onClose(forumValue);
+    onClose(selectedForumValue);
   };
 
   const validated = value => {
@@ -101,8 +104,8 @@ export default function EditForum(props) {
   };
 
   useEffect(() => {
-    setForum(forumValue);
-  }, [forumValue]);
+    setForum(selectedForumValue);
+  }, [selectedForumValue]);
 
   return (
     <Dialog
@@ -174,5 +177,5 @@ export default function EditForum(props) {
 EditForum.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  forumValue: PropTypes.string,
+  selectedForumValue: PropTypes.string,
 };
