@@ -441,7 +441,7 @@ export default function AddEditDevice(props) {
           <TextField
             className={classes.formField}
             id="library-device-ip"
-            label="Static IP"
+            label="Static IP (if applicable)"
             name="ip"
             variant="outlined"
             onChange={handleInputChange}
