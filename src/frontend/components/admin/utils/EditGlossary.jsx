@@ -45,7 +45,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, glossary) => {
-  const [inputs, setInputs] = useState({});
+  const initialValue = {term: glossary.term, definition: glossary.definition}
+  const [inputs, setInputs] = useState(initialValue);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
@@ -210,7 +211,6 @@ export default function EditGlossary(props) {
           variant="outlined"
           defaultValue={row.term}
           onChange={handleInputChange}
-          value={inputs.term}
         />
         <TextField
           error={errors && errors.definition}
@@ -225,7 +225,6 @@ export default function EditGlossary(props) {
           variant="outlined"
           defaultValue={row.definition}
           onChange={handleInputChange}
-          value={inputs.definition}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
