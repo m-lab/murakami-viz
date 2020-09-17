@@ -45,7 +45,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, faq) => {
-  const [inputs, setInputs] = useState({});
+  const initialValue = { question: faq.question, answer: faq.answer };
+  const [inputs, setInputs] = useState(initialValue);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
@@ -57,7 +58,7 @@ const useForm = (callback, validated, faq) => {
   };
   const handleInputChange = event => {
     event.persist();
-    setInputs(inputs => ({
+    setInputs(inputs =>({
       ...inputs,
       [event.target.name]: event.target.value,
     }));
@@ -210,7 +211,6 @@ export default function EditFaq(props) {
           variant="outlined"
           defaultValue={row.question}
           onChange={handleInputChange}
-          value={inputs.question}
         />
         <TextField
           error={errors && errors.answer}
@@ -225,7 +225,6 @@ export default function EditFaq(props) {
           variant="outlined"
           defaultValue={row.answer}
           onChange={handleInputChange}
-          value={inputs.answer}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

@@ -49,10 +49,7 @@ export default function EditForum(props) {
   const [error, setError] = useState(false);
   const [helperText, setHelperText] = useState('');
   const [forum, setForum] = useState('https://example.com');
-
-  console.log('forumValue............', selectedForumValue);
-  console.log("forum....", forum)
-
+  
   const handleClose = () => {
     onClose(selectedForumValue);
   };
