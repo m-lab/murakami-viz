@@ -383,6 +383,24 @@ export default function AddUser(props) {
               required
               onChange={handleInputChange}
             />
+            <TextField
+              className={classes.formField}
+              id="user-phone"
+              label="Phone number"
+              name="phone"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <TextField
+              className={classes.formField}
+              id="user-extension"
+              label="Extension"
+              name="extension"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
             <FormControl
               variant="outlined"
               className={classes.formControl}

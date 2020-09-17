@@ -56,7 +56,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, user) => {
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState(user);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
@@ -290,9 +290,20 @@ export default function EditUser(props) {
       });
   }, []);
 
+  // remove attributes on the user object where
+  // the value is null or undefined
+  const removeNullValues = (userObj) => {
+    for (let key in userObj) {
+      if (userObj[key] === null || userObj[key] === undefined) {
+        delete userObj[key]
+      }
+    }
+  }
+
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
+    removeNullValues(row)  
   );
 
   if (error) {
@@ -333,7 +344,6 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.username}
             onChange={handleInputChange}
-            value={inputs.username}
             required
           />
           <TextField
@@ -345,7 +355,6 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.firstName}
             onChange={handleInputChange}
-            value={inputs.firstName}
           />
           <TextField
             className={classes.formField}
@@ -356,7 +365,6 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.lastName}
             onChange={handleInputChange}
-            value={inputs.lastName}
           />
           <TextField
             error={errors && errors.email}
@@ -369,8 +377,25 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.email}
             onChange={handleInputChange}
-            value={inputs.email}
             required
+          />
+          <TextField
+            className={classes.formField}
+            id="user-phone"
+            label="Phone number"
+            name="phone"
+            fullWidth
+            variant="outlined"
+            onChange={handleInputChange}
+          />
+          <TextField
+            className={classes.formField}
+            id="user-extension"
+            label="Extension"
+            name="extension"
+            fullWidth
+            variant="outlined"
+            onChange={handleInputChange}
           />
           <FormControl
             variant="outlined"
