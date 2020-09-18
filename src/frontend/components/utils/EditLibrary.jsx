@@ -109,13 +109,13 @@ function a11yProps(index) {
 }
 
 const useForm = (callback, validated, library) => {
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState(library);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      callback(library);
+      callback(inputs);
       setInputs({});
     }
   };
@@ -123,7 +123,7 @@ const useForm = (callback, validated, library) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(),
     }));
   };
   return {
@@ -213,10 +213,15 @@ export default function EditLibrary(props) {
     onClose();
   };
 
-  const submitData = () => {
-    const toSubmit = {
-      ...inputs,
-    };
+  const submitData = (inputs) => {
+    for (let key in inputs) {
+      if (inputs[key] === null || 
+        inputs[key] === undefined ||
+        key === 'id' ||
+        key === 'created_at' ||
+        key === 'updated_at')
+      delete inputs[key]
+    }
 
     let status;
     fetch(`api/v1/libraries/${row.id}`, {
@@ -224,7 +229,7 @@ export default function EditLibrary(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: toSubmit }),
+      body: JSON.stringify({ data: inputs }),
     })
       .then(response => {
         status = response.status;
@@ -268,6 +273,7 @@ export default function EditLibrary(props) {
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
+    row
   );
 
   React.useEffect(() => {}, [errors, helperText]);
@@ -376,7 +382,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             defaultValue={row.name}
             onChange={handleInputChange}
-            value={inputs.name}
           />
           <TextField
             className={classes.formField}
@@ -387,7 +392,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             defaultValue={row.physical_address}
             onChange={handleInputChange}
-            value={inputs.physical_address}
           />
           <TextField
             className={classes.formField}
@@ -398,7 +402,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.shipping_address}
-            value={inputs.shipping_address}
           />
           <TextField
             className={classes.formField}
@@ -409,7 +412,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.timezone}
-            value={inputs.timezone}
           />
           <TextField
             className={classes.formField}
@@ -420,7 +422,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.coordinates}
-            value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
             Primary Library Contact
@@ -434,7 +435,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.primary_contact_name}
-            value={inputs.primary_contact_name}
           />
           <TextField
             error={errors.primary_contact_email}
@@ -447,7 +447,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.primary_contact_email}
-            value={inputs.primary_contact_email}
           />
           <Typography variant="overline" display="block" gutterBottom>
             Library Hours
@@ -461,7 +460,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.opening_hours}
-            value={inputs.opening_hours}
           />
         </TabPanel>
         <TabPanel value={value} index={1}>
@@ -474,7 +472,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.network_name}
-            value={inputs.network_name}
           />
           <TextField
             className={classes.formField}
@@ -485,7 +482,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.isp}
-            value={inputs.isp}
           />
           <Grid container alignItems="center">
             <Grid item>
@@ -502,7 +498,6 @@ export default function EditLibrary(props) {
                 variant="outlined"
                 onChange={handleInputChange}
                 defaultValue={row.contracted_speed_download}
-                value={inputs.contracted_speed_download}
               />
             </Grid>
             <Grid item>
@@ -514,7 +509,6 @@ export default function EditLibrary(props) {
                 variant="outlined"
                 onChange={handleInputChange}
                 defaultValue={row.contracted_speed_upload}
-                value={inputs.contracted_speed_upload}
               />
             </Grid>
           </Grid>
@@ -527,7 +521,6 @@ export default function EditLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={row.ip}
-            value={inputs.ip}
           />
           <Grid container alignItems="center">
             <Grid item>
@@ -544,7 +537,6 @@ export default function EditLibrary(props) {
                 variant="outlined"
                 onChange={handleInputChange}
                 defaultValue={row.bandwidth_cap_download}
-                value={inputs.bandwidth_cap_download}
               />
             </Grid>
             <Grid item>
@@ -556,7 +548,6 @@ export default function EditLibrary(props) {
                 variant="outlined"
                 onChange={handleInputChange}
                 defaultValue={row.bandwidth_cap_upload}
-                value={inputs.bandwidth_cap_upload}
               />
             </Grid>
           </Grid>

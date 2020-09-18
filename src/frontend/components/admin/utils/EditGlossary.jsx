@@ -52,7 +52,7 @@ const useForm = (callback, validated, glossary) => {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      callback(glossary);
+      callback(inputs);
       setInputs({});
     }
   };
@@ -60,7 +60,7 @@ const useForm = (callback, validated, glossary) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(),
     }));
   };
   return {
@@ -139,7 +139,7 @@ export default function EditGlossary(props) {
     return errorString;
   };
 
-  const submitData = () => {
+  const submitData = (inputs) => {
     let status;
     fetch(`api/v1/glossaries/${row.id}`, {
       method: 'PUT',

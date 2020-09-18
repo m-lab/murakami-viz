@@ -61,7 +61,6 @@ const useForm = (callback, validated, user) => {
     if (event) {
       event.preventDefault();
     }
-    console.log("...inputs", inputs)
     if (validated(inputs)) {
       callback(inputs);
       setInputs({});
@@ -164,7 +163,6 @@ export default function EditUser(props) {
           }));
         }
         if (!inputs.lastName) {
-          console.log("did i get here?", !inputs.lastName)
           setErrors(errors => ({
             ...errors,
             lastName: true,
@@ -222,12 +220,18 @@ export default function EditUser(props) {
       role: role,
     };
     // these attributes are necessary for the user object on the frontend
-    // but the backend does not accept them
-    delete toSubmit['location_name'],
-      toSubmit['isActive'],
-      toSubmit['location_address'];
-      toSubmit['role_name'];
-   
+    // but the backend does not accept them 
+    for (let key in toSubmit) {
+      if (toSubmit[key] === null || 
+        toSubmit[key] === undefined || 
+        key === 'location_name' || 
+        key === 'isActive' ||
+        key === 'location_address' ||
+        key === 'role_name') {
+        delete toSubmit[key]
+      }
+    }
+
     let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',

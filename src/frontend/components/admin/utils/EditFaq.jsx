@@ -52,7 +52,7 @@ const useForm = (callback, validated, faq) => {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      callback(faq);
+      callback(inputs);
       setInputs({});
     }
   };
@@ -60,7 +60,7 @@ const useForm = (callback, validated, faq) => {
     event.persist();
     setInputs(inputs =>({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), //removes whitespace
     }));
   };
   return {
@@ -139,7 +139,7 @@ export default function EditFaq(props) {
     return errorString;
   };
 
-  const submitData = () => {
+  const submitData = (inputs) => {
     let status;
     fetch(`api/v1/faqs/${row.id}`, {
       method: 'PUT',

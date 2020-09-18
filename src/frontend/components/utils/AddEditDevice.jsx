@@ -104,7 +104,6 @@ const useForm = (callback, validated, device) => {
 
   React.useEffect(() => {
     if (device) {
-      // console.log(device);
       let fullInputs = Object.assign(device, inputs);
       fullInputs.location = device.lid;
       setInputs(fullInputs);
