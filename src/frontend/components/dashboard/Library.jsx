@@ -594,7 +594,7 @@ export default function Library(props) {
                                             openNetworkEdit(network)
                                           }
                                         >
-                                          Edit device
+                                          Edit network
                                         </Button>{' '}
                                         <Button
                                           variant="contained"
