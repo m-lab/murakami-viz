@@ -10,6 +10,7 @@ export function up(knex) {
           .unsigned();
         table.string('name').unique();
         table.text('isp');
+        table.text('ips');
         table.text('contracted_speed_upload');
         table.text('contracted_speed_download');
         table.text('bandwidth_cap_upload');

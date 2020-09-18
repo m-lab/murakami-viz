@@ -4,6 +4,7 @@ import Joi from '@hapi/joi';
 const schema = Joi.object({
   name: Joi.string().required(),
   isp: Joi.string(),
+  ips: Joi.array().items(Joi.string().ip()),
   contracted_speed_upload: Joi.string(),
   contracted_speed_download: Joi.string(),
   bandwidth_cap_upload: Joi.string(),
