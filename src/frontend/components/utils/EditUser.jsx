@@ -61,8 +61,9 @@ const useForm = (callback, validated, user) => {
     if (event) {
       event.preventDefault();
     }
+    console.log("...inputs", inputs)
     if (validated(inputs)) {
-      callback(user);
+      callback(inputs);
       setInputs({});
     }
   };
@@ -70,7 +71,7 @@ const useForm = (callback, validated, user) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), // removes whitespace
     }));
   };
   return {
@@ -120,11 +121,12 @@ export default function EditUser(props) {
     setHelperText({});
 
     if (_.isEmpty(inputs)) {
-      if (_.isEmpty(row)) {
         setErrors(errors => ({
           ...errors,
           username: true,
           email: true,
+          firstName: true,
+          lastName: true,
           location: true,
           role: true,
         }));
@@ -132,15 +134,15 @@ export default function EditUser(props) {
           ...helperText,
           username: 'This field is required.',
           email: 'This field is required.',
+          firstName: 'This field is required.',
+          lastName: 'This field is required.',
           location: 'This field is required.',
           role: 'This field is required.',
         }));
         return false;
       } else {
-        return true;
-      }
-    } else {
-      if (!inputs.username || !inputs.email || !location || !role) {
+      if (!inputs.username || !inputs.firstName || !inputs.lastName || 
+        !inputs.email || !location || !role) {
         if ((!inputs.username || inputs.username.length < 1) && !row.username) {
           setErrors(errors => ({
             ...errors,
@@ -150,7 +152,27 @@ export default function EditUser(props) {
             ...helperText,
             username: 'This field is required.',
           }));
-          return false;
+        }
+        if (!inputs.firstName) {
+          setErrors(errors => ({
+            ...errors,
+            firstName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            firstName: 'This field is required.',
+          }));
+        }
+        if (!inputs.lastName) {
+          console.log("did i get here?", !inputs.lastName)
+          setErrors(errors => ({
+            ...errors,
+            lastName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            lastName: 'This field is required.',
+          }));
         }
         if (
           (!validateEmail(inputs.email) || inputs.email.length < 1) &&
@@ -164,7 +186,6 @@ export default function EditUser(props) {
             ...helperText,
             email: 'Please enter a valid email address.',
           }));
-          return false;
         }
         if (!location) {
           setErrors(errors => ({
@@ -175,7 +196,6 @@ export default function EditUser(props) {
             ...helperText,
             location: 'Please select a location with which to associate this user.',
           }));
-          return false;
         }
         if (!role) {
           setErrors(errors => ({
@@ -186,22 +206,28 @@ export default function EditUser(props) {
             ...helperText,
             role: 'Please select a role for this user.',
           }));
-          return false;
         }
-        return true;
+        return false;
       } else {
         return true;
       }
     }
   };
 
-  const submitData = () => {
+  const submitData = (inputs) => {
+    // workaround to ensure that the PUT body is idempotent
     const toSubmit = {
       ...inputs,
       location: location,
       role: role,
     };
-
+    // these attributes are necessary for the user object on the frontend
+    // but the backend does not accept them
+    delete toSubmit['location_name'],
+      toSubmit['isActive'],
+      toSubmit['location_address'];
+      toSubmit['role_name'];
+   
     let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
@@ -290,20 +316,10 @@ export default function EditUser(props) {
       });
   }, []);
 
-  // remove attributes on the user object where
-  // the value is null or undefined
-  const removeNullValues = (userObj) => {
-    for (let key in userObj) {
-      if (userObj[key] === null || userObj[key] === undefined) {
-        delete userObj[key]
-      }
-    }
-  }
-
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
-    removeNullValues(row)  
+    row  
   );
 
   if (error) {
@@ -347,21 +363,27 @@ export default function EditUser(props) {
             required
           />
           <TextField
+            error={errors && errors.firstName}
+            helperText={helperText.firstName}
             className={classes.formField}
             id="user-first-name"
             label="First Name"
             name="firstName"
             fullWidth
+            required
             variant="outlined"
             defaultValue={row.firstName}
             onChange={handleInputChange}
           />
           <TextField
+            error={errors && errors.lastName}
+            helperText={helperText.lastName}
             className={classes.formField}
             id="user-last-name"
             label="Last Name"
             name="lastName"
             fullWidth
+            required
             variant="outlined"
             defaultValue={row.lastName}
             onChange={handleInputChange}
