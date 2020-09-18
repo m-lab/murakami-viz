@@ -70,7 +70,7 @@ const useForm = (callback, validated) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), // removes whitespace
     }));
   };
   return {
@@ -97,6 +97,8 @@ export default function AddUser(props) {
         ...errors,
         username: true,
         password: true,
+        firstName: true,
+        lastName: true,
         email: true,
         location: true,
         role: true,
@@ -105,6 +107,8 @@ export default function AddUser(props) {
         ...helperText,
         username: 'This field is required.',
         password: 'This field is required.',
+        firstName: 'This field is required.',
+        lastName: 'This field is required.',
         email: 'This field is required.',
         location: 'This field is required.',
         role: 'This field is required.',
@@ -116,6 +120,8 @@ export default function AddUser(props) {
         !inputs.password ||
         !inputs.email ||
         !location ||
+        !inputs.firstName ||
+        !inputs.lastName ||
         !role
       ) {
         if (!inputs.username) {
@@ -126,6 +132,26 @@ export default function AddUser(props) {
           setHelperText(helperText => ({
             ...helperText,
             username: 'This field is required.',
+          }));
+        }
+        if (!inputs.firstName) {
+          setErrors(errors => ({
+            ...errors,
+            firstName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            firstName: 'This field is required.',
+          }));
+        }
+        if (!inputs.lastName) {
+          setErrors(errors => ({
+            ...errors,
+            lastName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            lastName: 'This field is required.',
           }));
         }
         if (!inputs.password) {
@@ -354,21 +380,27 @@ export default function AddUser(props) {
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.firstName}
+              helperText={helperText.firstName}
               className={classes.formField}
               id="user-first-name"
               label="First Name"
               name="firstName"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.lastName}
+              helperText={helperText.lastName}
               className={classes.formField}
               id="user-last-name"
               label="Last Name"
               name="lastName"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
