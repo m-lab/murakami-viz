@@ -149,7 +149,7 @@ export default function ViewUser(props) {
   };
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this instance?')) {
+    if (confirm('Are you sure you want to delete this user?')) {
       let status;
       fetch(`api/v1/users/${row.id}`, {
         method: 'DELETE',
