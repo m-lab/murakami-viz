@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
   },
   tableCell: {
     minWidth: '300px',
-    textTransform: 'capitalize',
+    // textTransform: 'capitalize',
   },
   tableKey: {
     fontWeight: 'bold',
@@ -364,7 +364,7 @@ export default function Library(props) {
                     Timezone
                   </TableCell>
                   <TableCell className={classes.tableCell}>
-                    {library.timezones}
+                    {library.timezone}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -396,7 +396,19 @@ export default function Library(props) {
                     Opening Hours
                   </TableCell>
                   <TableCell className={classes.tableCell}>
-                    {library.opening_hours}
+                    Sunday: {library.sunday_open} - {library.sunday_close}{' '}
+                    <br />
+                    Monday: {library.monday_open} - {library.monday_close}{' '}
+                    <br />
+                    Tuesday: {library.tuesday_open} - {library.tuesday_close}{' '}
+                    <br />
+                    Wednesday: {library.wednesday_open} -{' '}
+                    {library.wednesday_close} <br />
+                    Thursday: {library.thursday_open} - {library.thursday_close}{' '}
+                    <br />
+                    Friday: {library.friday_open} - {library.friday_close}{' '}
+                    <br />
+                    Saturday: {library.saturday_open} - {library.saturday_close}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -768,7 +780,6 @@ Library.propTypes = {
     name: PropTypes.string,
     physical_address: PropTypes.string,
     shipping_address: PropTypes.string,
-    timezones: PropTypes.string,
     timezone: PropTypes.string,
     coordinates: PropTypes.string,
     primary_contact_name: PropTypes.string,
