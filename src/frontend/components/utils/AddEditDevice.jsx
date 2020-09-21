@@ -74,25 +74,18 @@ const useStyles = makeStyles(() => ({
 
 const useForm = (callback, validated, device) => {
   let fullInputs;
-  const [inputs, setInputs] = React.useState({
-    connection_type: device.connection_type || 'wired',
-    dns_server: device.dns_server || '',
-    network_type: device.network_type || 'public',
-  });
+  const [inputs, setInputs] = React.useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    setInputs(inputs => {
-      delete inputs.created_at;
-      delete inputs.updated_at;
-      delete inputs.lid;
-      delete inputs.did;
-      delete inputs.id;
-      fullInputs;
-    });
-    if (validated(inputs)) {
-      callback();
+    delete fullInputs.created_at;
+    delete fullInputs.updated_at;
+    delete fullInputs.lid;
+    delete fullInputs.did;
+    delete fullInputs.id;
+    if (validated(fullInputs)) {
+      callback(fullInputs);
       setInputs({});
     }
   };
@@ -106,10 +99,10 @@ const useForm = (callback, validated, device) => {
 
   React.useEffect(() => {
     if (device && inputs) {
-      fullInputs = Object.assign({}, inputs, device);
-      fullInputs.location = device.lid ? device.lid.toString() : '';
+      fullInputs = Object.assign({}, device, inputs);
+      fullInputs.location = device.lid ? device.lid.toString() : '1';
     }
-  }, [inputs]);
+  }, [inputs, fullInputs]);
 
   return {
     handleSubmit,
@@ -157,7 +150,7 @@ export default function AddEditDevice(props) {
             name: 'Please enter a device name.',
           }));
         }
-        if (!inputs.id) {
+        if (!inputs.deviceid) {
           setErrors(errors => ({
             ...errors,
             id: true,
@@ -192,9 +185,8 @@ export default function AddEditDevice(props) {
   };
 
   // submit device to api
-  const submitData = () => {
+  const submitData = inputs => {
     let status;
-    console.log('inputs: ', inputs);
     if (editMode) {
       fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
@@ -210,9 +202,10 @@ export default function AddEditDevice(props) {
         .then(result => {
           if (status === 200) {
             let updatedDevices;
+            console.log('results: ', result.data);
             if (devices) {
               updatedDevices = devices.map(device =>
-                device.id === inputs.id ? result.data[0] : device,
+                device.id === result.data[0].id ? result.data[0] : device,
               );
             } else {
               updatedDevices = [result.data[0]];
