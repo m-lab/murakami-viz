@@ -10,11 +10,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
@@ -80,6 +76,7 @@ const useForm = (callback, validated, network) => {
       event.preventDefault();
     }
     setInputs(inputs => {
+      inputs.ips ? inputs.ips : delete inputs.ips;
       delete inputs.created_at;
       delete inputs.updated_at;
       delete inputs.lid;
@@ -87,7 +84,7 @@ const useForm = (callback, validated, network) => {
       delete inputs.id;
     });
     if (validated(inputs)) {
-      callback(network);
+      callback();
       setInputs({});
     }
   };
@@ -107,10 +104,12 @@ const useForm = (callback, validated, network) => {
   };
 
   React.useEffect(() => {
-    if (network) {
-      let fullInputs = Object.assign(network, inputs);
-      fullInputs.location = network.lid;
+    if (network && inputs) {
+      let fullInputs = Object.assign(inputs, network);
       setInputs(fullInputs);
+      console.log('network: ', network);
+      console.log('inputs: ', inputs);
+
     }
   }, [inputs]);
 
@@ -123,7 +122,15 @@ const useForm = (callback, validated, network) => {
 
 export default function AddEditNetwork(props) {
   const classes = useStyles();
-  const { onClose, open, row, editMode, network, networks, setNetworks } = props;
+  const {
+    onClose,
+    open,
+    row,
+    editMode,
+    network,
+    networks,
+    setNetworks,
+  } = props;
   const [errors, setErrors] = React.useState({});
   const [helperText, setHelperText] = React.useState({
     name: '',
@@ -177,11 +184,12 @@ export default function AddEditNetwork(props) {
     return errorString;
   };
 
-  // submit new note to api
+  // submit network to api
   const submitData = () => {
     let status;
     if (editMode) {
-      fetch(`api/v1/networks/${inputs.id}`, {
+      console.log('inputs: ', inputs);
+      fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +225,6 @@ export default function AddEditNetwork(props) {
               error.name
             }: ${error.message}`,
           );
-          onClose();
         });
     } else {
       fetch(`/api/v1/libraries/${row.id}/networks`, {

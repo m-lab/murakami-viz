@@ -73,6 +73,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, device) => {
+  let fullInputs;
   const [inputs, setInputs] = React.useState({
     connection_type: device.connection_type || 'wired',
     dns_server: device.dns_server || '',
@@ -88,9 +89,10 @@ const useForm = (callback, validated, device) => {
       delete inputs.lid;
       delete inputs.did;
       delete inputs.id;
+      fullInputs;
     });
     if (validated(inputs)) {
-      callback(device);
+      callback();
       setInputs({});
     }
   };
@@ -103,11 +105,9 @@ const useForm = (callback, validated, device) => {
   };
 
   React.useEffect(() => {
-    if (device) {
-      // console.log(device);
-      let fullInputs = Object.assign(device, inputs);
-      fullInputs.location = device.lid;
-      setInputs(fullInputs);
+    if (device && inputs) {
+      fullInputs = Object.assign({}, inputs, device);
+      fullInputs.location = device.lid ? device.lid.toString() : '';
     }
   }, [inputs]);
 
@@ -191,11 +191,12 @@ export default function AddEditDevice(props) {
     return errorString;
   };
 
-  // submit new note to api
+  // submit device to api
   const submitData = () => {
     let status;
+    console.log('inputs: ', inputs);
     if (editMode) {
-      fetch(`api/v1/devices/${inputs.id}`, {
+      fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

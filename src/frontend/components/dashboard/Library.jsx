@@ -45,8 +45,11 @@ const useStyles = makeStyles(theme => ({
     maxWidth: '50%',
   },
   tableCell: {
-    minWidth: '300px',
+    minWidth: '250px',
     textTransform: 'capitalize',
+  },
+  tableCellButtons: {
+    minWidth: '350px',
   },
   tableKey: {
     fontWeight: 'bold',
@@ -177,12 +180,12 @@ export default function Library(props) {
 
   const closeNetwork = () => {
     setOpenNetwork(false);
-    setEdit(false);
+    setEditNetwork(false);
   };
 
   const openNetworkEdit = network => {
     setOpenNetwork(true);
-    setEdit(true);
+    setEditNetwork(true);
     setNetworkToEdit(network);
   };
 
@@ -583,7 +586,7 @@ export default function Library(props) {
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                      <TableCell className={classes.tableCell}>
+                                      <TableCell className={classes.tableCellButtons}>
                                         <Button
                                           type="submit"
                                           label="Submit"
@@ -786,7 +789,7 @@ export default function Library(props) {
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                      <TableCell className={classes.tableCell}>
+                                      <TableCell className={classes.tableCellButtons}>
                                         <Button
                                           type="submit"
                                           label="Submit"
