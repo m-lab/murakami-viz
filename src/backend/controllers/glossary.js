@@ -140,11 +140,14 @@ export default function controller(glossaries, thisUser) {
     thisUser.can('view this library'),
     async ctx => {
       log.debug(`Updating glossary ${ctx.params.id}.`);
-      let updated;
+      let created, updated;
 
       try {
-        await validateUpdate(ctx.request.body.data);
-        updated = await glossaries.update(ctx.params.id, ctx.request.body.data);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await glossaries.update(
+          ctx.params.id,
+          data,
+        ));
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
@@ -156,7 +159,7 @@ export default function controller(glossaries, thisUser) {
         ctx.response.body = {
           statusCode: 201,
           status: 'created',
-          data: { id: ctx.params.id },
+          data: [created],
         };
         ctx.response.status = 201;
       }

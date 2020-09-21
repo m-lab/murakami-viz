@@ -1,19 +1,42 @@
 import { UnprocessableError } from '../../common/errors.js';
 import Joi from '@hapi/joi';
 
-const schema = Joi.object({
-  id: Joi.number(),
-  author: Joi.number(),
-  subject: Joi.string(),
-  date: Joi.string().isoDate(),
-  description: Joi.string(),
-});
+const creationSchema = Joi.array()
+  .items(
+    Joi.object({
+      subject: Joi.string().required(),
+      date: Joi.string().isoDate(),
+      description: Joi.string().required(),
+    }),
+  )
+  .min(1);
 
-export async function validate(data) {
+const updateSchema = Joi.array()
+  .items(
+    Joi.object({
+      subject: Joi.string().required(),
+      date: Joi.string().isoDate(),
+      description: Joi.string().required(),
+    }).min(1),
+  )
+  .min(1);
+
+export async function validateCreation(data) {
   try {
-    const value = await schema.validateAsync(data);
+    data = Array.isArray(data) ? data : [data];
+    const value = await creationSchema.validateAsync(data);
     return value;
   } catch (err) {
-    throw new UnprocessableError('Unable to validate test JSON: ', err);
+    throw new UnprocessableError('Unable to validate JSON: ', err);
+  }
+}
+
+export async function validateUpdate(data) {
+  try {
+    data = Array.isArray(data) ? data : [data];
+    const value = await updateSchema.validateAsync(data);
+    return value;
+  } catch (err) {
+    throw new UnprocessableError('Unable to validate JSON: ', err);
   }
 }

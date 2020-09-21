@@ -17,27 +17,40 @@ export default class FaqManager {
 
   async update(id, faq) {
     try {
-      let existing = false;
+      let existing, updated;
+      let exists = false;
       await this._db.transaction(async trx => {
         existing = await trx('faqs')
           .select('*')
-          .where({ id: parseInt(id) });
+          .where({ id: parseInt(id) })
+          .first();
 
-        if (Array.isArray(existing) && existing.length > 0) {
+        if (existing) {
           log.debug('Entry exists, deleting old version.');
           await trx('faqs')
             .del()
             .where({ id: parseInt(id) });
           log.debug('Entry exists, inserting new version.');
-          await trx('faqs').insert({ ...faq[0], id: parseInt(id) });
-          existing = true;
+          [updated] = await trx('faqs')
+            .insert({ ...faq, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
         } else {
           log.debug('Entry does not already exist, inserting.');
-          await trx('faqs').insert({ ...faq[0], id: parseInt(id) });
-          existing = false;
+          [updated] = await trx('faqs')
+            .insert({ ...faq, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('faqs')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
         }
       });
-      return existing;
+      return { ...updated, exists: exists };
     } catch (err) {
       throw new BadRequestError(`Failed to update faq with ID ${id}: `, err);
     }
@@ -47,8 +60,7 @@ export default class FaqManager {
     return this._db
       .table('faqs')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({

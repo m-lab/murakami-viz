@@ -25,13 +25,15 @@ export function up(knex) {
       table.integer('lid').index();
       table
         .foreign('lid')
-        .references('id')
-        .inTable('libraries');
+        .references('libraries.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
       table.integer('did').index();
       table
         .foreign('did')
-        .references('id')
-        .inTable('devices');
+        .references('devices.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
     }),
   ]);
 }

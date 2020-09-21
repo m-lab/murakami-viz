@@ -260,18 +260,19 @@ export default function controller(libraries, thisUser) {
     '/libraries/:id',
     thisUser.can('access admin pages'),
     async ctx => {
-      log.debug(`Updating library ${ctx.params.id}.`);
-      let updated;
+      log.debug(`Updating libraries ${ctx.params.id}.`);
+      let created, updated;
 
       try {
-        console.log('***ctx.request.body***:', ctx.request.body);
-        const data = await validateUpdate(ctx.request.body.data);
-        updated = await libraries.update(ctx.params.id, data);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await libraries.update(
+          ctx.params.id,
+          data,
+        ));
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
-      console.log('***UPDATED***:', updated);
 
       if (updated) {
         ctx.response.status = 204;
@@ -279,7 +280,7 @@ export default function controller(libraries, thisUser) {
         ctx.response.body = {
           statusCode: 201,
           status: 'created',
-          data: { id: ctx.params.id },
+          data: [created],
         };
         ctx.response.status = 201;
       }

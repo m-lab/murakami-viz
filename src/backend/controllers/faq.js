@@ -121,11 +121,14 @@ export default function controller(faqs, thisUser) {
 
   router.put('/faqs/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Updating faq ${ctx.params.id}.`);
-    let updated;
+    let created, updated;
 
     try {
-      await validateUpdate(ctx.request.body.data);
-      updated = await faqs.update(ctx.params.id, ctx.request.body.data);
+      const [data] = await validateUpdate(ctx.request.body.data);
+      ({ exists: updated = false, ...created } = await faqs.update(
+        ctx.params.id,
+        data,
+      ));
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
@@ -137,7 +140,7 @@ export default function controller(faqs, thisUser) {
       ctx.response.body = {
         statusCode: 201,
         status: 'created',
-        data: { id: ctx.params.id },
+        data: [created],
       };
       ctx.response.status = 201;
     }

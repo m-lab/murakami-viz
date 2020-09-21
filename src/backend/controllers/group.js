@@ -1,7 +1,10 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { validate } from '../../common/schemas/group.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/group.js';
 import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
@@ -44,7 +47,7 @@ export default function controller(groups, thisUser) {
     let group;
 
     try {
-      const data = await validate(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
       group = await groups.create(data);
 
       // workaround for sqlite
@@ -55,10 +58,6 @@ export default function controller(groups, thisUser) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse group schema: ${err}`);
     }
-    console.log(
-      '***************GROUP*****************************************************************************:',
-      group,
-    );
     ctx.response.body = { statusCode: 201, status: 'created', data: group };
     ctx.response.status = 201;
   });
@@ -129,11 +128,14 @@ export default function controller(groups, thisUser) {
 
   router.put('/groups/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating group ${ctx.params.id}.`);
-    let updated;
+    let created, updated;
 
     try {
-      const data = await validate(ctx.request.body.data);
-      updated = await groups.update(ctx.params.id, data);
+      const [data] = await validateUpdate(ctx.request.body.data);
+      ({ exists: updated = false, ...created } = await groups.update(
+        ctx.params.id,
+        data,
+      ));
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
@@ -145,7 +147,7 @@ export default function controller(groups, thisUser) {
       ctx.response.body = {
         statusCode: 201,
         status: 'created',
-        data: { id: ctx.params.id },
+        data: [created],
       };
       ctx.response.status = 201;
     }

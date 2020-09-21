@@ -180,7 +180,7 @@ describe('Manage devices as an admin', () => {
   test('Attempt to update a device that does not exist', async () => {
     await session
       .put('/api/v1/devices/99')
-      .send({ data: validDevice })
+      .send({ data: { ...validDevice, deviceid: uuidv4() } })
       .expect(201);
   });
 

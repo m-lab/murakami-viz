@@ -137,15 +137,18 @@ export default function controller(devices, thisUser) {
 
   router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating device ${ctx.params.id}.`);
-    let updated;
+    let created, updated;
 
     try {
       if (ctx.params.lid) {
         await devices.addToLibrary(ctx.params.lid, ctx.params.id);
         updated = true;
       } else {
-        await validateUpdate(ctx.request.body.data);
-        updated = await devices.update(ctx.params.id, ctx.request.body.data);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await devices.update(
+          ctx.params.id,
+          data,
+        ));
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
@@ -158,7 +161,7 @@ export default function controller(devices, thisUser) {
       ctx.response.body = {
         statusCode: 201,
         status: 'created',
-        data: { id: ctx.params.id },
+        data: [created],
       };
       ctx.response.status = 201;
     }
@@ -179,7 +182,7 @@ export default function controller(devices, thisUser) {
           );
         } else {
           device = await devices.delete(ctx.params.id);
-          log.debug('Deleted device: ', device);
+          log.debug('Deleted device: ', device > 0);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);

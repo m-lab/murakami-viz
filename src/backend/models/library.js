@@ -65,8 +65,7 @@ export default class LibraryManager {
             queryBuilder.where({ ip: ip });
           }
         }
-      })
-      .returning('*');
+      });
   }
 
   async create(library) {
@@ -78,33 +77,40 @@ export default class LibraryManager {
 
   async update(id, library) {
     try {
-      let existing = false;
+      let existing, updated;
+      let exists = false;
       await this._db.transaction(async trx => {
         existing = await trx('libraries')
           .select('*')
-          .where({ id: parseInt(id) });
+          .where({ id: parseInt(id) })
+          .first();
 
-        if (Array.isArray(existing) && existing.length > 0) {
+        if (existing) {
           log.debug('Entry exists, deleting old version.');
           await trx('libraries')
             .del()
             .where({ id: parseInt(id) });
           log.debug('Entry exists, inserting new version.');
-          await trx('libraries').insert({
-            ...library[0],
-            id: parseInt(id),
-          });
-          existing = true;
+          [updated] = await trx('libraries')
+            .insert({ ...library, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
         } else {
           log.debug('Entry does not already exist, inserting.');
-          await trx('libraries').insert({
-            ...library[0],
-            id: parseInt(id),
-          });
-          existing = false;
+          [updated] = await trx('libraries')
+            .insert({ ...library, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('libraries')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
         }
       });
-      return existing;
+      return { ...updated, exists: exists };
     } catch (err) {
       throw new BadRequestError(
         `Failed to update library with ID ${id}: `,

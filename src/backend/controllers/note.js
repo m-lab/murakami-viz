@@ -1,8 +1,9 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import { validateCreation, validateUpdate } from '../../common/schemas/note.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:note');
 
@@ -18,6 +19,7 @@ const query_schema = Joi.object({
   from: Joi.string(),
   to: Joi.string(),
   author: Joi.number().integer(),
+  library: Joi.number().integer(),
 });
 
 async function validate_query(query) {
@@ -33,7 +35,7 @@ async function validate_query(query) {
 export default function controller(notes, thisUser) {
   const router = new Router();
 
-  router.post('/notes', thisUser.can('access private pages'), async ctx => {
+  router.post('/notes', thisUser.can('view this library'), async ctx => {
     log.debug('Adding new note.');
     let note, lid;
 
@@ -42,13 +44,8 @@ export default function controller(notes, thisUser) {
     }
 
     try {
-      ctx.request.body.data.author = ctx.state.user[0].id;
-      note = await notes.create(ctx.request.body.data, lid);
-
-      // workaround for sqlite
-      if (Number.isInteger(note)) {
-        note = await notes.findById(note);
-      }
+      const data = await validateCreation(ctx.request.body.data);
+      note = await notes.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse note schema: ${err}`);
@@ -60,7 +57,7 @@ export default function controller(notes, thisUser) {
 
   router.get('/notes', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving notes.`);
-    let res;
+    let res, library;
     try {
       const query = await validate_query(ctx.query);
       let from, to;
@@ -81,6 +78,13 @@ export default function controller(notes, thisUser) {
         }
         to = timestamp.toISOString();
       }
+
+      if (ctx.params.lid) {
+        library = ctx.params.lid;
+      } else {
+        library = query.library;
+      }
+
       res = await notes.find({
         start: query.start,
         end: query.end,
@@ -89,7 +93,7 @@ export default function controller(notes, thisUser) {
         from: from,
         to: to,
         author: query.author,
-        library: ctx.params.lid,
+        library: library,
       });
       ctx.response.body = {
         statusCode: 200,
@@ -105,10 +109,14 @@ export default function controller(notes, thisUser) {
 
   router.get('/notes/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving note ${ctx.params.id}.`);
-    let note;
+    let note, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
     try {
-      note = await notes.findById(ctx.params.id);
+      note = await notes.findById(ctx.params.id, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
@@ -125,40 +133,41 @@ export default function controller(notes, thisUser) {
     }
   });
 
-  router.put('/notes/:id', thisUser.can('view this library'), async ctx => {
+  router.put('/notes/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating note ${ctx.params.id}.`);
-    let note;
+    let created, updated;
 
     try {
       if (ctx.params.lid) {
-        note = await notes.addToLibrary(ctx.params.lid, ctx.params.id);
+        await notes.addToLibrary(ctx.params.lid, ctx.params.id);
+        updated = true;
       } else {
-        note = await notes.update(ctx.params.id, ctx.request.body.data);
-      }
-
-      // workaround for sqlite
-      if (Number.isInteger(note)) {
-        note = await notes.findById(ctx.params.id);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await notes.update(
+          ctx.params.id,
+          data,
+        ));
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (note.length && note.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: note };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That note with ID ${ctx.params.id} does not exist.`);
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
-  router.delete('/notes/:id', thisUser.can('view this library'), async ctx => {
+  router.delete('/notes/:id', thisUser.can('edit this library'), async ctx => {
     log.debug(`Deleting note ${ctx.params.id}.`);
-    let note;
+    let note = 0;
 
     try {
       if (ctx.params.lid) {
@@ -171,9 +180,8 @@ export default function controller(notes, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (note.length && note.length > 0) {
-      ctx.response.body = { status: 'success', data: note };
-      ctx.response.status = 200;
+    if (note > 0) {
+      ctx.response.status = 204;
     } else {
       log.error(
         `HTTP 404 Error: That note with ID ${ctx.params.id} does not exist.`,

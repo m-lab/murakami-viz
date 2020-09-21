@@ -22,27 +22,40 @@ export default class Group {
 
   async update(id, group) {
     try {
-      let existing = false;
+      let existing, updated;
+      let exists = false;
       await this._db.transaction(async trx => {
         existing = await trx('groups')
           .select('*')
-          .where({ id: parseInt(id) });
+          .where({ id: parseInt(id) })
+          .first();
 
-        if (Array.isArray(existing) && existing.length > 0) {
+        if (existing) {
           log.debug('Entry exists, deleting old version.');
           await trx('groups')
             .del()
             .where({ id: parseInt(id) });
           log.debug('Entry exists, inserting new version.');
-          await trx('groups').insert({ ...group[0], id: parseInt(id) });
-          existing = true;
+          [updated] = await trx('groups')
+            .insert({ ...group, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
         } else {
           log.debug('Entry does not already exist, inserting.');
-          await trx('groups').insert({ ...group[0], id: parseInt(id) });
-          existing = false;
+          [updated] = await trx('groups')
+            .insert({ ...group, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('groups')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
         }
       });
-      return existing;
+      return { ...updated, exists: exists };
     } catch (err) {
       throw new BadRequestError(`Failed to update group with ID ${id}: `, err);
     }
@@ -52,8 +65,7 @@ export default class Group {
     return this._db
       .table('groups')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
