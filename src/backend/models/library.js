@@ -1,6 +1,6 @@
 import knex from 'knex';
 import { validate } from '../../common/schemas/library.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError, UnprocessableError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:model:library');
@@ -134,11 +134,18 @@ export default class LibraryManager {
   }
 
   async delete(id) {
-    return this._db
-      .table('libraries')
-      .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+    try {
+      await this._db
+        .table('libraries')
+        .del()
+        .where({ id: parseInt(id) });
+      return id;
+    } catch (err) {
+      throw new BadRequestError(
+        `Failed to delete library with ID ${id}: `,
+        err,
+      );
+    }
   }
 
   async find({
