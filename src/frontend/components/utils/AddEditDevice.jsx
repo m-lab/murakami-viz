@@ -202,7 +202,6 @@ export default function AddEditDevice(props) {
         .then(result => {
           if (status === 200) {
             let updatedDevices;
-            console.log('results: ', result.data);
             if (devices) {
               updatedDevices = devices.map(device =>
                 device.id === result.data[0].id ? result.data[0] : device,

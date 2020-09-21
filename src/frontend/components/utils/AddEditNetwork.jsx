@@ -70,21 +70,19 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, network) => {
-  const [inputs, setInputs] = React.useState(null);
+  let fullInputs;
+  const [inputs, setInputs] = React.useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    setInputs(inputs => {
-      inputs.ips ? inputs.ips : delete inputs.ips;
-      delete inputs.created_at;
-      delete inputs.updated_at;
-      delete inputs.lid;
-      delete inputs.nid;
-      delete inputs.id;
-    });
-    if (validated(inputs)) {
-      callback();
+    delete fullInputs.created_at;
+    delete fullInputs.updated_at;
+    delete fullInputs.lid;
+    delete fullInputs.nid;
+    delete fullInputs.id;
+    if (validated(fullInputs)) {
+      callback(fullInputs);
       setInputs({});
     }
   };
@@ -105,13 +103,9 @@ const useForm = (callback, validated, network) => {
 
   React.useEffect(() => {
     if (network && inputs) {
-      let fullInputs = Object.assign(inputs, network);
-      setInputs(fullInputs);
-      console.log('network: ', network);
-      console.log('inputs: ', inputs);
-
+      fullInputs = Object.assign({}, network, inputs);
     }
-  }, [inputs]);
+  }, [inputs, fullInputs]);
 
   return {
     handleSubmit,
@@ -185,10 +179,9 @@ export default function AddEditNetwork(props) {
   };
 
   // submit network to api
-  const submitData = () => {
+  const submitData = inputs => {
     let status;
     if (editMode) {
-      console.log('inputs: ', inputs);
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
         headers: {
@@ -205,7 +198,7 @@ export default function AddEditNetwork(props) {
             let updatedNetworks;
             if (networks) {
               updatedNetworks = networks.map(network =>
-                network.id === inputs.id ? result.data[0] : network,
+                network.id === result.data[0].id ? result.data[0] : network,
               );
             } else {
               updatedNetworks = [result.data[0]];
