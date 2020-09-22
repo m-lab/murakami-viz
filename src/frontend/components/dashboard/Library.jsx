@@ -103,6 +103,7 @@ export default function Library(props) {
   const closeDevice = () => {
     setOpenDevice(false);
     setEdit(false);
+    setDeviceToEdit({})
   };
 
   const openEdit = device => {
@@ -181,6 +182,7 @@ export default function Library(props) {
   const closeNetwork = () => {
     setOpenNetwork(false);
     setEditNetwork(false);
+    setNetworkToEdit({})
   };
 
   const openNetworkEdit = network => {
