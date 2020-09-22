@@ -19,7 +19,7 @@ export default class RunManager {
             .where({ id: parseInt(lid) })
             .first();
           if (!library) {
-            throw new BadRequestError('Invalid library ID.');
+            throw new NotFoundError('Invalid library ID.');
           }
         }
         runs = await trx('runs')

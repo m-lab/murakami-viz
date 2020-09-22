@@ -19,7 +19,7 @@ export default class NoteManager {
             .where({ id: parseInt(lid) })
             .first();
           if (!library) {
-            throw new BadRequestError('Invalid library ID.');
+            throw new NotFoundError('Invalid library ID.');
           }
         }
         notes = await trx('notes')
