@@ -1,8 +1,9 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import { validateCreation, validateUpdate } from '../../common/schemas/run.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:run');
 
@@ -43,12 +44,8 @@ export default function controller(runs, thisUser) {
     }
 
     try {
-      run = await runs.create(ctx.request.body.data, lid);
-
-      // workaround for sqlite
-      if (Number.isInteger(run)) {
-        run = await runs.findById(run);
-      }
+      const data = await validateCreation(ctx.request.body.data);
+      run = await runs.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse run schema: ${err}`);
@@ -113,16 +110,20 @@ export default function controller(runs, thisUser) {
 
   router.get('/runs/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving run ${ctx.params.id}.`);
-    let run;
+    let run, lid;
+
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
     try {
-      run = await runs.findById(ctx.params.id);
+      run = await runs.findById(ctx.params.id, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (run.length && run.length > 0) {
+    if (run.length) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: run };
       ctx.response.status = 200;
     } else {
@@ -135,32 +136,28 @@ export default function controller(runs, thisUser) {
 
   router.put('/runs/:id', thisUser.can('edit this library'), async ctx => {
     log.debug(`Updating run ${ctx.params.id}.`);
-    let run;
+    let created, updated;
 
     try {
-      if (ctx.params.lid) {
-        run = await runs.addToLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        run = await runs.update(ctx.params.id, ctx.request.body.data);
-      }
-
-      // workaround for sqlite
-      if (Number.isInteger(run)) {
-        run = await runs.findById(ctx.params.id);
-      }
+      const [data] = await validateUpdate(ctx.request.body.data);
+      ({ exists: updated = false, ...created } = await runs.update(
+        ctx.params.id,
+        data,
+      ));
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (run.length && run.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: run };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That run with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That run with ID ${ctx.params.id} does not exist.`);
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
@@ -172,15 +169,15 @@ export default function controller(runs, thisUser) {
         run = await runs.removeFromLibrary(ctx.params.lid, ctx.params.id);
       } else {
         run = await runs.delete(ctx.params.id);
+        log.debug('Deleted run: ', run > 0);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (run.length && run.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: run };
-      ctx.response.status = 200;
+    if (run > 0) {
+      ctx.response.status = 204;
     } else {
       log.error(
         `HTTP 404 Error: That run with ID ${ctx.params.id} does not exist.`,

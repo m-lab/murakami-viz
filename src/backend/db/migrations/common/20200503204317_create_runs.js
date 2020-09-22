@@ -14,7 +14,7 @@ export function up(knex) {
       table.string('MurakamiLocation');
       table.string('MurakamiNetworkType');
       table.string('MurakamiDeviceID');
-      table.string('SchemaVersion');
+      table.decimal('SchemaVersion');
       table.string('TestUUID');
       table.string('TestProtocol');
       table.string('TestError');
@@ -50,7 +50,7 @@ export function up(knex) {
       table.decimal('UploadValue');
       table.string('UploadUnit');
       table.string('UploadError');
-      table.string('MinRTTValue');
+      table.decimal('MinRTTValue');
       table.string('MinRTTUnit');
       table.string('MinRTTError');
       table.decimal('MedianBitrate');
