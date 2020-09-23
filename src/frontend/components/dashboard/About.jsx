@@ -187,7 +187,6 @@ export default function About() {
             faqs.map((item, index) => (
               <Box key={index}>
                 <Typography component="h2" variant="h4">
-                  {console.log('item: ', item)}
                   {parse('<div>' + item.question + '</div>')}
                 </Typography>
                 <Typography>

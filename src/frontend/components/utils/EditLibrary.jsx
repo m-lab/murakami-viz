@@ -88,7 +88,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
@@ -108,21 +108,22 @@ function a11yProps(index) {
   };
 }
 
-const useForm = (callback, validated) => {
-  const [inputs, setInputs] = useState({});
+const useForm = (callback, validated, library) => {
+  const [inputs, setInputs] = useState(library);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
     if (validated(inputs)) {
-      callback();
+      callback(inputs);
+      setInputs({});
     }
   };
   const handleInputChange = event => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(),
     }));
   };
   return {
@@ -141,37 +142,54 @@ export default function EditLibrary(props) {
   });
 
   // handle form validation
-  const validateInputs = (row, inputs) => {
-    console.log(row);
-    console.log(inputs);
+  const validateInputs = inputs => {
     setErrors({});
     setHelperText({});
     if (_.isEmpty(inputs)) {
-      onClose();
-      return false;
+      if (_.isEmpty(row)) {
+        setErrors(errors => ({
+          ...errors,
+          name: true,
+          primary_contact_email: true,
+        }));
+        setHelperText(helperText => ({
+          ...helperText,
+          name: 'This field is required.',
+          primary_contact_email: 'This field is required.',
+        }));
+        return false;
+      } else {
+        alert('No changes have been made.');
+        return false;
+      }
     } else {
       if (!inputs.name || !inputs.primary_contact_email) {
-        if (!inputs.name) {
+        if ((!inputs.name || inputs.name.length < 1) && !row.name) {
           setErrors(errors => ({
             ...errors,
             name: true,
           }));
           setHelperText(helperText => ({
             ...helperText,
-            name: 'Required',
+            name: 'This field is required.',
           }));
+          return false;
         }
-        if (!validateEmail(inputs.primary_contact_email)) {
+        if (
+          (!validateEmail(inputs.primary_contact_email) || inputs.primary_contact_email.length < 1) &&
+          !validateEmail(row.primary_contact_email)
+        ) {
           setErrors(errors => ({
             ...errors,
-            email: true,
+            primary_contact_email: true,
           }));
           setHelperText(helperText => ({
             ...helperText,
-            email: 'Please enter a valid email address.',
+            primary_contact_email: 'Please enter a valid email address.',
           }));
+          return false;
         }
-        return false;
+        return true;
       } else {
         return true;
       }
@@ -195,7 +213,17 @@ export default function EditLibrary(props) {
     onClose();
   };
 
-  const submitData = () => {
+  const submitData = (inputs) => {
+    for (let key in inputs) {
+      if (inputs[key] === null || 
+        inputs[key] === undefined ||
+        key === 'id' ||
+        key === 'created_at' ||
+        key === 'updated_at')
+      delete inputs[key]
+    }
+
+    let status;
     fetch(`api/v1/libraries/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -203,25 +231,49 @@ export default function EditLibrary(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        onClose(results.data[0]);
-        alert('Library edited successfully.');
-        return;
+        if (status === 200 || status === 201 || status === 204) {
+          alert(`Library edited successfully.`);
+          onClose(results.data[0]);
+          return;
+        } else {
+          processError(results);
+          throw new Error(`Error in response from server.`);
+        }
       })
       .catch(error => {
-        console.log(error);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
       });
 
     onClose();
   };
 
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else if (res) {
+      errorString = res;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
+    row
   );
 
   React.useEffect(() => {}, [errors, helperText]);
@@ -229,7 +281,7 @@ export default function EditLibrary(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="add-library-title"
       fullWidth={true}
@@ -238,7 +290,7 @@ export default function EditLibrary(props) {
     >
       <Button
         label="Close"
-        primary={true}
+        primary="true"
         onClick={handleClose}
         className={classes.closeButton}
       >
@@ -267,7 +319,7 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>
@@ -276,7 +328,7 @@ export default function EditLibrary(props) {
           <Button
             size="small"
             label="Cancel"
-            primary={true}
+            primary="true"
             onClick={handleClose}
             className={classes.cancelButton}
           >
@@ -285,236 +337,118 @@ export default function EditLibrary(props) {
         </Grid>
       </Grid>
       <Box m={4}>
-        <AppBar position="static" className={classes.appBar}>
-          <Tabs
-            indicatorColor="primary"
-            textColor="primary"
-            value={value}
-            onChange={handleChange}
-            aria-label="edit library tabs"
+        <Typography variant="overline" display="block" gutterBottom>
+          Library Details
+        </Typography>
+        <FormControl variant="outlined" className={classes.formControl}>
+          <InputLabel id="library-system-name">
+            Library System Name (if applicable)
+          </InputLabel>
+          <Select
+            labelId="library-system-name"
+            className={classes.formField}
+            id="library-system-name"
+            label="Library System Name (if applicable)"
+            name="library_system_name"
+            defaultValue=""
+            // onChange={handleInputChange}
+            value={0}
+            disabled
           >
-            <Tab label="Basic info" {...a11yProps(0)} />
-            <Tab label="Network" {...a11yProps(1)} />
-          </Tabs>
-        </AppBar>
-        <TabPanel value={value} index={0}>
-          <Typography variant="overline" display="block" gutterBottom>
-            Library Details
-          </Typography>
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="library-system-name">
-              Library System Name (if applicable)
-            </InputLabel>
-            <Select
-              labelId="library-system-name"
-              className={classes.formField}
-              id="library-name"
-              label="Library System Name (if applicable)"
-              name="library_name"
-              defaultValue=""
-              // onChange={handleInputChange}
-              value={0}
-              disabled
-            >
-              <MenuItem value="" selected />
-            </Select>
-          </FormControl>
-          <TextField
-            error={errors && errors.name}
-            helperText={helperText.name}
-            className={classes.formField}
-            id="library-name"
-            label="Library Name"
-            name="name"
-            fullWidth
-            variant="outlined"
-            defaultValue={row.name}
-            onChange={handleInputChange}
-            value={inputs.name}
-          />
-          <TextField
-            className={classes.formField}
-            id="library-physical-address"
-            label="Physical Address"
-            name="physical_address"
-            fullWidth
-            variant="outlined"
-            defaultValue={row.physical_address}
-            onChange={handleInputChange}
-            value={inputs.physical_address}
-          />
-          <TextField
-            className={classes.formField}
-            id="library-shipping-address"
-            label="Shipping Address"
-            name="shipping_address"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.shipping_address}
-            value={inputs.shipping_address}
-          />
-          <TextField
-            className={classes.formField}
-            id="library-timezone"
-            label="Timezone"
-            name="timezone"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.timezone}
-            value={inputs.timezone}
-          />
-          <TextField
-            className={classes.formField}
-            id="library-coordinates"
-            label="Coordinates"
-            name="coordinates"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.coordinates}
-            value={inputs.coordinates}
-          />
-          <Typography variant="overline" display="block" gutterBottom>
-            Library Contact for MLBN Devices
-          </Typography>
-          <TextField
-            className={classes.formField}
-            id="library-primary-contact-name"
-            label="Name"
-            name="primary_contact_name"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.primary_contact_name}
-            value={inputs.primary_contact_name}
-          />
-          <TextField
-            error={errors.email}
-            helperText={helperText.email}
-            className={classes.formField}
-            id="library-primary-contact-email"
-            label="Email"
-            name="primary_contact_email"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.primary_contact_email}
-            value={inputs.primary_contact_email}
-          />
-          <Typography variant="overline" display="block" gutterBottom>
-            Library Hours
-          </Typography>
-          <TextField
-            className={classes.formField}
-            id="library-opening-hours"
-            label="Opening hours"
-            name="opening_hours"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.opening_hours}
-            value={inputs.opening_hours}
-          />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <TextField
-            className={classes.formField}
-            id="library-network-name"
-            label="Network name"
-            name="network_name"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.network_name}
-            value={inputs.network_name}
-          />
-          <TextField
-            className={classes.formField}
-            id="library-isp"
-            label="ISP (company)"
-            name="isp"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.isp}
-            value={inputs.isp}
-          />
-          <Grid container alignItems="center">
-            <Grid item>
-              <Typography variant="body2" display="block">
-                Contracted Speed
-              </Typography>
-            </Grid>
-            <Grid item>
-              <TextField
-                className={`${classes.formField} ${classes.inline}`}
-                id="library-contracted-speed-download"
-                label="Download"
-                name="contracted_speed_download"
-                variant="outlined"
-                onChange={handleInputChange}
-                defaultValue={row.contracted_speed_download}
-                value={inputs.contracted_speed_download}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                className={`${classes.formField} ${classes.inline}`}
-                id="library-contracted-speed-upload"
-                label="Upload"
-                name="contracted_speed_upload"
-                variant="outlined"
-                onChange={handleInputChange}
-                defaultValue={row.contracted_speed_upload}
-                value={inputs.contracted_speed_upload}
-              />
-            </Grid>
-          </Grid>
-          <TextField
-            className={classes.formField}
-            id="library-ip"
-            label="IP address of custom DNS server (if applicable)"
-            name="ip"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            defaultValue={row.ip}
-            value={inputs.ip}
-          />
-          <Grid container alignItems="center">
-            <Grid item>
-              <Typography variant="body2" display="block">
-                Per device bandwidth caps
-              </Typography>
-            </Grid>
-            <Grid item>
-              <TextField
-                className={`${classes.formField} ${classes.inline}`}
-                id="library-bandwidth-cap-download"
-                label="Download"
-                name="bandwidth_cap_download"
-                variant="outlined"
-                onChange={handleInputChange}
-                defaultValue={row.bandwidth_cap_download}
-                value={inputs.bandwidth_cap_download}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                className={`${classes.formField} ${classes.inline}`}
-                id="library-bandwidth-cap-upload"
-                label="Upload"
-                name="bandwidth_cap_upload"
-                variant="outlined"
-                onChange={handleInputChange}
-                defaultValue={row.bandwidth_cap_upload}
-                value={inputs.bandwidth_cap_upload}
-              />
-            </Grid>
-          </Grid>
-        </TabPanel>
+            <MenuItem value="" selected />
+          </Select>
+        </FormControl>
+        <TextField
+          error={errors && errors.name}
+          helperText={helperText.name}
+          className={classes.formField}
+          id="library-name"
+          label="Library Name"
+          name="name"
+          fullWidth
+          variant="outlined"
+          defaultValue={row.name}
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="library-physical-address"
+          label="Physical Address"
+          name="physical_address"
+          fullWidth
+          variant="outlined"
+          defaultValue={row.physical_address}
+          onChange={handleInputChange}
+        />
+        <TextField
+          className={classes.formField}
+          id="library-shipping-address"
+          label="Shipping Address"
+          name="shipping_address"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.shipping_address}
+        />
+        <TextField
+          className={classes.formField}
+          id="library-timezone"
+          label="Timezone"
+          name="timezone"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.timezone}
+        />
+        <TextField
+          className={classes.formField}
+          id="library-coordinates"
+          label="Coordinates"
+          name="coordinates"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.coordinates}
+        />
+        <Typography variant="overline" display="block" gutterBottom>
+          Library Contact for MLBN Devices
+        </Typography>
+        <TextField
+          className={classes.formField}
+          id="library-primary-contact-name"
+          label="Name"
+          name="primary_contact_name"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.primary_contact_name}
+        />
+        <TextField
+          error={errors.primary_contact_email}
+          helperText={helperText.primary_contact_email}
+          className={classes.formField}
+          id="library-primary-contact-email"
+          label="Email"
+          name="primary_contact_email"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.primary_contact_email}
+        />
+        <Typography variant="overline" display="block" gutterBottom>
+          Library Hours
+        </Typography>
+        <TextField
+          className={classes.formField}
+          id="library-opening-hours"
+          label="Opening hours"
+          name="opening_hours"
+          fullWidth
+          variant="outlined"
+          onChange={handleInputChange}
+          defaultValue={row.opening_hours}
+        />
+
         <div className={classes.saveButtonContainer}>
           <Button
             type="submit"
@@ -524,7 +458,7 @@ export default function EditLibrary(props) {
             variant="contained"
             disableElevation
             color="primary"
-            primary={true}
+            primary="true"
           >
             Save
           </Button>

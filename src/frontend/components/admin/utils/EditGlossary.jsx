@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -43,19 +44,23 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
+const useForm = (callback, validated, glossary) => {
+  const initialValue = {term: glossary.term, definition: glossary.definition}
+  const [inputs, setInputs] = useState(initialValue);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback(inputs);
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(),
     }));
   };
   return {
@@ -68,11 +73,57 @@ const useForm = callback => {
 export default function EditGlossary(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
-
-  console.log("row!!!", row)
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    term: '',
+    definition: '',
+  });
 
   const handleClose = () => {
     onClose();
+  };
+
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        term: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        term: 'Please enter a term and definition.',
+      }));
+      return false;
+    } else {
+      if (!inputs.term || !inputs.definition) {
+        if (!inputs.term) {
+          setErrors(errors => ({
+            ...errors,
+            term: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            term: 'Please enter a term.',
+          }));
+        }
+        if (!inputs.definition) {
+          setErrors(errors => ({
+            ...errors,
+            definition: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            definition: 'Please enter a definition.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
   };
 
   // handle api data errors
@@ -88,40 +139,23 @@ export default function EditGlossary(props) {
     return errorString;
   };
 
-  const submitData = () => {
+  const submitData = (inputs) => {
     let status;
-
-    /** sending a complete glossary object
-     * to the backend because idempotency
-     */
-    const toSubmit = () => {
-      if (inputs.term && inputs.definition) {
-        return inputs
-      } else if (inputs.term) {
-        return {
-          ...inputs,
-          definition: row.definition
-        }
-      } else if (inputs.definition) {
-        return {
-          ...inputs,
-          term: row.term
-        }
-      }
-    }
-    
     fetch(`api/v1/glossaries/${row.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: toSubmit() }),
+      body: JSON.stringify({ data: inputs }),
     })
-      .then(response => status = response.status)
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        if (status === 204) {
+        if (status === 200) {
           alert('Glossary edited successfully.');
-          onClose({...toSubmit(), id: row.id});
+          onClose(results.data[0]);
           return;
         } else {
           const error = processError(results);
@@ -129,15 +163,20 @@ export default function EditGlossary(props) {
         }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+    row,
+  );
 
   return (
     <Dialog
@@ -162,6 +201,8 @@ export default function EditGlossary(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={errors && errors.term}
+          helperText={helperText.term}
           className={classes.formField}
           id="glossary-term"
           label="Term"
@@ -170,9 +211,10 @@ export default function EditGlossary(props) {
           variant="outlined"
           defaultValue={row.term}
           onChange={handleInputChange}
-          value={inputs.term}
         />
         <TextField
+          error={errors && errors.definition}
+          helperText={helperText.definition}
           className={classes.formField}
           id="glossary-definition"
           label="Definition"
@@ -183,7 +225,6 @@ export default function EditGlossary(props) {
           variant="outlined"
           defaultValue={row.definition}
           onChange={handleInputChange}
-          value={inputs.definition}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

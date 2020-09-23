@@ -62,7 +62,7 @@ const useForm = (callback, validated, note) => {
       delete inputs.nid;
     });
     if (validated(inputs)) {
-      callback(note);
+      callback();
       setInputs({});
     }
   };
@@ -166,7 +166,6 @@ export default function EditNote(props) {
 
   const submitData = () => {
     let status;
-    console.log(inputs);
     fetch(`api/v1/notes/${row.id}`, {
       method: 'PUT',
       headers: {
