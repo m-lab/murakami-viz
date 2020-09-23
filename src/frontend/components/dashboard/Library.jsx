@@ -25,6 +25,7 @@ import Typography from '@material-ui/core/Typography';
 // modules imports
 import EditLibrary from '../utils/EditLibrary.jsx';
 import AddEditDevice from '../utils/AddEditDevice.jsx';
+import AddEditNetwork from '../utils/AddEditNetwork.jsx';
 
 const TableCell = withStyles({
   root: {
@@ -37,6 +38,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     maxWidth: 500,
   },
+  editButton: {
+    margin: '0 15px',
+  },
   nested: {
     paddingLeft: theme.spacing(4),
   },
@@ -44,8 +48,11 @@ const useStyles = makeStyles(theme => ({
     maxWidth: '50%',
   },
   tableCell: {
-    minWidth: '300px',
+    minWidth: '250px',
     // textTransform: 'capitalize',
+  },
+  tableCellButtons: {
+    minWidth: '350px',
   },
   tableKey: {
     fontWeight: 'bold',
@@ -54,6 +61,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Library(props) {
   const classes = useStyles();
+  const { onCloseDelete, user } = props;
   const [library, setLibrary] = React.useState(props.library);
 
   // handle edit library
@@ -74,6 +82,81 @@ export default function Library(props) {
     setOpen(false);
   };
 
+  const isAdmin = user => {
+    if (user.role_name != 'admins') {
+      return null;
+    } else {
+      return (
+        <Grid container item xs={12} sm={4} justify="flex-start">
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={handleClickOpen}
+            >
+              Edit
+            </Button>
+            <EditLibrary
+              open={open}
+              onLibraryUpdate={updateLibrary}
+              onClose={handleClose}
+              row={library}
+            />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={() => handleDelete(library)}
+              className={classes.editButton}
+            >
+              <DeleteIcon />
+            </Button>
+          </Grid>
+        </Grid>
+      );
+    }
+  };
+
+  const handleDelete = () => {
+    if (
+      confirm(
+        'Are you sure you want to delete this library? This action CANNOT be undone.',
+      )
+    ) {
+      let status;
+      fetch(`api/v1/libraries/${library.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(results => {
+          if (status === 200) {
+            return onCloseDelete();
+          } else {
+            const error = processError(results);
+            throw new Error(error);
+          }
+        })
+        .catch(error => {
+          console.error(error.name + ': ' + error.message);
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+        });
+    } else {
+      return;
+    }
+  };
+
+  // handle devices
   const [devices, setDevices] = React.useState([]);
   const [openDevice, setOpenDevice] = React.useState(false);
   const [edit, setEdit] = React.useState(false);
@@ -86,6 +169,7 @@ export default function Library(props) {
   const closeDevice = () => {
     setOpenDevice(false);
     setEdit(false);
+    setDeviceToEdit({});
   };
 
   const openEdit = device => {
@@ -149,6 +233,85 @@ export default function Library(props) {
             device => device.id !== deviceToDelete.id,
           );
           setDevices(updatedDevices);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(error);
+        }
+      })
+      .catch(error => {
+        console.error(error.name + ': ' + error.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  };
+
+  // handle networks
+  const [networks, setNetworks] = React.useState([]);
+  const [openNetwork, setOpenNetwork] = React.useState(false);
+  const [editNetwork, setEditNetwork] = React.useState(false);
+  const [networkToEdit, setNetworkToEdit] = React.useState({});
+
+  const showAddEditNetwork = () => {
+    setOpenNetwork(true);
+  };
+
+  const closeNetwork = () => {
+    setOpenNetwork(false);
+    setEditNetwork(false);
+    setNetworkToEdit({});
+  };
+
+  const openNetworkEdit = network => {
+    setOpenNetwork(true);
+    setEditNetwork(true);
+    setNetworkToEdit(network);
+  };
+
+  React.useEffect(() => {
+    let status;
+
+    fetch(`/api/v1/libraries/${library.id}/networks`)
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(networks => {
+        if (status === 200) {
+          setNetworks(networks.data);
+          return;
+        } else {
+          const error = processError(networks);
+          throw new Error(error);
+        }
+      })
+      .catch(error => {
+        console.error(error.name + ': ' + error.message);
+        alert(
+          'An error occurred. Please try again or contact an administrator.',
+        );
+      });
+  }, []);
+
+  const handleNetworkDelete = networkToDelete => {
+    let status;
+    fetch(`api/v1/networks/${networkToDelete.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(results => {
+        if (status === 200) {
+          let updatedNetworks = networks.filter(
+            network => network.id !== networkToDelete.id,
+          );
+          setNetworks(updatedNetworks);
           return;
         } else {
           const error = processError(results);
@@ -309,22 +472,7 @@ export default function Library(props) {
                 {library.name}
               </Typography>
             </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                disableElevation
-                color="primary"
-                onClick={handleClickOpen}
-              >
-                Edit
-              </Button>
-              <EditLibrary
-                open={open}
-                onLibraryUpdate={updateLibrary}
-                onClose={handleClose}
-                row={library}
-              />
-            </Grid>
+            {isAdmin(user)}
           </Grid>
         </Box>
         <Box mb={9}>
@@ -426,57 +574,153 @@ export default function Library(props) {
             >
               <TableBody>
                 <TableRow>
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.tableKey}`}
-                  >
-                    Network Name
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {library.network_name}
+                  <TableCell>
+                    {networks && networks.length > 0
+                      ? networks.map((network, index) => {
+                          return (
+                            <ExpansionPanel key={index}>
+                              <ExpansionPanelSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                              >
+                                <Typography
+                                  variant="overline"
+                                  display="block"
+                                  gutterBottom
+                                >
+                                  {network.name}
+                                </Typography>
+                              </ExpansionPanelSummary>
+                              <ExpansionPanelDetails>
+                                <Table
+                                  className={classes.table}
+                                  aria-label="basic information table"
+                                >
+                                  <TableBody>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Network Name
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {network.name}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        ISP
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {network.isp}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Contracted Speeds
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {network.contracted_speed_download}{' '}
+                                        Mbit/s Download
+                                        <br />
+                                        {network.contracted_speed_upload} Mbit/s
+                                        Upload
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        IP Addresses of Custom DNS Servers
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {network.ips}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={`${classes.tableCell} ${
+                                          classes.tableKey
+                                        }`}
+                                      >
+                                        Per Device Bandwidth Caps
+                                      </TableCell>
+                                      <TableCell className={classes.tableCell}>
+                                        {network.bandwidth_cap_download} GB/mo
+                                        Download
+                                        <br />
+                                        {network.bandwidth_cap_upload}
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell
+                                        className={classes.tableCellButtons}
+                                      >
+                                        <Button
+                                          type="submit"
+                                          label="Submit"
+                                          variant="contained"
+                                          disableElevation
+                                          color="primary"
+                                          onClick={() =>
+                                            openNetworkEdit(network)
+                                          }
+                                        >
+                                          Edit network
+                                        </Button>{' '}
+                                        <Button
+                                          variant="contained"
+                                          disableElevation
+                                          color="primary"
+                                          onClick={() =>
+                                            handleNetworkDelete(network)
+                                          }
+                                        >
+                                          Delete network
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>
+                                </Table>
+                              </ExpansionPanelDetails>
+                            </ExpansionPanel>
+                          );
+                        })
+                      : null}
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.tableKey}`}
-                  >
-                    ISP
-                  </TableCell>
                   <TableCell className={classes.tableCell}>
-                    {library.isp}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.tableKey}`}
-                  >
-                    Contracted Speeds
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {library.contracted_speed_download} download
-                    <br />
-                    {library.contracted_speed_upload} upload
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.tableKey}`}
-                  >
-                    IP address of custom DNS severs
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {library.ip}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.tableKey}`}
-                  >
-                    Per device bandwidth caps
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {library.bandwidth_cap_download} download
-                    <br />
-                    {library.bandwidth_cap_upload} upload
+                    <Button
+                      variant="contained"
+                      disableElevation
+                      color="primary"
+                      onClick={showAddEditNetwork}
+                    >
+                      Add a network
+                    </Button>
+                    <AddEditNetwork
+                      open={openNetwork}
+                      onClose={closeNetwork}
+                      row={library}
+                      editMode={editNetwork}
+                      network={networkToEdit}
+                      networks={networks}
+                      setNetworks={setNetworks}
+                    />
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -627,7 +871,9 @@ export default function Library(props) {
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                      <TableCell className={classes.tableCell}>
+                                      <TableCell
+                                        className={classes.tableCellButtons}
+                                      >
                                         <Button
                                           type="submit"
                                           label="Submit"
@@ -776,6 +1022,7 @@ export default function Library(props) {
 }
 
 Library.propTypes = {
+  onCloseDelete: PropTypes.func.isRequired,
   library: PropTypes.shape({
     name: PropTypes.string,
     physical_address: PropTypes.string,

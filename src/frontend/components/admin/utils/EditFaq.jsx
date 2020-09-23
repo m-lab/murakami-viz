@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
@@ -43,19 +44,23 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
+const useForm = (callback, validated, faq) => {
+  const initialValue = { question: faq.question, answer: faq.answer };
+  const [inputs, setInputs] = useState(initialValue);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback(inputs);
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
-    setInputs(inputs => ({
+    setInputs(inputs =>({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), //removes whitespace
     }));
   };
   return {
@@ -68,12 +73,74 @@ const useForm = callback => {
 export default function EditFaq(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    question: '',
+    answer: '',
+  });
 
   const handleClose = () => {
     onClose();
   };
 
-  const submitData = () => {
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+
+    if (_.isEmpty(inputs)) {
+      setErrors(errors => ({
+        ...errors,
+        question: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        question: 'Please enter a question and answer.',
+      }));
+      return false;
+    } else {
+      if (!inputs.question || !inputs.answer) {
+        if (!inputs.question) {
+          setErrors(errors => ({
+            ...errors,
+            question: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            question: 'Please enter a question.',
+          }));
+        }
+        if (!inputs.answer) {
+          setErrors(errors => ({
+            ...errors,
+            answer: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            answer: 'Please enter an answer.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  // handle api data errors
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
+  const submitData = (inputs) => {
+    let status;
     fetch(`api/v1/faqs/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -81,22 +148,35 @@ export default function EditFaq(props) {
       },
       body: JSON.stringify({ data: inputs }),
     })
-      .then(response => response.json())
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
       .then(results => {
-        alert('Faq edited successfully.');
-        onClose(results.data[0]);
-        return;
+        if (status === 200) {
+          alert('FAQ edited successfully.');
+          onClose(results.data[0]);
+          return;
+        } else {
+          const error = processError(results);
+          throw new Error(`Error in response from server: ${error}`);
+        }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });
   };
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+    row,
+  );
 
   return (
     <Dialog
@@ -121,6 +201,8 @@ export default function EditFaq(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={errors && errors.question}
+          helperText={helperText.question}
           className={classes.formField}
           id="faq-question"
           label="Question"
@@ -129,9 +211,10 @@ export default function EditFaq(props) {
           variant="outlined"
           defaultValue={row.question}
           onChange={handleInputChange}
-          value={inputs.question}
         />
         <TextField
+          error={errors && errors.answer}
+          helperText={helperText.answer}
           className={classes.formField}
           id="faq-answer"
           label="Answer"
@@ -142,7 +225,6 @@ export default function EditFaq(props) {
           variant="outlined"
           defaultValue={row.answer}
           onChange={handleInputChange}
-          value={inputs.answer}
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

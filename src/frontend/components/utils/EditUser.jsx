@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash/core';
 
 // material ui imports
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -10,6 +11,7 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 
@@ -53,19 +55,22 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const useForm = callback => {
-  const [inputs, setInputs] = useState({});
+const useForm = (callback, validated, user) => {
+  const [inputs, setInputs] = useState(user);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    callback();
+    if (validated(inputs)) {
+      callback(inputs);
+      setInputs({});
+    }
   };
   const handleInputChange = event => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), // removes whitespace
     }));
   };
   return {
@@ -86,6 +91,10 @@ export default function EditUser(props) {
   const [roleName, setRoleName] = React.useState(row.role_name);
   const [location, setLocation] = React.useState(row.location);
   const [locationName, setLocationName] = React.useState(row.location_name);
+  const [errors, setErrors] = React.useState({});
+  const [helperText, setHelperText] = React.useState({
+    username: '',
+  });
 
   const handleClose = () => {
     onClose(row);
@@ -101,12 +110,127 @@ export default function EditUser(props) {
     setLocationName(values.name);
   };
 
-  const submitData = () => {
+  const validateEmail = email => {
+    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validateInputs = inputs => {
+    setErrors({});
+    setHelperText({});
+
+    if (_.isEmpty(inputs)) {
+        setErrors(errors => ({
+          ...errors,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          location: true,
+          role: true,
+        }));
+        setHelperText(helperText => ({
+          ...helperText,
+          username: 'This field is required.',
+          email: 'This field is required.',
+          firstName: 'This field is required.',
+          lastName: 'This field is required.',
+          location: 'This field is required.',
+          role: 'This field is required.',
+        }));
+        return false;
+      } else {
+      if (!inputs.username || !inputs.firstName || !inputs.lastName || 
+        !inputs.email || !location || !role) {
+        if ((!inputs.username || inputs.username.length < 1) && !row.username) {
+          setErrors(errors => ({
+            ...errors,
+            username: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            username: 'This field is required.',
+          }));
+        }
+        if (!inputs.firstName) {
+          setErrors(errors => ({
+            ...errors,
+            firstName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            firstName: 'This field is required.',
+          }));
+        }
+        if (!inputs.lastName) {
+          setErrors(errors => ({
+            ...errors,
+            lastName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            lastName: 'This field is required.',
+          }));
+        }
+        if (
+          (!validateEmail(inputs.email) || inputs.email.length < 1) &&
+          !validateEmail(row.email)
+        ) {
+          setErrors(errors => ({
+            ...errors,
+            email: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            email: 'Please enter a valid email address.',
+          }));
+        }
+        if (!location) {
+          setErrors(errors => ({
+            ...errors,
+            location: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            location: 'Please select a location with which to associate this user.',
+          }));
+        }
+        if (!role) {
+          setErrors(errors => ({
+            ...errors,
+            role: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            role: 'Please select a role for this user.',
+          }));
+        }
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+
+  const submitData = (inputs) => {
+    // workaround to ensure that the PUT body is idempotent
     const toSubmit = {
       ...inputs,
       location: location,
       role: role,
     };
+    // these attributes are necessary for the user object on the frontend
+    // but the backend does not accept them 
+    for (let key in toSubmit) {
+      if (toSubmit[key] === null || 
+        toSubmit[key] === undefined || 
+        key === 'location_name' || 
+        key === 'isActive' ||
+        key === 'location_address' ||
+        key === 'role_name') {
+        delete toSubmit[key]
+      }
+    }
 
     let status;
     fetch(`api/v1/users/${row.id}`, {
@@ -135,9 +259,10 @@ export default function EditUser(props) {
         }
       })
       .catch(error => {
-        console.error(error.name + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. Please try again or contact an administrator. ${
+            error.name
+          }: ${error.message}`,
         );
         onClose();
       });
@@ -195,7 +320,11 @@ export default function EditUser(props) {
       });
   }, []);
 
-  const { inputs, handleInputChange, handleSubmit } = useForm(submitData);
+  const { inputs, handleInputChange, handleSubmit } = useForm(
+    submitData,
+    validateInputs,
+    row  
+  );
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -205,7 +334,7 @@ export default function EditUser(props) {
     return (
       <Dialog
         onClose={handleClose}
-        modal={true}
+        modal="true"
         open={open}
         aria-labelledby="edit-user-title"
         fullWidth={true}
@@ -214,7 +343,7 @@ export default function EditUser(props) {
       >
         <Button
           label="Close"
-          primary={true}
+          primary="true"
           onClick={handleClose}
           className={classes.closeButton}
         >
@@ -225,6 +354,8 @@ export default function EditUser(props) {
         </DialogTitle>
         <Box className={classes.form}>
           <TextField
+            error={errors && errors.username}
+            helperText={helperText.username}
             className={classes.formField}
             id="user-username"
             label="Username"
@@ -233,32 +364,37 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.username}
             onChange={handleInputChange}
-            value={inputs.username}
             required
           />
           <TextField
+            error={errors && errors.firstName}
+            helperText={helperText.firstName}
             className={classes.formField}
             id="user-first-name"
             label="First Name"
             name="firstName"
             fullWidth
+            required
             variant="outlined"
             defaultValue={row.firstName}
             onChange={handleInputChange}
-            value={inputs.firstName}
           />
           <TextField
+            error={errors && errors.lastName}
+            helperText={helperText.lastName}
             className={classes.formField}
             id="user-last-name"
             label="Last Name"
             name="lastName"
             fullWidth
+            required
             variant="outlined"
             defaultValue={row.lastName}
             onChange={handleInputChange}
-            value={inputs.lastName}
           />
           <TextField
+            error={errors && errors.email}
+            helperText={helperText.email}
             className={classes.formField}
             id="user-email"
             label="Email"
@@ -267,15 +403,36 @@ export default function EditUser(props) {
             variant="outlined"
             defaultValue={row.email}
             onChange={handleInputChange}
-            value={inputs.email}
             required
           />
-          <FormControl variant="outlined" className={classes.formControl}>
+          <TextField
+            className={classes.formField}
+            id="user-phone"
+            label="Phone number"
+            name="phone"
+            fullWidth
+            variant="outlined"
+            onChange={handleInputChange}
+          />
+          <TextField
+            className={classes.formField}
+            id="user-extension"
+            label="Extension"
+            name="extension"
+            fullWidth
+            variant="outlined"
+            onChange={handleInputChange}
+          />
+          <FormControl
+            variant="outlined"
+            className={classes.formControl}
+            error={errors && errors.location}
+          >
             <Autocomplete
               id="library-select"
               options={libraries}
               getOptionLabel={option => option.name}
-              getOptionSelected={(option, value) => option.name === value}
+              getOptionSelected={(option, value) => option.name === value.name}
               defaultValue={libraries.find(
                 library => library.id === row.location,
               )}
@@ -284,26 +441,32 @@ export default function EditUser(props) {
                 <TextField {...params} label="Location" variant="outlined" />
               )}
             />
+            <FormHelperText>{helperText.location}</FormHelperText>
           </FormControl>
-          <FormControl variant="outlined" className={classes.formControl}>
+          <FormControl
+            variant="outlined"
+            className={classes.formControl}
+            error={errors && errors.role}
+          >
             <Autocomplete
               id="user-role"
               options={groups}
               getOptionLabel={option => option.name}
-              getOptionSelected={(option, value) => option.name === value}
+              getOptionSelected={(option, value) => option.name === value.name}
               defaultValue={groups.find(group => group.id === row.role)}
               onChange={handleRoleChange}
               renderInput={params => (
                 <TextField {...params} label="Roles" variant="outlined" />
               )}
             />
+            <FormHelperText>{helperText.role}</FormHelperText>
           </FormControl>
           <Grid container alignItems="center" justify="space-between">
             <Grid item>
               <Button
                 size="small"
                 label="Cancel"
-                primary={true}
+                primary="true"
                 onClick={handleClose}
                 className={classes.cancelButton}
               >
@@ -319,7 +482,7 @@ export default function EditUser(props) {
                 variant="contained"
                 disableElevation
                 color="primary"
-                primary={true}
+                primary="true"
               >
                 Save
               </Button>

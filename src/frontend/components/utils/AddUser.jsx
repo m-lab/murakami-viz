@@ -11,6 +11,7 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 
@@ -69,7 +70,7 @@ const useForm = (callback, validated) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(), // removes whitespace
     }));
   };
   return {
@@ -95,14 +96,34 @@ export default function AddUser(props) {
       setErrors(errors => ({
         ...errors,
         username: true,
+        password: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        location: true,
+        role: true,
       }));
       setHelperText(helperText => ({
         ...helperText,
         username: 'This field is required.',
+        password: 'This field is required.',
+        firstName: 'This field is required.',
+        lastName: 'This field is required.',
+        email: 'This field is required.',
+        location: 'This field is required.',
+        role: 'This field is required.',
       }));
       return false;
     } else {
-      if (!inputs.username || !inputs.password || !inputs.email) {
+      if (
+        !inputs.username ||
+        !inputs.password ||
+        !inputs.email ||
+        !location ||
+        !inputs.firstName ||
+        !inputs.lastName ||
+        !role
+      ) {
         if (!inputs.username) {
           setErrors(errors => ({
             ...errors,
@@ -110,7 +131,27 @@ export default function AddUser(props) {
           }));
           setHelperText(helperText => ({
             ...helperText,
-            username: 'Required',
+            username: 'This field is required.',
+          }));
+        }
+        if (!inputs.firstName) {
+          setErrors(errors => ({
+            ...errors,
+            firstName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            firstName: 'This field is required.',
+          }));
+        }
+        if (!inputs.lastName) {
+          setErrors(errors => ({
+            ...errors,
+            lastName: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            lastName: 'This field is required.',
           }));
         }
         if (!inputs.password) {
@@ -120,7 +161,7 @@ export default function AddUser(props) {
           }));
           setHelperText(helperText => ({
             ...helperText,
-            password: 'Required',
+            password: 'This field is required.',
           }));
         }
         if (!validateEmail(inputs.email)) {
@@ -131,6 +172,26 @@ export default function AddUser(props) {
           setHelperText(helperText => ({
             ...helperText,
             email: 'Please enter a valid email address.',
+          }));
+        }
+        if (!location) {
+          setErrors(errors => ({
+            ...errors,
+            location: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            location: 'Please select a location with which to associate this user.',
+          }));
+        }
+        if (!role) {
+          setErrors(errors => ({
+            ...errors,
+            role: true,
+          }));
+          setHelperText(helperText => ({
+            ...helperText,
+            role: 'Please select a role for this user.',
           }));
         }
         return false;
@@ -319,21 +380,27 @@ export default function AddUser(props) {
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.firstName}
+              helperText={helperText.firstName}
               className={classes.formField}
               id="user-first-name"
               label="First Name"
               name="firstName"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
+              error={errors && errors.lastName}
+              helperText={helperText.lastName}
               className={classes.formField}
               id="user-last-name"
               label="Last Name"
               name="lastName"
               fullWidth
               variant="outlined"
+              required
               onChange={handleInputChange}
             />
             <TextField
@@ -348,7 +415,29 @@ export default function AddUser(props) {
               required
               onChange={handleInputChange}
             />
-            <FormControl variant="outlined" className={classes.formControl}>
+            <TextField
+              className={classes.formField}
+              id="user-phone"
+              label="Phone number"
+              name="phone"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <TextField
+              className={classes.formField}
+              id="user-extension"
+              label="Extension"
+              name="extension"
+              fullWidth
+              variant="outlined"
+              onChange={handleInputChange}
+            />
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              error={errors && errors.location}
+            >
               <Autocomplete
                 id="library-select"
                 options={libraries}
@@ -356,11 +445,20 @@ export default function AddUser(props) {
                 getOptionSelected={(option, value) => option.name === value}
                 onChange={handleLocationChange}
                 renderInput={params => (
-                  <TextField {...params} label="Location" variant="outlined" />
+                  <TextField
+                    {...params}
+                    label="Location *"
+                    variant="outlined"
+                  />
                 )}
               />
+              <FormHelperText>{helperText.location}</FormHelperText>
             </FormControl>
-            <FormControl variant="outlined" className={classes.formControl}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              error={errors && errors.role}
+            >
               <Autocomplete
                 id="user-role"
                 options={groups}
@@ -368,9 +466,10 @@ export default function AddUser(props) {
                 getOptionSelected={(option, value) => option.name === value}
                 onChange={handleRoleChange}
                 renderInput={params => (
-                  <TextField {...params} label="Roles" variant="outlined" />
-                  )}
+                  <TextField {...params} label="Roles *" variant="outlined" />
+                )}
               />
+              <FormHelperText>{helperText.role}</FormHelperText>
             </FormControl>
             <Grid container alignItems="center" justify="space-between">
               <Grid item>

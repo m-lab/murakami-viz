@@ -22,6 +22,7 @@ import LibraryController from './controllers/library.js';
 import DeviceController from './controllers/device.js';
 import FaqController from './controllers/faq.js';
 import GlossaryController from './controllers/glossary.js';
+import NetworkController from './controllers/network.js';
 import NoteController from './controllers/note.js';
 import RunController from './controllers/run.js';
 import SettingController from './controllers/setting.js';
@@ -30,6 +31,7 @@ import Libraries from './models/library.js';
 import Devices from './models/device.js';
 import Faqs from './models/faq.js';
 import Glossaries from './models/glossary.js';
+import Networks from './models/network.js';
 import Notes from './models/note.js';
 import Runs from './models/run.js';
 import Settings from './models/setting.js';
@@ -73,6 +75,8 @@ export default function configServer(config) {
   const faqs = FaqController(faqModel, auth);
   const glossaryModel = new Glossaries(db);
   const glossaries = GlossaryController(glossaryModel, auth);
+  const networkModel = new Networks(db);
+  const networks = NetworkController(networkModel, auth);
   const noteModel = new Notes(db);
   const notes = NoteController(noteModel, auth);
   const runModel = new Runs(db);
@@ -83,6 +87,11 @@ export default function configServer(config) {
   const systems = SystemController(systemModel, auth);
   const libraries = LibraryController(libraryModel, auth);
   libraries.use('/libraries/:lid', devices.routes(), devices.allowedMethods());
+  libraries.use(
+    '/libraries/:lid',
+    networks.routes(),
+    networks.allowedMethods(),
+  );
   libraries.use('/libraries/:lid', notes.routes(), notes.allowedMethods());
   libraries.use('/libraries/:lid', runs.routes(), runs.allowedMethods());
   libraries.use('/libraries/:lid', users.routes(), users.allowedMethods());
@@ -99,6 +108,8 @@ export default function configServer(config) {
     faqs.allowedMethods(),
     glossaries.routes(),
     glossaries.allowedMethods(),
+    networks.routes(),
+    networks.allowedMethods(),
     notes.routes(),
     notes.allowedMethods(),
     runs.routes(),

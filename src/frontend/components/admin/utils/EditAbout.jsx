@@ -46,41 +46,57 @@ const useStyles = makeStyles(() => ({
 export default function EditAbout(props) {
   const classes = useStyles();
   const { onClose, open, aboutValue } = props;
+  const [error, setError] = useState(false);
+  const [helperText, setHelperText] = useState('');
   const [about, setAbout] = useState('');
 
   const handleClose = () => {
-    onClose(about);
+    onClose(aboutValue);
+  };
+
+  const validated = value => {
+    if (!!value.trim() && value.length !== 0) {
+      setHelperText('');
+      setError(false);
+      return true;
+    } else {
+      setHelperText('This field cannot be blank.');
+      setError(true);
+      return false;
+    }
   };
 
   const submitData = () => {
-    let status;
-    fetch('api/v1/settings/about', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: about }),
-    })
-      .then(res => {
-        status = res.status;
-        return res.json();
+    if (validated(about)) {
+      let status;
+      fetch('api/v1/settings/about', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: about }),
       })
-      .then(() => {
-        if (status === 200 || status === 201) {
-          alert('About page submitted successfully.');
-          onClose(about);
-          return;
-        } else {
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        alert(
-          'An error occurred. Please try again or contact an administrator.',
-        );
-        console.error(error.name + error.message);
-        onClose();
-      });
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(() => {
+          if (status === 200 || status === 201) {
+            alert('About page submitted successfully.');
+            onClose(about);
+            return;
+          } else {
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .catch(error => {
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+          console.error(error.name + error.message);
+          onClose();
+        });
+    }
   };
 
   useEffect(() => {
@@ -110,6 +126,8 @@ export default function EditAbout(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={error}
+          helperText={helperText}
           className={classes.formField}
           id="about"
           label="About"

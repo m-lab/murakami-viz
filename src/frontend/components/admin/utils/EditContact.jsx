@@ -46,41 +46,57 @@ const useStyles = makeStyles(() => ({
 export default function EditContact(props) {
   const classes = useStyles();
   const { onClose, open, selectedContactValue } = props;
+  const [error, setError] = useState(false);
+  const [helperText, setHelperText] = useState('');
   const [contact, setContact] = useState('');
 
   const handleClose = () => {
-    onClose(contact);
+    onClose(selectedContactValue);
+  };
+
+  const validated = value => {
+    if (!!value.trim() && value.length !== 0) {
+      setHelperText('');
+      setError(false);
+      return true;
+    } else {
+      setHelperText('This field cannot be blank.');
+      setError(true);
+      return false;
+    }
   };
 
   const submitData = () => {
-    let status;
-    fetch('api/v1/settings/contact', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: contact }),
-    })
-      .then(res => {
-        status = res.status;
-        return res.json();
+    if (validated(contact)) {
+      let status;
+      fetch('api/v1/settings/contact', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: contact }),
       })
-      .then(() => {
-        if (status === 200 || status === 201) {
-          alert('Contact page submitted successfully.');
-          onClose(contact);
-          return;
-        } else {
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        alert(
-          'An error occurred. Please try again or contact an administrator.',
-        );
-        console.error(error.name + error.message);
-        onClose();
-      });
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(() => {
+          if (status === 200 || status === 201) {
+            alert('Contact page submitted successfully.');
+            onClose(contact);
+            return;
+          } else {
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .catch(error => {
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+          console.error(error.name + error.message);
+          onClose();
+        });
+    }
   };
 
   useEffect(() => {
@@ -110,6 +126,8 @@ export default function EditContact(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={error}
+          helperText={helperText}
           className={classes.formField}
           id="contact"
           label="Contact"

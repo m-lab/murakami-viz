@@ -207,11 +207,15 @@ export default class User {
   }
 
   async delete(id) {
-    return this._db
-      .table('users')
-      .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+    try {
+      await this._db
+        .table('users')
+        .del()
+        .where({ id: parseInt(id) });
+      return id;
+    } catch (err) {
+      throw new BadRequestError(`Failed to delete user with ID ${id}: `, err);
+    }
   }
 
   async find({

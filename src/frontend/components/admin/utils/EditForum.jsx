@@ -45,47 +45,64 @@ const useStyles = makeStyles(() => ({
 
 export default function EditForum(props) {
   const classes = useStyles();
-  const { onClose, open, forumValue } = props;
+  const { onClose, open, selectedForumValue } = props;
+  const [error, setError] = useState(false);
+  const [helperText, setHelperText] = useState('');
   const [forum, setForum] = useState('https://example.com');
-
+  
   const handleClose = () => {
-    onClose(forum);
+    onClose(selectedForumValue);
+  };
+
+  const validated = value => {
+    if (!!value.trim() && value.length !== 0) {
+      setHelperText('');
+      setError(false);
+      return true;
+    } else {
+      setHelperText('This field cannot be blank.');
+      setError(true);
+      return false;
+    }
   };
 
   const submitData = () => {
-    let status;
-    fetch('api/v1/settings/forum', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: forum }),
-    })
-      .then(res => {
-        status = res.status;
-        return res.json();
+    if (validated(forum)) {
+      let status;
+      fetch('api/v1/settings/forum', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: forum }),
       })
-      .then(() => {
-        if (status === 200 || status === 201) {
-          alert('Forum link submitted successfully.');
-          onClose(forum);
-          return;
-        } else {
-          throw new Error(`Error in response from server.`);
-        }
-      })
-      .catch(error => {
-        alert(
-          'An error occurred. Please try again or contact an administrator.',
-        );
-        console.error(error.name + error.message);
-        onClose();
-      });
+        .then(res => {
+          status = res.status;
+          return res.json();
+        })
+        .then(() => {
+          if (status === 200 || status === 201) {
+            alert('Forum link submitted successfully.');
+            onClose(forum);
+            return;
+          } else {
+            throw new Error(`Error in response from server.`);
+          }
+        })
+        .catch(error => {
+          alert(
+            `An error occurred. Please try again or contact an administrator. ${
+              error.name
+            }: ${error.message}`,
+          );
+          onClose();
+        });
+    }
   };
 
   useEffect(() => {
-    setForum(forumValue);
-  }, [forumValue]);
+    setForum(selectedForumValue);
+  }, [selectedForumValue]);
 
   return (
     <Dialog
@@ -110,6 +127,8 @@ export default function EditForum(props) {
       </DialogTitle>
       <Box className={classes.form}>
         <TextField
+          error={error}
+          helperText={helperText}
           className={classes.formField}
           id="forum"
           label="Forum"
@@ -155,5 +174,5 @@ export default function EditForum(props) {
 EditForum.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  forumValue: PropTypes.string,
+  selectedForumValue: PropTypes.string,
 };
