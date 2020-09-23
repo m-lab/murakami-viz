@@ -262,10 +262,9 @@ export default function controller(libraries, thisUser) {
 
       try {
         library = await libraries.update(ctx.params.id, ctx.request.body.data);
-
         // workaround for sqlite
         if (Number.isInteger(library)) {
-          library = await libraries.findById(library);
+          library = await libraries.findById(ctx.params.id);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
