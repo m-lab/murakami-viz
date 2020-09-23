@@ -12,6 +12,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -36,6 +37,9 @@ const useStyles = makeStyles(() => ({
     right: '0',
     top: '0',
   },
+  day: {
+    width: '60px',
+  },
   dialog: {
     position: 'relative',
   },
@@ -52,8 +56,16 @@ const useStyles = makeStyles(() => ({
   formControl: {
     width: '100%',
   },
+  formControlHours: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   formField: {
     marginBottom: '30px',
+  },
+  formFieldHours: {
+    margin: '0 30px',
+    width: '115px',
   },
   grid: {
     // marginLeft: "",
@@ -61,6 +73,9 @@ const useStyles = makeStyles(() => ({
   },
   gridItem: {
     marginLeft: '30px',
+  },
+  hours: {
+    marginTop: '20px',
   },
   inline: {
     marginLeft: '20px',
@@ -428,16 +443,1091 @@ export default function AddLibrary(props) {
           <Typography variant="overline" display="block" gutterBottom>
             Library Hours
           </Typography>
-          <TextField
-            className={classes.formField}
-            id="library-opening-hours"
-            label="Opening hours"
-            name="opening_hours"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
-            value={inputs.opening_hours}
-          />
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Sunday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="sunday-open">Sunday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="sunday-open"
+                className={classes.formFieldHours}
+                id="sunday-open"
+                name="sunday_open"
+                onChange={handleInputChange}
+                value={inputs.sunday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="sunday-close">Sunday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="sunday-close"
+                className={classes.formFieldHours}
+                id="sunday-close"
+                name="sunday_close"
+                onChange={handleInputChange}
+                value={inputs.sunday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Monday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="monday-open">Monday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="monday-open"
+                className={classes.formFieldHours}
+                id="monday-open"
+                name="monday_open"
+                onChange={handleInputChange}
+                value={inputs.monday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="monday-close">Monday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="monday-close"
+                className={classes.formFieldHours}
+                id="monday-close"
+                name="monday_close"
+                onChange={handleInputChange}
+                value={inputs.monday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Tuesday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="tuesday-open">Tuesday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="tuesday-open"
+                className={classes.formFieldHours}
+                id="tuesday-open"
+                name="tuesday_open"
+                onChange={handleInputChange}
+                value={inputs.tuesday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="tuesday-close">Tuesday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="tuesday-close"
+                className={classes.formFieldHours}
+                id="tuesday-close"
+                name="tuesday_close"
+                onChange={handleInputChange}
+                value={inputs.tuesday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Wednesday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="wednesday-open">Wednesday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="wednesday-open"
+                className={classes.formFieldHours}
+                id="wednesday-open"
+                name="wednesday_open"
+                onChange={handleInputChange}
+                value={inputs.wednesday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="wednesday-close">Wednesday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="wednesday-close"
+                className={classes.formFieldHours}
+                id="wednesday-close"
+                name="wednesday_close"
+                onChange={handleInputChange}
+                value={inputs.wednesday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Thursday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="thursday-open">Thursday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="thursday-open"
+                className={classes.formFieldHours}
+                id="thursday-open"
+                name="thursday_open"
+                onChange={handleInputChange}
+                value={inputs.thursday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="thursday-close">Thursday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="thursday-close"
+                className={classes.formFieldHours}
+                id="thursday-close"
+                name="thursday_close"
+                onChange={handleInputChange}
+                value={inputs.thursday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Friday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="friday-open">Friday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="friday-open"
+                className={classes.formFieldHours}
+                id="friday-open"
+                name="friday_open"
+                onChange={handleInputChange}
+                value={inputs.friday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="friday-close">Friday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="friday-close"
+                className={classes.formFieldHours}
+                id="friday-close"
+                name="friday_close"
+                onChange={handleInputChange}
+                value={inputs.friday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box className={classes.hours}>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                className={classes.day}
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                Saturday
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="saturday-open">Saturday open</InputLabel>
+              </Hidden>
+              <Select
+                labelId="saturday-open"
+                className={classes.formFieldHours}
+                id="saturday-open"
+                name="saturday_open"
+                onChange={handleInputChange}
+                value={inputs.saturday_open}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControlHours}
+            >
+              <Typography
+                variant="body1"
+                component="p"
+                display="inline-block"
+                gutterBottom
+              >
+                to
+              </Typography>
+              <Hidden xsUp>
+                <InputLabel id="saturday-close">Saturday close</InputLabel>
+              </Hidden>
+              <Select
+                labelId="saturday-close"
+                className={classes.formFieldHours}
+                id="saturday-close"
+                name="saturday_close"
+                onChange={handleInputChange}
+                value={inputs.saturday_close}
+              >
+                <MenuItem value="closed">
+                  <em>Closed</em>
+                </MenuItem>
+                <MenuItem value={'12:00 a.m.'}>12:00 a.m.</MenuItem>
+                <MenuItem value={'12:30 a.m.'}>12:30 a.m.</MenuItem>
+                <MenuItem value={'1:00 a.m.'}>1:00 a.m.</MenuItem>
+                <MenuItem value={'1:30 a.m.'}>1:30 a.m.</MenuItem>
+                <MenuItem value={'2:00 a.m.'}>2:00 a.m.</MenuItem>
+                <MenuItem value={'2:30 a.m.'}>2:30 a.m.</MenuItem>
+                <MenuItem value={'3:00 a.m.'}>3:00 a.m.</MenuItem>
+                <MenuItem value={'3:30 a.m.'}>3:30 a.m.</MenuItem>
+                <MenuItem value={'4:00 a.m.'}>4:00 a.m.</MenuItem>
+                <MenuItem value={'4:30 a.m.'}>4:30 a.m.</MenuItem>
+                <MenuItem value={'5:00 a.m.'}>5:00 a.m.</MenuItem>
+                <MenuItem value={'5:30 a.m.'}>5:30 a.m.</MenuItem>
+                <MenuItem value={'6:00 a.m.'}>6:00 a.m.</MenuItem>
+                <MenuItem value={'6:30 a.m.'}>6:30 a.m.</MenuItem>
+                <MenuItem value={'7:00 a.m.'}>7:00 a.m.</MenuItem>
+                <MenuItem value={'7:30 a.m.'}>7:30 a.m.</MenuItem>
+                <MenuItem value={'8:00 a.m.'}>8:00 a.m.</MenuItem>
+                <MenuItem value={'8:30 a.m.'}>8:30 a.m.</MenuItem>
+                <MenuItem value={'9:00 a.m.'}>9:00 a.m.</MenuItem>
+                <MenuItem value={'9:30 a.m.'}>9:30 a.m.</MenuItem>
+                <MenuItem value={'10:00 a.m.'}>10:00 a.m.</MenuItem>
+                <MenuItem value={'10:30 a.m.'}>10:30 a.m.</MenuItem>
+                <MenuItem value={'11:00 a.m.'}>11:00 a.m.</MenuItem>
+                <MenuItem value={'11:30 a.m.'}>11:30 a.m.</MenuItem>
+                <MenuItem value={'12:00 p.m.'}>12:00 p.m.</MenuItem>
+                <MenuItem value={'12:30 p.m.'}>12:30 p.m.</MenuItem>
+                <MenuItem value={'1:00 p.m.'}>1:00 p.m.</MenuItem>
+                <MenuItem value={'1:30 p.m.'}>1:30 p.m.</MenuItem>
+                <MenuItem value={'2:00 p.m.'}>2:00 p.m.</MenuItem>
+                <MenuItem value={'2:30 p.m.'}>2:30 p.m.</MenuItem>
+                <MenuItem value={'3:00 p.m.'}>3:00 p.m.</MenuItem>
+                <MenuItem value={'3:30 p.m.'}>3:30 p.m.</MenuItem>
+                <MenuItem value={'4:00 p.m.'}>4:00 p.m.</MenuItem>
+                <MenuItem value={'4:30 p.m.'}>4:30 p.m.</MenuItem>
+                <MenuItem value={'5:00 p.m.'}>5:00 p.m.</MenuItem>
+                <MenuItem value={'5:30 p.m.'}>5:30 p.m.</MenuItem>
+                <MenuItem value={'6:00 p.m.'}>6:00 p.m.</MenuItem>
+                <MenuItem value={'6:30 p.m.'}>6:30 p.m.</MenuItem>
+                <MenuItem value={'7:00 p.m.'}>7:00 p.m.</MenuItem>
+                <MenuItem value={'7:30 p.m.'}>7:30 p.m.</MenuItem>
+                <MenuItem value={'8:00 p.m.'}>8:00 p.m.</MenuItem>
+                <MenuItem value={'8:30 p.m.'}>8:30 p.m.</MenuItem>
+                <MenuItem value={'9:00 p.m.'}>9:00 p.m.</MenuItem>
+                <MenuItem value={'9:30 p.m.'}>9:30 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'10:00 p.m.'}>10:00 p.m.</MenuItem>
+                <MenuItem value={'11:00 p.m.'}>11:00 p.m.</MenuItem>
+                <MenuItem value={'11:30 p.m.'}>11:30 p.m.</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </TabPanel>
         <TabPanel value={value} index={1}>
           <TextField

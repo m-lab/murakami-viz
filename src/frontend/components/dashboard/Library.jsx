@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
   },
   tableCell: {
     minWidth: '250px',
-    textTransform: 'capitalize',
+    // textTransform: 'capitalize',
   },
   tableCellButtons: {
     minWidth: '350px',
@@ -169,7 +169,7 @@ export default function Library(props) {
   const closeDevice = () => {
     setOpenDevice(false);
     setEdit(false);
-    setDeviceToEdit({})
+    setDeviceToEdit({});
   };
 
   const openEdit = device => {
@@ -260,7 +260,7 @@ export default function Library(props) {
   const closeNetwork = () => {
     setOpenNetwork(false);
     setEditNetwork(false);
-    setNetworkToEdit({})
+    setNetworkToEdit({});
   };
 
   const openNetworkEdit = network => {
@@ -512,7 +512,7 @@ export default function Library(props) {
                     Timezone
                   </TableCell>
                   <TableCell className={classes.tableCell}>
-                    {library.timezones}
+                    {library.timezone}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -544,7 +544,19 @@ export default function Library(props) {
                     Opening Hours
                   </TableCell>
                   <TableCell className={classes.tableCell}>
-                    {library.opening_hours}
+                    Sunday: {library.sunday_open} - {library.sunday_close}{' '}
+                    <br />
+                    Monday: {library.monday_open} - {library.monday_close}{' '}
+                    <br />
+                    Tuesday: {library.tuesday_open} - {library.tuesday_close}{' '}
+                    <br />
+                    Wednesday: {library.wednesday_open} -{' '}
+                    {library.wednesday_close} <br />
+                    Thursday: {library.thursday_open} - {library.thursday_close}{' '}
+                    <br />
+                    Friday: {library.friday_open} - {library.friday_close}{' '}
+                    <br />
+                    Saturday: {library.saturday_open} - {library.saturday_close}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -619,9 +631,11 @@ export default function Library(props) {
                                         Contracted Speeds
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {network.contracted_speed_download} Mbit/s Download
+                                        {network.contracted_speed_download}{' '}
+                                        Mbit/s Download
                                         <br />
-                                        {network.contracted_speed_upload} Mbit/s Upload
+                                        {network.contracted_speed_upload} Mbit/s
+                                        Upload
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -645,13 +659,16 @@ export default function Library(props) {
                                         Per Device Bandwidth Caps
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {network.bandwidth_cap_download} GB/mo Download
+                                        {network.bandwidth_cap_download} GB/mo
+                                        Download
                                         <br />
                                         {network.bandwidth_cap_upload}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                      <TableCell className={classes.tableCellButtons}>
+                                      <TableCell
+                                        className={classes.tableCellButtons}
+                                      >
                                         <Button
                                           type="submit"
                                           label="Submit"
@@ -685,6 +702,7 @@ export default function Library(props) {
                       : null}
                   </TableCell>
                 </TableRow>
+                <TableRow>
                   <TableCell className={classes.tableCell}>
                     <Button
                       variant="contained"
@@ -853,7 +871,9 @@ export default function Library(props) {
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                      <TableCell className={classes.tableCellButtons}>
+                                      <TableCell
+                                        className={classes.tableCellButtons}
+                                      >
                                         <Button
                                           type="submit"
                                           label="Submit"
@@ -1007,7 +1027,6 @@ Library.propTypes = {
     name: PropTypes.string,
     physical_address: PropTypes.string,
     shipping_address: PropTypes.string,
-    timezones: PropTypes.string,
     timezone: PropTypes.string,
     coordinates: PropTypes.string,
     primary_contact_name: PropTypes.string,
