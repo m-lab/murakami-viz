@@ -157,7 +157,7 @@ export default function controller(users, thisUser) {
     '/authenticated',
     thisUser.can('access private pages'),
     async ctx => {
-      ctx.body = { msg: 'Authenticated', user: ctx.state.user[0].id };
+      ctx.body = { msg: 'Authenticated', user: ctx.state.user.id };
     },
   );
 
@@ -270,16 +270,16 @@ export default function controller(users, thisUser) {
 
     try {
       if (ctx.params.lid) {
-        if (!thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
+        if (!thisUser.isMemberOf('admins', ctx.state.user.id)) {
           ctx.throw(403, 'Access denied.');
         }
         await users.addToLibrary(ctx.params.lid, ctx.params.id);
       } else {
         const id = parseInt(ctx.params.id);
-        if (id === ctx.state.user[0].id) {
+        if (id === ctx.state.user.id) {
           const [data] = await validateUpdateSelf(ctx.request.body.data);
           await users.updateSelf(ctx.params.id, data);
-        } else if (thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
+        } else if (thisUser.isMemberOf('admins', ctx.state.user.id)) {
           const [data] = await validateUpdate(ctx.request.body.data);
           ({ exists: updated = false, ...created } = await users.update(
             ctx.params.id,
