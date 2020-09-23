@@ -35,7 +35,7 @@ export default class DeviceManager {
 
         if (library) {
           const inserts = devices.map(d => ({
-            lid: lid[0],
+            lid: library.id,
             did: d.id,
           }));
           await trx('library_devices').insert(inserts);

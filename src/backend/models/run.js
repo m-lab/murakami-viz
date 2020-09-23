@@ -35,7 +35,7 @@ export default class RunManager {
 
         if (library) {
           const inserts = runs.map(r => ({
-            lid: lid[0],
+            lid: library.id,
             rid: r.id,
           }));
           await trx('library_runs').insert(inserts);

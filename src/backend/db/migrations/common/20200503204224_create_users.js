@@ -21,7 +21,7 @@ export function up(knex) {
         .index()
         .notNullable();
       table.string('phone').index();
-      table.string('extension').index();
+      table.integer('extension').index();
       table.boolean('isActive').defaultTo(true);
       table.timestamps(true, true);
     })

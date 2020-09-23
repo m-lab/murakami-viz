@@ -35,7 +35,7 @@ export default class NoteManager {
 
         if (library) {
           const inserts = notes.map(n => ({
-            lid: lid[0],
+            lid: library.id,
             nid: n.id,
           }));
           await trx('library_notes').insert(inserts);
