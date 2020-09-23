@@ -69,7 +69,7 @@ const useForm = callback => {
   };
 };
 
-export default function EditUser(props) {
+export default function EditSelf(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
 
@@ -260,7 +260,7 @@ export default function EditUser(props) {
   );
 }
 
-EditUser.propTypes = {
+EditSelf.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   row: PropTypes.object.isRequired,

@@ -13,6 +13,7 @@ import MobileStepper from '@material-ui/core/MobileStepper';
 import Typography from '@material-ui/core/Typography';
 
 // icons imports
+import DeleteIcon from '@material-ui/icons/Delete';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
@@ -40,14 +41,14 @@ const useStyles = makeStyles(() => ({
     position: 'relative',
   },
   dialogTitleRoot: {
-    marginTop: '30px',
+    // marginTop: '30px',
   },
   dialogTitleText: {
     fontSize: '2.25rem',
     textAlign: 'center',
   },
   editButton: {
-    marginTop: '30px',
+    margin: '15px',
   },
   form: {
     padding: '50px',
@@ -73,7 +74,7 @@ function formatRole(role) {
 export default function ViewUser(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { onClose, open, rows, index, user } = props;
+  const { onClose, onCloseDelete, open, rows, index, user } = props;
   const [row, setRow] = React.useState(rows[index]);
   const [openEdit, setOpenEdit] = React.useState(false);
 
@@ -106,19 +107,76 @@ export default function ViewUser(props) {
       return null;
     } else {
       return (
-        <Grid item xs={12} sm={5}>
-          <Button
-            variant="contained"
-            disableElevation
-            color="primary"
-            onClick={handleClickOpenEdit}
-            className={classes.editButton}
-          >
-            Edit
-          </Button>
-          <EditUser row={row} open={openEdit} onClose={handleCloseEdit} />
+        <Grid container item xs={12} sm={4} justify="flex-start">
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={handleClickOpenEdit}
+              className={classes.editButton}
+            >
+              Edit
+            </Button>
+            <EditUser row={row} open={openEdit} onClose={handleCloseEdit} />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={() => handleDelete(row)}
+              className={classes.editButton}
+            >
+              <DeleteIcon />
+            </Button>
+          </Grid>
         </Grid>
       );
+    }
+  };
+
+  const processError = res => {
+    let errorString;
+    if (res.statusCode && res.error && res.message) {
+      errorString = `HTTP ${res.statusCode} ${res.error}: ${res.message}`;
+    } else if (res.statusCode && res.status) {
+      errorString = `HTTP ${res.statusCode}: ${res.status}`;
+    } else {
+      errorString = 'Error in response from server.';
+    }
+    return errorString;
+  };
+
+  const handleDelete = () => {
+    if (confirm('Are you sure you want to delete this user?')) {
+      let status;
+      fetch(`api/v1/users/${row.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(results => {
+          if (status === 200) {
+            return onCloseDelete(results.data);
+          } else {
+            const error = processError(results);
+            throw new Error(error);
+          }
+        })
+        .catch(error => {
+          console.error(error.name + ': ' + error.message);
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+        });
+    } else {
+      return;
     }
   };
 
@@ -214,6 +272,7 @@ export default function ViewUser(props) {
 
 ViewUser.propTypes = {
   onClose: PropTypes.func.isRequired,
+  onCloseDelete: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
   rows: PropTypes.array.isRequired,

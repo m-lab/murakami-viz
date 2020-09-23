@@ -302,7 +302,7 @@ export default function AddEditDevice(props) {
             return;
           } else {
             const error = processError(result);
-            throw new Error(`Error in response from server: ${error}`);
+            throw new Error(` in response from server: ${error}`);
           }
         })
         .catch(error => {
@@ -470,7 +470,7 @@ export default function AddEditDevice(props) {
             helperText={helperText.ip}
             className={classes.formField}
             id="library-device-ip"
-            label="Static IP"
+            label="Static IP (if applicable)"
             name="ip"
             variant="outlined"
             onChange={handleInputChange}

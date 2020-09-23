@@ -37,6 +37,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     maxWidth: 500,
   },
+  editButton: {
+    margin: '0 15px',
+  },
   nested: {
     paddingLeft: theme.spacing(4),
   },
@@ -54,6 +57,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Library(props) {
   const classes = useStyles();
+  const { onCloseDelete, user } = props;
   const [library, setLibrary] = React.useState(props.library);
 
   // handle edit library
@@ -72,6 +76,80 @@ export default function Library(props) {
       updateLibrary(library);
     }
     setOpen(false);
+  };
+
+  const isAdmin = user => {
+    if (user.role_name != 'admins') {
+      return null;
+    } else {
+      return (
+        <Grid container item xs={12} sm={4} justify="flex-start">
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={handleClickOpen}
+            >
+              Edit
+            </Button>
+            <EditLibrary
+              open={open}
+              onLibraryUpdate={updateLibrary}
+              onClose={handleClose}
+              row={library}
+            />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              color="primary"
+              onClick={() => handleDelete(library)}
+              className={classes.editButton}
+            >
+              <DeleteIcon />
+            </Button>
+          </Grid>
+        </Grid>
+      );
+    }
+  };
+
+  const handleDelete = () => {
+    if (
+      confirm(
+        'Are you sure you want to delete this library? This action CANNOT be undone.',
+      )
+    ) {
+      let status;
+      fetch(`api/v1/libraries/${library.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(results => {
+          if (status === 200) {
+            return onCloseDelete();
+          } else {
+            const error = processError(results);
+            throw new Error(error);
+          }
+        })
+        .catch(error => {
+          console.error(error.name + ': ' + error.message);
+          alert(
+            'An error occurred. Please try again or contact an administrator.',
+          );
+        });
+    } else {
+      return;
+    }
   };
 
   const [devices, setDevices] = React.useState([]);
@@ -309,22 +387,7 @@ export default function Library(props) {
                 {library.name}
               </Typography>
             </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                disableElevation
-                color="primary"
-                onClick={handleClickOpen}
-              >
-                Edit
-              </Button>
-              <EditLibrary
-                open={open}
-                onLibraryUpdate={updateLibrary}
-                onClose={handleClose}
-                row={library}
-              />
-            </Grid>
+            {isAdmin(user)}
           </Grid>
         </Box>
         <Box mb={9}>
@@ -381,7 +444,7 @@ export default function Library(props) {
                   <TableCell
                     className={`${classes.tableCell} ${classes.tableKey}`}
                   >
-                    Primary Library Contact
+                    Library Contact for MLBN Devices
                   </TableCell>
                   <TableCell className={classes.tableCell}>
                     {library.primary_contact_name}
@@ -764,6 +827,7 @@ export default function Library(props) {
 }
 
 Library.propTypes = {
+  onCloseDelete: PropTypes.func.isRequired,
   library: PropTypes.shape({
     name: PropTypes.string,
     physical_address: PropTypes.string,

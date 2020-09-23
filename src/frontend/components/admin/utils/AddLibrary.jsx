@@ -69,6 +69,7 @@ const useStyles = makeStyles(() => ({
     marginBottom: '0',
   },
   saveButtonContainer: {
+    marginBottom: '2em',
     marginLeft: 'auto',
     marginRight: 'auto',
     textAlign: 'center',
@@ -400,7 +401,7 @@ export default function AddLibrary(props) {
             value={inputs.coordinates}
           />
           <Typography variant="overline" display="block" gutterBottom>
-            Primary Library Contact
+            Library Contact for MLBN Devices
           </Typography>
           <TextField
             className={classes.formField}

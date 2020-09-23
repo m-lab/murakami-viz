@@ -80,8 +80,15 @@ export default function Admin(props) {
   const user = props.user || props.location.state.user;
   const [libraries, setLibraries] = useState(null);
   const [openEditUser, setOpenEditUser] = useState(false);
-  const [ error, setError ] = React.useState(null);
-  const [ isLoaded, setIsLoaded ] = React.useState(null);
+
+  // handle open and close edit self
+  const handleOpen = () => {
+    setOpenEditUser(true);
+  };
+
+  const handleClose = () => {
+    setOpenEditUser(false);
+  };
 
   const processError = res => {
     let errorString;
@@ -108,14 +115,12 @@ export default function Admin(props) {
           setLibraries(libraries.data);
           return;
         } else {
-          processError(libraries);
-          throw new Error(`Error in response from server.`);
+          const error = processError(libraries);
+          throw new Error(error);
         }
       })
       .catch(error => {
-        setError(error);
         console.error(error.name + error.message);
-        setIsLoaded(true);
       });
   }, []);
 
@@ -136,7 +141,7 @@ export default function Admin(props) {
           <div className={classes.sectionDesktop}>
             <IconButton
               className={classes.appBarUserWidget}
-              onClick={() => setOpenEditUser(true)}
+              onClick={handleOpen}
             >
               <AccountCircle />
               <Box ml={1}>
@@ -167,7 +172,7 @@ export default function Admin(props) {
       </main>
       <EditSelf
         open={openEditUser}
-        onClose={() => setOpenEditUser(false)}
+        onClose={handleClose}
         row={user}
       />
     </Container>
