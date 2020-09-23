@@ -69,7 +69,7 @@ const PrivateRoute = ({
       />
     );
   }
-}
+};
 
 PrivateRoute.propTypes = {
   component: PropTypes.func.isRequired,
@@ -117,6 +117,7 @@ export default function App() {
           if (userStatus === 200) {
             setUser(users.data[0]);
             setAuthenticated(true);
+            console.log('*** USERS ***:', users.data);
             return users.data[0];
           } else {
             const error = processError(users);

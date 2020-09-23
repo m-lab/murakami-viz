@@ -48,22 +48,22 @@ const authWrapper = (groups, libraries) => {
     log.debug('Checking if user can access admin pages.');
     if (!ctx.isAuthenticated()) return false;
 
-    return groups.isMemberOf('admins', ctx.state.user[0].id);
+    return groups.isMemberOf('admins', ctx.state.user.id);
   });
 
   roles.use('edit this library', async ctx => {
     log.debug('Checking if user can edit this library.');
     if (!ctx.isAuthenticated()) return false;
 
-    const isAdmin = await groups.isMemberOf('admins', ctx.state.user[0].id);
+    const isAdmin = await groups.isMemberOf('admins', ctx.state.user.id);
     if (isAdmin) return true;
 
     if (ctx.state.library) {
       const libraryMember = await libraries.isMemberOf(
         ctx.state.library,
-        ctx.state.user[0].id,
+        ctx.state.user.id,
       );
-      const isEditor = await groups.isMemberOf('editors', ctx.state.user[0].id);
+      const isEditor = await groups.isMemberOf('editors', ctx.state.user.id);
       return libraryMember && isEditor;
     } else {
       return false;
@@ -74,13 +74,13 @@ const authWrapper = (groups, libraries) => {
     log.debug('Checking if user can view this library.');
     if (!ctx.isAuthenticated()) return false;
 
-    const isAdmin = await groups.isMemberOf('admins', ctx.state.user[0].id);
+    const isAdmin = await groups.isMemberOf('admins', ctx.state.user.id);
     if (isAdmin) return true;
 
     if (ctx.state.library) {
       const libraryMember = await libraries.isMemberOf(
         ctx.state.library,
-        ctx.state.user[0].id,
+        ctx.state.user.id,
       );
       return libraryMember;
     } else {

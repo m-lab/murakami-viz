@@ -290,7 +290,8 @@ export default class User {
         .leftJoin('libraries', 'libraries.id', 'library_users.lid')
         .leftJoin('user_groups', 'users.id', 'user_groups.uid')
         .leftJoin('groups', 'groups.id', 'user_groups.gid')
-        .where({ 'users.id': parseInt(id) });
+        .where({ 'users.id': parseInt(id) })
+        .first();
     } else {
       return this._db
         .select({
@@ -313,7 +314,8 @@ export default class User {
         .leftJoin('libraries', 'libraries.id', 'library_users.lid')
         .leftJoin('user_groups', 'users.id', 'user_groups.uid')
         .leftJoin('groups', 'groups.id', 'user_groups.gid')
-        .where({ 'users.id': parseInt(id) });
+        .where({ 'users.id': parseInt(id) })
+        .first();
     }
   }
 

@@ -250,6 +250,8 @@ export default function controller(users, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
+    user = Array.isArray(user) ? user : [user];
+
     if (!_.isEmpty(user)) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: user };
       ctx.response.status = 200;
