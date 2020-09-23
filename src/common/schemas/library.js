@@ -19,7 +19,20 @@ const creationSchema = Joi.array()
       primary_contact_email: Joi.string().email(),
       it_contact_name: Joi.string(),
       it_contact_email: Joi.string().email(),
-      opening_hours: Joi.string(),
+      sunday_open: Joi.string(),
+      sunday_close: Joi.string(),
+      monday_open: Joi.string(),
+      monday_close: Joi.string(),
+      tuesday_open: Joi.string(),
+      tuesday_close: Joi.string(),
+      wednesday_open: Joi.string(),
+      wednesday_close: Joi.string(),
+      thursday_open: Joi.string(),
+      thursday_close: Joi.string(),
+      friday_open: Joi.string(),
+      friday_close: Joi.string(),
+      saturday_open: Joi.string(),
+      saturday_close: Joi.string(),
       network_name: Joi.string(),
       isp: Joi.string(),
       contracted_speed_upload: Joi.string(),
@@ -49,7 +62,20 @@ const updateSchema = Joi.array()
       primary_contact_email: Joi.string().email(),
       it_contact_name: Joi.string(),
       it_contact_email: Joi.string().email(),
-      opening_hours: Joi.string(),
+      sunday_open: Joi.string(),
+      sunday_close: Joi.string(),
+      monday_open: Joi.string(),
+      monday_close: Joi.string(),
+      tuesday_open: Joi.string(),
+      tuesday_close: Joi.string(),
+      wednesday_open: Joi.string(),
+      wednesday_close: Joi.string(),
+      thursday_open: Joi.string(),
+      thursday_close: Joi.string(),
+      friday_open: Joi.string(),
+      friday_close: Joi.string(),
+      saturday_open: Joi.string(),
+      saturday_close: Joi.string(),
       network_name: Joi.string(),
       isp: Joi.string(),
       contracted_speed_upload: Joi.string(),
@@ -73,7 +99,6 @@ export async function validateCreation(data) {
 
 export async function validateUpdate(data) {
   try {
-    console.log('***DATA***:', data);
     data = Array.isArray(data) ? data : [data];
     const value = await updateSchema.validateAsync(data);
     return value;

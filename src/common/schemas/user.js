@@ -37,14 +37,13 @@ const updateSchema = Joi.array()
 const updateSelfSchema = Joi.array()
   .items(
     Joi.object({
-      username: Joi.string(),
+      username: Joi.string().required(),
       oldPassword: Joi.string().allow(''),
       newPassword: Joi.string().allow(''),
-      id: Joi.number(),
-      firstName: Joi.string(),
-      lastName: Joi.string(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
       location: Joi.number(),
-      email: Joi.string(),
+      email: Joi.string().required(),
       phone: Joi.string(),
       extension: Joi.number(),
       role: Joi.number(),
