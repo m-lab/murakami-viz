@@ -151,7 +151,7 @@ export default function ViewFaq(props) {
       <Grid container justify="center" alignItems="center">
         <Grid item xs={12} sm={7}>
           <DialogTitle id="view-faq-title" className={classes.dialogTitleRoot}>
-            <div className={classes.dialogTitleText}>View Faq</div>
+            <div className={classes.dialogTitleText}>View FAQ</div>
           </DialogTitle>
         </Grid>
         <Grid item xs={12} sm={5}>
