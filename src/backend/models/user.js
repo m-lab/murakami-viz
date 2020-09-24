@@ -79,7 +79,7 @@ export default class User {
           }
 
           const group_inserts = users.map(u => ({
-            lid: group.id,
+            gid: group.id,
             uid: u.id,
           }));
           await trx('user_groups').insert(group_inserts);
