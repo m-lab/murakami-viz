@@ -74,14 +74,13 @@ export default function EditContact(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: contact }),
+        body: JSON.stringify({ value: contact }),
       })
         .then(res => {
           status = res.status;
-          return res.json();
         })
         .then(() => {
-          if (status === 200 || status === 201) {
+          if (status === 201 || status === 204) {
             alert('Contact page submitted successfully.');
             onClose(contact);
             return;

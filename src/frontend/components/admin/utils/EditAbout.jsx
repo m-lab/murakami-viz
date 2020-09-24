@@ -74,14 +74,13 @@ export default function EditAbout(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: about }),
+        body: JSON.stringify({ value: about }),
       })
         .then(res => {
           status = res.status;
-          return res.json();
         })
         .then(() => {
-          if (status === 200 || status === 201) {
+          if (status === 204 || status === 201) {
             alert('About page submitted successfully.');
             onClose(about);
             return;

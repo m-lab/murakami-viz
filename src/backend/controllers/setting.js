@@ -62,7 +62,7 @@ export default function controller(settings, thisUser) {
       let updated = false;
 
       try {
-        const [data] = await validateUpdate(ctx.request.body.data);
+        const [data] = await validateUpdate(ctx.request.body);
         updated = await settings.update(ctx.params.key, data);
       } catch (err) {
         log.error('HTTP 400 Error: ', err);

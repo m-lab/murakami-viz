@@ -74,14 +74,13 @@ export default function EditForum(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: forum }),
+        body: JSON.stringify({ value: forum }),
       })
         .then(res => {
           status = res.status;
-          return res.json();
         })
         .then(() => {
-          if (status === 200 || status === 201) {
+          if (status === 201 || status === 204) {
             alert('Forum link submitted successfully.');
             onClose(forum);
             return;
