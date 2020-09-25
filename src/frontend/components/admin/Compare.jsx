@@ -37,8 +37,8 @@ const headers = [
   { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
   { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
   { label: 'Download UUID', key: 'DownloadUUID' },
-  { label: 'Download Test Start Time', key: 'DownloadTestStartTime' },
-  { label: 'Download Test End Time', key: 'DownloadTestEndTime' },
+  { label: 'Test Start Time', key: 'TestStartTime' },
+  { label: 'Test End Time', key: 'TestEndTime' },
   { label: 'Download Value', key: 'DownloadValue' },
   { label: 'Download Unit', key: 'DownloadUnit' },
   { label: 'Download Error', key: 'DownloadError' },
@@ -50,7 +50,7 @@ const headers = [
   { label: 'Min RTT Unit', key: 'MinRTTUnit' },
 ];
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
@@ -92,8 +92,8 @@ export default function Compare(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { libraries } = props;
-  const [ libraryName, setLibraryName ] = React.useState([libraries[0].name]);
-  const [ libraryId, setLibraryId ] = React.useState([libraries[0].id]);
+  const [libraryName, setLibraryName] = React.useState([libraries[0].name]);
+  const [libraryId, setLibraryId] = React.useState([libraries[0].id]);
 
   // handle date range
   const today = new Date();
@@ -109,17 +109,17 @@ export default function Compare(props) {
   };
 
   // handle library select
-  const handleLibraryChange = (event) => {
+  const handleLibraryChange = event => {
     let newLibrary = [];
     setLibraryName(event.target.value);
     const filteredLibraries = libraries.find(library => {
       if (event.target.value.includes(library.name)) {
         newLibrary = [...newLibrary, library.id];
-        newLibrary = [...new Set(newLibrary)]
+        newLibrary = [...new Set(newLibrary)];
         setLibraryId(newLibrary);
         return;
       }
-    })
+    });
   };
 
   // handle connection change
@@ -187,7 +187,7 @@ export default function Compare(props) {
         })
         .then(response => {
           if (status === 200) {
-            newLibrary = [...newLibrary, ...response.data]
+            newLibrary = [...newLibrary, ...response.data];
             setRuns(newLibrary);
           } else {
             processError(response);
@@ -201,7 +201,6 @@ export default function Compare(props) {
           setIsLoaded(true);
         });
     });
-
   }, []);
 
   if (error) {
@@ -221,7 +220,7 @@ export default function Compare(props) {
               xs={12}
               md={12}
             >
-              <Grid container item spacing={3} xs={12} >
+              <Grid container item spacing={3} xs={12}>
                 <Grid item xs={12} md={6}>
                   <Typography variant="overline" display="block" gutterBottom>
                     Date range
@@ -232,7 +231,12 @@ export default function Compare(props) {
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography id="libraries-label" variant="overline" display="block" gutterBottom>
+                  <Typography
+                    id="libraries-label"
+                    variant="overline"
+                    display="block"
+                    gutterBottom
+                  >
                     Location
                   </Typography>
                   <FormControl className={classes.formControl}>
@@ -246,15 +250,23 @@ export default function Compare(props) {
                       input={<Input id="select-libraries" />}
                       renderValue={selected => (
                         <div className={classes.chips}>
-                          {selected.map((value) => (
-                            <Chip key={value} label={value} className={classes.chip} />
+                          {selected.map(value => (
+                            <Chip
+                              key={value}
+                              label={value}
+                              className={classes.chip}
+                            />
                           ))}
                         </div>
                       )}
                       MenuProps={MenuProps}
                     >
                       {libraries.map(library => (
-                        <MenuItem key={library.id} value={library.name} style={getStyles(library.name, library, theme)}>
+                        <MenuItem
+                          key={library.id}
+                          value={library.name}
+                          style={getStyles(library.name, library, theme)}
+                        >
                           {library.name}
                         </MenuItem>
                       ))}
@@ -344,7 +356,7 @@ export default function Compare(props) {
               </Grid>
             </Grid>
           </Box>
-          <Box mt={3} >
+          <Box mt={3}>
             <Grid container justify="space-between" alignItems="center">
               <Grid
                 container

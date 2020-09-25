@@ -19,6 +19,10 @@ export function seed(knex) {
           MurakamiConnectionType: 'wifi',
           MurakamiDeviceID: 'bb62c6e5-6ed1-452e-89ef-f8f3005f4612',
           DownloadUUID: 'ndt-cz99j_1580820576_000000000003708B',
+          TestStartTime:
+            '2020-06-03T20:32:52.639720903 +0000 UTC m=+5825.539350534',
+          TestEndTime:
+            '2020-06-03T20:33:02.640686711 +0000 UTC m=+5835.540316330',
           DownloadTestStartTime:
             '2020-06-03T20:32:52.639720903 +0000 UTC m=+5825.539350534',
           DownloadTestEndTime:
@@ -48,6 +52,10 @@ export function seed(knex) {
           MurakamiNetworkType: 'home',
           MurakamiConnectionType: 'wifi',
           DownloadUUID: 'ndt-cz99j_1580820576_000000000003708B',
+          TestStartTime:
+            '2020-05-29T20:32:52.639720903 +0000 UTC m=+5825.539350534',
+          TestEndTime:
+            '2020-05-29T20:33:02.640686711 +0000 UTC m=+5835.540316330',
           DownloadTestStartTime:
             '2020-05-29T20:32:52.639720903 +0000 UTC m=+5825.539350534',
           DownloadTestEndTime:
@@ -77,6 +85,10 @@ export function seed(knex) {
           MurakamiNetworkType: 'home',
           MurakamiConnectionType: 'wifi',
           DownloadUUID: 'ndt-cz99j_1580820576_000000000003708B',
+          TestStartTime:
+            '2020-05-29T20:32:52.639720903 +0000 UTC m=+5825.539350534',
+          TestEndTime:
+            '2020-05-29T20:33:02.640686711 +0000 UTC m=+5835.540316330',
           DownloadTestStartTime:
             '2020-05-29T20:32:52.639720903 +0000 UTC m=+5825.539350534',
           DownloadTestEndTime:

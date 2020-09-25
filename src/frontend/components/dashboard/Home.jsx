@@ -37,8 +37,8 @@ const headers = [
   { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
   { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
   { label: 'Download UUID', key: 'DownloadUUID' },
-  { label: 'Download Test Start Time', key: 'DownloadTestStartTime' },
-  { label: 'Download Test End Time', key: 'DownloadTestEndTime' },
+  { label: 'Test Start Time', key: 'TestStartTime' },
+  { label: 'Test End Time', key: 'TestEndTime' },
   { label: 'Download Value', key: 'DownloadValue' },
   { label: 'Download Unit', key: 'DownloadUnit' },
   { label: 'Download Error', key: 'DownloadError' },
@@ -358,7 +358,7 @@ export default function Home(props) {
                   <Typography component="div">
                     Last Test:{' '}
                     {runs && runs.length
-                      ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
+                      ? formatDate(runs[runs.length - 1].TestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>

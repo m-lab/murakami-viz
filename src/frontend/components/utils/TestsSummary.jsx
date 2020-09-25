@@ -54,24 +54,25 @@ function handleData(runs) {
       .subtract(7, 'd')
       .format('YYYY-MM-DD');
     const today = moment().format('YYYY-MM-DD');
-    let weekTotalMbps = 0, dayTotalMbps = 0;
+    let weekTotalMbps = 0,
+      dayTotalMbps = 0;
     dayRuns = 0;
     weekRuns = 0;
 
     runs.map(run => {
-      const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
+      const runDate = moment(run.TestStartTime.substr(0, 10));
 
       if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
         weekTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         weekRuns += 1;
-        xAxisWeek.push(run.DownloadTestStartTime.substr(0, 10));
+        xAxisWeek.push(run.TestStartTime.substr(0, 10));
         yAxisWeek.push(run.DownloadValue.toFixed(2));
       }
 
       if (runDate.format('YYYY-MM-DD') === today) {
         dayTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
         dayRuns += 1;
-        xAxisDay.push(run.DownloadTestStartTime.substr(0, 10));
+        xAxisDay.push(run.TestStartTime.substr(0, 10));
         yAxisDay.push(run.DownloadValue.toFixed(2));
       }
     });
