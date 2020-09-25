@@ -453,7 +453,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Sunday
@@ -529,7 +529,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -608,7 +608,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Monday
@@ -684,7 +684,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -763,7 +763,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Tuesday
@@ -839,7 +839,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -918,7 +918,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Wednesday
@@ -994,7 +994,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -1073,7 +1073,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Thursday
@@ -1149,7 +1149,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -1228,7 +1228,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Friday
@@ -1304,7 +1304,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
@@ -1383,7 +1383,7 @@ export default function AddLibrary(props) {
                 className={classes.day}
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 Saturday
@@ -1459,7 +1459,7 @@ export default function AddLibrary(props) {
               <Typography
                 variant="body1"
                 component="p"
-                display="inline-block"
+                display="inline"
                 gutterBottom
               >
                 to
