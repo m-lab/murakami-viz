@@ -37,15 +37,11 @@ export default function controller(runs, thisUser) {
 
   router.post('/runs', thisUser.can('write from whitelisted IP'), async ctx => {
     log.debug('Adding new run.');
-    let run, lid;
-
-    if (ctx.params.lid) {
-      lid = ctx.params.lid;
-    }
+    let run;
 
     try {
       const data = await validateCreation(ctx.request.body.data);
-      run = await runs.create(data, lid);
+      run = await runs.create(data);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse run schema: ${err}`);
