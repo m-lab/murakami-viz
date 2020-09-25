@@ -8,9 +8,9 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -578,8 +578,8 @@ export default function Library(props) {
                     {networks && networks.length > 0
                       ? networks.map((network, index) => {
                           return (
-                            <ExpansionPanel key={index}>
-                              <ExpansionPanelSummary
+                            <Accordion key={index}>
+                              <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
@@ -591,8 +591,8 @@ export default function Library(props) {
                                 >
                                   {network.name}
                                 </Typography>
-                              </ExpansionPanelSummary>
-                              <ExpansionPanelDetails>
+                              </AccordionSummary>
+                              <AccordionDetails>
                                 <Table
                                   className={classes.table}
                                   aria-label="basic information table"
@@ -695,8 +695,8 @@ export default function Library(props) {
                                     </TableRow>
                                   </TableBody>
                                 </Table>
-                              </ExpansionPanelDetails>
-                            </ExpansionPanel>
+                              </AccordionDetails>
+                            </Accordion>
                           );
                         })
                       : null}
@@ -742,8 +742,8 @@ export default function Library(props) {
                     {devices && devices.length > 0
                       ? devices.map((device, index) => {
                           return (
-                            <ExpansionPanel key={index}>
-                              <ExpansionPanelSummary
+                            <Accordion key={index}>
+                              <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
@@ -755,8 +755,8 @@ export default function Library(props) {
                                 >
                                   {device.name}
                                 </Typography>
-                              </ExpansionPanelSummary>
-                              <ExpansionPanelDetails>
+                              </AccordionSummary>
+                              <AccordionDetails>
                                 <Table
                                   className={classes.table}
                                   aria-label="basic information table"
@@ -898,8 +898,8 @@ export default function Library(props) {
                                     </TableRow>
                                   </TableBody>
                                 </Table>
-                              </ExpansionPanelDetails>
-                            </ExpansionPanel>
+                              </AccordionDetails>
+                            </Accordion>
                           );
                         })
                       : null}
