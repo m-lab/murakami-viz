@@ -120,28 +120,34 @@ export default function EditUser(props) {
     setHelperText({});
 
     if (_.isEmpty(inputs)) {
-        setErrors(errors => ({
-          ...errors,
-          username: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          location: true,
-          role: true,
-        }));
-        setHelperText(helperText => ({
-          ...helperText,
-          username: 'This field is required.',
-          email: 'This field is required.',
-          firstName: 'This field is required.',
-          lastName: 'This field is required.',
-          location: 'This field is required.',
-          role: 'This field is required.',
-        }));
-        return false;
-      } else {
-      if (!inputs.username || !inputs.firstName || !inputs.lastName || 
-        !inputs.email || !location || !role) {
+      setErrors(errors => ({
+        ...errors,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        location: true,
+        role: true,
+      }));
+      setHelperText(helperText => ({
+        ...helperText,
+        username: 'This field is required.',
+        email: 'This field is required.',
+        firstName: 'This field is required.',
+        lastName: 'This field is required.',
+        location: 'This field is required.',
+        role: 'This field is required.',
+      }));
+      return false;
+    } else {
+      if (
+        !inputs.username ||
+        !inputs.firstName ||
+        !inputs.lastName ||
+        !inputs.email ||
+        !location ||
+        !role
+      ) {
         if ((!inputs.username || inputs.username.length < 1) && !row.username) {
           setErrors(errors => ({
             ...errors,
@@ -192,7 +198,8 @@ export default function EditUser(props) {
           }));
           setHelperText(helperText => ({
             ...helperText,
-            location: 'Please select a location with which to associate this user.',
+            location:
+              'Please select a location with which to associate this user.',
           }));
         }
         if (!role) {
@@ -212,7 +219,7 @@ export default function EditUser(props) {
     }
   };
 
-  const submitData = (inputs) => {
+  const submitData = inputs => {
     // workaround to ensure that the PUT body is idempotent
     const toSubmit = {
       ...inputs,
@@ -220,19 +227,21 @@ export default function EditUser(props) {
       role: role,
     };
     // these attributes are necessary for the user object on the frontend
-    // but the backend does not accept them 
+    // but the backend does not accept them
     for (let key in toSubmit) {
-      if (toSubmit[key] === null || 
-        toSubmit[key] === undefined || 
-        key === 'location_name' || 
+      if (
+        toSubmit[key] === null ||
+        toSubmit[key] === undefined ||
+        key === 'location_name' ||
         key === 'isActive' ||
         key === 'location_address' ||
-        key === 'role_name') {
-        delete toSubmit[key]
+        key === 'role_name' ||
+        key === 'id'
+      ) {
+        delete toSubmit[key];
       }
     }
 
-    let status;
     fetch(`api/v1/users/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -241,11 +250,7 @@ export default function EditUser(props) {
       body: JSON.stringify({ data: toSubmit }),
     })
       .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(results => {
-        if (status === 200 || status === 201 || status === 204) {
+        if (response.status === 201 || response.status === 204) {
           alert(`User edited successfully.`);
           onClose({
             ...toSubmit,
@@ -254,8 +259,8 @@ export default function EditUser(props) {
           });
           return;
         } else {
-          processError(results);
-          throw new Error(`Error in response from server.`);
+          const error = processError(response.json());
+          throw new Error(error);
         }
       })
       .catch(error => {
@@ -323,7 +328,7 @@ export default function EditUser(props) {
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
-    row  
+    row,
   );
 
   if (error) {
@@ -405,23 +410,44 @@ export default function EditUser(props) {
             onChange={handleInputChange}
             required
           />
+          <Grid container>
+            <Grid item>
+              <TextField
+                className={classes.formField}
+                id="user-phone"
+                label="Phone number"
+                name="phone"
+                fullWidth
+                variant="outlined"
+                defaultValue={row.phone}
+                onChange={handleInputChange}
+                value={inputs.phone}
+              />
+            </Grid>
+            <Grid item>
+              <TextField
+                className={classes.formField}
+                id="user-extension"
+                label="Extension"
+                name="extension"
+                fullWidth
+                variant="outlined"
+                defaultValue={row.extension}
+                onChange={handleInputChange}
+                value={inputs.extension}
+              />
+            </Grid>
+          </Grid>
           <TextField
             className={classes.formField}
-            id="user-phone"
-            label="Phone number"
-            name="phone"
+            id="user-password"
+            label="Password"
+            name="password"
             fullWidth
+            type="password"
             variant="outlined"
             onChange={handleInputChange}
-          />
-          <TextField
-            className={classes.formField}
-            id="user-extension"
-            label="Extension"
-            name="extension"
-            fullWidth
-            variant="outlined"
-            onChange={handleInputChange}
+            value={inputs.password}
           />
           <FormControl
             variant="outlined"

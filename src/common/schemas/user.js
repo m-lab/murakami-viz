@@ -21,7 +21,7 @@ const updateSchema = Joi.array()
   .items(
     Joi.object({
       username: Joi.string().required(),
-      password: Joi.string().required(),
+      password: Joi.string(),
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
       location: Joi.number(),

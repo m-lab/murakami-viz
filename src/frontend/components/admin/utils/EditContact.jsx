@@ -74,7 +74,7 @@ export default function EditContact(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ value: contact }),
+        body: JSON.stringify({ data: { value: contact } }),
       })
         .then(res => {
           status = res.status;

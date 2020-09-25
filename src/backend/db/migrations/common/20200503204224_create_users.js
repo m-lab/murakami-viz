@@ -5,6 +5,7 @@ export function up(knex) {
     .createTable('users', table => {
       table
         .increments('id')
+        .unique()
         .primary()
         .unsigned();
       table

@@ -74,10 +74,11 @@ export default function EditAbout(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ value: about }),
+        body: JSON.stringify({ data: { value: about } }),
       })
         .then(res => {
           status = res.status;
+          return;
         })
         .then(() => {
           if (status === 204 || status === 201) {

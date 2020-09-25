@@ -49,7 +49,7 @@ export default function EditForum(props) {
   const [error, setError] = useState(false);
   const [helperText, setHelperText] = useState('');
   const [forum, setForum] = useState('https://example.com');
-  
+
   const handleClose = () => {
     onClose(selectedForumValue);
   };
@@ -74,7 +74,7 @@ export default function EditForum(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ value: forum }),
+        body: JSON.stringify({ data: { value: forum } }),
       })
         .then(res => {
           status = res.status;

@@ -45,8 +45,6 @@ export default class User {
           query.password = bcrypt.hashSync(user.password, salt);
         }
 
-        log.debug('*** USER ***:', user);
-        log.debug('*** QUERY ***:', query);
         await trx('users').insert(query);
 
         users = await trx('users')
@@ -107,15 +105,18 @@ export default class User {
         extension: user.extension,
         isActive: user.isActive,
       };
-      if (user.password) {
-        const salt = bcrypt.genSaltSync();
-        query.password = bcrypt.hashSync(user.password, salt);
-      }
       await this._db.transaction(async trx => {
         existing = await trx('users')
           .select('*')
           .where({ id: parseInt(id) })
           .first();
+
+        if (user.password) {
+          const salt = bcrypt.genSaltSync();
+          query.password = bcrypt.hashSync(user.password, salt);
+        } else if (existing.password) {
+          query.password = existing.password;
+        }
 
         if (existing) {
           log.debug('Entry exists, deleting old version.');
@@ -126,9 +127,37 @@ export default class User {
           [updated] = await trx('users')
             .insert({ ...query, id: parseInt(id) })
             .returning('id', 'created_at', 'updated_at');
-          if (role) {
+          if (user.role) {
+            const group = await trx('groups')
+              .select()
+              .where({ id: parseInt(user.role) })
+              .first();
+            if (!group) {
+              throw new NotFoundError('Invalid group ID.');
+            }
+
+            await trx('user_groups')
+              .del()
+              .where({ uid: parseInt(id) });
             await trx('user_groups').insert({
               gid: user.role,
+              uid: parseInt(id),
+            });
+          }
+          if (user.location) {
+            const library = await trx('libraries')
+              .select()
+              .where({ id: parseInt(user.location) })
+              .first();
+            if (!library) {
+              throw new NotFoundError('Invalid library ID.');
+            }
+
+            await trx('library_users')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('library_users').insert({
+              lid: user.location,
               uid: parseInt(id),
             });
           }
@@ -139,9 +168,37 @@ export default class User {
           [updated] = await trx('users')
             .insert({ ...query, id: parseInt(id) })
             .returning('id', 'created_at', 'updated_at');
-          if (role) {
+          if (user.role) {
+            const group = await trx('groups')
+              .select()
+              .where({ id: parseInt(user.role) })
+              .first();
+            if (!group) {
+              throw new NotFoundError('Invalid group ID.');
+            }
+
+            await trx('user_groups')
+              .del()
+              .where({ uid: parseInt(id) });
             await trx('user_groups').insert({
               gid: user.role,
+              uid: parseInt(id),
+            });
+          }
+          if (user.location) {
+            const library = await trx('libraries')
+              .select()
+              .where({ id: parseInt(user.location) })
+              .first();
+            if (!library) {
+              throw new NotFoundError('Invalid library ID.');
+            }
+
+            await trx('library_users')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('library_users').insert({
+              lid: user.location,
               uid: parseInt(id),
             });
           }
@@ -228,11 +285,11 @@ export default class User {
       .leftJoin('groups', 'groups.id', 'user_groups.gid')
       .modify(queryBuilder => {
         if (from) {
-          queryBuilder.where('created_at', '>', from);
+          queryBuilder.where('users.created_at', '>', from);
         }
 
         if (to) {
-          queryBuilder.where('created_at', '<', to);
+          queryBuilder.where('users.created_at', '<', to);
         }
 
         if (library) {
@@ -240,7 +297,7 @@ export default class User {
         }
 
         if (group) {
-          queryBuilder.where('role', '=', group);
+          queryBuilder.where('groups.id', '=', group);
         }
 
         if (asc) {

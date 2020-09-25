@@ -224,6 +224,7 @@ export default function controller(users, thisUser) {
         library: library,
         group: query.group,
       });
+      log.debug('**** RES ****:', res);
       ctx.response.body = {
         statusCode: 200,
         status: 'ok',

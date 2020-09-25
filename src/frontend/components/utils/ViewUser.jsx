@@ -245,6 +245,9 @@ export default function ViewUser(props) {
           {formatName(row.firstName, row.lastName)}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
+          {row.username}
+        </Typography>
+        <Typography component="p" variant="body2" gutterBottom>
           {row.email}
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
