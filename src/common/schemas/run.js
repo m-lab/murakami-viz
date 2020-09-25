@@ -93,7 +93,7 @@ const updateSchema = Joi.array()
       TestUUID: Joi.string().guid(),
       TestProtocol: Joi.string(),
       TestError: Joi.string().allow(''),
-      ServerName: Joi.string().domain(),
+      ServerName: Joi.string(),
       ServerIP: Joi.string().ip(),
       ServerURL: Joi.string().uri(),
       ServerLat: Joi.number(),
