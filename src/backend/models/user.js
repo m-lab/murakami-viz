@@ -91,11 +91,8 @@ export default class User {
 
   async update(id, user) {
     try {
-      let existing, role, updated;
+      let existing, updated;
       let exists = false;
-      if (user.role) {
-        role = user.role;
-      }
       const query = {
         username: user.username,
         firstName: user.firstName,
