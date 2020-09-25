@@ -72,6 +72,7 @@ const creationSchema = Joi.array()
       Country: Joi.string(),
     }),
   )
+  .sparse()
   .min(1);
 
 const updateSchema = Joi.array()
@@ -144,6 +145,7 @@ const updateSchema = Joi.array()
       Country: Joi.string(),
     }),
   )
+  .sparse()
   .min(1);
 
 export async function validateCreation(data) {
