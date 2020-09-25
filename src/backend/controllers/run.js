@@ -40,7 +40,9 @@ export default function controller(runs, thisUser) {
     let run;
 
     try {
+      log.debug('New run body:', ctx.request.body);
       const data = await validateCreation(ctx.request.body.data);
+      log.debug('New run validated data:', ctx.request.body);
       run = await runs.create(data);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
