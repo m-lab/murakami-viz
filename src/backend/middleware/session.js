@@ -3,7 +3,7 @@ import session from 'koa-session';
 import { ServerError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
-const log = getLogger('backend:controllers:library');
+const log = getLogger('backend:middleware:session');
 
 const sessionWrapper = async (server, db) => {
   let middleware;

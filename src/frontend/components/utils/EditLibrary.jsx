@@ -250,12 +250,11 @@ export default function EditLibrary(props) {
     })
       .then(response => {
         status = response.status;
-        return response.json();
       })
       .then(results => {
-        if (status === 200 || status === 201 || status === 204) {
+        if (status === 201 || status === 204) {
           alert(`Library edited successfully.`);
-          onClose(results.data[0]);
+          onClose(inputs);
           return;
         } else {
           processError(results);
@@ -290,6 +289,7 @@ export default function EditLibrary(props) {
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
+    row
   );
 
   React.useEffect(() => {}, [errors, helperText]);

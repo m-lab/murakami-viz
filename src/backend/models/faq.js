@@ -1,5 +1,7 @@
-import { validate } from '../../common/schemas/faq.js';
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:models:faq');
 
 export default class FaqManager {
   constructor(db) {
@@ -7,11 +9,6 @@ export default class FaqManager {
   }
 
   async create(faq) {
-    try {
-      await validate(faq);
-    } catch (err) {
-      throw new BadRequestError('Failed to create library: ', err);
-    }
     return this._db
       .table('faqs')
       .insert(faq)
@@ -20,29 +17,50 @@ export default class FaqManager {
 
   async update(id, faq) {
     try {
-      await validate(faq);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('faqs')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('faqs')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('faqs')
+            .insert({ ...faq, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('faqs')
+            .insert({ ...faq, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('faqs')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError('Failed to update faq: ', err);
+      throw new BadRequestError(`Failed to update faq with ID ${id}: `, err);
     }
-    return this._db
-      .table('faqs')
-      .update(faq)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          question: faq.question,
-          answer: faq.answer,
-        },
-        ['id', 'question', 'answer'],
-      );
   }
 
   async delete(id) {
     return this._db
       .table('faqs')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -76,7 +94,7 @@ export default class FaqManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 

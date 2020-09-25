@@ -1,11 +1,10 @@
-import { getLogger } from '../log.js';
 import { isString } from '../../common/utils.js';
-import { validate } from '../../common/schemas/group.js';
-import { UnprocessableError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:group');
 /**
- * Initialize the QueueManager data model
+ * Initialize the GroupManager data model
  *
  * @class
  */
@@ -15,11 +14,6 @@ export default class Group {
   }
 
   async create(group) {
-    try {
-      await validate(group);
-    } catch (err) {
-      throw new UnprocessableError('Failed to create group: ', err);
-    }
     return this._db
       .table('groups')
       .insert(group)
@@ -28,23 +22,50 @@ export default class Group {
 
   async update(id, group) {
     try {
-      await validate(group);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('groups')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('groups')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('groups')
+            .insert({ ...group, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('groups')
+            .insert({ ...group, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('groups')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new UnprocessableError('Failed to update group: ', err);
+      throw new BadRequestError(`Failed to update group with ID ${id}: `, err);
     }
-    return this._db
-      .table('groups')
-      .update(group)
-      .where({ id: parseInt(id) })
-      .returning('*');
   }
 
   async delete(id) {
     return this._db
       .table('groups')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -78,7 +99,7 @@ export default class Group {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
@@ -94,8 +115,7 @@ export default class Group {
     return this._db
       .table('groups')
       .select('*')
-      .where({ id: parseInt(id) })
-      .first();
+      .where({ id: parseInt(id) });
   }
 
   /**

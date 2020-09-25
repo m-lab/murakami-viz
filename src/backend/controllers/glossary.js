@@ -1,8 +1,12 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/glossary.js';
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:glossary');
 
@@ -32,33 +36,30 @@ async function validate_query(query) {
 export default function controller(glossaries, thisUser) {
   const router = new Router();
 
-  router.post(
-    '/glossaries',
-    thisUser.can('access private pages'),
-    async ctx => {
-      log.debug('Adding new glossary.');
-      let glossary;
+  router.post('/glossaries', thisUser.can('access admin pages'), async ctx => {
+    log.debug('Adding new glossary.');
+    let glossary;
 
-      try {
-        glossary = await glossaries.create(ctx.request.body.data);
+    try {
+      const data = await validateCreation(ctx.request.body.data);
+      glossary = await glossaries.create(data);
 
-        // workaround for sqlite
-        if (Number.isInteger(glossary)) {
-          glossary = await glossaries.findById(glossary);
-        }
-      } catch (err) {
-        log.error('HTTP 400 Error: ', err);
-        ctx.throw(400, `Failed to parse glossary schema: ${err}`);
+      // workaround for sqlite
+      if (Number.isInteger(glossary[0])) {
+        glossary = await glossaries.findById(glossary[0]);
       }
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse glossary schema: ${err}`);
+    }
 
-      ctx.response.body = {
-        statusCode: 201,
-        status: 'created',
-        data: glossary,
-      };
-      ctx.response.status = 201;
-    },
-  );
+    ctx.response.body = {
+      statusCode: 201,
+      status: 'created',
+      data: glossary,
+    };
+    ctx.response.status = 201;
+  });
 
   router.get('/glossaries', thisUser.can('access private pages'), async ctx => {
     log.debug(`Retrieving glossaries.`);
@@ -139,36 +140,28 @@ export default function controller(glossaries, thisUser) {
     thisUser.can('view this library'),
     async ctx => {
       log.debug(`Updating glossary ${ctx.params.id}.`);
-      let glossary;
+      let created, updated;
 
       try {
-        glossary = await glossaries.update(
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await glossaries.update(
           ctx.params.id,
-          ctx.request.body.data,
-        );
-
-        // workaround for sqlite
-        if (Number.isInteger(glossary)) {
-          glossary = await glossaries.findById(ctx.params.id);
-        }
+          data,
+        ));
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (glossary.length && glossary.length > 0) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: glossary };
-        ctx.response.status = 200;
+      if (updated) {
+        ctx.response.status = 204;
       } else {
-        log.error(
-          `HTTP 404 Error: That glossary with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(
-          404,
-          `That glossary with ID ${ctx.params.id} does not exist.`,
-        );
+        ctx.response.body = {
+          statusCode: 201,
+          status: 'created',
+          data: [created],
+        };
+        ctx.response.status = 201;
       }
     },
   );
@@ -187,9 +180,8 @@ export default function controller(glossaries, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (glossary.length && glossary.length > 0) {
-        ctx.response.body = { status: 'success', data: glossary };
-        ctx.response.status = 200;
+      if (glossary > 0) {
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That glossary with ID ${

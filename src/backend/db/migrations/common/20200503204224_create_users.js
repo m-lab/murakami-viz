@@ -5,6 +5,7 @@ export function up(knex) {
     .createTable('users', table => {
       table
         .increments('id')
+        .unique()
         .primary()
         .unsigned();
       table
@@ -21,7 +22,7 @@ export function up(knex) {
         .index()
         .notNullable();
       table.string('phone').index();
-      table.string('extension').index();
+      table.integer('extension').index();
       table.boolean('isActive').defaultTo(true);
       table.timestamps(true, true);
     })

@@ -219,8 +219,8 @@ export default function AddUser(props) {
   };
 
   const handleLocationChange = (event, values) => {
-    setLocation(values)
-  }
+    setLocation(values);
+  };
 
   // submit new user to api
   const submitData = () => {
@@ -228,17 +228,17 @@ export default function AddUser(props) {
 
     // combining inputs with the location and role values from the autocomplete component
     const toSubmit = {
-        ...inputs,
-        location: location.id,
-        role: role.id
-    }
+      ...inputs,
+      location: location.id,
+      role: role.id,
+    };
 
     fetch(`api/v1/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({data: toSubmit}),
+      body: JSON.stringify({ data: toSubmit }),
     })
       .then(response => {
         status = response.status;
@@ -247,7 +247,10 @@ export default function AddUser(props) {
       .then(result => {
         if (status === 201) {
           alert('User submitted successfully.');
-          onClose({...toSubmit, location: location.name, role: role.name}, result.data[0].id);
+          onClose(
+            { ...toSubmit, location: location.name, role: role.name },
+            result.data[0].id,
+          );
           return;
         } else {
           const error = processError(result);

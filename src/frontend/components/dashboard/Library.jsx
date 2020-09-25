@@ -339,12 +339,12 @@ export default function Library(props) {
         return response.json();
       })
       .then(libraryIPs => {
-        if (ipStatus === 200 && libraryIPs.ipCount > 0) {
+        if (ipStatus === 200 && libraryIPs.data.length > 0) {
           setLibraryIPs(
             libraryIPs.data.map(libraryIP => libraryIP.ip), // get just the IP addresses
           );
           return;
-        } else if (ipStatus === 200 && libraryIPs.ipCount === 0) {
+        } else if (ipStatus === 200 && libraryIPs.data.length === 0) {
           setLibraryIPs([]);
           return;
         } else {

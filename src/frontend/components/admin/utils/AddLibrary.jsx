@@ -439,6 +439,7 @@ export default function AddLibrary(props) {
             variant="outlined"
             onChange={handleInputChange}
             value={inputs.primary_contact_email}
+            required
           />
           <Typography variant="overline" display="block" gutterBottom>
             Library Hours

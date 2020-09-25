@@ -1,4 +1,5 @@
 import Router from '@koa/router';
+import { validateUpdate } from '../../common/schemas/setting.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:setting');
@@ -9,7 +10,7 @@ export default function controller(settings, thisUser) {
 
   router.get(
     '/settings/:key',
-    thisUser.can('access admin pages'),
+    thisUser.can('access private pages'),
     async ctx => {
       log.debug(`Retrieving setting ${ctx.params.key}.`);
       let setting;
@@ -58,30 +59,24 @@ export default function controller(settings, thisUser) {
     thisUser.can('access admin pages'),
     async ctx => {
       log.debug(`Updating setting ${ctx.params.key}.`);
-      let setting;
+      let updated = false;
 
       try {
-        log.debug('ctx.request.body: ', ctx.request.body);
-        setting = await settings.update(ctx.params.key, ctx.request.body.data);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        updated = await settings.update(ctx.params.key, data);
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      log.debug('setting: ', setting);
-      if (setting) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: setting };
-        ctx.response.status = 200;
+      if (updated) {
+        ctx.response.status = 204;
       } else {
-        log.error(
-          `HTTP 404 Error: That setting with ID ${
-            ctx.params.key
-          } does not exist.`,
-        );
-        ctx.throw(
-          404,
-          `That setting with ID ${ctx.params.key} does not exist.`,
-        );
+        ctx.response.body = {
+          statusCode: 201,
+          status: 'created',
+        };
+        ctx.response.status = 201;
       }
     },
   );
@@ -100,9 +95,8 @@ export default function controller(settings, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (setting.length && setting.length > 0) {
-        ctx.response.body = { status: 'success', data: setting };
-        ctx.response.status = 200;
+      if (setting > 0) {
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That setting with ID ${

@@ -17,7 +17,7 @@ export function seed(knex) {
             lastName: 'User',
             email: 'admin@mlbn.org',
             phone: '1-555-867-5309',
-            extension: '111',
+            extension: 111,
           },
           {
             id: 2,
@@ -27,7 +27,17 @@ export function seed(knex) {
             lastName: 'Gaines',
             email: 'rae@throneless.tech',
             phone: '1-555-867-5309',
-            extension: '112',
+            extension: 112,
+          },
+          {
+            id: 3,
+            username: 'viewer',
+            password: hash,
+            firstName: 'Bobby',
+            lastName: 'Tables',
+            email: 'bobby@example.com',
+            phone: '1-555-867-5309',
+            extension: 113,
           },
         ]),
         knex('library_users').insert([
@@ -38,6 +48,10 @@ export function seed(knex) {
           {
             uid: 2,
             lid: 2,
+          },
+          {
+            uid: 3,
+            lid: 1,
           },
         ]),
       ]);

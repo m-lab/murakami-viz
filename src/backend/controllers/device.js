@@ -1,8 +1,12 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/device.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:device');
 
@@ -43,12 +47,8 @@ export default function controller(devices, thisUser) {
     }
 
     try {
-      device = await devices.create(ctx.request.body, lid);
-
-      // workaround for sqlite
-      if (Number.isInteger(device)) {
-        device = await devices.findById(device);
-      }
+      const data = await validateCreation(ctx.request.body.data);
+      device = await devices.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add device: ${err}`);
@@ -58,7 +58,7 @@ export default function controller(devices, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/devices', async ctx => {
+  router.get('/devices', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving devices.`);
     let res, library;
 
@@ -109,58 +109,22 @@ export default function controller(devices, thisUser) {
     }
   });
 
-  router.get(
-    '/devices/:id',
-    thisUser.can('access private pages'),
-    async ctx => {
-      log.debug(`Retrieving device ${ctx.params.id}.`);
-      let device, lid;
+  router.get('/devices/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving device ${ctx.params.id}.`);
+    let device, lid;
 
-      if (ctx.params.lid) {
-        lid = ctx.params.lid;
-      }
-
-      try {
-        device = await devices.findById(ctx.params.id, lid);
-      } catch (err) {
-        log.error('HTTP 400 Error: ', err);
-        ctx.throw(400, `Failed to parse query: ${err}`);
-      }
-
-      if (device.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: device };
-        ctx.response.status = 200;
-      } else {
-        log.error(
-          `HTTP 404 Error: That device with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
-      }
-    },
-  );
-
-  router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
-    log.debug(`Updating device ${ctx.params.id}.`);
-    let device = [];
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
     try {
-      if (ctx.params.lid) {
-        device = await devices.addToLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        device = await devices.update(ctx.params.id, ctx.request.body.data);
-      }
-      // workaround for sqlite
-      if (Number.isInteger(device)) {
-        device = await devices.findById(ctx.params.id);
-      }
+      device = await devices.findById(ctx.params.id, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (device.length && device.length > 0) {
+    if (device.length) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: device };
       ctx.response.status = 200;
     } else {
@@ -168,7 +132,38 @@ export default function controller(devices, thisUser) {
         `HTTP 404 Error: That device with ID ${ctx.params.id} does not exist.`,
       );
       ctx.throw(404, `That device with ID ${ctx.params.id} does not exist.`);
-      ctx.response.body = { error: 'Please try again.' };
+    }
+  });
+
+  router.put('/devices/:id', thisUser.can('access admin pages'), async ctx => {
+    log.debug(`Updating device ${ctx.params.id}.`);
+    let created, updated;
+
+    try {
+      if (ctx.params.lid) {
+        await devices.addToLibrary(ctx.params.lid, ctx.params.id);
+        updated = true;
+      } else {
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await devices.update(
+          ctx.params.id,
+          data,
+        ));
+      }
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (updated) {
+      ctx.response.status = 204;
+    } else {
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
@@ -187,7 +182,7 @@ export default function controller(devices, thisUser) {
           );
         } else {
           device = await devices.delete(ctx.params.id);
-          log.debug('Deleted device: ', device);
+          log.debug('Deleted device: ', device > 0);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
@@ -195,8 +190,7 @@ export default function controller(devices, thisUser) {
       }
 
       if (device > 0) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: device };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That device with ID ${

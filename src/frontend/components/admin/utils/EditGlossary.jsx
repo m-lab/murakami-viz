@@ -150,12 +150,11 @@ export default function EditGlossary(props) {
     })
       .then(response => {
         status = response.status;
-        return response.json();
       })
       .then(results => {
         if (status === 200) {
           alert('Glossary edited successfully.');
-          onClose(results.data[0]);
+          onClose(inputs);
           return;
         } else {
           const error = processError(results);

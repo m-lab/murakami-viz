@@ -1,8 +1,12 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/group.js';
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:group');
 
@@ -43,11 +47,12 @@ export default function controller(groups, thisUser) {
     let group;
 
     try {
-      group = await groups.create(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
+      group = await groups.create(data);
 
       // workaround for sqlite
-      if (Number.isInteger(group)) {
-        group = await groups.findById(group);
+      if (Number.isInteger(group[0])) {
+        group = await groups.findById(group[0]);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
@@ -123,28 +128,28 @@ export default function controller(groups, thisUser) {
 
   router.put('/groups/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating group ${ctx.params.id}.`);
-    let group;
+    let created, updated;
 
     try {
-      group = await groups.update(ctx.params.id, ctx.request.body.data);
-
-      // workaround for sqlite
-      if (Number.isInteger(group)) {
-        group = await groups.findById(ctx.param.id);
-      }
+      const [data] = await validateUpdate(ctx.request.body.data);
+      ({ exists: updated = false, ...created } = await groups.update(
+        ctx.params.id,
+        data,
+      ));
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (group.length) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: group };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That group with ID ${ctx.params.id} does not exist.`);
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
@@ -162,9 +167,8 @@ export default function controller(groups, thisUser) {
         ctx.throw(400, `Failed to parse query: ${err}`);
       }
 
-      if (group.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: group };
-        ctx.response.status = 200;
+      if (group > 0) {
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That group with ID ${ctx.params.id} does not exist.`,
@@ -221,8 +225,7 @@ export default function controller(groups, thisUser) {
       }
 
       if (res) {
-        ctx.response.body = { statusCode: 201, status: 'created', data: res };
-        ctx.response.status = 201;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That mapping with gid ${ctx.params.id} and uid ${

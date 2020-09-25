@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
-import _ from 'lodash/core';
-import { validate } from '../../common/schemas/user.js';
-import { BadRequestError, ForbiddenError } from '../../common/errors.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:models:user');
 
 function comparePass(userPassword, databasePassword) {
   return bcrypt.compareSync(userPassword, databasePassword);
@@ -19,12 +24,10 @@ export default class User {
 
   async create(user, lid) {
     try {
-      await validate(user);
-      return this._db.transaction(async trx => {
-        const location = user.location;
+      let users;
+      await this._db.transaction(async trx => {
+        let group, library;
         const role = user.role;
-        delete user.location;
-        delete user.role;
 
         const query = {
           username: user.username,
@@ -34,58 +37,53 @@ export default class User {
           email: user.email,
           phone: user.phone,
           extension: user.extension,
-          isActive: user.isActive,
+          isActive: user.isActive || true,
         };
 
-        if (!_.isEmpty(user)) {
+        if (user.password) {
           const salt = bcrypt.genSaltSync();
           query.password = bcrypt.hashSync(user.password, salt);
-          await trx('users').insert(query);
         }
 
-        let ids = [];
-        ids = await trx('users')
-          .select()
+        await trx('users').insert(query);
+
+        users = await trx('users')
+          .select('id', 'created_at', 'updated_at')
           .where({ username: user.username });
 
-        if (location) {
-          let lids = [];
-          lids = await trx('libraries')
-            .select('id')
-            .where({ id: parseInt(lid ? lid : location) });
-
-          if (!Array.isArray(lids) || lids.length < 1) {
-            throw new BadRequestError('Invalid library ID.');
+        if (lid) {
+          library = await trx('libraries')
+            .select()
+            .where({ id: parseInt(lid) })
+            .first();
+          if (!library) {
+            throw new NotFoundError('Invalid library ID.');
           }
 
-          await trx('library_users')
-            .del()
-            .where({ uid: ids[0].id });
-
-          await trx('library_users').insert({
-            lid: lids[0].id,
-            uid: ids[0].id,
-          });
+          const library_inserts = users.map(u => ({
+            lid: library.id,
+            uid: u.id,
+          }));
+          await trx('library_users').insert(library_inserts);
         }
 
         if (role) {
-          let gids = [];
-          gids = await trx('groups')
-            .select('id')
-            .where({ id: parseInt(role) });
-
-          if (!Array.isArray(gids) || gids.length < 1) {
-            throw new BadRequestError('Invalid group ID.');
+          group = await trx('groups')
+            .select()
+            .where({ id: parseInt(role) })
+            .first();
+          if (!group) {
+            throw new NotFoundError('Invalid group ID.');
           }
 
-          await trx('user_groups')
-            .del()
-            .where({ uid: ids[0].id });
-
-          await trx('user_groups').insert({ gid: gids[0].id, uid: ids[0].id });
+          const group_inserts = users.map(u => ({
+            gid: group.id,
+            uid: u.id,
+          }));
+          await trx('user_groups').insert(group_inserts);
         }
-        return ids;
       });
+      return users;
     } catch (err) {
       throw new BadRequestError('Failed to create user: ', err);
     }
@@ -93,14 +91,10 @@ export default class User {
 
   async update(id, user) {
     try {
-      await validate(user);
-    } catch (err) {
-      throw new BadRequestError('Failed to update user: ', err);
-    }
-    return this._db.transaction(async trx => {
+      let existing, updated;
+      let exists = false;
       const query = {
         username: user.username,
-        password: user.password,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -108,75 +102,119 @@ export default class User {
         extension: user.extension,
         isActive: user.isActive,
       };
+      await this._db.transaction(async trx => {
+        existing = await trx('users')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
 
-      if (user.location) {
-        let lids = await trx('libraries')
-          .select('id')
-          .where({ id: parseInt(user.location) });
-
-        lids = lids ? lids : [];
-
-        if (lids.length < 1) {
-          throw new BadRequestError('Invalid library ID.');
-        }
-
-        await trx('library_users')
-          .del()
-          .where({ uid: parseInt(id) });
-
-        await trx('library_users').insert({ lid: lids[0].id, uid: id });
-        delete user.location;
-      }
-
-      if (user.role) {
-        let gids = await trx('groups')
-          .select('id')
-          .where({ id: parseInt(user.role) });
-
-        gids = gids ? gids : [];
-
-        if (gids.length < 0) {
-          throw new BadRequestError('Invalid group ID.');
-        }
-
-        await trx('user_groups')
-          .del()
-          .where({ uid: parseInt(id) });
-
-        await trx('user_groups').insert({ gid: gids[0].id, uid: id });
-        delete user.role;
-      }
-
-      if (!_.isEmpty(user)) {
         if (user.password) {
           const salt = bcrypt.genSaltSync();
           query.password = bcrypt.hashSync(user.password, salt);
+        } else if (existing.password) {
+          query.password = existing.password;
         }
-        return await trx('users')
-          .where({ id: parseInt(id) })
-          .update(query, [
-            'id',
-            'firstName',
-            'lastName',
-            'username',
-            'email',
-            'phone',
-            'extension',
-            'isActive',
-          ]);
-      } else {
-        return [id];
-      }
-    });
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('users')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('users')
+            .insert({ ...query, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+          if (user.role) {
+            const group = await trx('groups')
+              .select()
+              .where({ id: parseInt(user.role) })
+              .first();
+            if (!group) {
+              throw new NotFoundError('Invalid group ID.');
+            }
+
+            await trx('user_groups')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('user_groups').insert({
+              gid: user.role,
+              uid: parseInt(id),
+            });
+          }
+          if (user.location) {
+            const library = await trx('libraries')
+              .select()
+              .where({ id: parseInt(user.location) })
+              .first();
+            if (!library) {
+              throw new NotFoundError('Invalid library ID.');
+            }
+
+            await trx('library_users')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('library_users').insert({
+              lid: user.location,
+              uid: parseInt(id),
+            });
+          }
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('users')
+            .insert({ ...query, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+          if (user.role) {
+            const group = await trx('groups')
+              .select()
+              .where({ id: parseInt(user.role) })
+              .first();
+            if (!group) {
+              throw new NotFoundError('Invalid group ID.');
+            }
+
+            await trx('user_groups')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('user_groups').insert({
+              gid: user.role,
+              uid: parseInt(id),
+            });
+          }
+          if (user.location) {
+            const library = await trx('libraries')
+              .select()
+              .where({ id: parseInt(user.location) })
+              .first();
+            if (!library) {
+              throw new NotFoundError('Invalid library ID.');
+            }
+
+            await trx('library_users')
+              .del()
+              .where({ uid: parseInt(id) });
+            await trx('library_users').insert({
+              lid: user.location,
+              uid: parseInt(id),
+            });
+          }
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('users')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
+    } catch (err) {
+      throw new BadRequestError(`Failed to update user with ID ${id}: `, err);
+    }
   }
 
   async updateSelf(id, user) {
-    try {
-      await validate(user, true);
-    } catch (err) {
-      throw new BadRequestError('Failed to update user: ', err);
-    }
-
     const query = {
       firstName: user.firstName,
       lastName: user.lastName,
@@ -184,6 +222,7 @@ export default class User {
       email: user.email,
       phone: user.phone,
       extension: user.extension,
+      isActive: user.isActive,
     };
 
     try {
@@ -200,22 +239,14 @@ export default class User {
       throw new ForbiddenError('Failed to update user: ', err);
     }
 
-    return this._db
-      .table('users')
-      .update(query)
-      .where({ id: parseInt(id) });
+    return this.update(id, query);
   }
 
   async delete(id) {
-    try {
-      await this._db
-        .table('users')
-        .del()
-        .where({ id: parseInt(id) });
-      return id;
-    } catch (err) {
-      throw new BadRequestError(`Failed to delete user with ID ${id}: `, err);
-    }
+    return this._db
+      .table('users')
+      .del()
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -251,11 +282,11 @@ export default class User {
       .leftJoin('groups', 'groups.id', 'user_groups.gid')
       .modify(queryBuilder => {
         if (from) {
-          queryBuilder.where('created_at', '>', from);
+          queryBuilder.where('users.created_at', '>', from);
         }
 
         if (to) {
-          queryBuilder.where('created_at', '<', to);
+          queryBuilder.where('users.created_at', '<', to);
         }
 
         if (library) {
@@ -263,7 +294,7 @@ export default class User {
         }
 
         if (group) {
-          queryBuilder.where('role', '=', group);
+          queryBuilder.where('groups.id', '=', group);
         }
 
         if (asc) {
@@ -277,7 +308,7 @@ export default class User {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
@@ -313,7 +344,8 @@ export default class User {
         .leftJoin('libraries', 'libraries.id', 'library_users.lid')
         .leftJoin('user_groups', 'users.id', 'user_groups.uid')
         .leftJoin('groups', 'groups.id', 'user_groups.gid')
-        .where({ 'users.id': parseInt(id) });
+        .where({ 'users.id': parseInt(id) })
+        .first();
     } else {
       return this._db
         .select({
@@ -336,7 +368,8 @@ export default class User {
         .leftJoin('libraries', 'libraries.id', 'library_users.lid')
         .leftJoin('user_groups', 'users.id', 'user_groups.uid')
         .leftJoin('groups', 'groups.id', 'user_groups.gid')
-        .where({ 'users.id': parseInt(id) });
+        .where({ 'users.id': parseInt(id) })
+        .first();
     }
   }
 
@@ -409,28 +442,25 @@ export default class User {
 
   async addToLibrary(lid, id) {
     return await this._db.transaction(async trx => {
-      let lids = [];
-      lids = await trx('libraries')
+      const library = await trx('libraries')
         .select()
-        .where({ id: parseInt(lid) });
+        .where({ id: parseInt(lid) })
+        .first();
 
-      if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
+      if (!library) {
+        throw new NotFoundError('Invalid library ID.');
       }
 
-      let ids = [];
-      ids = await trx('users')
+      const device = await trx('devices')
         .select()
-        .where({ id: parseInt(id) });
+        .where({ id: parseInt(id) })
+        .first();
 
-      if (ids.length === 0) {
-        throw new BadRequestError('Invalid user ID.');
+      if (!device) {
+        throw new NotFoundError('Invalid device ID.');
       }
-      await trx('library_users')
-        .del()
-        .where({ uid: parseInt(id) });
 
-      await trx('library_users').insert({ lid: lid, uid: id });
+      await trx('library_devices').insert({ lid: lid, did: id });
     });
   }
 
@@ -439,7 +469,6 @@ export default class User {
       .table('library_users')
       .del()
       .where({ lid: parseInt(lid) })
-      .andWhere({ uid: parseInt(id) })
-      .returning('*');
+      .andWhere({ uid: parseInt(id) });
   }
 }

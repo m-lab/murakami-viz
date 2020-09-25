@@ -1,6 +1,4 @@
-import knex from 'knex';
-import { validate } from '../../common/schemas/device.js';
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, NotFoundError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:device');
@@ -12,34 +10,38 @@ export default class DeviceManager {
 
   async create(device, lid) {
     try {
-      await validate(device);
-      let ids;
-
+      let devices;
       await this._db.transaction(async trx => {
-        let lids = [];
+        let library;
         if (lid) {
-          lids = await trx('libraries')
+          library = await trx('libraries')
             .select()
-            .where({ id: parseInt(lid) });
-          if (lids.length === 0) {
-            throw new BadRequestError('Invalid library ID.');
+            .where({ id: parseInt(lid) })
+            .first();
+          if (!library) {
+            throw new NotFoundError('Invalid library ID.');
           }
         }
-        ids = await trx('devices')
-          .returning('id')
-          .insert(device);
+        devices = await trx('devices')
+          .insert(device)
+          .returning('id', 'created_at', 'updated_at');
 
-        if (!Array.isArray(ids)) {
-          ids = [ids];
+        // workaround for sqlite
+        if (Number.isInteger(devices[0])) {
+          devices = await trx('devices')
+            .select('id', 'created_at', 'updated_at')
+            .whereIn('id', devices);
         }
 
-        if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], did: id }));
-
+        if (library) {
+          const inserts = devices.map(d => ({
+            lid: library.id,
+            did: d.id,
+          }));
           await trx('library_devices').insert(inserts);
         }
       });
-      return ids;
+      return devices;
     } catch (err) {
       throw new BadRequestError('Failed to create device: ', err);
     }
@@ -47,39 +49,50 @@ export default class DeviceManager {
 
   async update(id, device) {
     try {
-      await validate(device);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('devices')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('devices')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('devices')
+            .insert({ ...device, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('devices')
+            .insert({ ...device, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('devices')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError('Failed to update device: ', err);
+      throw new BadRequestError(`Failed to update device with ID ${id}: `, err);
     }
-    return this._db
-      .table('devices')
-      .update(device)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          subject: device.subject,
-          description: device.description,
-          updated_at: device.updated_at,
-        },
-        ['id', 'subject', 'description', 'updated_at'],
-      );
   }
 
   async delete(id) {
-    try {
-      let ids;
-      await this._db.transaction(async trx => {
-        ids = await trx('devices')
-          .del()
-          .where({ id: parseInt(id) });
-        await trx('library_devices')
-          .del()
-          .where({ did: parseInt(id) });
-      });
-      return ids;
-    } catch (err) {
-      throw new BadRequestError(`Failed to delete device with ID ${id}: `, err);
-    }
+    return this._db
+      .table('devices')
+      .del()
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -107,7 +120,7 @@ export default class DeviceManager {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_devices', {
             'devices.id': 'library_devices.did',
-            'library_devices.lid': knex.raw('?', [library]),
+            'library_devices.lid': this._db.raw('?', [library]),
           });
         }
 
@@ -122,18 +135,27 @@ export default class DeviceManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
     return rows || [];
   }
 
-  async findById(id) {
+  async findById(id, library) {
     return this._db
       .table('devices')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ id: parseInt(id) })
+      .modify(queryBuilder => {
+        if (library) {
+          log.debug('Filtering on library: ', library);
+          queryBuilder.join('library_devices', {
+            'devices.id': 'library_devices.did',
+            'library_devices.lid': this._db.raw('?', [library]),
+          });
+        }
+      });
   }
 
   async findAll() {
@@ -142,22 +164,22 @@ export default class DeviceManager {
 
   async addToLibrary(lid, id) {
     return await this._db.transaction(async trx => {
-      let lids = [];
-      lids = await trx('libraries')
+      const library = await trx('libraries')
         .select()
-        .where({ id: parseInt(lid) });
+        .where({ id: parseInt(lid) })
+        .first();
 
-      if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
+      if (!library) {
+        throw new NotFoundError('Invalid library ID.');
       }
 
-      let ids = [];
-      ids = await trx('devices')
+      const device = await trx('devices')
         .select()
-        .where({ id: parseInt(id) });
+        .where({ id: parseInt(id) })
+        .first();
 
-      if (ids.length === 0) {
-        throw new BadRequestError('Invalid device ID.');
+      if (!device) {
+        throw new NotFoundError('Invalid device ID.');
       }
 
       await trx('library_devices').insert({ lid: lid, did: id });
@@ -169,7 +191,6 @@ export default class DeviceManager {
       .table('library_devices')
       .del()
       .where({ lid: parseInt(lid) })
-      .andWhere({ did: parseInt(id) })
-      .returning('*');
+      .andWhere({ did: parseInt(id) });
   }
 }

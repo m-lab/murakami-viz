@@ -150,12 +150,11 @@ export default function EditFaq(props) {
     })
       .then(response => {
         status = response.status;
-        return response.json();
       })
       .then(results => {
-        if (status === 200) {
+        if (status === 201 || status === 204) {
           alert('FAQ edited successfully.');
-          onClose(results.data[0]);
+          onClose(inputs);
           return;
         } else {
           const error = processError(results);
@@ -197,7 +196,7 @@ export default function EditFaq(props) {
         <ClearIcon />
       </Button>
       <DialogTitle id="edit-faq-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Edit Faq</div>
+        <div className={classes.dialogTitleText}>Edit FAQ</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField

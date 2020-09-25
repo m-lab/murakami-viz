@@ -81,9 +81,9 @@ const useForm = (callback, validated, device) => {
     }
     delete fullInputs.created_at;
     delete fullInputs.updated_at;
+    delete fullInputs.id;
     delete fullInputs.lid;
     delete fullInputs.did;
-    delete fullInputs.id;
     if (validated(fullInputs)) {
       callback(fullInputs);
       setInputs({});
@@ -187,7 +187,21 @@ export default function AddEditDevice(props) {
   // submit device to api
   const submitData = inputs => {
     let status;
+
+    for (let key in inputs) {
+      if (
+        inputs[key] === null ||
+        inputs[key] === undefined ||
+        key === 'created_at' ||
+        key === 'updated_at' ||
+        key === 'location'
+      )
+        delete inputs[key];
+    }
+    
     if (editMode) {
+      let updatedDevices;
+
       fetch(`api/v1/devices/${device.id}`, {
         method: 'PUT',
         headers: {
@@ -197,27 +211,21 @@ export default function AddEditDevice(props) {
       })
         .then(response => {
           status = response.status;
-          return response.json();
+          // need to handle if status is 201 and the response needs to be .json()'d
         })
-        .then(result => {
-          if (status === 200) {
-            let updatedDevices;
+        .then(()=>{
+          if (status === 204 || status === 201) {
             if (devices) {
               updatedDevices = devices.map(device =>
-                device.id === result.data[0].id ? result.data[0] : device,
-              );
+                device.deviceid === inputs.deviceid ? inputs : device )
             } else {
-              updatedDevices = [result.data[0]];
+              updatedDevices = [inputs]
             }
             setDevices(updatedDevices);
-            alert('Device updated successfully.');
+            alert('Device updated successfully');
             onClose();
-            return;
-          } else {
-            const error = processError(result);
-            throw new Error(`Error in response from server: ${error}`);
           }
-        })
+        })        
         .catch(error => {
           alert(
             `An error occurred. Please try again or contact an administrator. ${
@@ -232,7 +240,7 @@ export default function AddEditDevice(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;
@@ -242,13 +250,14 @@ export default function AddEditDevice(props) {
           if (status === 201) {
             let newDevice = {
               ...inputs,
-              id: result.data[0],
+              id: result.data[0].id,
               location: row.name,
             };
             let updatedDevices = devices
               ? devices.concat(newDevice)
               : [newDevice];
             setDevices(updatedDevices);
+            alert('New device added successfully.')
             onClose();
             return;
           } else {
@@ -357,6 +366,7 @@ export default function AddEditDevice(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={device ? device.name : inputs.name}
+            required
           />
           <TextField
             error={errors && errors.id}
@@ -369,6 +379,7 @@ export default function AddEditDevice(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={device ? device.deviceid : inputs.deviceid}
+            required
           />
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="library-device-location-label">Location</InputLabel>

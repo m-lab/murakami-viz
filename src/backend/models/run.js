@@ -1,6 +1,7 @@
-import knex from 'knex';
-import { validate } from '../../common/schemas/run.js';
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, NotFoundError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:models:run');
 
 export default class RunManager {
   constructor(db) {
@@ -9,26 +10,38 @@ export default class RunManager {
 
   async create(run, lid) {
     try {
-      await validate(run);
-      let ids;
+      let runs;
       await this._db.transaction(async trx => {
-        let lids = [];
+        let library;
         if (lid) {
-          lids = await trx('libraries')
+          library = await trx('libraries')
             .select()
-            .where({ id: parseInt(lid) });
-          if (lids.length === 0) {
-            throw new BadRequestError('Invalid library ID.');
+            .where({ id: parseInt(lid) })
+            .first();
+          if (!library) {
+            throw new NotFoundError('Invalid library ID.');
           }
         }
-        ids = await trx('runs').insert(run);
+        runs = await trx('runs')
+          .insert(run)
+          .returning('id', 'created_at', 'updated_at');
 
-        if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], rid: id }));
+        // workaround for sqlite
+        if (Number.isInteger(runs[0])) {
+          runs = await trx('runs')
+            .select('id', 'created_at', 'updated_at')
+            .whereIn('id', runs);
+        }
+
+        if (library) {
+          const inserts = runs.map(r => ({
+            lid: library.id,
+            rid: r.id,
+          }));
           await trx('library_runs').insert(inserts);
         }
       });
-      return ids;
+      return runs;
     } catch (err) {
       throw new BadRequestError('Failed to create run: ', err);
     }
@@ -36,23 +49,50 @@ export default class RunManager {
 
   async update(id, run) {
     try {
-      await validate(run);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('runs')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('runs')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('runs')
+            .insert({ ...run, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('runs')
+            .insert({ ...run, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('runs')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError('Failed to update run: ', err);
+      throw new BadRequestError(`Failed to update run with ID ${id}: `, err);
     }
-    return this._db
-      .table('runs')
-      .update(run)
-      .where({ id: parseInt(id) })
-      .returning('*');
   }
 
   async delete(id) {
     return this._db
       .table('runs')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -88,7 +128,7 @@ export default class RunManager {
             .join('devices', 'devices.deviceid', 'runs.MurakamiDeviceID')
             .join('library_devices', {
               'devices.id': 'library_devices.did',
-              'library_devices.lid': knex.raw('?', [library]),
+              'library_devices.lid': this._db.raw('?', [library]),
             });
         }
 
@@ -103,54 +143,32 @@ export default class RunManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
     return rows || [];
   }
 
-  async findById(id) {
+  async findById(id, library) {
     return this._db
       .table('runs')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ 'runs.id': parseInt(id) })
+      .modify(queryBuilder => {
+        if (library) {
+          log.debug('Filtering on library: ', library);
+          queryBuilder
+            .join('devices', 'devices.deviceid', 'runs.MurakamiDeviceID')
+            .join('library_devices', {
+              'devices.id': 'library_devices.did',
+              'library_devices.lid': this._db.raw('?', [library]),
+            });
+        }
+      });
   }
 
   async findAll() {
     return this._db.table('runs').select('*');
-  }
-
-  async addToLibrary(lid, id) {
-    return await this._db.transaction(async trx => {
-      let lids = [];
-      lids = await trx('libraries')
-        .select()
-        .where({ id: parseInt(lid) });
-
-      if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
-      }
-
-      let ids = [];
-      ids = await trx('runs')
-        .select()
-        .where({ id: parseInt(id) });
-
-      if (ids.length === 0) {
-        throw new BadRequestError('Invalid run ID.');
-      }
-
-      await trx('library_runs').insert({ lid: lid, rid: id });
-    });
-  }
-
-  async removeFromLibrary(lid, id) {
-    return this._db
-      .table('library_runs')
-      .del()
-      .where({ lid: parseInt(lid) })
-      .andWhere({ rid: parseInt(id) })
-      .returning('*');
   }
 }

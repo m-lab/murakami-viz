@@ -180,6 +180,18 @@ export default function AddEditNetwork(props) {
 
   // submit network to api
   const submitData = inputs => {
+
+    for (let key in inputs) {
+      if (
+        inputs[key] === null ||
+        inputs[key] === undefined ||
+        key === 'id' ||
+        key === 'created_at' ||
+        key === 'updated_at'
+      )
+        delete inputs[key];
+    }
+
     let status;
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
@@ -241,6 +253,7 @@ export default function AddEditNetwork(props) {
               ? networks.concat(newNetwork)
               : [newNetwork];
             setNetworks(updatedNetworks);
+            alert('New network successfully added.')
             onClose();
             return;
           } else {
@@ -329,6 +342,7 @@ export default function AddEditNetwork(props) {
             variant="outlined"
             onChange={handleInputChange}
             defaultValue={network ? network.name : inputs.name}
+            required
           />
           <TextField
             className={classes.formField}

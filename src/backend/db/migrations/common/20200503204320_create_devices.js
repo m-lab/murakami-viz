@@ -9,7 +9,6 @@ export function up(knex) {
           .primary()
           .unsigned();
         table.string('name');
-        table.string('location');
         table.string('network_type');
         table.string('connection_type');
         table.string('dns_server');
@@ -26,13 +25,15 @@ export function up(knex) {
       table.integer('lid').index();
       table
         .foreign('lid')
-        .references('id')
-        .inTable('libraries');
+        .references('libraries.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
       table.integer('did').index();
       table
         .foreign('did')
-        .references('id')
-        .inTable('devices');
+        .references('devices.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
     }),
   ]);
 }

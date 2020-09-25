@@ -39,20 +39,23 @@ export function up(knex) {
       table.integer('lid').index();
       table
         .foreign('lid')
-        .references('id')
-        .inTable('libraries');
+        .references('libraries.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
       table.integer('uid').index();
       table
         .foreign('uid')
-        .references('id')
-        .inTable('users');
+        .references('users.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
     }),
     knex.schema.createTable('library_ips', table => {
       table.integer('lid').index();
       table
         .foreign('lid')
-        .references('id')
-        .inTable('libraries');
+        .references('libraries.id')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
       table.text('ip');
     }),
   ]);

@@ -1,6 +1,7 @@
-import knex from 'knex';
-import { validate } from '../../common/schemas/note.js';
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, NotFoundError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
+
+const log = getLogger('backend:model:note');
 
 export default class NoteManager {
   constructor(db) {
@@ -9,26 +10,38 @@ export default class NoteManager {
 
   async create(note, lid) {
     try {
-      await validate(note);
-      let ids;
+      let notes;
       await this._db.transaction(async trx => {
-        let lids = [];
+        let library;
         if (lid) {
-          lids = await trx('libraries')
+          library = await trx('libraries')
             .select()
-            .where({ id: parseInt(lid) });
-          if (lids.length === 0) {
-            throw new BadRequestError('Invalid library ID.');
+            .where({ id: parseInt(lid) })
+            .first();
+          if (!library) {
+            throw new NotFoundError('Invalid library ID.');
           }
         }
-        ids = await trx('notes').insert(note);
+        notes = await trx('notes')
+          .insert(note)
+          .returning('id', 'created_at', 'updated_at');
 
-        if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], nid: id }));
+        // workaround for sqlite
+        if (Number.isInteger(notes[0])) {
+          notes = await trx('notes')
+            .select('id', 'created_at', 'updated_at')
+            .whereIn('id', notes);
+        }
+
+        if (library) {
+          const inserts = notes.map(n => ({
+            lid: library.id,
+            nid: n.id,
+          }));
           await trx('library_notes').insert(inserts);
         }
       });
-      return ids;
+      return notes;
     } catch (err) {
       throw new BadRequestError('Failed to create note: ', err);
     }
@@ -36,31 +49,50 @@ export default class NoteManager {
 
   async update(id, note) {
     try {
-      await validate(note);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('notes')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('notes')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('notes')
+            .insert({ ...note, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('notes')
+            .insert({ ...note, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('notes')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError('Failed to update note: ', err);
+      throw new BadRequestError(`Failed to update note with ID ${id}: `, err);
     }
-    return this._db
-      .table('notes')
-      .update(note)
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          subject: note.subject,
-          description: note.description,
-          updated_at: note.updated_at,
-        },
-        ['id', 'subject', 'description', 'updated_at'],
-      )
-      .returning('*');
   }
 
   async delete(id) {
     return this._db
       .table('notes')
       .del()
-      .where({ id: parseInt(id) })
-      .returning('*');
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -90,9 +122,10 @@ export default class NoteManager {
         }
 
         if (library) {
+          log.debug('Filtering on library: ', library);
           queryBuilder.join('library_notes', {
             'notes.id': 'library_notes.nid',
-            'library_notes.lid': knex.raw('?', [library]),
+            'library_notes.lid': this._db.raw('?', [library]),
           });
         }
 
@@ -107,18 +140,27 @@ export default class NoteManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
     return rows || [];
   }
 
-  async findById(id) {
+  async findById(id, library) {
     return this._db
       .table('notes')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ id: parseInt(id) })
+      .modify(queryBuilder => {
+        if (library) {
+          log.debug('Filtering on library: ', library);
+          queryBuilder.join('library_notes', {
+            'notes.id': 'library_notes.nid',
+            'library_notes.lid': this._db.raw('?', [library]),
+          });
+        }
+      });
   }
 
   async findAll() {
@@ -127,22 +169,22 @@ export default class NoteManager {
 
   async addToLibrary(lid, id) {
     return await this._db.transaction(async trx => {
-      let lids = [];
-      lids = await trx('libraries')
+      const library = await trx('libraries')
         .select()
-        .where({ id: parseInt(lid) });
+        .where({ id: parseInt(lid) })
+        .first();
 
-      if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
+      if (!library) {
+        throw new NotFoundError('Invalid library ID.');
       }
 
-      let ids = [];
-      ids = await trx('notes')
+      const note = await trx('notes')
         .select()
-        .where({ id: parseInt(id) });
+        .where({ id: parseInt(id) })
+        .first();
 
-      if (ids.length === 0) {
-        throw new BadRequestError('Invalid note ID.');
+      if (!note) {
+        throw new NotFoundError('Invalid note ID.');
       }
 
       await trx('library_notes').insert({ lid: lid, nid: id });
@@ -154,7 +196,6 @@ export default class NoteManager {
       .table('library_notes')
       .del()
       .where({ lid: parseInt(lid) })
-      .andWhere({ nid: parseInt(id) })
-      .returning('*');
+      .andWhere({ nid: parseInt(id) });
   }
 }

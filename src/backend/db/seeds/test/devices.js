@@ -60,7 +60,7 @@ export function seed(knex) {
             did: 2,
           },
           {
-            lid: 1,
+            lid: 2,
             did: 3,
           },
           {

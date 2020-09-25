@@ -76,7 +76,7 @@ const useForm = (callback, validated, note) => {
       event.persist();
       setInputs(inputs => ({
         ...inputs,
-        [event.target.name]: event.target.value,
+        [event.target.name]: event.target.value.trim(),
       }));
     }
   };
@@ -166,6 +166,8 @@ export default function EditNote(props) {
 
   const submitData = () => {
     let status;
+    delete inputs['id']
+    delete inputs['author']
     fetch(`api/v1/notes/${row.id}`, {
       method: 'PUT',
       headers: {
@@ -178,7 +180,7 @@ export default function EditNote(props) {
         return response.json();
       })
       .then(result => {
-        if (status === 200) {
+        if (status === 201) {
           alert('Note edited successfully.');
           onClose(inputs);
           return;
@@ -238,6 +240,7 @@ export default function EditNote(props) {
           variant="outlined"
           onChange={handleInputChange}
           value={row.subject || inputs.subject || ''}
+          required
         />
         <MuiPickersUtilsProvider utils={DateFnUtils}>
           <DateTimePicker
@@ -260,6 +263,7 @@ export default function EditNote(props) {
           variant="outlined"
           onChange={handleInputChange}
           value={row.description || inputs.description || ''}
+          required
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>

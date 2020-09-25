@@ -1,12 +1,17 @@
+import _ from 'lodash/core';
 import bcrypt from 'bcryptjs';
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
 import passport from 'koa-passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
-import _ from 'lodash/core';
+import {
+  validateCreation,
+  validateUpdate,
+  validateUpdateSelf,
+} from '../../common/schemas/user.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:user');
 
@@ -160,17 +165,16 @@ export default function controller(users, thisUser) {
     log.debug('Adding new user.');
     let user, lid;
 
-    if (ctx.params.lid) {
-      lid = ctx.params.lid;
-    }
-
     try {
-      user = await users.create(ctx.request.body.data, lid);
+      const [data] = await validateCreation(ctx.request.body.data);
 
-      // workaround for sqlite
-      if (Number.isInteger(user)) {
-        user = await users.findById(user);
+      if (ctx.params.lid) {
+        lid = ctx.params.lid;
+      } else {
+        lid = data.location;
       }
+
+      user = await users.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse user schema: ${err}`);
@@ -182,7 +186,7 @@ export default function controller(users, thisUser) {
 
   router.get('/users', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving users.`);
-    let res;
+    let res, library;
 
     try {
       const query = await validate_query(ctx.query);
@@ -203,6 +207,13 @@ export default function controller(users, thisUser) {
         }
         to = timestamp.toISOString();
       }
+
+      if (ctx.params.lid) {
+        library = ctx.params.lid;
+      } else {
+        library = query.library;
+      }
+
       res = await users.find({
         start: query.start,
         end: query.end,
@@ -210,9 +221,10 @@ export default function controller(users, thisUser) {
         sort_by: query.sort_by,
         from: from,
         to: to,
-        library: ctx.params.lid,
+        library: library,
         group: query.group,
       });
+      log.debug('**** RES ****:', res);
       ctx.response.body = {
         statusCode: 200,
         status: 'ok',
@@ -239,48 +251,9 @@ export default function controller(users, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
+    user = Array.isArray(user) ? user : [user];
+
     if (!_.isEmpty(user)) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: [user] };
-      ctx.response.status = 200;
-    } else {
-      log.error(
-        `HTTP 404 Error: That user with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That user with ID ${ctx.params.id} does not exist.`);
-    }
-  });
-
-  router.put('/users/:id', thisUser.can('access private pages'), async ctx => {
-    log.debug(`Updating user ${ctx.params.id}.`);
-    let user;
-
-    try {
-      if (ctx.params.lid) {
-        if (!thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
-          ctx.throw(403, 'Access denied.');
-        }
-        user = await users.addToLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        const id = parseInt(ctx.params.id);
-        if (id === ctx.state.user[0].id) {
-          user = await users.updateSelf(ctx.params.id, ctx.request.body.data);
-        } else if (thisUser.isMemberOf('admins', ctx.state.user[0].id)) {
-          user = await users.update(ctx.params.id, ctx.request.body.data);
-        } else {
-          ctx.throw(403, 'Access denied.');
-        }
-      }
-
-      // workaround for sqlite
-      if (Number.isInteger(user)) {
-        user = await users.findById(ctx.params.id);
-      }
-    } catch (err) {
-      log.error('HTTP 400 Error: ', err);
-      ctx.throw(400, `Failed to parse query: ${err}`);
-    }
-
-    if (user && user.length) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: user };
       ctx.response.status = 200;
     } else {
@@ -291,24 +264,67 @@ export default function controller(users, thisUser) {
     }
   });
 
+  router.put('/users/:id', thisUser.can('access admin pages'), async ctx => {
+    log.debug(`Updating user ${ctx.params.id}.`);
+    let created,
+      updated = false;
+
+    try {
+      if (ctx.params.lid) {
+        if (!thisUser.isMemberOf('admins', ctx.state.user.id)) {
+          ctx.throw(403, 'Access denied.');
+        }
+        await users.addToLibrary(ctx.params.lid, ctx.params.id);
+      } else {
+        const id = parseInt(ctx.params.id);
+        if (id === ctx.state.user.id) {
+          const [data] = await validateUpdateSelf(ctx.request.body.data);
+          await users.updateSelf(ctx.params.id, data);
+        } else if (thisUser.isMemberOf('admins', ctx.state.user.id)) {
+          const [data] = await validateUpdate(ctx.request.body.data);
+          ({ exists: updated = false, ...created } = await users.update(
+            ctx.params.id,
+            data,
+          ));
+        } else {
+          ctx.throw(403, 'Access denied.');
+        }
+      }
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (ctx.params.lid || updated) {
+      ctx.response.status = 204;
+    } else {
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
+    }
+  });
+
   router.delete('/users/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Deleting user ${ctx.params.id}.`);
-    let user;
+    let user = 0;
 
     try {
       if (ctx.params.lid) {
         user = await users.removeFromLibrary(ctx.params.lid, ctx.params.id);
       } else {
         user = await users.delete(ctx.params.id);
+        log.debug('Deleted user: ', user > 0);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (user.length) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: user };
-      ctx.response.status = 200;
+    if (user > 0) {
+      ctx.response.status = 204;
     } else {
       log.error(
         `HTTP 404 Error: That user with ID ${ctx.params.id} does not exist.`,

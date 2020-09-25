@@ -1,8 +1,9 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
-import { getLogger } from '../log.js';
+import { validateCreation, validateUpdate } from '../../common/schemas/faq.js';
 import { BadRequestError } from '../../common/errors.js';
+import { getLogger } from '../log.js';
 
 const log = getLogger('backend:controllers:faq');
 
@@ -37,11 +38,12 @@ export default function controller(faqs, thisUser) {
     let faq;
 
     try {
-      faq = await faqs.create(ctx.request.body.data);
+      const data = await validateCreation(ctx.request.body.data);
+      faq = await faqs.create(data);
 
       // workaround for sqlite
-      if (Number.isInteger(faq)) {
-        faq = await faqs.findById(faq);
+      if (Number.isInteger(faq[0])) {
+        faq = await faqs.findById(faq[0]);
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
@@ -119,28 +121,28 @@ export default function controller(faqs, thisUser) {
 
   router.put('/faqs/:id', thisUser.can('view this library'), async ctx => {
     log.debug(`Updating faq ${ctx.params.id}.`);
-    let faq;
+    let created, updated;
 
     try {
-      faq = await faqs.update(ctx.params.id, ctx.request.body.data);
-
-      // workaround for sqlite
-      if (Number.isInteger(faq)) {
-        faq = await faqs.findById(ctx.params.id);
-      }
+      const [data] = await validateUpdate(ctx.request.body.data);
+      ({ exists: updated = false, ...created } = await faqs.update(
+        ctx.params.id,
+        data,
+      ));
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (faq.length && faq.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: faq };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That faq with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That faq with ID ${ctx.params.id} does not exist.`);
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
@@ -155,9 +157,8 @@ export default function controller(faqs, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (faq.length && faq.length > 0) {
-      ctx.response.body = { status: 'success', data: faq };
-      ctx.response.status = 200;
+    if (faq > 0) {
+      ctx.response.status = 204;
     } else {
       log.error(
         `HTTP 404 Error: That faq with ID ${ctx.params.id} does not exist.`,

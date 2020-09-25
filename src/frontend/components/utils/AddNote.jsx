@@ -64,7 +64,7 @@ const useForm = (callback, validated) => {
     event.persist();
     setInputs(inputs => ({
       ...inputs,
-      [event.target.name]: event.target.value,
+      [event.target.name]: event.target.value.trim(),
     }));
   };
   return {
@@ -217,6 +217,7 @@ export default function AddNote(props) {
           variant="outlined"
           onChange={handleInputChange}
           value={inputs.subject || ''}
+          required
         />
 
         <MuiPickersUtilsProvider utils={DateFnUtils}>
@@ -240,6 +241,7 @@ export default function AddNote(props) {
           variant="outlined"
           onChange={handleInputChange}
           value={inputs.description || ''}
+          required
         />
         <Grid container alignItems="center" justify="space-between">
           <Grid item>
