@@ -63,6 +63,7 @@ const creationSchema = Joi.array()
       PingUnit: Joi.string(),
       BytesSent: Joi.number(),
       BytesReceived: Joi.number(),
+      Timestamp: Joi.string().isoDate(),
       Share: Joi.string(),
       ProbeASN: Joi.string(),
       ProbeCC: Joi.string(),
