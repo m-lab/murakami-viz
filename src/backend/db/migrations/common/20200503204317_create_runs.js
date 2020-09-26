@@ -58,7 +58,7 @@ export function up(knex) {
       table.decimal('MinPlayoutDelay');
       table.string('MinPlayoutDelayUnits');
       table.decimal('Ping');
-      table.string('PingUnits');
+      table.string('PingUnit');
       table.integer('BytesSent');
       table.integer('BytesReceived');
       table.string('Share');
