@@ -30,7 +30,7 @@ export function up(knex) {
       table.string('ServerHost');
       table.decimal('ServerDistance');
       table.decimal('ServerLatency');
-      table.string('ServerLatencyUnits');
+      table.string('ServerLatencyUnit');
       table.string('ClientIP');
       table.decimal('ClientLat');
       table.decimal('ClientLon');
