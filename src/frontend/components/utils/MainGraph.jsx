@@ -117,7 +117,8 @@ export default function MainGraph(props) {
       } else if (metric === 'UploadValue') {
         setTitleText('Upload Speed (Mbit/s)');
       } else if (metric === 'DownloadRetransValue') {
-        setTitleText('Latency (Mbit/s)');
+        //setTitleText('Latency (Mbit/s)');
+        setTitleText('Packet loss (%)');
       }
 
       if (groupedRuns) {

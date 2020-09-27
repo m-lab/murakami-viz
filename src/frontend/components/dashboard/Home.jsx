@@ -346,11 +346,23 @@ export default function Home(props) {
                     onChange={handleSummary}
                     aria-label="tests summary data"
                   >
-                    <ToggleButton value="ndt7" aria-label="NDT7">
-                      NDT
+                    <ToggleButton value="ndt5" aria-label="NDT5">
+                      NDT5
                     </ToggleButton>
-                    <ToggleButton value="ookla" aria-label="Ookla">
-                      Ookla
+                    <ToggleButton value="ndt7" aria-label="NDT7">
+                      NDT7
+                    </ToggleButton>
+                    <ToggleButton
+                      value="speedtest-cli-multi-stream"
+                      aria-label="Ookla (Multi-stream)"
+                    >
+                      Ookla Multistream
+                    </ToggleButton>
+                    <ToggleButton
+                      value="speedtest-cli-single-stream"
+                      aria-label="Ookla (Single-stream)"
+                    >
+                      Ookla Singlestream
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
