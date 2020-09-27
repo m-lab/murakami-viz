@@ -11,7 +11,8 @@ let xAxis = [],
   yAxis = [];
 
 function handleData(runs, metric) {
-  console.debug('Handling data.');
+  console.debug('handleData() - runs: ', runs);
+  console.debug('handleData() - metric: ', metric);
   xAxis = [];
   yAxis = [];
 
@@ -22,7 +23,8 @@ function handleData(runs, metric) {
 }
 
 function handleGroupedData(runs, metric) {
-  console.debug('Handling grouped data.');
+  console.debug('handleGroupedData() - runs: ', runs);
+  console.debug('handleGroupedData() - metric: ', metric);
   xAxis = [];
   yAxis = [];
 
@@ -52,19 +54,33 @@ export default function MainGraph(props) {
 
   React.useEffect(() => {
     if (runs) {
+      console.debug('Filtering runs:');
       const filteredRuns = runs.filter(run => {
+        console.debug('Run being filtered: ', run);
         if (lid && lid.length) {
           if (!lid.includes(run.lid)) {
+            console.debug(
+              'Rejected: We have lids but does not include run.lid',
+              run.lid,
+            );
             return false;
           }
         }
         if (connections.length) {
           if (!connections.includes(run.MurakamiConnectionType)) {
+            console.debug(
+              'Rejected: We have connections but does not include run.MurakamiConnectionType',
+              run.MurakamiConnectionType,
+            );
             return false;
           }
         }
         if (testTypes.length) {
           if (!testTypes.includes(run.TestName)) {
+            console.debug(
+              'Rejected: We have testTypes but does not include run.TestName',
+              run.TestName,
+            );
             return false;
           }
         }

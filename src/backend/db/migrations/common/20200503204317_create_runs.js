@@ -61,6 +61,7 @@ export function up(knex) {
       table.string('PingUnit');
       table.integer('BytesSent');
       table.integer('BytesReceived');
+      table.string('Timestamp');
       table.string('Share');
       table.string('ProbeASN');
       table.string('ProbeCC');
