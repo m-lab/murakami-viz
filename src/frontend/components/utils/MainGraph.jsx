@@ -58,6 +58,7 @@ export default function MainGraph(props) {
       const filteredRuns = runs.filter(run => {
         console.debug('Run being filtered: ', run);
         if (lid && lid.length) {
+          console.debug('Filtering for lid: ', lid);
           if (!lid.includes(run.lid)) {
             console.debug(
               'Rejected: We have lids but does not include run.lid',
@@ -67,6 +68,7 @@ export default function MainGraph(props) {
           }
         }
         if (connections.length) {
+          console.debug('Filtering for connections: ', connections);
           if (!connections.includes(run.MurakamiConnectionType)) {
             console.debug(
               'Rejected: We have connections but does not include run.MurakamiConnectionType',
@@ -76,6 +78,7 @@ export default function MainGraph(props) {
           }
         }
         if (testTypes.length) {
+          console.debug('Filtering for testTypes: ', testTypes);
           if (!testTypes.includes(run.TestName)) {
             console.debug(
               'Rejected: We have testTypes but does not include run.TestName',
