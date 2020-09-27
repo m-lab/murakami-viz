@@ -18,7 +18,16 @@ function handleData(runs, metric) {
 
   runs.map(run => {
     xAxis.push(run.TestStartTime.substr(0, 10));
-    yAxis.push(run[metric].toFixed(2));
+
+    // workaround for the different parameters across tests
+    if (metric === 'MinRTTValue') {
+      let latency = run['MinRTTValue']
+        ? run['MinRTTValue']
+        : run['ServerLatency'];
+      yAxis.push(latency.toFixed(2));
+    } else {
+      yAxis.push(run[metric].toFixed(2));
+    }
   });
 }
 
@@ -116,9 +125,8 @@ export default function MainGraph(props) {
         setTitleText('Download Speed (Mbit/s)');
       } else if (metric === 'UploadValue') {
         setTitleText('Upload Speed (Mbit/s)');
-      } else if (metric === 'DownloadRetransValue') {
-        //setTitleText('Latency (Mbit/s)');
-        setTitleText('Packet loss (%)');
+      } else if (metric === 'MinRTTValue') {
+        setTitleText('Latency (ms)');
       }
 
       if (groupedRuns) {

@@ -458,10 +458,7 @@ export default function Home(props) {
                       Upload
                       <GlossaryTooltip term={handleGlossary('Upload')} />
                     </ToggleButton>
-                    <ToggleButton
-                      value="DownloadRetransValue"
-                      aria-label="Latency"
-                    >
+                    <ToggleButton value="MinRTTValue" aria-label="Latency">
                       Latency
                       <GlossaryTooltip term={handleGlossary('Latency')} />
                     </ToggleButton>
