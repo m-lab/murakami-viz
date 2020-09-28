@@ -66,14 +66,14 @@ function handleData(runs) {
         weekTotalMbps += parseFloat(Number(run.DownloadValue).toFixed(2));
         weekRuns += 1;
         xAxisWeek.push(run.TestStartTime.substr(0, 10));
-        yAxisWeek.push(run.DownloadValue.toFixed(2));
+        yAxisWeek.push(Number(run.DownloadValue).toFixed(2));
       }
 
       if (runDate.format('YYYY-MM-DD') === today) {
         dayTotalMbps += parseFloat(Number(run.DownloadValue).toFixed(2));
         dayRuns += 1;
         xAxisDay.push(run.TestStartTime.substr(0, 10));
-        yAxisDay.push(run.DownloadValue.toFixed(2));
+        yAxisDay.push(Number(run.DownloadValue).toFixed(2));
       }
     });
 
