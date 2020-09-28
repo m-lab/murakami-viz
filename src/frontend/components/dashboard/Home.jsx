@@ -430,12 +430,26 @@ export default function Home(props) {
                     onChange={handleTestType}
                     aria-label="connection type"
                   >
-                    <ToggleButton value="ndt7" aria-label="NDT">
-                      NDT
+                    <ToggleButton value="ndt5" aria-label="NDT">
+                      NDT5
                       <GlossaryTooltip term={handleGlossary('NDT')} />
                     </ToggleButton>
-                    <ToggleButton value="ookla" aria-label="Ookla">
-                      Ookla
+                    <ToggleButton value="ndt7" aria-label="NDT">
+                      NDT7
+                      <GlossaryTooltip term={handleGlossary('NDT')} />
+                    </ToggleButton>
+                    <ToggleButton
+                      value="speedtest-cli-single-stream"
+                      aria-label="Ookla (Single-stream)"
+                    >
+                      Ookla (Single-stream)
+                      <GlossaryTooltip term={handleGlossary('Ookla')} />
+                    </ToggleButton>
+                    <ToggleButton
+                      value="single-cli-multi-stream"
+                      aria-label="Ookla (Multi-stream)"
+                    >
+                      Ookla (Multi-stream)
                       <GlossaryTooltip term={handleGlossary('Ookla')} />
                     </ToggleButton>
                   </ToggleButtonGroup>
