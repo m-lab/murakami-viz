@@ -62,21 +62,15 @@ function handleData(runs) {
     runs.map(run => {
       const runDate = moment(run.TestStartTime.substr(0, 10));
 
-      if (
-        runDate.isBetween(weekAgo, today, 'days', '[]') &&
-        !Number.isNaN(run.DownloadValue)
-      ) {
-        weekTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
+      if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
+        weekTotalMbps += parseFloat(Number(run.DownloadValue).toFixed(2));
         weekRuns += 1;
         xAxisWeek.push(run.TestStartTime.substr(0, 10));
         yAxisWeek.push(run.DownloadValue.toFixed(2));
       }
 
-      if (
-        runDate.format('YYYY-MM-DD') === today &&
-        !Number.isNaN(run.DownloadValue)
-      ) {
-        dayTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
+      if (runDate.format('YYYY-MM-DD') === today) {
+        dayTotalMbps += parseFloat(Number(run.DownloadValue).toFixed(2));
         dayRuns += 1;
         xAxisDay.push(run.TestStartTime.substr(0, 10));
         yAxisDay.push(run.DownloadValue.toFixed(2));
