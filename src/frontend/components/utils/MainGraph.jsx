@@ -25,29 +25,31 @@ function handleData(runs, metric) {
       let latency = run['MinRTTValue']
         ? run['MinRTTValue']
         : run['ServerLatency'];
-      yAxis.push(Number(latency).toFixed(2));
+      latency = parseFloat(latency);
+      yAxis.push(latency.toFixed(2));
     } else if (metric === 'DownloadValue') {
-      let rate = run[metric];
+      let rate = parseFloat(run[metric]);
       if (isString(run['DownloadUnit'])) {
         if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
-          rate = run[metric] / 1000000;
+          rate = rate / 1000000;
         } else if (run['DownloadUnit'].toLowerCase() === 'kb/s') {
-          rate = run[metric] / 1000;
+          rate = rate / 1000;
         }
       }
-      yAxis.push(Number(rate).toFixed(2));
+      yAxis.push(rate.toFixed(2));
     } else if (metric === 'UploadValue') {
-      let rate = run[metric];
+      let rate = parseFloat(run[metric]);
       if (isString(run['UploadUnit'])) {
         if (run['UploadUnit'].toLowerCase() === 'bit/s') {
-          rate = run[metric] / 1000000;
+          rate = rate / 1000000;
         } else if (run['UploadUnit'].toLowerCase() === 'kb/s') {
-          rate = run[metric] / 1000;
+          rate = rate / 1000;
         }
       }
-      yAxis.push(Number(rate).toFixed(2));
+      yAxis.push(rate.toFixed(2));
     } else {
-      yAxis.push(Number(run[metric]).toFixed(2));
+      let rate = parseFloat(run[metric]);
+      yAxis.push(Number(rate).toFixed(2));
     }
   });
 }

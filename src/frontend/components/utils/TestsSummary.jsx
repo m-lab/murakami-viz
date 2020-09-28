@@ -63,7 +63,7 @@ function handleData(runs) {
     runs.map(run => {
       const runDate = moment(run.TestStartTime.substr(0, 10));
 
-      let rate = Number(run.DownloadValue);
+      let rate = parseFloat(run.DownloadValue);
       if (isString(run.DownloadUnit)) {
         if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
           rate = rate / 1000000;
