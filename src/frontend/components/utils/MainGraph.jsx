@@ -6,6 +6,7 @@ import moment from 'moment';
 
 // module imports
 import Loading from '../Loading.jsx';
+import { isString } from '../../../common/utils.js';
 
 let xAxis = [],
   yAxis = [];
@@ -25,6 +26,22 @@ function handleData(runs, metric) {
         ? run['MinRTTValue']
         : run['ServerLatency'];
       yAxis.push(Number(latency).toFixed(2));
+    } else if (metric === 'DownloadValue') {
+      let rate = run[metric];
+      if (isString(run['DownloadValueUnit'])) {
+        if (run['DownloadValueUnit'].toLowerCase() === 'bit/s') {
+          rate = run[metric] / 1000000;
+        } else if (run['DownloadValueUnit'] === 'kb/s') {
+          rate = run[metric] / 1000;
+        }
+      } else if (isString(run['UploadValueUnit'])) {
+        if (run['UploadValueUnit'].toLowerCase() === 'bit/s') {
+          rate = run[metric] / 1000000;
+        } else if (run['UploadValueUnit'] === 'kb/s') {
+          rate = run[metric] / 1000;
+        }
+      }
+      yAxis.push(Number(rate).toFixed(2));
     } else {
       yAxis.push(Number(run[metric]).toFixed(2));
     }
