@@ -28,16 +28,20 @@ function handleData(runs, metric) {
       yAxis.push(Number(latency).toFixed(2));
     } else if (metric === 'DownloadValue') {
       let rate = run[metric];
-      if (isString(run['DownloadValueUnit'])) {
-        if (run['DownloadValueUnit'].toLowerCase() === 'bit/s') {
+      if (isString(run['DownloadUnit'])) {
+        if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
           rate = run[metric] / 1000000;
-        } else if (run['DownloadValueUnit'] === 'kb/s') {
+        } else if (run['DownloadUnit'].toLowerCase() === 'kb/s') {
           rate = run[metric] / 1000;
         }
-      } else if (isString(run['UploadValueUnit'])) {
-        if (run['UploadValueUnit'].toLowerCase() === 'bit/s') {
+      }
+      yAxis.push(Number(rate).toFixed(2));
+    } else if (metric === 'UploadValue') {
+      let rate = run[metric];
+      if (isString(run['UploadUnit'])) {
+        if (run['UploadUnit'].toLowerCase() === 'bit/s') {
           rate = run[metric] / 1000000;
-        } else if (run['UploadValueUnit'] === 'kb/s') {
+        } else if (run['UploadUnit'].toLowerCase() === 'kb/s') {
           rate = run[metric] / 1000;
         }
       }

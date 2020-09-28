@@ -64,10 +64,10 @@ function handleData(runs) {
       const runDate = moment(run.TestStartTime.substr(0, 10));
 
       let rate = Number(run.DownloadValue);
-      if (isString(run.DownloadValueUnit)) {
-        if (run['DownloadValueUnit'].toLowerCase() === 'bit/s') {
+      if (isString(run.DownloadUnit)) {
+        if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
           rate = rate / 1000000;
-        } else if (run['DownloadValueUnit'] === 'kb/s') {
+        } else if (run['DownloadValueUnit'].toLowerCase() === 'kb/s') {
           rate = rate / 1000;
         }
       }
