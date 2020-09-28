@@ -67,7 +67,7 @@ function handleData(runs) {
       if (isString(run.DownloadUnit)) {
         if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
           rate = rate / 1000000;
-        } else if (run['DownloadValueUnit'].toLowerCase() === 'kb/s') {
+        } else if (run['DownloadValue'].toLowerCase() === 'kb/s') {
           rate = rate / 1000;
         }
       }

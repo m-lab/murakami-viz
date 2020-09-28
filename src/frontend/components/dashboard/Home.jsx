@@ -142,7 +142,7 @@ export default function Home(props) {
   };
 
   // handle NDT or Ookla summary
-  const [summary, setSummary] = React.useState('ndt7');
+  const [summary, setSummary] = React.useState('ndt5');
 
   const handleSummary = (event, newSummary) => {
     if (newSummary.length) {
@@ -180,7 +180,7 @@ export default function Home(props) {
   };
 
   // handle test type change
-  const [testTypes, setTestTypes] = React.useState(['ndt7']);
+  const [testTypes, setTestTypes] = React.useState(['ndt5']);
 
   const handleTestType = (event, newTestTypes) => {
     if (newTestTypes.length) {
@@ -346,23 +346,14 @@ export default function Home(props) {
                     onChange={handleSummary}
                     aria-label="tests summary data"
                   >
-                    <ToggleButton value="ndt5" aria-label="NDT5">
-                      NDT5
-                    </ToggleButton>
-                    <ToggleButton value="ndt7" aria-label="NDT7">
-                      NDT7
-                    </ToggleButton>
-                    <ToggleButton
-                      value="speedtest-cli-multi-stream"
-                      aria-label="Ookla (Multi-stream)"
-                    >
-                      Ookla Multistream
+                    <ToggleButton value="ndt5" aria-label="NDT">
+                      NDT
                     </ToggleButton>
                     <ToggleButton
                       value="speedtest-cli-single-stream"
-                      aria-label="Ookla (Single-stream)"
+                      aria-label="Ookla"
                     >
-                      Ookla Singlestream
+                      Ookla
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
@@ -431,25 +422,14 @@ export default function Home(props) {
                     aria-label="connection type"
                   >
                     <ToggleButton value="ndt5" aria-label="NDT">
-                      NDT5
-                      <GlossaryTooltip term={handleGlossary('NDT')} />
-                    </ToggleButton>
-                    <ToggleButton value="ndt7" aria-label="NDT">
-                      NDT7
+                      NDT
                       <GlossaryTooltip term={handleGlossary('NDT')} />
                     </ToggleButton>
                     <ToggleButton
                       value="speedtest-cli-single-stream"
-                      aria-label="Ookla (Single-stream)"
+                      aria-label="Ookla"
                     >
-                      Ookla (Single-stream)
-                      <GlossaryTooltip term={handleGlossary('Ookla')} />
-                    </ToggleButton>
-                    <ToggleButton
-                      value="single-cli-multi-stream"
-                      aria-label="Ookla (Multi-stream)"
-                    >
-                      Ookla (Multi-stream)
+                      Ookla
                       <GlossaryTooltip term={handleGlossary('Ookla')} />
                     </ToggleButton>
                   </ToggleButtonGroup>

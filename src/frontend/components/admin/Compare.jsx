@@ -132,7 +132,7 @@ export default function Compare(props) {
   };
 
   // handle test type change
-  const [testTypes, setTestTypes] = React.useState(['ndt7']);
+  const [testTypes, setTestTypes] = React.useState(['ndt5']);
 
   const handleTestType = (event, newTestTypes) => {
     if (newTestTypes.length) {
@@ -310,10 +310,13 @@ export default function Compare(props) {
                     onChange={handleTestType}
                     aria-label="connection type"
                   >
-                    <ToggleButton value="ndt7" aria-label="NDT">
+                    <ToggleButton value="ndt5" aria-label="NDT">
                       NDT
                     </ToggleButton>
-                    <ToggleButton value="ookla" aria-label="Ookla">
+                    <ToggleButton
+                      value="speedtest-cli-single-stream"
+                      aria-label="Ookla"
+                    >
                       Ookla
                     </ToggleButton>
                   </ToggleButtonGroup>
