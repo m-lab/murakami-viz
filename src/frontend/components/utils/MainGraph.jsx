@@ -24,9 +24,9 @@ function handleData(runs, metric) {
       let latency = run['MinRTTValue']
         ? run['MinRTTValue']
         : run['ServerLatency'];
-      yAxis.push(latency.toFixed(2));
+      yAxis.push(Number(latency).toFixed(2));
     } else {
-      yAxis.push(run[metric].toFixed(2));
+      yAxis.push(Number(run[metric]).toFixed(2));
     }
   });
 }
