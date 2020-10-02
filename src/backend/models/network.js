@@ -14,7 +14,6 @@ export default class NetworkManager {
     try {
       await validate(network);
       let ids;
-
       await this._db.transaction(async trx => {
         let lids = [];
         if (lid) {
@@ -27,7 +26,7 @@ export default class NetworkManager {
         }
         ids = await trx('networks')
           .returning('id')
-          .insert(network);
+          .insert({...network, ips: JSON.stringify});
 
         if (!Array.isArray(ids)) {
           ids = [ids];

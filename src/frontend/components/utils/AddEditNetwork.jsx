@@ -88,6 +88,7 @@ const useForm = (callback, validated, network) => {
   };
   const handleInputChange = event => {
     event.persist();
+    
     if (event.target.name === 'ips') {
       setInputs(inputs => ({
         ...inputs,
@@ -96,7 +97,7 @@ const useForm = (callback, validated, network) => {
     } else {
       setInputs(inputs => ({
         ...inputs,
-        [event.target.name]: event.target.value,
+        [event.target.name]: event.target.value.trim(),
       }));
     }
   };
@@ -218,7 +219,6 @@ export default function AddEditNetwork(props) {
               updatedNetworks = networks.map(network =>
                 network.id === result.data[0].id ? result.data[0] : network,
               );
-              console.log('updated: ', updatedNetworks);
             } else {
               updatedNetworks = [result.data[0]];
             }
@@ -244,7 +244,7 @@ export default function AddEditNetwork(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({data: inputs}),
       })
         .then(response => {
           status = response.status;
