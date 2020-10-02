@@ -476,7 +476,7 @@ export default function Library(props) {
           </Grid>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Basic Information
           </Typography>
           <TableContainer>
@@ -564,7 +564,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             ISP &amp; Library Network Information
           </Typography>
           <TableContainer>
@@ -587,7 +587,7 @@ export default function Library(props) {
                                 <Typography
                                   variant="overline"
                                   display="block"
-                                  gutterBottom
+                                  gutterbottom
                                 >
                                   {network.name}
                                 </Typography>
@@ -728,7 +728,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Measurement Devices
           </Typography>
           <TableContainer>
@@ -751,7 +751,7 @@ export default function Library(props) {
                                 <Typography
                                   variant="overline"
                                   display="block"
-                                  gutterBottom
+                                  gutterbottom
                                 >
                                   {device.name}
                                 </Typography>
@@ -931,7 +931,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Whitelisted IP Addresses
           </Typography>
           <TableContainer>

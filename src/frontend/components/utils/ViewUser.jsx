@@ -241,23 +241,23 @@ export default function ViewUser(props) {
         {isAdmin(user)}
       </Grid>
       <Box className={classes.box}>
-        <Typography component="p" variant="subtitle2" gutterBottom>
+        <Typography component="p" variant="subtitle2" gutterbottom>
           {formatName(row.firstName, row.lastName)}
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.username}
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.email}
         </Typography>
         { row.phone ?
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.phone} {row.extension ? `ext. ${row.extension}` : ``}
         </Typography> : null}
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.location_name}
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {formatRole(row.role_name)}
         </Typography>
       </Box>

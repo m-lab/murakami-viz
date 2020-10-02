@@ -330,7 +330,7 @@ export default function EnhancedTable(props) {
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(index);
+                            handleClickOpen(page * 10 + index);
                           }}
                           key={row.id}
                         >

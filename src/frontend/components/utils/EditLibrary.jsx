@@ -353,7 +353,7 @@ export default function EditLibrary(props) {
         </Grid>
       </Grid>
       <Box m={4}>
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Details
         </Typography>
         <FormControl variant="outlined" className={classes.formControl}>
@@ -426,7 +426,7 @@ export default function EditLibrary(props) {
           onChange={handleInputChange}
           defaultValue={row.coordinates}
         />
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Contact for MLBN Devices
         </Typography>
         <TextField
@@ -451,7 +451,7 @@ export default function EditLibrary(props) {
           onChange={handleInputChange}
           defaultValue={row.primary_contact_email}
         />
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Hours
         </Typography>
         <Box className={classes.hours}>
@@ -461,7 +461,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Sunday
             </Typography>
@@ -534,7 +534,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -610,7 +610,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Monday
             </Typography>
@@ -683,7 +683,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -759,7 +759,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Tuesday
             </Typography>
@@ -832,7 +832,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -908,7 +908,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Wednesday
             </Typography>
@@ -981,7 +981,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -1057,7 +1057,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Thursday
             </Typography>
@@ -1130,7 +1130,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -1206,7 +1206,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Friday
             </Typography>
@@ -1279,7 +1279,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>
@@ -1355,7 +1355,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               Saturday
             </Typography>
@@ -1428,7 +1428,7 @@ export default function EditLibrary(props) {
               variant="body1"
               component="p"
               display="inline"
-              gutterBottom
+              gutterbottom
             >
               to
             </Typography>

@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: '5px',
   },
   upper: {
-    textTransform: 'uppercase',
+    textTransform: 'uppercase', 
   },
 }));
 
@@ -382,7 +382,7 @@ export default function Home(props) {
                 md={2}
               >
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Date range
                   </Typography>
                   <DatePicker
@@ -391,7 +391,7 @@ export default function Home(props) {
                   />
                 </Grid>
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Connection
                   </Typography>
                   <ToggleButtonGroup
@@ -409,7 +409,7 @@ export default function Home(props) {
                   </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Test
                   </Typography>
                   <ToggleButtonGroup
@@ -429,7 +429,7 @@ export default function Home(props) {
                   </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Metric
                   </Typography>
                   <ToggleButtonGroup
@@ -471,7 +471,7 @@ export default function Home(props) {
           <Grid container justify="space-between" alignItems="center">
             <Grid container alignItems="center" item spacing={2}>
               <Grid item>
-                <Typography variant="overline" display="block" gutterBottom>
+                <Typography variant="overline" display="block" gutterbottom>
                   Group by
                 </Typography>
               </Grid>

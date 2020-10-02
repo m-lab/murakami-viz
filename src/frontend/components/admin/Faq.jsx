@@ -156,7 +156,7 @@ const EnhancedTableToolbar = props => {
             color="primary"
             onClick={handleClickOpen}
           >
-            Add an Faq
+            Add an FAQ
           </Button>
           <AddFaq open={open} onClose={handleClose} library={library} />
         </Grid>
@@ -304,14 +304,14 @@ export default function EnhancedTable(props) {
                 {stableSort(rows, getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
-                    const labelId = `data-row-${index}`;
+                    const labelId = `data-row-${page * 10 + index}`;
 
                     if (row) {
                       return (
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(index);
+                            handleClickOpen(page * 10 + index);
                           }}
                           key={row.id}
                         >

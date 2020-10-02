@@ -256,10 +256,9 @@ export default function AddLibrary(props) {
       .catch(error => {
         console.log(error);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `${error}`
         );
         console.error(error.name + error.message);
-        onClose();
       });
   };
 
@@ -342,7 +341,7 @@ export default function AddLibrary(props) {
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Library Details
           </Typography>
           <FormControl variant="outlined" className={classes.formControl}>
@@ -415,7 +414,7 @@ export default function AddLibrary(props) {
             onChange={handleInputChange}
             value={inputs.coordinates}
           />
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Library Contact for MLBN Devices
           </Typography>
           <TextField
@@ -441,7 +440,7 @@ export default function AddLibrary(props) {
             value={inputs.primary_contact_email}
             required
           />
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Library Hours
           </Typography>
           <Box className={classes.hours}>
@@ -454,7 +453,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Sunday
               </Typography>
@@ -530,7 +529,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -609,7 +608,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Monday
               </Typography>
@@ -685,7 +684,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -764,7 +763,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Tuesday
               </Typography>
@@ -840,7 +839,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -919,7 +918,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Wednesday
               </Typography>
@@ -995,7 +994,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -1074,7 +1073,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Thursday
               </Typography>
@@ -1150,7 +1149,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -1229,7 +1228,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Friday
               </Typography>
@@ -1305,7 +1304,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
@@ -1384,7 +1383,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 Saturday
               </Typography>
@@ -1460,7 +1459,7 @@ export default function AddLibrary(props) {
                 variant="body1"
                 component="p"
                 display="inline"
-                gutterBottom
+                gutterbottom
               >
                 to
               </Typography>
