@@ -173,7 +173,7 @@ export default function ViewNote(props) {
           {row.subject}
         </Typography>
         <Typography component="p" variant="subtitle2" gutterBottom>
-          <Moment date={row.updated_at} format="MM/DD/YYYY, h:ma" />
+          <Moment date={row.date || row.created_at} format="MM/DD/YYYY, h:mma" />
         </Typography>
         <Typography component="p" variant="body2" gutterBottom>
           {row.description}

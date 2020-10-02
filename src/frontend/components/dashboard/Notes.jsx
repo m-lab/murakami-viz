@@ -341,7 +341,7 @@ export default function EnhancedTable(props) {
                             padding="none"
                           >
                             <Moment
-                              date={row.date}
+                              date={row.date || row.created_at}
                               format="MMMM D, YYYY, h:mma"
                             />
                           </TableCell>
