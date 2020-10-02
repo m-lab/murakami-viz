@@ -250,6 +250,10 @@ export default function ViewUser(props) {
         <Typography component="p" variant="body2" gutterBottom>
           {row.email}
         </Typography>
+        { row.phone ?
+        <Typography component="p" variant="body2" gutterBottom>
+          {row.phone} {row.extension ? `ext. ${row.extension}` : ``}
+        </Typography> : null}
         <Typography component="p" variant="body2" gutterBottom>
           {row.location_name}
         </Typography>
