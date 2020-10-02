@@ -91,7 +91,7 @@ const useForm = (callback, validated, network) => {
     if (event.target.name === 'ips') {
       setInputs(inputs => ({
         ...inputs,
-        ips: event.target.value.replace(' ', '').split(','),
+        ips: event.target.value.replace(/\s/g, "").split(','),
       }));
     } else {
       setInputs(inputs => ({
@@ -129,6 +129,12 @@ export default function AddEditNetwork(props) {
   const [helperText, setHelperText] = React.useState({
     name: '',
   });
+
+  const formatIps = ips => {
+    if (ips) {
+      return ips.slice(1, -1).replace(/"/g, '');
+    }
+  };
 
   // handle form validation
   const validateInputs = inputs => {
@@ -212,6 +218,7 @@ export default function AddEditNetwork(props) {
               updatedNetworks = networks.map(network =>
                 network.id === result.data[0].id ? result.data[0] : network,
               );
+              console.log('updated: ', updatedNetworks);
             } else {
               updatedNetworks = [result.data[0]];
             }
@@ -399,7 +406,7 @@ export default function AddEditNetwork(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={network ? network.ips : inputs.ips}
+            defaultValue={network ? formatIps(network.ips) : inputs.ips}
           />
           <Grid container alignItems="center">
             <Grid item>

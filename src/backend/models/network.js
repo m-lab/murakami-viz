@@ -53,13 +53,12 @@ export default class NetworkManager {
     }
     return this._db
       .table('networks')
-      .update(network)
       .where({ id: parseInt(id) })
       .update(
         {
           name: network.name,
           isp: network.isp,
-          ips: network.ips,
+          ips: JSON.stringify(network.ips),
           contracted_speed_upload: network.contracted_speed_upload,
           contracted_speed_download: network.contracted_speed_download,
           bandwidth_cap_upload: network.bandwidth_cap_upload,
