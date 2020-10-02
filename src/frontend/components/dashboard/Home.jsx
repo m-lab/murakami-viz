@@ -97,38 +97,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function formatDate(date) {
-  return date.substr(0, 10);
-}
-
-function getStyles(connection, connectionType, theme) {
-  return {
-    fontWeight:
-      connectionType.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
+  if (date) {
+    return date.substr(0, 10);
+  }
 }
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
 
 export default function Home(props) {
   const classes = useStyles();
-  const theme = useTheme();
   const { user, library } = props;
-
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const handleDateChange = date => {
-    setSelectedDate(date);
-  };
 
   // handle add note
   const [open, setOpen] = React.useState(false);
