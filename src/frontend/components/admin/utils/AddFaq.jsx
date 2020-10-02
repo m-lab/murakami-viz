@@ -101,10 +101,10 @@ export default function AddFaq(props) {
         status = res.status;
         return res.json();
       })
-      .then(() => {
+      .then(result => {
         if (status === 201) {
           alert('Faq submitted successfully.');
-          onClose(inputs);
+          onClose(inputs, result.data[0]['id']);
           return;
         } else {
           throw new Error(`Error in response from server.`);
@@ -143,7 +143,7 @@ export default function AddFaq(props) {
         <ClearIcon />
       </Button>
       <DialogTitle id="add-faq-title" className={classes.dialogTitleRoot}>
-        <div className={classes.dialogTitleText}>Add a FAQ</div>
+        <div className={classes.dialogTitleText}>Add an FAQ</div>
       </DialogTitle>
       <Box className={classes.form}>
         <TextField

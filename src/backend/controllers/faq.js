@@ -34,7 +34,7 @@ export default function controller(faqs, thisUser) {
   const router = new Router();
 
   router.post('/faqs', thisUser.can('access admin pages'), async ctx => {
-    log.debug('Adding new faq.');
+    log.debug('Adding new FAQ.');
     let faq;
 
     try {

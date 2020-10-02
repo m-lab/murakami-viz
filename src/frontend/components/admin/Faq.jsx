@@ -133,9 +133,10 @@ const EnhancedTableToolbar = props => {
     setOpen(true);
   };
 
-  const handleClose = note => {
-    if (note) {
-      updateRows(note);
+  const handleClose = (faq, id) => {
+    if (faq) {
+      faq.id = id;
+      updateRows(faq);
     }
     setOpen(false);
   };
@@ -198,6 +199,8 @@ export default function EnhancedTable(props) {
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
+
+  console.log("page!!!", page)
 
   // handle pagination changes
   const handleChangePage = (event, newPage) => {
