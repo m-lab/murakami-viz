@@ -200,8 +200,6 @@ export default function EnhancedTable(props) {
     setOrderBy(property);
   };
 
-  console.log("page!!!", page)
-
   // handle pagination changes
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
