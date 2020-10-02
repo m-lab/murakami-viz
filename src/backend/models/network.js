@@ -26,7 +26,7 @@ export default class NetworkManager {
         }
         ids = await trx('networks')
           .returning('id')
-          .insert({...network, ips: JSON.stringify});
+          .insert({ ...network, ips: JSON.stringify });
 
         if (!Array.isArray(ids)) {
           ids = [ids];
