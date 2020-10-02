@@ -26,7 +26,7 @@ export default class NetworkManager {
         }
         ids = await trx('networks')
           .returning('id')
-          .insert({ ...network, ips: JSON.stringify });
+          .insert({ ...network, ips: network.ips.join(', ') });
 
         if (!Array.isArray(ids)) {
           ids = [ids];
@@ -57,7 +57,7 @@ export default class NetworkManager {
         {
           name: network.name,
           isp: network.isp,
-          ips: JSON.stringify(network.ips),
+          ips: network.ips.join(", "),
           contracted_speed_upload: network.contracted_speed_upload,
           contracted_speed_download: network.contracted_speed_download,
           bandwidth_cap_upload: network.bandwidth_cap_upload,
