@@ -131,12 +131,6 @@ export default function AddEditNetwork(props) {
     name: '',
   });
 
-  const formatIps = ips => {
-    if (ips) {
-      return ips.slice(1, -1).replace(/"/g, '');
-    }
-  };
-
   // handle form validation
   const validateInputs = inputs => {
     setErrors({});
@@ -200,6 +194,7 @@ export default function AddEditNetwork(props) {
     }
 
     let status;
+
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
@@ -406,7 +401,13 @@ export default function AddEditNetwork(props) {
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={network ? formatIps(network.ips) : inputs.ips}
+            defaultValue={
+              network
+                ? Array.isArray(network.ips)
+                  ? network.ips.join(', ')
+                  : network.ips
+                : inputs.ips
+            }
           />
           <Grid container alignItems="center">
             <Grid item>
