@@ -42,7 +42,7 @@ export default function controller(networks, thisUser) {
     }
 
     try {
-      network = await networks.create(ctx.request.body, lid);
+      network = await networks.create(ctx.request.body.data, lid);
 
       // workaround for sqlite
       if (Number.isInteger(network)) {

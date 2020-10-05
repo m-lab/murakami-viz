@@ -6,6 +6,7 @@ import moment from 'moment';
 
 // module imports
 import Loading from '../Loading.jsx';
+import { isString } from '../../../common/utils.js';
 
 let xAxis = [],
   yAxis = [];
@@ -15,8 +16,39 @@ function handleData(runs, metric) {
   yAxis = [];
 
   runs.map(run => {
-    xAxis.push(run.DownloadTestStartTime.substr(0, 10));
-    yAxis.push(run[metric].toFixed(2));
+    xAxis.push(run.TestStartTime.substr(0, 10));
+
+    // workaround for the different parameters across tests
+    if (metric === 'MinRTTValue') {
+      let latency = run['MinRTTValue']
+        ? run['MinRTTValue']
+        : run['ServerLatency'];
+      latency = parseFloat(latency);
+      yAxis.push(latency.toFixed(2));
+    } else if (metric === 'DownloadValue') {
+      let rate = parseFloat(run[metric]);
+      if (isString(run['DownloadUnit'])) {
+        if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
+          rate = rate / 1000000;
+        } else if (run['DownloadUnit'].toLowerCase() === 'kb/s') {
+          rate = rate / 1000;
+        }
+      }
+      yAxis.push(rate.toFixed(2));
+    } else if (metric === 'UploadValue') {
+      let rate = parseFloat(run[metric]);
+      if (isString(run['UploadUnit'])) {
+        if (run['UploadUnit'].toLowerCase() === 'bit/s') {
+          rate = rate / 1000000;
+        } else if (run['UploadUnit'].toLowerCase() === 'kb/s') {
+          rate = rate / 1000;
+        }
+      }
+      yAxis.push(rate.toFixed(2));
+    } else {
+      let rate = parseFloat(run[metric]);
+      yAxis.push(Number(rate).toFixed(2));
+    }
   });
 }
 
@@ -25,14 +57,11 @@ function handleGroupedData(runs, metric) {
   yAxis = [];
 
   Object.entries(runs)
-    .sort((a, b) =>
-        moment(a[0]).diff(moment(b[0]),
-      ),
-    )
+    .sort((a, b) => moment(a[0]).diff(moment(b[0])))
     .map(([date, run]) => {
       const sorted = run.sort((a, b) =>
-        moment(a.DownloadTestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
-          moment(b.DownloadTestStartTime, 'YYYY-MM-DDThh:mm:ss'),
+        moment(a.TestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
+          moment(b.TestStartTime, 'YYYY-MM-DDThh:mm:ss'),
         ),
       );
       const midpoint = Math.ceil(sorted.length / 2);
@@ -74,21 +103,16 @@ export default function MainGraph(props) {
 
       let groupedRuns;
       if (group === 'daily') {
-        console.debug('Grouping daily');
         groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.DownloadTestStartTime, 'YYYY-MM-DD').startOf('day'),
+          moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
         );
         handleGroupedData(groupedRuns, metric);
       } else if (group === 'hourly') {
-        console.debug('Grouping hourly');
         groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.DownloadTestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf(
-            'hour',
-          ),
+          moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
         );
         handleGroupedData(groupedRuns, metric);
       } else {
-        console.debug('Not grouping');
         handleData(filteredRuns, metric);
       }
 
@@ -96,22 +120,22 @@ export default function MainGraph(props) {
         setTitleText('Download Speed (Mbit/s)');
       } else if (metric === 'UploadValue') {
         setTitleText('Upload Speed (Mbit/s)');
-      } else if (metric === 'DownloadRetransValue') {
-        setTitleText('Latency (Mbit/s)');
+      } else if (metric === 'MinRTTValue') {
+        setTitleText('Latency (ms)');
       }
 
-      if ( groupedRuns ) {
+      if (groupedRuns) {
         setTestSummary(groupedRuns);
       } else {
         setTestSummary(filteredRuns);
       }
     }
     setIsLoaded(true);
-  }, [ connections, testTypes, metric, group, runs, lid ]);
+  }, [connections, testTypes, metric, group, runs, lid]);
 
   if (!isLoaded) {
     return <Loading />;
-  } else if ( !runs ) {
+  } else if (!runs) {
     return <div>No data to display. Is a device running?</div>;
   } else {
     return (
@@ -130,10 +154,7 @@ export default function MainGraph(props) {
           title: false,
           xaxis: {
             showgrid: false,
-            range: [
-              dateRange.startDate,
-              dateRange.endDate
-            ]
+            range: [dateRange.startDate, dateRange.endDate],
           },
           yaxis: {
             showgrid: false,

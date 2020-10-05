@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 
 // module imports
 import Loading from '../Loading.jsx';
+import { isString } from '../../../common/utils.js';
 
 const useStyles = makeStyles(() => ({
   gridBorder: {
@@ -54,25 +55,35 @@ function handleData(runs) {
       .subtract(7, 'd')
       .format('YYYY-MM-DD');
     const today = moment().format('YYYY-MM-DD');
-    let weekTotalMbps = 0, dayTotalMbps = 0;
+    let weekTotalMbps = 0,
+      dayTotalMbps = 0;
     dayRuns = 0;
     weekRuns = 0;
 
     runs.map(run => {
-      const runDate = moment(run.DownloadTestStartTime.substr(0, 10));
+      const runDate = moment(run.TestStartTime.substr(0, 10));
+
+      let rate = parseFloat(run.DownloadValue);
+      if (isString(run.DownloadUnit)) {
+        if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
+          rate = rate / 1000000;
+        } else if (run['DownloadValue'].toLowerCase() === 'kb/s') {
+          rate = rate / 1000;
+        }
+      }
 
       if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
-        weekTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
+        weekTotalMbps += rate.toFixed(2);
         weekRuns += 1;
-        xAxisWeek.push(run.DownloadTestStartTime.substr(0, 10));
-        yAxisWeek.push(run.DownloadValue.toFixed(2));
+        xAxisWeek.push(run.TestStartTime.substr(0, 10));
+        yAxisWeek.push(rate.toFixed(2));
       }
 
       if (runDate.format('YYYY-MM-DD') === today) {
-        dayTotalMbps += parseFloat(run.DownloadValue.toFixed(2));
+        dayTotalMbps += rate.toFixed(2);
         dayRuns += 1;
-        xAxisDay.push(run.DownloadTestStartTime.substr(0, 10));
-        yAxisDay.push(run.DownloadValue.toFixed(2));
+        xAxisDay.push(run.TestStartTime.substr(0, 10));
+        yAxisDay.push(rate.toFixed(2));
       }
     });
 

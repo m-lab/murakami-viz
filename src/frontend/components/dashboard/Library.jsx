@@ -269,6 +269,13 @@ export default function Library(props) {
     setNetworkToEdit(network);
   };
 
+  const formatIps = ips => {
+    if (ips) {
+      return ips.slice(1, -1).replace(/"/g, '');
+    }
+  };
+
+  // fetch networks data
   React.useEffect(() => {
     let status;
 
@@ -647,7 +654,7 @@ export default function Library(props) {
                                         IP Addresses of Custom DNS Servers
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {network.ips}
+                                        {Array.isArray(network.ips) ? network.ips.join(', ') : formatIps(network.ips)}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>

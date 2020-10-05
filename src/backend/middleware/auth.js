@@ -89,11 +89,13 @@ const authWrapper = (groups, libraries) => {
   });
 
   roles.use('write from whitelisted IP', async ctx => {
+    log.debug('Checking if this client IP has write access.');
     let ips = libraries.findAllIps();
     if (ips.length && ips.length > 0) {
       let whitelist = fixLocalhost(ips);
       let ip = ctx.ip;
       ip = fixIp(ip);
+      log.debug(`Searching allowlist for IP ${ip}...`);
       return whitelist.some(entry => {
         let pattern = new RegExp(entry);
         return pattern.test(ip);
