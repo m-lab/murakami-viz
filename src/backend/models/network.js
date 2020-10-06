@@ -43,8 +43,6 @@ export default class NetworkManager {
   }
 
   async update(id, network) {
-    console.log("...network at update in model,", network)
-
     try {
       let existing, updated;
       let exists = false;
