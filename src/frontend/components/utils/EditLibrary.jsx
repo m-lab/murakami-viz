@@ -350,7 +350,7 @@ export default function EditLibrary(props) {
         </Grid>
       </Grid>
       <Box m={4}>
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Details
         </Typography>
         <FormControl variant="outlined" className={classes.formControl}>
@@ -365,7 +365,7 @@ export default function EditLibrary(props) {
             name="library_system_name"
             defaultValue=""
             // onChange={handleInputChange}
-            value={0}
+            value={``}
             disabled
           >
             <MenuItem value="" selected />
@@ -423,7 +423,7 @@ export default function EditLibrary(props) {
           onChange={handleInputChange}
           defaultValue={row.coordinates}
         />
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Contact for MLBN Devices
         </Typography>
         <TextField
@@ -448,7 +448,7 @@ export default function EditLibrary(props) {
           onChange={handleInputChange}
           defaultValue={row.primary_contact_email}
         />
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography variant="overline" display="block" gutterbottom>
           Library Hours
         </Typography>
         <Box className={classes.hours}>
@@ -457,8 +457,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Sunday
             </Typography>
@@ -471,7 +471,7 @@ export default function EditLibrary(props) {
               id="sunday-open"
               name="sunday_open"
               onChange={handleInputChange}
-              defaultValue={row.sunday_open}
+              defaultValue={row.sunday_open ? row.sunday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -530,8 +530,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -544,7 +544,7 @@ export default function EditLibrary(props) {
               id="sunday-close"
               name="sunday_close"
               onChange={handleInputChange}
-              defaultValue={row.sunday_close}
+              defaultValue={row.sunday_close ? row.sunday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -606,8 +606,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Monday
             </Typography>
@@ -620,7 +620,7 @@ export default function EditLibrary(props) {
               id="monday-open"
               name="monday_open"
               onChange={handleInputChange}
-              defaultValue={row.monday_open}
+              defaultValue={row.monday_open ? row.monday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -679,8 +679,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -693,7 +693,7 @@ export default function EditLibrary(props) {
               id="monday-close"
               name="monday_close"
               onChange={handleInputChange}
-              defaultValue={row.monday_close}
+              defaultValue={row.monday_close ? row.monday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -755,8 +755,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Tuesday
             </Typography>
@@ -769,7 +769,7 @@ export default function EditLibrary(props) {
               id="tuesday-open"
               name="tuesday_open"
               onChange={handleInputChange}
-              defaultValue={row.tuesday_open}
+              defaultValue={row.tuesday_open ? row.tuesday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -828,8 +828,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -842,7 +842,7 @@ export default function EditLibrary(props) {
               id="tuesday-close"
               name="tuesday_close"
               onChange={handleInputChange}
-              defaultValue={row.tuesday_close}
+              defaultValue={row.tuesday_close ? row.tuesday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -904,8 +904,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Wednesday
             </Typography>
@@ -918,7 +918,7 @@ export default function EditLibrary(props) {
               id="wednesday-open"
               name="wednesday_open"
               onChange={handleInputChange}
-              defaultValue={row.wednesday_open}
+              defaultValue={row.wednesday_open ? row.wednesday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -977,8 +977,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -991,7 +991,7 @@ export default function EditLibrary(props) {
               id="wednesday-close"
               name="wednesday_close"
               onChange={handleInputChange}
-              defaultValue={row.wednesday_close}
+              defaultValue={row.wednesday_close ? row.wednesday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1053,8 +1053,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Thursday
             </Typography>
@@ -1067,7 +1067,7 @@ export default function EditLibrary(props) {
               id="thursday-open"
               name="thursday_open"
               onChange={handleInputChange}
-              defaultValue={row.thursday_open}
+              defaultValue={row.thursday_open ? row.thursday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1126,8 +1126,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -1140,7 +1140,7 @@ export default function EditLibrary(props) {
               id="thursday-close"
               name="thursday_close"
               onChange={handleInputChange}
-              defaultValue={row.thursday_close}
+              defaultValue={row.thursday_close ? row.thursday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1202,8 +1202,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Friday
             </Typography>
@@ -1216,7 +1216,7 @@ export default function EditLibrary(props) {
               id="friday-open"
               name="friday_open"
               onChange={handleInputChange}
-              defaultValue={row.friday_open}
+              defaultValue={row.friday_open ? row.friday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1275,8 +1275,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -1289,7 +1289,7 @@ export default function EditLibrary(props) {
               id="friday-close"
               name="friday_close"
               onChange={handleInputChange}
-              defaultValue={row.friday_close}
+              defaultValue={row.friday_close ? row.friday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1351,8 +1351,8 @@ export default function EditLibrary(props) {
               className={classes.day}
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               Saturday
             </Typography>
@@ -1365,7 +1365,7 @@ export default function EditLibrary(props) {
               id="saturday-open"
               name="saturday_open"
               onChange={handleInputChange}
-              defaultValue={row.saturday_open}
+              defaultValue={row.saturday_open ? row.saturday_open : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>
@@ -1424,8 +1424,8 @@ export default function EditLibrary(props) {
             <Typography
               variant="body1"
               component="p"
-              display="inline-block"
-              gutterBottom
+              display="inline"
+              gutterbottom
             >
               to
             </Typography>
@@ -1438,7 +1438,7 @@ export default function EditLibrary(props) {
               id="saturday-close"
               name="saturday_close"
               onChange={handleInputChange}
-              defaultValue={row.saturday_close}
+              defaultValue={row.saturday_close ? row.saturday_close : ``}
             >
               <MenuItem value="closed">
                 <em>Closed</em>

@@ -106,7 +106,7 @@ export default function EditForum(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="edit-note-title"
       fullWidth={true}

@@ -50,7 +50,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const useForm = (callback, validated, note) => {
-  const [inputs, setInputs] = React.useState({});
+  const [inputs, setInputs] = React.useState(note);
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
@@ -67,27 +67,13 @@ const useForm = (callback, validated, note) => {
     }
   };
   const handleInputChange = event => {
-    if (event instanceof Date) {
-      setInputs(inputs => ({
-        ...inputs,
-        date: event,
-      }));
-    } else {
       event.persist();
       setInputs(inputs => ({
         ...inputs,
         [event.target.name]: event.target.value.trim(),
       }));
     }
-  };
-
-  React.useEffect(() => {
-    if (note) {
-      let fullInputs = Object.assign(note, inputs);
-      fullInputs.date = note.updated_at;
-      setInputs(fullInputs);
-    }
-  }, [inputs]);
+  
 
   return {
     handleSubmit,
@@ -100,6 +86,7 @@ export default function EditNote(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
   const [errors, setErrors] = React.useState({});
+  const [date, setDate] = React.useState(null)
   const [helperText, setHelperText] = React.useState({
     name: '',
   });
@@ -166,24 +153,33 @@ export default function EditNote(props) {
 
   const submitData = () => {
     let status;
-    delete inputs['id']
+    
     delete inputs['author']
-    fetch(`api/v1/notes/${row.id}`, {
+
+    const noteToSubmit = {
+      ...inputs,
+      date: date.toISOString()
+    }
+
+    fetch(`api/v1/notes/${inputs.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: noteToSubmit })
     })
       .then(response => {
         status = response.status;
-        return response.json();
+        return !!response.bodyUsed ? response.json() : null
       })
       .then(result => {
-        if (status === 201) {
+        if (status === 204) {
           alert('Note edited successfully.');
-          onClose(inputs);
+          onClose(noteToSubmit);
           return;
+        } else if (status === 201) {
+          alert('New note created.');
+          onClose(noteToSubmit);
         } else {
           const error = processError(result);
           throw new Error(`Error in response from server: ${error}`);
@@ -239,14 +235,14 @@ export default function EditNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={row.subject || inputs.subject || ''}
+          defaultValue={row.subject || inputs.subject || ''}
           required
         />
         <MuiPickersUtilsProvider utils={DateFnUtils}>
           <DateTimePicker
             className={classes.datePicker}
-            value={row.updated_at || inputs.updated_at || new Date()}
-            onChange={handleInputChange}
+            value={!date ? row.date : date}
+            onChange={setDate}
           />
         </MuiPickersUtilsProvider>
 
@@ -262,7 +258,7 @@ export default function EditNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={row.description || inputs.description || ''}
+          defaultValue={row.description || inputs.description || ''}
           required
         />
         <Grid container alignItems="center" justify="space-between">

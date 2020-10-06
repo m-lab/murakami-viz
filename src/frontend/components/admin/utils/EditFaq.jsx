@@ -180,7 +180,7 @@ export default function EditFaq(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="edit-faq-title"
       fullWidth={true}

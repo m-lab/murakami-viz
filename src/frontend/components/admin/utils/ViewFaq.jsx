@@ -111,7 +111,7 @@ export default function ViewFaq(props) {
   return (
     <Dialog
       onClose={() => handleClose(row)}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="view-faq-title"
       fullWidth={true}
@@ -168,10 +168,10 @@ export default function ViewFaq(props) {
         </Grid>
       </Grid>
       <Box className={classes.box}>
-        <Typography component="p" variant="subtitle2" gutterBottom>
+        <Typography component="p" variant="subtitle2" gutterbottom>
           {row.question}
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.answer}
         </Typography>
       </Box>
@@ -180,10 +180,10 @@ export default function ViewFaq(props) {
         disableElevation
         label="Close"
         color="primary"
-        primary={true}
+        primary="true"
         onClick={() => handleClose(row)}
         className={classes.closeButton}
-        gutterBottom
+        gutterbottom
       >
         Close
       </Button>

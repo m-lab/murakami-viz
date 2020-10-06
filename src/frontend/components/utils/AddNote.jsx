@@ -67,6 +67,7 @@ const useForm = (callback, validated) => {
       [event.target.name]: event.target.value.trim(),
     }));
   };
+
   return {
     handleSubmit,
     handleInputChange,
@@ -146,12 +147,19 @@ export default function AddNote(props) {
   // submit new note to api
   const submitData = () => {
     let status;
+
+    // hand inserting the date into the request body
+    const noteToSubmit = {
+      ...inputs,
+      date: date.toISOString()
+    };
+
     fetch(`api/v1/libraries/${library.id}/notes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: noteToSubmit }), 
     })
       .then(response => {
         status = response.status;
@@ -160,7 +168,7 @@ export default function AddNote(props) {
       .then(result => {
         if (status === 201) {
           alert('Note submitted successfully.');
-          onClose(inputs, result.data[0]);
+          onClose(noteToSubmit, result.data[0]); // this second arg is the ID of the newly created note
           return;
         } else {
           const error = processError(result);
@@ -216,7 +224,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.subject || ''}
+          defaultValue={inputs.subject || ''}
           required
         />
 
@@ -240,7 +248,7 @@ export default function AddNote(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          value={inputs.description || ''}
+          defaultValue={inputs.description || ''}
           required
         />
         <Grid container alignItems="center" justify="space-between">

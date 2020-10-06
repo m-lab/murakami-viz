@@ -172,10 +172,10 @@ export default function ViewGlossary(props) {
         </Grid>
       </Grid>
       <Box className={classes.box}>
-        <Typography component="p" variant="subtitle2" gutterBottom>
+        <Typography component="p" variant="subtitle2" gutterbottom>
           {row.term}
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {parse('<div>' + row.definition + '</div>')}
         </Typography>
       </Box>
@@ -187,7 +187,7 @@ export default function ViewGlossary(props) {
         primary={true}
         onClick={() => handleClose(row)}
         className={classes.closeButton}
-        gutterBottom
+        gutterbottom
       >
         Close
       </Button>

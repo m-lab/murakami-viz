@@ -511,4 +511,6 @@ export default function AddUser(props) {
 AddUser.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  library: PropTypes.object,
+  user: PropTypes.object
 };

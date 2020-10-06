@@ -330,7 +330,7 @@ export default function EnhancedTable(props) {
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(index);
+                            handleClickOpen(page * 10 + index);
                           }}
                           key={row.id}
                         >
@@ -341,7 +341,7 @@ export default function EnhancedTable(props) {
                             padding="none"
                           >
                             <Moment
-                              date={row.date}
+                              date={row.date || row.created_at}
                               format="MMMM D, YYYY, h:mma"
                             />
                           </TableCell>

@@ -34,7 +34,7 @@ export default function controller(faqs, thisUser) {
   const router = new Router();
 
   router.post('/faqs', thisUser.can('access admin pages'), async ctx => {
-    log.debug('Adding new faq.');
+    log.debug('Adding new FAQ.');
     let faq;
 
     try {
@@ -49,7 +49,7 @@ export default function controller(faqs, thisUser) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse faq schema: ${err}`);
     }
-
+    
     ctx.response.body = { statusCode: 201, status: 'created', data: faq };
     ctx.response.status = 201;
   });

@@ -10,7 +10,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionActions';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
@@ -483,7 +483,7 @@ export default function Library(props) {
           </Grid>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Basic Information
           </Typography>
           <TableContainer>
@@ -571,7 +571,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             ISP &amp; Library Network Information
           </Typography>
           <TableContainer>
@@ -594,7 +594,7 @@ export default function Library(props) {
                                 <Typography
                                   variant="overline"
                                   display="block"
-                                  gutterBottom
+                                  gutterbottom
                                 >
                                   {network.name}
                                 </Typography>
@@ -735,7 +735,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Measurement Devices
           </Typography>
           <TableContainer>
@@ -758,7 +758,7 @@ export default function Library(props) {
                                 <Typography
                                   variant="overline"
                                   display="block"
-                                  gutterBottom
+                                  gutterbottom
                                 >
                                   {device.name}
                                 </Typography>
@@ -938,7 +938,7 @@ export default function Library(props) {
           </TableContainer>
         </Box>
         <Box mb={9}>
-          <Typography variant="overline" display="block" gutterBottom>
+          <Typography variant="overline" display="block" gutterbottom>
             Whitelisted IP Addresses
           </Typography>
           <TableContainer>

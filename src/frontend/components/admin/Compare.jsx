@@ -222,7 +222,7 @@ export default function Compare(props) {
             >
               <Grid container item spacing={3} xs={12}>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Date range
                   </Typography>
                   <DatePicker
@@ -231,12 +231,7 @@ export default function Compare(props) {
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography
-                    id="libraries-label"
-                    variant="overline"
-                    display="block"
-                    gutterBottom
-                  >
+                  <Typography id="libraries-label" variant="overline" display="block" gutterbottom>
                     Location
                   </Typography>
                   <FormControl className={classes.formControl}>
@@ -283,7 +278,7 @@ export default function Compare(props) {
                 md={2}
               >
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Connection
                   </Typography>
                   <ToggleButtonGroup
@@ -301,7 +296,7 @@ export default function Compare(props) {
                   </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Test
                   </Typography>
                   <ToggleButtonGroup
@@ -322,7 +317,7 @@ export default function Compare(props) {
                   </ToggleButtonGroup>
                 </Grid>
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Metric
                   </Typography>
                   <ToggleButtonGroup
@@ -370,7 +365,7 @@ export default function Compare(props) {
                 sm={10}
               >
                 <Grid item>
-                  <Typography variant="overline" display="block" gutterBottom>
+                  <Typography variant="overline" display="block" gutterbottom>
                     Group by
                   </Typography>
                 </Grid>

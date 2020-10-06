@@ -180,7 +180,7 @@ export default function EditGlossary(props) {
   return (
     <Dialog
       onClose={handleClose}
-      modal={true}
+      modal="true"
       open={open}
       aria-labelledby="edit-glossary-title"
       fullWidth={true}

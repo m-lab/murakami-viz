@@ -169,13 +169,13 @@ export default function ViewNote(props) {
         </Grid>
       </Grid>
       <Box className={classes.box}>
-        <Typography component="p" variant="subtitle2" gutterBottom>
+        <Typography component="p" variant="subtitle2" gutterbottom>
           {row.subject}
         </Typography>
-        <Typography component="p" variant="subtitle2" gutterBottom>
-          <Moment date={row.updated_at} format="MM/DD/YYYY, h:ma" />
+        <Typography component="p" variant="subtitle2" gutterbottom>
+          <Moment date={row.date || row.created_at} format="MM/DD/YYYY, h:mma" />
         </Typography>
-        <Typography component="p" variant="body2" gutterBottom>
+        <Typography component="p" variant="body2" gutterbottom>
           {row.description}
         </Typography>
       </Box>
