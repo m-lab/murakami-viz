@@ -1,5 +1,4 @@
 import knex from 'knex';
-import { validate } from '../../common/schemas/network.js';
 import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
@@ -12,7 +11,6 @@ export default class NetworkManager {
 
   async create(network, lid) {
     try {
-      await validate(network);
       let ids;
       await this._db.transaction(async trx => {
         let lids = [];
@@ -25,8 +23,8 @@ export default class NetworkManager {
           }
         }
         ids = await trx('networks')
+          .insert(network)
           .returning('id')
-          .insert({ ...network, ips: network.ips.join(', ') });
 
         if (!Array.isArray(ids)) {
           ids = [ids];
@@ -45,37 +43,46 @@ export default class NetworkManager {
   }
 
   async update(id, network) {
+    console.log("...network at update in model,", network)
+
     try {
-      await validate(network);
+      let existing, updated;
+      let exists = false;
+      await this._db.transaction(async trx => {
+        existing = await trx('networks')
+          .select('*')
+          .where({ id: parseInt(id) })
+          .first();
+
+        if (existing) {
+          log.debug('Entry exists, deleting old version.');
+          await trx('networks')
+            .del()
+            .where({ id: parseInt(id) });
+          log.debug('Entry exists, inserting new version.');
+          [updated] = await trx('networks')
+            .insert({ ...network, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+
+          exists = true;
+        } else {
+          log.debug('Entry does not already exist, inserting.');
+          [updated] = await trx('networks')
+            .insert({ ...network, id: parseInt(id) })
+            .returning('id', 'created_at', 'updated_at');
+        }
+        // workaround for sqlite
+        if (Number.isInteger(updated)) {
+          updated = await trx('networks')
+            .select('id', 'created_at', 'updated_at')
+            .where({ id: parseInt(id) })
+            .first();
+        }
+      });
+      return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError('Failed to update network: ', err);
+      throw new BadRequestError(`Failed to update network with ID ${id}: `, err);
     }
-    return this._db
-      .table('networks')
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          name: network.name,
-          isp: network.isp,
-          ips: network.ips.join(", "),
-          contracted_speed_upload: network.contracted_speed_upload,
-          contracted_speed_download: network.contracted_speed_download,
-          bandwidth_cap_upload: network.bandwidth_cap_upload,
-          bandwidth_cap_download: network.bandwidth_cap_download,
-          updated_at: network.updated_at,
-        },
-        [
-          'id',
-          'name',
-          'isp',
-          'ips',
-          'contracted_speed_upload',
-          'contracted_speed_download',
-          'bandwidth_cap_upload',
-          'bandwidth_cap_download',
-          'updated_at',
-        ],
-      );
   }
 
   async delete(id) {

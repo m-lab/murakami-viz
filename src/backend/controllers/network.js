@@ -3,6 +3,10 @@ import moment from 'moment';
 import Joi from '@hapi/joi';
 import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import {
+  validateCreation,
+  validateUpdate
+} from '../../common/schemas/network.js';
 
 const log = getLogger('backend:controllers:network');
 
@@ -42,12 +46,11 @@ export default function controller(networks, thisUser) {
     }
 
     try {
-      network = await networks.create(ctx.request.body.data, lid);
-
-      // workaround for sqlite
-      if (Number.isInteger(network)) {
-        network = await networks.findById(network);
-      }
+     const data = await validateCreation(ctx.request.body.data);
+     network = await networks.create(
+       [{ ...data[0], ips: data[0].ips.join(', ') }], // turning the array of IPs into a string of IPs to insert to the DB 
+       lid,
+     );
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add network: ${err}`);
@@ -142,32 +145,36 @@ export default function controller(networks, thisUser) {
 
   router.put('/networks/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating network ${ctx.params.id}.`);
-    let network = [];
+    let created, updated;
+
+    // this is a workaround
+    delete ctx.request.body.data['id'];
 
     try {
       if (ctx.params.lid) {
-        network = await networks.addToLibrary(ctx.params.lid, ctx.params.id);
+        await networks.addToLibrary(ctx.params.lid, ctx.params.id);
+        updated = true;
       } else {
-        network = await networks.update(ctx.params.id, ctx.request.body.data);
-      }
-      // workaround for sqlite
-      if (Number.isInteger(network)) {
-        network = await networks.findById(ctx.params.id);
+        const [data] = await validateUpdate(ctx.request.body.data);
+        ({ exists: updated = false, ...created } = await networks.update(
+          ctx.params.id,
+          { ...data, ips: data.ips.join(', ') }, // as with the POST route, this changes the array of IPs into a string of IPs to insert to the DB
+        ));
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (network.length && network.length > 0) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: network };
-      ctx.response.status = 200;
+    if (updated) {
+      ctx.response.status = 204;
     } else {
-      log.error(
-        `HTTP 404 Error: That network with ID ${ctx.params.id} does not exist.`,
-      );
-      ctx.throw(404, `That network with ID ${ctx.params.id} does not exist.`);
-      ctx.response.body = { error: 'Please try again.' };
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 

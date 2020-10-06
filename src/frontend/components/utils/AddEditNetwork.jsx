@@ -80,7 +80,6 @@ const useForm = (callback, validated, network) => {
     delete fullInputs.updated_at;
     delete fullInputs.lid;
     delete fullInputs.nid;
-    delete fullInputs.id;
     if (validated(fullInputs)) {
       callback(fullInputs);
       setInputs({});
@@ -186,7 +185,6 @@ export default function AddEditNetwork(props) {
       if (
         inputs[key] === null ||
         inputs[key] === undefined ||
-        key === 'id' ||
         key === 'created_at' ||
         key === 'updated_at'
       )
@@ -194,7 +192,8 @@ export default function AddEditNetwork(props) {
     }
 
     let status;
-
+    let result; 
+  
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
@@ -205,17 +204,17 @@ export default function AddEditNetwork(props) {
       })
         .then(response => {
           status = response.status;
-          return response.json();
+          return !!status === 201 ? response.json() : null;
         })
-        .then(result => {
-          if (status === 200) {
+        .then(result.statusCode ? (result) : () => {
+          if (status === 204) {
             let updatedNetworks;
             if (networks) {
               updatedNetworks = networks.map(network =>
-                network.id === result.data[0].id ? result.data[0] : network,
+                network.id === inputs['id'] ? inputs : network,
               );
             } else {
-              updatedNetworks = [result.data[0]];
+              updatedNetworks = [inputs];
             }
             setNetworks(updatedNetworks);
             alert('Network updated successfully.');
@@ -239,7 +238,7 @@ export default function AddEditNetwork(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({data: inputs}),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;
