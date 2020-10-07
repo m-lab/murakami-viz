@@ -137,7 +137,9 @@ export default function controller(notes, thisUser) {
     log.debug(`Updating note ${ctx.params.id}.`);
     let created, updated;
 
-    ctx.request.body.data && ctx.request.body.data['id'] ? delete ctx.request.body.data['id'] : null// workaround
+    ctx.request.body.data && ctx.request.body.data['id']
+      ? delete ctx.request.body.data['id']
+      : null; // workaround
 
     try {
       if (ctx.params.lid) {

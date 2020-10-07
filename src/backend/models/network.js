@@ -57,7 +57,7 @@ export default class NetworkManager {
         {
           name: network.name,
           isp: network.isp,
-          ips: network.ips.join(", "),
+          ips: network.ips.join(', '),
           contracted_speed_upload: network.contracted_speed_upload,
           contracted_speed_download: network.contracted_speed_download,
           bandwidth_cap_upload: network.bandwidth_cap_upload,
