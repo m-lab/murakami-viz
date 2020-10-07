@@ -206,7 +206,7 @@ export default function AddEditNetwork(props) {
           status = response.status;
           return !!status === 201 ? response.json() : null;
         })
-        .then(result.statusCode ? (result) : () => {
+        .then(result => {
           if (status === 204) {
             let updatedNetworks;
             if (networks) {
