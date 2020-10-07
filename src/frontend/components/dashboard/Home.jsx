@@ -1,22 +1,16 @@
 // base imports
 import React, { Suspense } from 'react';
-import { CSVLink } from 'react-csv';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import _ from 'lodash/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { START_DATE } from '@datepicker-react/hooks';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-
-// icon imports
-import IconButton from '@material-ui/core/IconButton';
-import InfoIcon from '@material-ui/icons/Info';
 
 // modules imports
 import AddNote from '../utils/AddNote.jsx';
@@ -25,30 +19,6 @@ import GlossaryTooltip from '../utils/GlossaryTooltip.jsx';
 import Loading from '../Loading.jsx';
 import MainGraph from '../utils/MainGraph.jsx';
 import TestsSummary from '../utils/TestsSummary.jsx';
-
-const headers = [
-  { label: 'id', key: 'id' },
-  { label: 'Test Name', key: 'TestName' },
-  { label: 'Test Error', key: 'TestError' },
-  { label: 'Server Name', key: 'ServerName' },
-  { label: 'Server IP', key: 'ServerIP' },
-  { label: 'Client IP', key: 'ClientIP' },
-  { label: 'Murakami Location', key: 'MurakamiLocation' },
-  { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
-  { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
-  { label: 'Download UUID', key: 'DownloadUUID' },
-  { label: 'Test Start Time', key: 'TestStartTime' },
-  { label: 'Test End Time', key: 'TestEndTime' },
-  { label: 'Download Value', key: 'DownloadValue' },
-  { label: 'Download Unit', key: 'DownloadUnit' },
-  { label: 'Download Error', key: 'DownloadError' },
-  { label: 'Download Retrans Value', key: 'DownloadRetransValue' },
-  { label: 'Download Retrans Unit', key: 'DownloadRetransUnit' },
-  { label: 'Upload Value', key: 'UploadValue' },
-  { label: 'Upload Unit', key: 'UploadUnit' },
-  { label: 'Min RTT Value', key: 'MinRTTValue' },
-  { label: 'Min RTT Unit', key: 'MinRTTUnit' },
-];
 
 const useStyles = makeStyles(theme => ({
   chips: {
@@ -92,7 +62,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: '5px',
   },
   upper: {
-    textTransform: 'uppercase', 
+    textTransform: 'uppercase',
   },
 }));
 
@@ -474,13 +444,15 @@ export default function Home(props) {
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <Button variant="contained">
-                <CSVLink data={runs ? runs : ''} headers={headers}>
-                  Export
-                </CSVLink>
-              </Button>
+              <Grid item>
+                <Button variant="contained">
+                  <Link
+                    href={`/api/v1/libraries/${library.id}/runs?format=csv`}
+                  >
+                    Export All
+                  </Link>
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Box>

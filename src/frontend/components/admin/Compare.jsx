@@ -1,20 +1,16 @@
 // base imports
 import React, { Suspense } from 'react';
-import clsx from 'clsx';
-import { CSVLink } from 'react-csv';
-import { makeStyles, withStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { START_DATE } from '@datepicker-react/hooks';
 
 // material ui imports
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import ListItemText from '@material-ui/core/ListItemText';
+import Link from '@material-ui/core/Link';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -25,30 +21,6 @@ import Typography from '@material-ui/core/Typography';
 import DatePicker from '../datepicker/DatePicker.jsx';
 import Loading from '../Loading.jsx';
 import MainGraph from '../utils/MainGraph.jsx';
-
-const headers = [
-  { label: 'id', key: 'id' },
-  { label: 'Test Name', key: 'TestName' },
-  { label: 'Test Error', key: 'TestError' },
-  { label: 'Server Name', key: 'ServerName' },
-  { label: 'Server IP', key: 'ServerIP' },
-  { label: 'Client IP', key: 'ClientIP' },
-  { label: 'Murakami Location', key: 'MurakamiLocation' },
-  { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
-  { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
-  { label: 'Download UUID', key: 'DownloadUUID' },
-  { label: 'Test Start Time', key: 'TestStartTime' },
-  { label: 'Test End Time', key: 'TestEndTime' },
-  { label: 'Download Value', key: 'DownloadValue' },
-  { label: 'Download Unit', key: 'DownloadUnit' },
-  { label: 'Download Error', key: 'DownloadError' },
-  { label: 'Download Retrans Value', key: 'DownloadRetransValue' },
-  { label: 'Download Retrans Unit', key: 'DownloadRetransUnit' },
-  { label: 'Upload Value', key: 'UploadValue' },
-  { label: 'Upload Unit', key: 'UploadUnit' },
-  { label: 'Min RTT Value', key: 'MinRTTValue' },
-  { label: 'Min RTT Unit', key: 'MinRTTUnit' },
-];
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -231,7 +203,12 @@ export default function Compare(props) {
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography id="libraries-label" variant="overline" display="block" gutterbottom>
+                  <Typography
+                    id="libraries-label"
+                    variant="overline"
+                    display="block"
+                    gutterbottom
+                  >
                     Location
                   </Typography>
                   <FormControl className={classes.formControl}>
@@ -386,13 +363,11 @@ export default function Compare(props) {
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
-              </Grid>
-              <Grid item xs={12} sm={2}>
-                <Button variant="contained">
-                  <CSVLink data={runs} headers={headers}>
-                    Export
-                  </CSVLink>
-                </Button>
+                <Grid item>
+                  <Button variant="contained">
+                    <Link href="/api/v1/runs?format=csv">Export All</Link>
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Box>

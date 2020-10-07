@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import moment from 'moment';
 import Joi from '@hapi/joi';
+import Papa from 'papaparse';
 import { BadRequestError } from '../../common/errors.js';
 import { validateCreation, validateUpdate } from '../../common/schemas/run.js';
 import { getLogger } from '../log.js';
@@ -20,6 +21,7 @@ const query_schema = Joi.object({
   to: Joi.string(),
   test: Joi.string(),
   library: Joi.number().integer(),
+  format: Joi.string(),
 });
 
 async function validate_query(query) {
@@ -94,11 +96,17 @@ export default function controller(runs, thisUser) {
         test: query.test,
         library: library,
       });
-      ctx.response.body = {
-        statusCode: 200,
-        status: 'ok',
-        data: res,
-      };
+      if (query.format === 'csv') {
+        const csv = Papa.unparse(res);
+        ctx.set('Content-disposition', `attachment; filename=murakami.csv`);
+        ctx.body = csv;
+      } else {
+        ctx.response.body = {
+          statusCode: 200,
+          status: 'ok',
+          data: res,
+        };
+      }
       ctx.response.status = 200;
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
