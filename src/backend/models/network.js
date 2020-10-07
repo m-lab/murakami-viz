@@ -14,7 +14,6 @@ export default class NetworkManager {
     try {
       await validate(network);
       let ids;
-
       await this._db.transaction(async trx => {
         let lids = [];
         if (lid) {
@@ -27,7 +26,7 @@ export default class NetworkManager {
         }
         ids = await trx('networks')
           .returning('id')
-          .insert(network);
+          .insert({ ...network, ips: network.ips.join(', ') });
 
         if (!Array.isArray(ids)) {
           ids = [ids];
@@ -53,13 +52,12 @@ export default class NetworkManager {
     }
     return this._db
       .table('networks')
-      .update(network)
       .where({ id: parseInt(id) })
       .update(
         {
           name: network.name,
           isp: network.isp,
-          ips: network.ips,
+          ips: network.ips.join(", "),
           contracted_speed_upload: network.contracted_speed_upload,
           contracted_speed_download: network.contracted_speed_download,
           bandwidth_cap_upload: network.bandwidth_cap_upload,

@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError } from '../../common/errors.js';
+import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:run');
@@ -8,37 +8,21 @@ export default class RunManager {
     this._db = db;
   }
 
-  async create(run, lid) {
+  async create(run) {
     try {
       let runs;
       await this._db.transaction(async trx => {
-        let library;
-        if (lid) {
-          library = await trx('libraries')
-            .select()
-            .where({ id: parseInt(lid) })
-            .first();
-          if (!library) {
-            throw new NotFoundError('Invalid library ID.');
-          }
-        }
+        log.debug('Inserting run: ', run);
         runs = await trx('runs')
           .insert(run)
           .returning('id', 'created_at', 'updated_at');
+        log.debug('Successfully inserted runs: ', runs);
 
         // workaround for sqlite
         if (Number.isInteger(runs[0])) {
           runs = await trx('runs')
             .select('id', 'created_at', 'updated_at')
             .whereIn('id', runs);
-        }
-
-        if (library) {
-          const inserts = runs.map(r => ({
-            lid: library.id,
-            rid: r.id,
-          }));
-          await trx('library_runs').insert(inserts);
         }
       });
       return runs;

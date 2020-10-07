@@ -37,8 +37,8 @@ const headers = [
   { label: 'Murakami Network Type', key: 'MurakamiNetworkType' },
   { label: 'Murakami Connetion Type', key: 'MurakamiConnectionType' },
   { label: 'Download UUID', key: 'DownloadUUID' },
-  { label: 'Download Test Start Time', key: 'DownloadTestStartTime' },
-  { label: 'Download Test End Time', key: 'DownloadTestEndTime' },
+  { label: 'Test Start Time', key: 'TestStartTime' },
+  { label: 'Test End Time', key: 'TestEndTime' },
   { label: 'Download Value', key: 'DownloadValue' },
   { label: 'Download Unit', key: 'DownloadUnit' },
   { label: 'Download Error', key: 'DownloadError' },
@@ -97,38 +97,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function formatDate(date) {
-  return date.substr(0, 10);
-}
-
-function getStyles(connection, connectionType, theme) {
-  return {
-    fontWeight:
-      connectionType.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
+  if (date) {
+    return date.substr(0, 10);
+  }
 }
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
 
 export default function Home(props) {
   const classes = useStyles();
-  const theme = useTheme();
   const { user, library } = props;
-
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const handleDateChange = date => {
-    setSelectedDate(date);
-  };
 
   // handle add note
   const [open, setOpen] = React.useState(false);
@@ -142,7 +121,7 @@ export default function Home(props) {
   };
 
   // handle NDT or Ookla summary
-  const [summary, setSummary] = React.useState('ndt7');
+  const [summary, setSummary] = React.useState('ndt5');
 
   const handleSummary = (event, newSummary) => {
     if (newSummary.length) {
@@ -180,7 +159,7 @@ export default function Home(props) {
   };
 
   // handle test type change
-  const [testTypes, setTestTypes] = React.useState(['ndt7']);
+  const [testTypes, setTestTypes] = React.useState(['ndt5']);
 
   const handleTestType = (event, newTestTypes) => {
     if (newTestTypes.length) {
@@ -346,10 +325,13 @@ export default function Home(props) {
                     onChange={handleSummary}
                     aria-label="tests summary data"
                   >
-                    <ToggleButton value="ndt7" aria-label="NDT7">
+                    <ToggleButton value="ndt5" aria-label="NDT">
                       NDT
                     </ToggleButton>
-                    <ToggleButton value="ookla" aria-label="Ookla">
+                    <ToggleButton
+                      value="speedtest-cli-single-stream"
+                      aria-label="Ookla"
+                    >
                       Ookla
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -358,7 +340,7 @@ export default function Home(props) {
                   <Typography component="div">
                     Last Test:{' '}
                     {runs && runs.length
-                      ? formatDate(runs[runs.length - 1].DownloadTestStartTime)
+                      ? formatDate(runs[runs.length - 1].TestStartTime)
                       : 'No tests yet. Is a device running?'}
                   </Typography>
                 </Grid>
@@ -418,11 +400,14 @@ export default function Home(props) {
                     onChange={handleTestType}
                     aria-label="connection type"
                   >
-                    <ToggleButton value="ndt7" aria-label="NDT">
+                    <ToggleButton value="ndt5" aria-label="NDT">
                       NDT
                       <GlossaryTooltip term={handleGlossary('NDT')} />
                     </ToggleButton>
-                    <ToggleButton value="ookla" aria-label="Ookla">
+                    <ToggleButton
+                      value="speedtest-cli-single-stream"
+                      aria-label="Ookla"
+                    >
                       Ookla
                       <GlossaryTooltip term={handleGlossary('Ookla')} />
                     </ToggleButton>
@@ -446,10 +431,7 @@ export default function Home(props) {
                       Upload
                       <GlossaryTooltip term={handleGlossary('Upload')} />
                     </ToggleButton>
-                    <ToggleButton
-                      value="DownloadRetransValue"
-                      aria-label="Latency"
-                    >
+                    <ToggleButton value="MinRTTValue" aria-label="Latency">
                       Latency
                       <GlossaryTooltip term={handleGlossary('Latency')} />
                     </ToggleButton>

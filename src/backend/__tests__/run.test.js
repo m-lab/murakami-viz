@@ -41,7 +41,7 @@ const invalidRun = {
   TestUUID: 'invaliduuid',
   TestProtocol: null,
   TestError: 0,
-  ServerName: 'Correggio',
+  ServerName: 0,
   ServerIP: '256.256.256.256',
   ClientIP: '256.256.256.256',
   MurakamiLocation: 0,
