@@ -48,19 +48,19 @@ export function seed(knex) {
         knex('library_networks').insert([
           {
             lid: 1,
-            did: 2
-          },
-          {
-            lid: 2,
-            did: 4
+            nid: 1
           },
           {
             lid: 1,
-            did: 3
+            nid: 2
           },
           {
             lid: 2,
-            did: 1
+            nid: 3
+          },
+          {
+            lid: 2,
+            nid: 4
           }
         ])
       ]);

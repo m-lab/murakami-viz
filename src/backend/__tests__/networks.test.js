@@ -74,12 +74,12 @@ describe('Search networks as an admin', () => {
 
   test('Filter by library', async () => {
     const library_one = await session
-      .get('/api/v1/devices?library=1')
+      .get('/api/v1/networks?library=1')
       .expect(200);
     const library_two = await session
-      .get('/api/v1/devices?library=2')
+      .get('/api/v1/networks?library=2')
       .expect(200);
-    const all = await session.get('/api/v1/devices').expect(200);
+    const all = await session.get('/api/v1/networks').expect(200);
     expect(all.body.data.length).toEqual(
       library_one.body.data.length + library_two.body.data.length,
     );
