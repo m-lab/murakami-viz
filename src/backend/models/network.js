@@ -1,4 +1,3 @@
-import knex from 'knex';
 import { BadRequestError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
@@ -11,32 +10,37 @@ export default class NetworkManager {
 
   async create(network, lid) {
     try {
-      let ids;
+      let networks;
       await this._db.transaction(async trx => {
-        let lids = [];
+        let library;
         if (lid) {
-          lids = await trx('libraries')
+          library = await trx('libraries')
             .select()
-            .where({ id: parseInt(lid) });
-          if (lids.length === 0) {
+            .where({ id: parseInt(lid) })
+            .first();
+          if (!library) {
             throw new BadRequestError('Invalid library ID.');
           }
         }
-        ids = await trx('networks')
+        networks = await trx('networks')
           .insert(network)
-          .returning('id')
+          .returning('id', 'created_at', 'updated_at');
 
-        if (!Array.isArray(ids)) {
-          ids = [ids];
+        if (Number.isInteger(networks[0])) {
+          networks = await trx('networks')
+            .select('id', 'created_at', 'updated_at')
+            .whereIn('id', networks);
         }
 
-        if (lids.length > 0) {
-          const inserts = ids.map(id => ({ lid: lid[0], nid: id }));
-
+        if (library) {
+          const inserts = networks.map(n => ({
+            lid: library.id,
+            nid: n.id,
+          }));
           await trx('library_networks').insert(inserts);
         }
       });
-      return ids;
+      return networks;
     } catch (err) {
       throw new BadRequestError('Failed to create network: ', err);
     }
@@ -83,24 +87,11 @@ export default class NetworkManager {
     }
   }
 
-  async delete(id) {
-    try {
-      let ids;
-      await this._db.transaction(async trx => {
-        ids = await trx('networks')
-          .del()
-          .where({ id: parseInt(id) });
-        await trx('library_networks')
-          .del()
-          .where({ nid: parseInt(id) });
-      });
-      return ids;
-    } catch (err) {
-      throw new BadRequestError(
-        `Failed to delete network with ID ${id}: `,
-        err,
-      );
-    }
+   async delete(id) {
+    return this._db
+      .table('networks')
+      .del()
+      .where({ id: parseInt(id) });
   }
 
   async find({
@@ -128,7 +119,7 @@ export default class NetworkManager {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_networks', {
             'networks.id': 'library_networks.nid',
-            'library_networks.lid': knex.raw('?', [library]),
+            'library_devices.lid': this._db.raw('?', [library]),
           });
         }
 
@@ -143,18 +134,27 @@ export default class NetworkManager {
         }
 
         if (end && end > start) {
-          queryBuilder.limit(end - start);
+          queryBuilder.limit(end - start + 1);
         }
       });
 
     return rows || [];
   }
 
-  async findById(id) {
+async findById(id, library) {
     return this._db
       .table('networks')
       .select('*')
-      .where({ id: parseInt(id) });
+      .where({ id: parseInt(id) })
+      .modify(queryBuilder => {
+        if (library) {
+          log.debug('Filtering on library: ', library);
+          queryBuilder.join('library_networks', {
+            'networks.id': 'library_networks.did',
+            'library_networks.lid': this._db.raw('?', [library]),
+          });
+        }
+      });
   }
 
   async findAll() {
@@ -163,22 +163,22 @@ export default class NetworkManager {
 
   async addToLibrary(lid, id) {
     return await this._db.transaction(async trx => {
-      let lids = [];
-      lids = await trx('libraries')
+      const library = await trx('libraries')
         .select()
-        .where({ id: parseInt(lid) });
+        .where({ id: parseInt(lid) })
+        .first();
 
-      if (lids.length === 0) {
-        throw new BadRequestError('Invalid library ID.');
+      if (!library) {
+        throw new NotFoundError('Invalid library ID.');
       }
 
-      let ids = [];
-      ids = await trx('networks')
+      const network = await trx('networks')
         .select()
-        .where({ id: parseInt(id) });
+        .where({ id: parseInt(id) })
+        .first();
 
-      if (ids.length === 0) {
-        throw new BadRequestError('Invalid network ID.');
+      if (!network) {
+        throw new NotFoundError('Invalid network ID.');
       }
 
       await trx('library_networks').insert({ lid: lid, nid: id });
