@@ -7,7 +7,7 @@ import server from '../server.js';
 const validNetwork = {
   name: 'TestNetwork',
   isp: 'Not Evil At All Company',
-  ips: ['173.79.94.143', '54.243.1.20'],
+  ips: '173.79.94.143, 54.243.1.20',
   contracted_speed_upload: '900 mbps',
   contracted_speed_download: '989 mbps',
   bandwidth_cap_upload: '50 mb',
@@ -21,7 +21,7 @@ const invalidNetwork = {
   contracted_speed_upload: 0,
   contracted_speed_download: 7,
   bandwidth_cap_upload: [],
-  bandwidth_cap_download: undefined
+  bandwidth_cap_download: []
 };
 
 afterAll(async () => {
@@ -86,5 +86,118 @@ describe('Search networks as an admin', () => {
   });
 });
 
+describe('Manage networks as an admin', () => {
+  const validNetworkResponse = {
+    statusCode: 201,
+    status: 'created',
+    data: expect.anything(),
+  };
+
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'admin', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Create network successfully', async () => {
+    const res = await session
+      .post('/api/v1/networks')
+      .send({ data: [validNetwork] })
+      .expect(201);
+    expect(res.body).toMatchObject(validNetworkResponse);
+    expect(res.body.data[0].id).toBeGreaterThanOrEqual(0);
+    const network = await session
+      .get(`/api/v1/networks/${res.body.data[0].id}`)
+      .expect(200);
+    expect(network.body.data[0]).toMatchObject(validNetwork);
+  });
+
+  each(
+    Object.entries(invalidNetwork).map(([key, value]) => [
+      { [`${key}`]: value },
+    ]),
+  ).test(
+    'Attempt to create network with invalid attribute %p',
+    async invalid => {
+      await session
+        .post('/api/v1/networks')
+        .send({ data: [{ ...validNetwork, ...invalid }] })
+        .expect(400);
+    },
+  );
+
+  test('Attempt to create an empty network', async () => {
+    await session
+      .post('/api/v1/networks')
+      .send({ data: [] })
+      .expect(400);
+  });
+
+  each(
+    Object.entries({ ...validNetwork }).map(
+      ([key, value]) => [{ [`${key}`]: value }],
+    ),
+  ).test('Edit a network with attribute %p', async attribute => {
+    await session
+      .put('/api/v1/networks/1')
+      .send({ data: attribute })
+      .expect(204);
+  });
+
+  each(
+    Object.entries(invalidNetwork).map(([key, value]) => [
+      { [`${key}`]: value },
+    ]),
+  ).test(
+    'Attempt to edit a network with invalid attribute %p',
+    async attribute => {
+      await session
+        .put('/api/v1/networks/1')
+        .send({ data: attribute })
+        .expect(400);
+    },
+  );
+
+  test('Attempt to update a network that does not exist', async () => {
+    await session
+      .put('/api/v1/networks/99')
+      .send({ data: { ...validNetwork } })
+      .expect(201);
+  });
+
+  test('Delete a network', async () => {
+    await session.delete('/api/v1/networks/1').expect(204);
+  });
+
+  test('Attempt to delete a nonexistent network', async () => {
+    await session.delete('/api/v1/networks/100').expect(404);
+  });
+
+  test('Verify network does not belong to library', async () => {
+    await session.get('/api/v1/libraries/1/networks/4').expect(404);
+  });
+
+  test('Add network to library', async () => {
+    await session.put('/api/v1/libraries/2/networks/2').expect(204);
+    await session.get('/api/v1/libraries/2/networks/2').expect(200);
+  });
+
+  test('Remove network from library', async () => {
+    await session.delete('/api/v1/libraries/2/networks/4').expect(204);
+    await session.get('/api/v1/libraries/2/networks/4').expect(404);
+  });
+});
 
 

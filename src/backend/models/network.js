@@ -119,7 +119,7 @@ export default class NetworkManager {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_networks', {
             'networks.id': 'library_networks.nid',
-            'library_devices.lid': this._db.raw('?', [library]),
+            'library_networks.lid': this._db.raw('?', [library]),
           });
         }
 
@@ -150,7 +150,7 @@ async findById(id, library) {
         if (library) {
           log.debug('Filtering on library: ', library);
           queryBuilder.join('library_networks', {
-            'networks.id': 'library_networks.did',
+            'networks.id': 'library_networks.nid',
             'library_networks.lid': this._db.raw('?', [library]),
           });
         }

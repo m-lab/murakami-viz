@@ -45,10 +45,17 @@ export default function controller(networks, thisUser) {
       lid = ctx.params.lid;
     }
 
+
+    const networkObj = ctx.request.body.data[0] 
+    // the easiest way to validate IP addresses is to convert
+    // the string of IP addresses sent from the frontend into an array
+    // where the JOI validation can inspect each item of the array whether it's a string that's a valid IP address
+    const toValidate = networkObj && networkObj.ips ? {...networkObj, ips: networkObj.ips.split(', ')} : networkObj
+
     try {
-     const data = await validateCreation(ctx.request.body.data);
+     const data = await validateCreation(toValidate);
      network = await networks.create(
-       [{ ...data[0], ips: data[0].ips.join(', ') }], // turning the array of IPs into a string of IPs to insert to the DB 
+       [{...data[0], ips: data[0].ips.join(', ')}], // here we turn the IP address array into string because that's what the DB accepts
        lid,
      );
     } catch (err) {
@@ -148,7 +155,10 @@ export default function controller(networks, thisUser) {
     let created, updated;
 
     // this is a workaround
-    delete ctx.request.body.data['id'];
+    console.log("ctx", ctx.request)
+    ctx.request.body.data && ctx.request.body.data['id'] 
+      ? delete ctx.request.body.data['id']
+      : null
 
     try {
       if (ctx.params.lid) {
@@ -160,6 +170,7 @@ export default function controller(networks, thisUser) {
           ctx.params.id,
           { ...data, ips: data.ips.join(', ') }, // as with the POST route, this changes the array of IPs into a string of IPs to insert to the DB
         ));
+        console.log("*** hey, just checking, what's happening here? *** data?", data)
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
@@ -193,7 +204,7 @@ export default function controller(networks, thisUser) {
           );
         } else {
           network = await networks.delete(ctx.params.id);
-          log.debug('Deleted network: ', network);
+          log.debug('Deleted network: ', network > 0);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
@@ -201,8 +212,7 @@ export default function controller(networks, thisUser) {
       }
 
       if (network > 0) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: network };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That network with ID ${
