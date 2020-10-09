@@ -87,18 +87,10 @@ const useForm = (callback, validated, network) => {
   };
   const handleInputChange = event => {
     event.persist();
-    
-    if (event.target.name === 'ips') {
-      setInputs(inputs => ({
-        ...inputs,
-        ips: event.target.value.replace(/\s/g, "").split(','),
-      }));
-    } else {
       setInputs(inputs => ({
         ...inputs,
         [event.target.name]: event.target.value.trim(),
       }));
-    }
   };
 
   React.useEffect(() => {
