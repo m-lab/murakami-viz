@@ -155,22 +155,23 @@ export default function controller(networks, thisUser) {
     let created, updated;
 
     // this is a workaround
-    console.log("ctx", ctx.request)
-    ctx.request.body.data && ctx.request.body.data['id'] 
-      ? delete ctx.request.body.data['id']
+    const networkObj = ctx.request.body.data
+    networkObj && networkObj['id'] 
+      ? delete network['id']
       : null
 
+    const toValidate = networkObj && networkObj.ips ? {...networkObj, ips: networkObj.ips.split(', ')} : networkObj
+    console.log("tovalidate", toValidate)
     try {
       if (ctx.params.lid) {
         await networks.addToLibrary(ctx.params.lid, ctx.params.id);
         updated = true;
       } else {
-        const [data] = await validateUpdate(ctx.request.body.data);
+        const [data] = await validateUpdate(toValidate);
         ({ exists: updated = false, ...created } = await networks.update(
           ctx.params.id,
           { ...data, ips: data.ips.join(', ') }, // as with the POST route, this changes the array of IPs into a string of IPs to insert to the DB
         ));
-        console.log("*** hey, just checking, what's happening here? *** data?", data)
       }
     } catch (err) {
       log.error('HTTP 400 Error: ', err);

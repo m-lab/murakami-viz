@@ -145,14 +145,10 @@ describe('Manage networks as an admin', () => {
       .expect(400);
   });
 
-  each(
-    Object.entries({ ...validNetwork }).map(
-      ([key, value]) => [{ [`${key}`]: value }],
-    ),
-  ).test('Edit a network with attribute %p', async attribute => {
+  test('Edit a network', async () => {
     await session
-      .put('/api/v1/networks/1')
-      .send({ data: attribute })
+      .put('/api/v1/network/1')
+      .send({ data: validNetwork })
       .expect(204);
   });
 
@@ -173,7 +169,7 @@ describe('Manage networks as an admin', () => {
   test('Attempt to update a network that does not exist', async () => {
     await session
       .put('/api/v1/networks/99')
-      .send({ data: { ...validNetwork } })
+      .send({ data: validNetwork })
       .expect(201);
   });
 
@@ -197,6 +193,189 @@ describe('Manage networks as an admin', () => {
   test('Remove network from library', async () => {
     await session.delete('/api/v1/libraries/2/networks/4').expect(204);
     await session.get('/api/v1/libraries/2/networks/4').expect(404);
+  });
+});
+
+describe('Access networks as an editor', () => {
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'editor', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Create network successfully', async () => {
+    await session
+      .post('/api/v1/libraries/2/networks')
+      .send({ data: [validNetwork] })
+      .expect(201);
+  });
+
+  test('Attempt to create network globally', async () => {
+    await session
+      .post('/api/v1/networks')
+      .send({ data: [validNetwork] })
+      .expect(403);
+  });
+
+  test('Attempt to create an empty network', async () => {
+    await session
+      .post('/api/v1/libraries/2/networks')
+      .send({ data: [] })
+      .expect(400);
+  });
+
+  test('Attempt to edit a network globally', async () => {
+    await session
+      .put('/api/v1/networks/1')
+      .send({ data: validNetwork })
+      .expect(403);
+  });
+
+  test('Attempt to update a network that does not exist', async () => {
+    await session
+      .put('/api/v1/networks/99')
+      .send({ data: validNetwork })
+      .expect(403);
+  });
+
+  test('Delete a network', async () => {
+    await session
+      .delete('/api/v1/networks/1')
+      .send({})
+      .expect(403);
+  });
+
+  test('Attempt to delete a nonexistent network', async () => {
+    await session
+      .delete('/api/v1/networks/100')
+      .send({})
+      .expect(403);
+  });
+
+  test('Verify network does not belong to library', async () => {
+    await session.get('/api/v1/libraries/2/networks/1').expect(404);
+  });
+
+  test('Verify network does belong to library', async () => {
+    await session.get('/api/v1/libraries/2/networks/3').expect(200);
+  });
+
+  test('Attempt to access networks in different library', async () => {
+    await session.get('/api/v1/libraries/1/networks').expect(403);
+  });
+
+  test('Attempt to access a network in different library', async () => {
+    await session.get('/api/v1/libraries/1/networks/1').expect(403);
+  });
+
+  test('Attempt to add network to library', async () => {
+    await session.put('/api/v1/libraries/2/networks/2').expect(403);
+  });
+
+  test('Attempt to remove network from library', async () => {
+    await session.delete('/api/v1/libraries/2/networks/3').expect(204);
+  });
+});
+
+describe('Access networks as a viewer', () => {
+  beforeAll(() => {
+    return db.migrate.latest().then(() => db.seed.run());
+  });
+
+  let session;
+  beforeEach(async () => {
+    session = Session(server(config));
+    await session
+      .post('/api/v1/login')
+      .send({ username: 'viewer', password: 'averylongandgoodpassword' })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    session.destroy();
+    return db.migrate.rollback();
+  });
+
+  test('Attempt to create a network unsuccessfully', async () => {
+    await session
+      .post('/api/v1/networks')
+      .send({ data: [validNetwork] })
+      .expect(403);
+  });
+
+  test('Attempt to create an empty network', async () => {
+    await session
+      .post('/api/v1/networks')
+      .send({ data: [] })
+      .expect(403);
+  });
+
+  each(
+    Object.entries(validNetwork).map(([key, value]) => [
+      { [`${key}`]: value },
+    ]),
+  ).test('Edit a network with attribute %p', async attribute => {
+    await session
+      .put('/api/v1/networks/1')
+      .send({ data: attribute })
+      .expect(403);
+  });
+
+  test('Attempt to update a network that does not exist', async () => {
+    await session
+      .put('/api/v1/networks/99')
+      .send({ data: validNetwork })
+      .expect(403);
+  });
+
+  test('Delete a network', async () => {
+    await session
+      .delete('/api/v1/networks/1')
+      .send({})
+      .expect(403);
+  });
+
+  test('Attempt to delete a nonexistent network', async () => {
+    await session
+      .delete('/api/v1/networks/100')
+      .send({})
+      .expect(403);
+  });
+
+  test('Verify network does not belong to library', async () => {
+    await session.get('/api/v1/libraries/1/networks/4').expect(404);
+  });
+
+  test('Verify network does belong to library', async () => {
+    await session.get('/api/v1/libraries/1/networks/1').expect(200);
+  });
+
+  test('Attempt to access networks in different library', async () => {
+    await session.get('/api/v1/libraries/2/networks').expect(403);
+  });
+
+  test('Attempt to access a network in different library', async () => {
+    await session.get('/api/v1/libraries/2/networks/3').expect(403);
+  });
+
+  test('Attempt to add network to library', async () => {
+    await session.put('/api/v1/libraries/2/networks/2').expect(403);
+  });
+
+  test('Attempt to remove network from library', async () => {
+    await session.delete('/api/v1/libraries/2/networks/4').expect(403);
   });
 });
 
