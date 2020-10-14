@@ -11,7 +11,7 @@ const validNetwork = {
   contracted_speed_upload: '900 mbps',
   contracted_speed_download: '989 mbps',
   bandwidth_cap_upload: '50 mb',
-  bandwidth_cap_download: '900 mb'
+  bandwidth_cap_download: '900 mb',
 };
 
 const invalidNetwork = {
@@ -21,7 +21,7 @@ const invalidNetwork = {
   contracted_speed_upload: 0,
   contracted_speed_download: 7,
   bandwidth_cap_upload: [],
-  bandwidth_cap_download: []
+  bandwidth_cap_download: [],
 };
 
 afterAll(async () => {
@@ -145,10 +145,12 @@ describe('Manage networks as an admin', () => {
       .expect(400);
   });
 
-  test('Edit a network', async () => {
+  each(
+    Object.entries(validNetwork).map(([key, value]) => [{ [`${key}`]: value }]),
+  ).test('Edit a network with attribute %p', async attribute => {
     await session
-      .put('/api/v1/network/1')
-      .send({ data: validNetwork })
+      .put('/api/v1/networks/1')
+      .send({ data: { ...validNetwork, ...attribute } })
       .expect(204);
   });
 
@@ -161,7 +163,7 @@ describe('Manage networks as an admin', () => {
     async attribute => {
       await session
         .put('/api/v1/networks/1')
-        .send({ data: attribute })
+        .send({ data: { ...validNetwork, ...attribute } })
         .expect(400);
     },
   );
@@ -215,14 +217,7 @@ describe('Access networks as an editor', () => {
     return db.migrate.rollback();
   });
 
-  test('Create network successfully', async () => {
-    await session
-      .post('/api/v1/libraries/2/networks')
-      .send({ data: [validNetwork] })
-      .expect(201);
-  });
-
-  test('Attempt to create network globally', async () => {
+  test('Attempt to create a network unsuccessfully', async () => {
     await session
       .post('/api/v1/networks')
       .send({ data: [validNetwork] })
@@ -233,13 +228,6 @@ describe('Access networks as an editor', () => {
     await session
       .post('/api/v1/libraries/2/networks')
       .send({ data: [] })
-      .expect(400);
-  });
-
-  test('Attempt to edit a network globally', async () => {
-    await session
-      .put('/api/v1/networks/1')
-      .send({ data: validNetwork })
       .expect(403);
   });
 
@@ -285,7 +273,7 @@ describe('Access networks as an editor', () => {
   });
 
   test('Attempt to remove network from library', async () => {
-    await session.delete('/api/v1/libraries/2/networks/3').expect(204);
+    await session.delete('/api/v1/libraries/2/networks/3').expect(403);
   });
 });
 
@@ -323,13 +311,11 @@ describe('Access networks as a viewer', () => {
   });
 
   each(
-    Object.entries(validNetwork).map(([key, value]) => [
-      { [`${key}`]: value },
-    ]),
+    Object.entries(validNetwork).map(([key, value]) => [{ [`${key}`]: value }]),
   ).test('Edit a network with attribute %p', async attribute => {
     await session
       .put('/api/v1/networks/1')
-      .send({ data: attribute })
+      .send({ data: { ...validNetwork, ...attribute } })
       .expect(403);
   });
 
@@ -378,5 +364,3 @@ describe('Access networks as a viewer', () => {
     await session.delete('/api/v1/libraries/2/networks/4').expect(403);
   });
 });
-
-

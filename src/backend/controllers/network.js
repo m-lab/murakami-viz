@@ -5,7 +5,7 @@ import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
 import {
   validateCreation,
-  validateUpdate
+  validateUpdate,
 } from '../../common/schemas/network.js';
 
 const log = getLogger('backend:controllers:network');
@@ -45,19 +45,21 @@ export default function controller(networks, thisUser) {
       lid = ctx.params.lid;
     }
 
-
-    const networkObj = ctx.request.body.data[0] 
+    const networkObj = ctx.request.body.data[0];
     // the easiest way to validate IP addresses is to convert
     // the string of IP addresses sent from the frontend into an array
     // where the JOI validation can inspect each item of the array whether it's a string that's a valid IP address
-    const toValidate = networkObj && networkObj.ips ? {...networkObj, ips: networkObj.ips.split(', ')} : networkObj
+    const toValidate =
+      networkObj && networkObj.ips
+        ? { ...networkObj, ips: networkObj.ips.split(', ') }
+        : networkObj;
 
     try {
-     const data = await validateCreation(toValidate);
-     network = await networks.create(
-       [{...data[0], ips: data[0].ips.join(', ')}], // here we turn the IP address array into string because that's what the DB accepts
-       lid,
-     );
+      const data = await validateCreation(toValidate);
+      network = await networks.create(
+        [{ ...data[0], ips: data[0].ips.join(', ') }], // here we turn the IP address array into string because that's what the DB accepts
+        lid,
+      );
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add network: ${err}`);
@@ -118,50 +120,45 @@ export default function controller(networks, thisUser) {
     }
   });
 
-  router.get(
-    '/networks/:id',
-    thisUser.can('view this library'),
-    async ctx => {
-      log.debug(`Retrieving network ${ctx.params.id}.`);
-      let network, lid;
+  router.get('/networks/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving network ${ctx.params.id}.`);
+    let network, lid;
 
-      if (ctx.params.lid) {
-        lid = ctx.params.lid;
-      }
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
-      try {
-        network = await networks.findById(ctx.params.id, lid);
-      } catch (err) {
-        log.error('HTTP 400 Error: ', err);
-        ctx.throw(400, `Failed to parse query: ${err}`);
-      }
+    try {
+      network = await networks.findById(ctx.params.id, lid);
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
 
-      if (network.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: network };
-        ctx.response.status = 200;
-      } else {
-        log.error(
-          `HTTP 404 Error: That network with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(404, `That network with ID ${ctx.params.id} does not exist.`);
-      }
-    },
-  );
+    if (network.length) {
+      ctx.response.body = { statusCode: 200, status: 'ok', data: network };
+      ctx.response.status = 200;
+    } else {
+      log.error(
+        `HTTP 404 Error: That network with ID ${ctx.params.id} does not exist.`,
+      );
+      ctx.throw(404, `That network with ID ${ctx.params.id} does not exist.`);
+    }
+  });
 
   router.put('/networks/:id', thisUser.can('access admin pages'), async ctx => {
     log.debug(`Updating network ${ctx.params.id}.`);
     let created, updated;
 
     // this is a workaround
-    const networkObj = ctx.request.body.data
-    networkObj && networkObj['id'] 
-      ? delete network['id']
-      : null
+    const networkObj = ctx.request.body.data;
+    networkObj && networkObj['id'] ? delete networkObj['id'] : null;
 
-    const toValidate = networkObj && networkObj.ips ? {...networkObj, ips: networkObj.ips.split(', ')} : networkObj
-    console.log("tovalidate", toValidate)
+    const toValidate =
+      networkObj && networkObj.ips
+        ? { ...networkObj, ips: networkObj.ips.split(', ') }
+        : networkObj;
+
     try {
       if (ctx.params.lid) {
         await networks.addToLibrary(ctx.params.lid, ctx.params.id);

@@ -1,4 +1,4 @@
-import { BadRequestError } from '../../common/errors.js';
+import { BadRequestError, NotFoundError } from '../../common/errors.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:network');
@@ -83,11 +83,14 @@ export default class NetworkManager {
       });
       return { ...updated, exists: exists };
     } catch (err) {
-      throw new BadRequestError(`Failed to update network with ID ${id}: `, err);
+      throw new BadRequestError(
+        `Failed to update network with ID ${id}: `,
+        err,
+      );
     }
   }
 
-   async delete(id) {
+  async delete(id) {
     return this._db
       .table('networks')
       .del()
@@ -141,7 +144,7 @@ export default class NetworkManager {
     return rows || [];
   }
 
-async findById(id, library) {
+  async findById(id, library) {
     return this._db
       .table('networks')
       .select('*')
