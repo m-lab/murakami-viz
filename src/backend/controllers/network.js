@@ -45,7 +45,9 @@ export default function controller(networks, thisUser) {
       lid = ctx.params.lid;
     }
 
-    const networkObj = ctx.request.body.data[0];
+    const networkObj = Array.isArray(ctx.request.body.data)
+      ? ctx.request.body.data[0]
+      : ctx.request.body.data;
     // the easiest way to validate IP addresses is to convert
     // the string of IP addresses sent from the frontend into an array
     // where the JOI validation can inspect each item of the array whether it's a string that's a valid IP address
@@ -151,7 +153,10 @@ export default function controller(networks, thisUser) {
     let created, updated;
 
     // this is a workaround
-    const networkObj = ctx.request.body.data;
+    const networkObj = Array.isArray(ctx.request.body.data)
+      ? ctx.request.body.data[0]
+      : ctx.request.body.data;
+
     networkObj && networkObj['id'] ? delete networkObj['id'] : null;
 
     const toValidate =
