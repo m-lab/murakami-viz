@@ -67,7 +67,7 @@ export default function controller(networks, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/networks', async ctx => {
+  router.get('/networks', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving networks.`);
     let res, library;
 
@@ -120,7 +120,7 @@ export default function controller(networks, thisUser) {
 
   router.get(
     '/networks/:id',
-    thisUser.can('access private pages'),
+    thisUser.can('view this library'),
     async ctx => {
       log.debug(`Retrieving network ${ctx.params.id}.`);
       let network, lid;
