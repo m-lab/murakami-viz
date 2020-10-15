@@ -50,14 +50,18 @@ const useStyles = makeStyles(() => ({
     marginBottom: '30px',
   },
   grid: {
-    // marginLeft: "",
-    marginTop: '50px',
-  },
-  gridItem: {
-    marginLeft: '30px',
+    margin: '30px',
+    width: 'unset',
   },
   inline: {
     marginLeft: '20px',
+    maxWidth: '120px',
+  },
+  labelContainer: {
+    '& label': {
+      marginRight: '5px',
+      transform: 'translate(14px, 12px)',
+    },
   },
   saveButton: {
     marginBottom: '0',
@@ -80,7 +84,6 @@ const useForm = (callback, validated, network) => {
     delete fullInputs.updated_at;
     delete fullInputs.lid;
     delete fullInputs.nid;
-    delete fullInputs.id;
     if (validated(fullInputs)) {
       callback(fullInputs);
       setInputs({});
@@ -88,18 +91,10 @@ const useForm = (callback, validated, network) => {
   };
   const handleInputChange = event => {
     event.persist();
-    
-    if (event.target.name === 'ips') {
-      setInputs(inputs => ({
-        ...inputs,
-        ips: event.target.value.replace(/\s/g, "").split(','),
-      }));
-    } else {
       setInputs(inputs => ({
         ...inputs,
         [event.target.name]: event.target.value.trim(),
       }));
-    }
   };
 
   React.useEffect(() => {
@@ -130,12 +125,6 @@ export default function AddEditNetwork(props) {
   const [helperText, setHelperText] = React.useState({
     name: '',
   });
-
-  const formatIps = ips => {
-    if (ips) {
-      return ips.slice(1, -1).replace(/"/g, '');
-    }
-  };
 
   // handle form validation
   const validateInputs = inputs => {
@@ -192,7 +181,6 @@ export default function AddEditNetwork(props) {
       if (
         inputs[key] === null ||
         inputs[key] === undefined ||
-        key === 'id' ||
         key === 'created_at' ||
         key === 'updated_at'
       )
@@ -200,6 +188,8 @@ export default function AddEditNetwork(props) {
     }
 
     let status;
+    let result;
+
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
@@ -210,17 +200,17 @@ export default function AddEditNetwork(props) {
       })
         .then(response => {
           status = response.status;
-          return response.json();
+          return !!status === 201 ? response.json() : null;
         })
         .then(result => {
-          if (status === 200) {
+          if (status === 204) {
             let updatedNetworks;
             if (networks) {
               updatedNetworks = networks.map(network =>
-                network.id === result.data[0].id ? result.data[0] : network,
+                network.id === inputs['id'] ? inputs : network,
               );
             } else {
-              updatedNetworks = [result.data[0]];
+              updatedNetworks = [inputs];
             }
             setNetworks(updatedNetworks);
             alert('Network updated successfully.');
@@ -244,7 +234,7 @@ export default function AddEditNetwork(props) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({data: inputs}),
+        body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
           status = response.status;
@@ -381,8 +371,6 @@ export default function AddEditNetwork(props) {
                     : inputs.contracted_speed_download
                 }
               />
-            </Grid>
-            <Grid item>
               <TextField
                 className={`${classes.formField} ${classes.inline}`}
                 id="network-contracted-speed-upload"
@@ -399,14 +387,20 @@ export default function AddEditNetwork(props) {
             </Grid>
           </Grid>
           <TextField
-            className={classes.formField}
+            className={`${classes.formField} ${classes.labelContainer}`}
             id="library-ips"
             label="IP addresses of custom DNS server (if applicable; in a comma-separated list if multiple)"
             name="ips"
             fullWidth
             variant="outlined"
             onChange={handleInputChange}
-            defaultValue={network ? formatIps(network.ips) : inputs.ips}
+            defaultValue={
+              network
+                ? Array.isArray(network.ips)
+                  ? network.ips.join(', ')
+                  : network.ips
+                : inputs.ips
+            }
           />
           <Grid container alignItems="center">
             <Grid item>
@@ -428,8 +422,6 @@ export default function AddEditNetwork(props) {
                     : inputs.bandwidth_cap_download
                 }
               />
-            </Grid>
-            <Grid item>
               <TextField
                 className={`${classes.formField} ${classes.inline}`}
                 id="network-bandwidth-cap-upload"

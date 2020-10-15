@@ -3,6 +3,10 @@ import moment from 'moment';
 import Joi from '@hapi/joi';
 import { getLogger } from '../log.js';
 import { BadRequestError } from '../../common/errors.js';
+import {
+  validateCreation,
+  validateUpdate,
+} from '../../common/schemas/network.js';
 
 const log = getLogger('backend:controllers:network');
 
@@ -41,13 +45,23 @@ export default function controller(networks, thisUser) {
       lid = ctx.params.lid;
     }
 
-    try {
-      network = await networks.create(ctx.request.body.data, lid);
+    const networkObj = Array.isArray(ctx.request.body.data)
+      ? ctx.request.body.data[0]
+      : ctx.request.body.data;
+    // the easiest way to validate IP addresses is to convert
+    // the string of IP addresses sent from the frontend into an array
+    // where the JOI validation can inspect each item of the array whether it's a string that's a valid IP address
+    const toValidate =
+      networkObj && networkObj.ips
+        ? { ...networkObj, ips: networkObj.ips.split(', ') }
+        : networkObj;
 
-      // workaround for sqlite
-      if (Number.isInteger(network)) {
-        network = await networks.findById(network);
-      }
+    try {
+      const data = await validateCreation(toValidate);
+      network = await networks.create(
+        [{ ...data[0], ips: data[0].ips.join(', ') }], // here we turn the IP address array into string because that's what the DB accepts
+        lid,
+      );
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add network: ${err}`);
@@ -57,7 +71,7 @@ export default function controller(networks, thisUser) {
     ctx.response.status = 201;
   });
 
-  router.get('/networks', async ctx => {
+  router.get('/networks', thisUser.can('view this library'), async ctx => {
     log.debug(`Retrieving networks.`);
     let res, library;
 
@@ -108,58 +122,22 @@ export default function controller(networks, thisUser) {
     }
   });
 
-  router.get(
-    '/networks/:id',
-    thisUser.can('access private pages'),
-    async ctx => {
-      log.debug(`Retrieving network ${ctx.params.id}.`);
-      let network, lid;
+  router.get('/networks/:id', thisUser.can('view this library'), async ctx => {
+    log.debug(`Retrieving network ${ctx.params.id}.`);
+    let network, lid;
 
-      if (ctx.params.lid) {
-        lid = ctx.params.lid;
-      }
-
-      try {
-        network = await networks.findById(ctx.params.id, lid);
-      } catch (err) {
-        log.error('HTTP 400 Error: ', err);
-        ctx.throw(400, `Failed to parse query: ${err}`);
-      }
-
-      if (network.length) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: network };
-        ctx.response.status = 200;
-      } else {
-        log.error(
-          `HTTP 404 Error: That network with ID ${
-            ctx.params.id
-          } does not exist.`,
-        );
-        ctx.throw(404, `That network with ID ${ctx.params.id} does not exist.`);
-      }
-    },
-  );
-
-  router.put('/networks/:id', thisUser.can('access admin pages'), async ctx => {
-    log.debug(`Updating network ${ctx.params.id}.`);
-    let network = [];
+    if (ctx.params.lid) {
+      lid = ctx.params.lid;
+    }
 
     try {
-      if (ctx.params.lid) {
-        network = await networks.addToLibrary(ctx.params.lid, ctx.params.id);
-      } else {
-        network = await networks.update(ctx.params.id, ctx.request.body.data);
-      }
-      // workaround for sqlite
-      if (Number.isInteger(network)) {
-        network = await networks.findById(ctx.params.id);
-      }
+      network = await networks.findById(ctx.params.id, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (network.length && network.length > 0) {
+    if (network.length) {
       ctx.response.body = { statusCode: 200, status: 'ok', data: network };
       ctx.response.status = 200;
     } else {
@@ -167,7 +145,50 @@ export default function controller(networks, thisUser) {
         `HTTP 404 Error: That network with ID ${ctx.params.id} does not exist.`,
       );
       ctx.throw(404, `That network with ID ${ctx.params.id} does not exist.`);
-      ctx.response.body = { error: 'Please try again.' };
+    }
+  });
+
+  router.put('/networks/:id', thisUser.can('access admin pages'), async ctx => {
+    log.debug(`Updating network ${ctx.params.id}.`);
+    let created, updated;
+
+    // this is a workaround
+    const networkObj = Array.isArray(ctx.request.body.data)
+      ? ctx.request.body.data[0]
+      : ctx.request.body.data;
+
+    networkObj && networkObj['id'] ? delete networkObj['id'] : null;
+
+    const toValidate =
+      networkObj && networkObj.ips
+        ? { ...networkObj, ips: networkObj.ips.split(', ') }
+        : networkObj;
+
+    try {
+      if (ctx.params.lid) {
+        await networks.addToLibrary(ctx.params.lid, ctx.params.id);
+        updated = true;
+      } else {
+        const [data] = await validateUpdate(toValidate);
+        ({ exists: updated = false, ...created } = await networks.update(
+          ctx.params.id,
+          { ...data, ips: data.ips.join(', ') }, // as with the POST route, this changes the array of IPs into a string of IPs to insert to the DB
+        ));
+      }
+    } catch (err) {
+      log.error('HTTP 400 Error: ', err);
+      ctx.throw(400, `Failed to parse query: ${err}`);
+    }
+
+    if (updated) {
+      ctx.response.status = 204;
+    } else {
+      ctx.response.body = {
+        statusCode: 201,
+        status: 'created',
+        data: [created],
+      };
+      ctx.response.status = 201;
     }
   });
 
@@ -186,7 +207,7 @@ export default function controller(networks, thisUser) {
           );
         } else {
           network = await networks.delete(ctx.params.id);
-          log.debug('Deleted network: ', network);
+          log.debug('Deleted network: ', network > 0);
         }
       } catch (err) {
         log.error('HTTP 400 Error: ', err);
@@ -194,8 +215,7 @@ export default function controller(networks, thisUser) {
       }
 
       if (network > 0) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: network };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: That network with ID ${
