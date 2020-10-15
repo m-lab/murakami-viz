@@ -137,8 +137,6 @@ export default function controller(notes, thisUser) {
     log.debug(`Updating note ${ctx.params.id}.`);
     let created, updated;
 
-    delete ctx.request.body.data['id']; // workaround
-
     try {
       if (ctx.params.lid) {
         await notes.addToLibrary(ctx.params.lid, ctx.params.id);

@@ -149,9 +149,11 @@ export default function AddNote(props) {
     let status;
 
     // hand inserting the date into the request body
+    const { subject, description } = inputs;
     const noteToSubmit = {
-      ...inputs,
-      date: date.toISOString()
+      subject,
+      description,
+      date: date.toISOString(),
     };
 
     fetch(`api/v1/libraries/${library.id}/notes`, {
@@ -159,7 +161,7 @@ export default function AddNote(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: noteToSubmit }), 
+      body: JSON.stringify({ data: noteToSubmit }),
     })
       .then(response => {
         status = response.status;

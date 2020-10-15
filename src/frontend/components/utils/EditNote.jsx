@@ -67,13 +67,12 @@ const useForm = (callback, validated, note) => {
     }
   };
   const handleInputChange = event => {
-      event.persist();
-      setInputs(inputs => ({
-        ...inputs,
-        [event.target.name]: event.target.value.trim(),
-      }));
-    }
-  
+    event.persist();
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value.trim(),
+    }));
+  };
 
   return {
     handleSubmit,
@@ -86,7 +85,7 @@ export default function EditNote(props) {
   const classes = useStyles();
   const { onClose, open, row } = props;
   const [errors, setErrors] = React.useState({});
-  const [date, setDate] = React.useState(null)
+  const [date, setDate] = React.useState(null);
   const [helperText, setHelperText] = React.useState({
     name: '',
   });
@@ -153,24 +152,24 @@ export default function EditNote(props) {
 
   const submitData = () => {
     let status;
-    
-    delete inputs['author']
 
+    const { subject, description } = inputs;
     const noteToSubmit = {
-      ...inputs,
-      date: date.toISOString()
-    }
+      subject,
+      description,
+      date: date.toISOString(),
+    };
 
     fetch(`api/v1/notes/${inputs.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: noteToSubmit })
+      body: JSON.stringify({ data: noteToSubmit }),
     })
       .then(response => {
         status = response.status;
-        return !!response.bodyUsed ? response.json() : null
+        return response.bodyUsed ? response.json() : null;
       })
       .then(result => {
         if (status === 204) {
