@@ -50,14 +50,18 @@ const useStyles = makeStyles(() => ({
     marginBottom: '30px',
   },
   grid: {
-    // marginLeft: "",
-    marginTop: '50px',
-  },
-  gridItem: {
-    marginLeft: '30px',
+    margin: '30px',
+    width: 'unset',
   },
   inline: {
     marginLeft: '20px',
+    maxWidth: '120px',
+  },
+  labelContainer: {
+    '& label': {
+      marginRight: '5px',
+      transform: 'translate(14px, 12px)',
+    },
   },
   saveButton: {
     marginBottom: '0',
@@ -184,8 +188,8 @@ export default function AddEditNetwork(props) {
     }
 
     let status;
-    let result; 
-  
+    let result;
+
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
@@ -367,8 +371,6 @@ export default function AddEditNetwork(props) {
                     : inputs.contracted_speed_download
                 }
               />
-            </Grid>
-            <Grid item>
               <TextField
                 className={`${classes.formField} ${classes.inline}`}
                 id="network-contracted-speed-upload"
@@ -385,7 +387,7 @@ export default function AddEditNetwork(props) {
             </Grid>
           </Grid>
           <TextField
-            className={classes.formField}
+            className={`${classes.formField} ${classes.labelContainer}`}
             id="library-ips"
             label="IP addresses of custom DNS server (if applicable; in a comma-separated list if multiple)"
             name="ips"
@@ -420,8 +422,6 @@ export default function AddEditNetwork(props) {
                     : inputs.bandwidth_cap_download
                 }
               />
-            </Grid>
-            <Grid item>
               <TextField
                 className={`${classes.formField} ${classes.inline}`}
                 id="network-bandwidth-cap-upload"
