@@ -269,12 +269,6 @@ export default function Library(props) {
     setNetworkToEdit(network);
   };
 
-  const formatIps = ips => {
-    if (ips) {
-      return ips.slice(1, -1).replace(/"/g, '');
-    }
-  };
-
   // fetch networks data
   React.useEffect(() => {
     let status;
@@ -294,9 +288,8 @@ export default function Library(props) {
         }
       })
       .catch(error => {
-        console.error(error.name + ': ' + error.message);
         alert(
-          'An error occurred. Please try again or contact an administrator.',
+          `An error occurred. ${error.name}: ${error.message}. Please try again or contact an administrator.`,
         );
       });
   }, []);
@@ -654,7 +647,7 @@ export default function Library(props) {
                                         IP Addresses of Custom DNS Servers
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {Array.isArray(network.ips) ? network.ips.join(', ') : formatIps(network.ips)}
+                                        {network.ips}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
