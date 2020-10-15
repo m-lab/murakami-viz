@@ -48,41 +48,8 @@ export default class NetworkManager {
 
   async update(id, network) {
     try {
-      await validate(network);
-    } catch (err) {
-      throw new BadRequestError('Failed to update network: ', err);
-    }
-    return this._db
-      .table('networks')
-      .where({ id: parseInt(id) })
-      .update(
-        {
-          name: network.name,
-          isp: network.isp,
-          ips: network.ips.join(', '),
-          contracted_speed_upload: network.contracted_speed_upload,
-          contracted_speed_download: network.contracted_speed_download,
-          bandwidth_cap_upload: network.bandwidth_cap_upload,
-          bandwidth_cap_download: network.bandwidth_cap_download,
-          updated_at: network.updated_at,
-        },
-        [
-          'id',
-          'name',
-          'isp',
-          'ips',
-          'contracted_speed_upload',
-          'contracted_speed_download',
-          'bandwidth_cap_upload',
-          'bandwidth_cap_download',
-          'updated_at',
-        ],
-      );
-  }
-
-  async delete(id) {
-    try {
-      let ids;
+      let existing, updated;
+      let exists = false;
       await this._db.transaction(async trx => {
         existing = await trx('networks')
           .select('*')
