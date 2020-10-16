@@ -62,7 +62,7 @@ export default function configServer(config) {
   const groupModel = new Groups(db);
   const libraryModel = new Libraries(db);
   server.use(currentLibrary());
-  const auth = authHandler(groupModel, libraryModel);
+  const auth = authHandler(groupModel, libraryModel, config.isTest);
   server.use(auth.middleware());
 
   // Setup our API handlers

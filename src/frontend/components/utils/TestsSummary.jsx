@@ -75,14 +75,14 @@ function handleData(runs) {
       console.log('*** rate (scaled) ***: ', rate);
 
       if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
-        weekTotalMbps += rate.toFixed(2);
+        weekTotalMbps += rate;
         weekRuns += 1;
         xAxisWeek.push(run.TestStartTime.substr(0, 10));
         yAxisWeek.push(rate.toFixed(2));
       }
 
       if (runDate.format('YYYY-MM-DD') === today) {
-        dayTotalMbps += rate.toFixed(2);
+        dayTotalMbps += rate;
         dayRuns += 1;
         xAxisDay.push(run.TestStartTime.substr(0, 10));
         yAxisDay.push(rate.toFixed(2));
@@ -150,7 +150,7 @@ export default function TestsSummary(props) {
             7 day median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            {weekMedian}
+            {weekMedian.toFixed(2)}
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot
@@ -205,7 +205,7 @@ export default function TestsSummary(props) {
             24 hour median:
           </Typography>
           <Typography component="div" className={classes.large}>
-            {dayMedian}
+            {dayMedian.toFixed(2)}
           </Typography>
           <Typography component="div">Mbps</Typography>
           <Plot

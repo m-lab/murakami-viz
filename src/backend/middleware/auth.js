@@ -35,7 +35,7 @@ function fixLocalhost(list) {
   return list;
 }
 
-const authWrapper = (groups, libraries) => {
+const authWrapper = (groups, libraries, isTest) => {
   const roles = new Roles();
 
   roles.isMemberOf = (group, id) => {
@@ -90,9 +90,9 @@ const authWrapper = (groups, libraries) => {
 
   roles.use('write from whitelisted IP', async ctx => {
     log.debug('Checking if this client IP has write access.');
-    let ips = libraries.findAllIps();
+    let ips = await libraries.findAllIps();
     log.debug('Permitted IPs:', ips);
-    if (ips.length && ips.length > 0) {
+    if (ips.length && ips.length > 0 && !isTest) {
       let whitelist = fixLocalhost(ips);
       let ip = ctx.ip;
       ip = fixIp(ip);
