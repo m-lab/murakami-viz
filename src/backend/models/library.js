@@ -43,7 +43,7 @@ export default class LibraryManager {
 
   async findAllIps() {
     log.debug('Querying IP addresses.');
-    const rows = await this._db.table('library_ips').select('ip');
+    const rows = await this._db.table('library_ips').pluck('ip');
 
     return rows || [];
   }
