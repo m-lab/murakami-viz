@@ -150,8 +150,7 @@ export default function controller(libraries, thisUser) {
       }
 
       if (address) {
-        ctx.response.body = { statusCode: 200, status: 'ok', data: address };
-        ctx.response.status = 200;
+        ctx.response.status = 204;
       } else {
         log.error(
           `HTTP 404 Error: The IP address ${

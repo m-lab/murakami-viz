@@ -150,7 +150,6 @@ export default function ViewUser(props) {
 
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete this user?')) {
-      let status;
       fetch(`api/v1/users/${row.id}`, {
         method: 'DELETE',
         headers: {
@@ -158,14 +157,10 @@ export default function ViewUser(props) {
         },
       })
         .then(response => {
-          status = response.status;
-          return response.json();
-        })
-        .then(results => {
-          if (status === 200) {
-            return onCloseDelete(results.data);
+          if (response.status === 204) {
+            return onCloseDelete(row.id);
           } else {
-            const error = processError(results);
+            const error = processError(response.json());
             throw new Error(error);
           }
         })
@@ -250,10 +245,11 @@ export default function ViewUser(props) {
         <Typography component="p" variant="body2" gutterbottom>
           {row.email}
         </Typography>
-        { row.phone ?
-        <Typography component="p" variant="body2" gutterbottom>
-          {row.phone} {row.extension ? `ext. ${row.extension}` : ``}
-        </Typography> : null}
+        {row.phone ? (
+          <Typography component="p" variant="body2" gutterbottom>
+            {row.phone} {row.extension ? `ext. ${row.extension}` : ``}
+          </Typography>
+        ) : null}
         <Typography component="p" variant="body2" gutterbottom>
           {row.location_name}
         </Typography>

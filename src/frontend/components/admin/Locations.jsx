@@ -231,10 +231,10 @@ export default function EnhancedTable(props) {
   };
 
   // fetch api data
-  const [ error, setError ] = React.useState(null);
-  const [ isLoaded, setIsLoaded ] = React.useState(false);
-  const [ rows, setRows ] = React.useState([]);
-  const [ users, setUsers ] = React.useState([]);
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [rows, setRows] = React.useState([]);
+  const [users, setUsers] = React.useState([]);
 
   const processError = res => {
     let errorString;
@@ -298,9 +298,7 @@ export default function EnhancedTable(props) {
     return (
       <Suspense>
         <div className={classes.root}>
-          <EnhancedTableToolbar
-            updateRows={addData}
-          />
+          <EnhancedTableToolbar updateRows={addData} />
           <TableContainer>
             <Table
               className={classes.table}
@@ -325,7 +323,7 @@ export default function EnhancedTable(props) {
                         <TableRow
                           hover
                           onClick={() => {
-                            handleClickOpen(page * 10 + index);
+                            handleClickOpen(row.id);
                           }}
                           key={row.id}
                         >

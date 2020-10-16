@@ -126,7 +126,6 @@ export default function Library(props) {
         'Are you sure you want to delete this library? This action CANNOT be undone.',
       )
     ) {
-      let status;
       fetch(`api/v1/libraries/${library.id}`, {
         method: 'DELETE',
         headers: {
@@ -134,14 +133,10 @@ export default function Library(props) {
         },
       })
         .then(response => {
-          status = response.status;
-          return response.json();
-        })
-        .then(results => {
-          if (status === 200) {
+          if (response.status === 204) {
             return onCloseDelete();
           } else {
-            const error = processError(results);
+            const error = processError(response.json());
             throw new Error(error);
           }
         })
@@ -191,21 +186,19 @@ export default function Library(props) {
   };
 
   React.useEffect(() => {
-    let status;
-
     fetch(`/api/v1/libraries/${library.id}/devices`)
       .then(response => {
         status = response.status;
-        return response.json();
-      })
-      .then(devices => {
-        if (status === 200) {
-          setDevices(devices.data);
-          return;
+        if (response.status === 200) {
+          return response.json();
         } else {
-          const error = processError(devices);
+          const error = processError(response.json());
           throw new Error(error);
         }
+      })
+      .then(devices => {
+        setDevices(devices.data);
+        return;
       })
       .catch(error => {
         console.error(error.name + ': ' + error.message);
@@ -216,7 +209,6 @@ export default function Library(props) {
   }, []);
 
   const handleDeviceDelete = deviceToDelete => {
-    let status;
     fetch(`api/v1/devices/${deviceToDelete.id}`, {
       method: 'DELETE',
       headers: {
@@ -224,18 +216,14 @@ export default function Library(props) {
       },
     })
       .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(results => {
-        if (status === 200) {
+        if (response.status === 204) {
           let updatedDevices = devices.filter(
             device => device.id !== deviceToDelete.id,
           );
           setDevices(updatedDevices);
           return;
         } else {
-          const error = processError(results);
+          const error = processError(response.json());
           throw new Error(error);
         }
       })
@@ -271,31 +259,29 @@ export default function Library(props) {
 
   // fetch networks data
   React.useEffect(() => {
-    let status;
-
     fetch(`/api/v1/libraries/${library.id}/networks`)
       .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(networks => {
-        if (status === 200) {
-          setNetworks(networks.data);
-          return;
+        if (response.status === 200) {
+          return response.json();
         } else {
-          const error = processError(networks);
+          const error = processError(response.json());
           throw new Error(error);
         }
       })
+      .then(networks => {
+        setNetworks(networks.data);
+        return;
+      })
       .catch(error => {
         alert(
-          `An error occurred. ${error.name}: ${error.message}. Please try again or contact an administrator.`,
+          `An error occurred. ${error.name}: ${
+            error.message
+          }. Please try again or contact an administrator.`,
         );
       });
   }, []);
 
   const handleNetworkDelete = networkToDelete => {
-    let status;
     fetch(`api/v1/networks/${networkToDelete.id}`, {
       method: 'DELETE',
       headers: {
@@ -303,18 +289,14 @@ export default function Library(props) {
       },
     })
       .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(results => {
-        if (status === 200) {
+        if (response.status === 204) {
           let updatedNetworks = networks.filter(
             network => network.id !== networkToDelete.id,
           );
           setNetworks(updatedNetworks);
           return;
         } else {
-          const error = processError(results);
+          const error = processError(response.json());
           throw new Error(error);
         }
       })
@@ -331,24 +313,23 @@ export default function Library(props) {
 
   // fetch existing whitelisted IPs
   React.useEffect(() => {
-    let ipStatus;
-
     fetch(`/api/v1/libraries/${library.id}/ip`)
       .then(response => {
-        ipStatus = response.status;
-        return response.json();
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Failed to get library IPs');
+        }
       })
       .then(libraryIPs => {
-        if (ipStatus === 200 && libraryIPs.data.length > 0) {
+        if (libraryIPs.data.length > 0) {
           setLibraryIPs(
             libraryIPs.data.map(libraryIP => libraryIP.ip), // get just the IP addresses
           );
           return;
-        } else if (ipStatus === 200 && libraryIPs.data.length === 0) {
+        } else {
           setLibraryIPs([]);
           return;
-        } else {
-          throw new Error('Failed to get library IPs');
         }
       })
       .catch(err => {
@@ -387,7 +368,6 @@ export default function Library(props) {
         ip: ipValue,
       };
 
-      let status;
       fetch(`api/v1/libraries/${library.id}/ip/${ipValue}`, {
         method: 'POST',
         headers: {
@@ -396,18 +376,14 @@ export default function Library(props) {
         body: JSON.stringify(data),
       })
         .then(response => {
-          status = response.status;
-          return response.json();
-        })
-        .then(results => {
-          if (status === 201) {
+          if (response.status === 201) {
             let updatedIPs = libraryIPs.concat(ipValue);
             setLibraryIPs(updatedIPs);
             closeTextfield();
             setIpValue(null);
             return;
           } else {
-            const error = processError(results);
+            const error = processError(response.json());
             throw new Error(error);
           }
         })
@@ -423,7 +399,6 @@ export default function Library(props) {
   };
 
   const handleIpDelete = ipToDelete => {
-    let status;
     fetch(`api/v1/libraries/${library.id}/ip/${ipToDelete}`, {
       method: 'DELETE',
       headers: {
@@ -431,16 +406,12 @@ export default function Library(props) {
       },
     })
       .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(results => {
-        if (status === 200) {
+        if (response.status === 204) {
           let updatedIPs = libraryIPs.filter(ip => ip !== ipToDelete);
           setLibraryIPs(updatedIPs);
           return;
         } else {
-          const error = processError(results);
+          const error = processError(response.json());
           throw new Error(error);
         }
       })
@@ -1038,5 +1009,5 @@ Library.propTypes = {
     isp: PropTypes.string,
     bandwidth_cap_download: PropTypes.string,
     bandwidth_cap_upload: PropTypes.string,
-  }),
+  }).isRequired,
 };

@@ -104,7 +104,7 @@ export default function App() {
 
   // fetch api data
   React.useEffect(() => {
-    let userStatus, libraryStatus, ipStatus;
+    let userStatus, libraryStatus, userRole;
     const username = Cookies.get('mv_user');
     if (username) {
       // TODO: Add separate case for admin
@@ -117,6 +117,7 @@ export default function App() {
           if (userStatus === 200) {
             setUser(users.data[0]);
             setAuthenticated(true);
+            userRole = users.data[0].role;
             return users.data[0];
           } else {
             const error = processError(users);
@@ -129,13 +130,20 @@ export default function App() {
           return librariesResponse.json();
         })
         .then(libraries => {
-          if (libraryStatus === 200) {
+          if (
+            libraryStatus === 200 &&
+            Array.isArray(libraries.data) &&
+            libraries.data.length > 0
+          ) {
             setLibrary(libraries.data[0]);
             setIsLoaded(true);
             return libraries.data[0];
+          } else if (userRole === 1) {
+            // Bypass for admins
+            setIsLoaded(true);
+            return;
           } else {
-            const error = processError(libraries);
-            throw new Error(error);
+            throw new Error('No library found for user.');
           }
         })
         .catch(error => {
