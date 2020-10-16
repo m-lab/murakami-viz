@@ -32,7 +32,22 @@ may be edited and copied to `.env`).
 The backend parses the following configuration variables:
 
 ```
-MURAKAMI_VIZ_PORT        # The port that the backend is listening on (default: 3000)
+MURAKAMI_VIZ_PORT            # The port that the backend is listening on (default: 3000)
+MURAKAMI_VIZ_LOG_LEVEL       # Logging level (default: error)
+MURAKAMI_VIZ_HOST            # The host Murakami-viz runs on (default: localhost)
+MURAKAMI_VIZ_PORT            # The port to bind to (default: 3000)
+MURAKAMI_VIZ_ADMIN_USERNAME  # The administrative user (default: 'admin')
+MURAKAMI_VIZ_ADMIN_PASSWORD  # The administrative password
+MURAKAMI_VIZ_DB_HOST         # Postgres database host (default: localhost)
+MURAKAMI_VIZ_DB_PORT         # Postgres port (default: 5432)
+MURAKAMI_VIZ_DB_DATABASE     # Postgres database name (default: murakami)
+MURAKAMI_VIZ_DB_USERNAME     # Postgres user (default: murakami)
+MURAKAMI_VIZ_DB_PASSWORD     # Postgres password
+MURAKAMI_VIZ_DB_POOL_MIN     # Postgres minimum connections (default: 0)
+MURAKAMI_VIZ_DB_POOL_MAX     # Postgres max connections (default: 10)
+MURAKAMI_VIZ_DB_TIMEOUT      # Postgres connection timeout (default: 0)
+
+
 ```
 
 Additionally, we use the semi-standard `NODE_ENV` variable for defining test,
@@ -75,9 +90,6 @@ npm run start
 ```
 
 (use `npm run start:dev` to run in development mode)
-
-Additionally, components can be built or started individually using for example
-`npm run build:backend`, `npm run start:worker`, etc.
 
 ### Docker
 
