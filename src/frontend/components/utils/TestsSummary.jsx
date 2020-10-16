@@ -64,6 +64,7 @@ function handleData(runs) {
       const runDate = moment(run.TestStartTime.substr(0, 10));
 
       let rate = parseFloat(run.DownloadValue);
+      console.log('*** rate ***: ', rate);
       if (isString(run.DownloadUnit)) {
         if (run['DownloadUnit'].toLowerCase() === 'bit/s') {
           rate = rate / 1000000;
@@ -71,6 +72,7 @@ function handleData(runs) {
           rate = rate / 1000;
         }
       }
+      console.log('*** rate (scaled) ***: ', rate);
 
       if (runDate.isBetween(weekAgo, today, 'days', '[]')) {
         weekTotalMbps += rate.toFixed(2);
@@ -85,10 +87,16 @@ function handleData(runs) {
         xAxisDay.push(run.TestStartTime.substr(0, 10));
         yAxisDay.push(rate.toFixed(2));
       }
+      console.log('*** weekTotalMbps ***: ', weekTotalMbps);
+      console.log('*** dayTotalMbps ***: ', dayTotalMbps);
     });
 
+    console.log('*** weekRuns ***: ', weekRuns);
+    console.log('*** dayRuns ***: ', dayRuns);
     weekMedian = weekTotalMbps / weekRuns;
     dayMedian = dayTotalMbps / dayRuns;
+    console.log('*** weekMedian ***: ', weekMedian);
+    console.log('*** dayMedian ***: ', dayMedian);
 
     if (isNaN(weekMedian)) {
       weekMedian = 0;
@@ -97,6 +105,8 @@ function handleData(runs) {
     if (isNaN(dayMedian)) {
       dayMedian = 0;
     }
+    console.log('*** weekMedian ***: ', weekMedian);
+    console.log('*** dayMedian ***: ', dayMedian);
   }
 }
 

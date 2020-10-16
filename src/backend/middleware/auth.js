@@ -91,6 +91,7 @@ const authWrapper = (groups, libraries) => {
   roles.use('write from whitelisted IP', async ctx => {
     log.debug('Checking if this client IP has write access.');
     let ips = libraries.findAllIps();
+    log.debug('Permitted IPs:', ips);
     if (ips.length && ips.length > 0) {
       let whitelist = fixLocalhost(ips);
       let ip = ctx.ip;
