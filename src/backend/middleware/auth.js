@@ -94,7 +94,7 @@ const authWrapper = (groups, libraries, isTest) => {
     log.debug('Permitted IPs:', ips);
     if (ips.length && ips.length > 0 && !isTest) {
       let whitelist = fixLocalhost(ips);
-      let ip = ctx.ip;
+      let ip = ctx.request.ip;
       ip = fixIp(ip);
       log.debug(`Searching allowlist for IP ${ip}...`);
       return whitelist.some(entry => {
