@@ -32,7 +32,6 @@ may be edited and copied to `.env`).
 The backend parses the following configuration variables:
 
 ```
-MURAKAMI_VIZ_PORT            # The port that the backend is listening on (default: 3000)
 MURAKAMI_VIZ_LOG_LEVEL       # Logging level (default: error)
 MURAKAMI_VIZ_HOST            # The host Murakami-viz runs on (default: localhost)
 MURAKAMI_VIZ_PORT            # The port to bind to (default: 3000)
