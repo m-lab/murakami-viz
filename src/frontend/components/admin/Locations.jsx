@@ -51,9 +51,9 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'name', numeric: false, disablePadding: true, label: 'mame' },
+  { id: 'name', numeric: false, disablePadding: true, label: 'Name' },
   {
-    id: 'location',
+    id: 'physical_address',
     numeric: false,
     disablePadding: false,
     label: 'Location',
@@ -63,7 +63,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -82,6 +82,7 @@ function EnhancedTableHead(props) {
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={createSortHandler(headCell.id)}
             >
+              {headCell.label}
               {orderBy === headCell.id ? (
                 <span className={classes.visuallyHidden}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -318,7 +319,7 @@ export default function EnhancedTable(props) {
                   .map((row, index) => {
                     const labelId = `data-row-${index}`;
 
-                    if (row) {
+                    if (row && row.id) {
                       return (
                         <TableRow
                           hover
