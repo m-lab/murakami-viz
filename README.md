@@ -46,8 +46,6 @@ MURAKAMI_VIZ_DB_PASSWORD     # Postgres password
 MURAKAMI_VIZ_DB_POOL_MIN     # Postgres minimum connections (default: 0)
 MURAKAMI_VIZ_DB_POOL_MAX     # Postgres max connections (default: 10)
 MURAKAMI_VIZ_DB_TIMEOUT      # Postgres connection timeout (default: 0)
-
-
 ```
 
 Additionally, we use the semi-standard `NODE_ENV` variable for defining test,
