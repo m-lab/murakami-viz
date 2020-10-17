@@ -7,7 +7,7 @@ import server from '../server.js';
 const validNetwork = {
   name: 'TestNetwork',
   isp: 'Not Evil At All Company',
-  ips: '173.79.94.143, 54.243.1.20',
+  ips: ['173.79.94.143', '54.243.1.20'],
   contracted_speed_upload: '900 mbps',
   contracted_speed_download: '989 mbps',
   bandwidth_cap_upload: '50 mb',
@@ -17,7 +17,7 @@ const validNetwork = {
 const invalidNetwork = {
   name: undefined,
   isp: 9,
-  ips: '256.256.256.256',
+  ips: ['256.256.256.256'],
   contracted_speed_upload: 0,
   contracted_speed_download: 7,
   bandwidth_cap_upload: [],

@@ -120,14 +120,19 @@ function a11yProps(index) {
   };
 }
 
-const useForm = (callback, validated, library) => {
-  const [inputs, setInputs] = useState(library);
+const useForm = (callback, validated, network) => {
+  let fullInputs;
+  const [inputs, setInputs] = React.useState({});
   const handleSubmit = event => {
     if (event) {
       event.preventDefault();
     }
-    if (validated(inputs)) {
-      callback(inputs);
+    delete fullInputs.created_at;
+    delete fullInputs.updated_at;
+    delete fullInputs.lid;
+    delete fullInputs.nid;
+    if (validated(fullInputs)) {
+      callback(fullInputs);
       setInputs({});
     }
   };
@@ -138,6 +143,13 @@ const useForm = (callback, validated, library) => {
       [event.target.name]: event.target.value.trim(),
     }));
   };
+
+  React.useEffect(() => {
+    if (network && inputs) {
+      fullInputs = Object.assign({}, network, inputs);
+    }
+  }, [inputs, fullInputs]);
+
   return {
     handleSubmit,
     handleInputChange,
@@ -147,7 +159,7 @@ const useForm = (callback, validated, library) => {
 
 export default function EditLibrary(props) {
   const classes = useStyles();
-  const { onClose, open, row } = props;
+  const { onClose, onLibraryUpdate, open, row } = props;
   const [errors, setErrors] = React.useState({});
   const [helperText, setHelperText] = React.useState({
     name: '',
@@ -230,31 +242,29 @@ export default function EditLibrary(props) {
       if (
         inputs[key] === null ||
         inputs[key] === undefined ||
-        key === 'id' ||
         key === 'created_at' ||
         key === 'updated_at'
       )
         delete inputs[key];
     }
 
-    let status;
-    fetch(`api/v1/libraries/${row.id}`, {
+    const { id, ...data } = inputs;
+    fetch(`api/v1/libraries/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: inputs }),
+      body: JSON.stringify({ data: data }),
     })
       .then(response => {
-        status = response.status;
-      })
-      .then(results => {
-        if (status === 201 || status === 204) {
+        if (response.status === 201 || response.status === 204) {
+          onLibraryUpdate(inputs);
+          console.log('***Inputs: ', inputs);
           alert(`Library edited successfully.`);
           onClose(inputs);
           return;
         } else {
-          processError(results);
+          processError(response.json());
           throw new Error(`Error in response from server.`);
         }
       })
@@ -286,10 +296,10 @@ export default function EditLibrary(props) {
   const { inputs, handleInputChange, handleSubmit } = useForm(
     submitData,
     validateInputs,
-    row
+    row,
   );
 
-  React.useEffect(() => {}, [errors, helperText]);
+  React.useEffect(() => {}, [row, errors, helperText]);
 
   return (
     <Dialog
@@ -380,7 +390,7 @@ export default function EditLibrary(props) {
           name="name"
           fullWidth
           variant="outlined"
-          defaultValue={row.name}
+          defaultValue={row ? row.name : inputs.name}
           onChange={handleInputChange}
         />
         <TextField
@@ -390,7 +400,7 @@ export default function EditLibrary(props) {
           name="physical_address"
           fullWidth
           variant="outlined"
-          defaultValue={row.physical_address}
+          defaultValue={row ? row.physical_address : inputs.physical_address}
           onChange={handleInputChange}
         />
         <TextField
@@ -401,7 +411,7 @@ export default function EditLibrary(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          defaultValue={row.shipping_address}
+          defaultValue={row ? row.shipping_address : inputs.shipping_address}
         />
         <TextField
           className={classes.formField}
@@ -411,7 +421,8 @@ export default function EditLibrary(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          defaultValue={row.timezone}
+          defaultValue={row ? row.timezone : inputs.timezone}
+          select
         />
         <TextField
           className={classes.formField}
@@ -421,7 +432,7 @@ export default function EditLibrary(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          defaultValue={row.coordinates}
+          defaultValue={row ? row.coordinates : inputs.coordinates}
         />
         <Typography variant="overline" display="block" gutterbottom>
           Library Contact for MLBN Devices
@@ -434,7 +445,9 @@ export default function EditLibrary(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          defaultValue={row.primary_contact_name}
+          defaultValue={
+            row ? row.primary_contact_name : inputs.primary_contact_name
+          }
         />
         <TextField
           error={errors.primary_contact_email}
@@ -446,7 +459,9 @@ export default function EditLibrary(props) {
           fullWidth
           variant="outlined"
           onChange={handleInputChange}
-          defaultValue={row.primary_contact_email}
+          defaultValue={
+            row ? row.primary_contact_email : inputs.primary_contact_email
+          }
         />
         <Typography variant="overline" display="block" gutterbottom>
           Library Hours
@@ -1518,3 +1533,4 @@ EditLibrary.propTypes = {
   open: PropTypes.bool.isRequired,
   row: PropTypes.object.isRequired,
 };
+

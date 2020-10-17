@@ -68,7 +68,9 @@ export default function Library(props) {
   const [open, setOpen] = React.useState(false);
 
   const updateLibrary = library => {
+    console.log('***updateLibrary:', library);
     setLibrary(library);
+    console.log('***updateLibrary (after):', library);
   };
 
   const handleClickOpen = () => {
@@ -618,7 +620,9 @@ export default function Library(props) {
                                         IP Addresses of Custom DNS Servers
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {network.ips}
+                                        {Array.isArray(network.ips)
+                                          ? network.ips.join(', ')
+                                          : network.ips}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
