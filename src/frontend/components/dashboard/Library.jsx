@@ -68,9 +68,7 @@ export default function Library(props) {
   const [open, setOpen] = React.useState(false);
 
   const updateLibrary = library => {
-    console.log('***updateLibrary:', library);
     setLibrary(library);
-    console.log('***updateLibrary (after):', library);
   };
 
   const handleClickOpen = () => {
