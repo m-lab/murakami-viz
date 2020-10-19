@@ -9,6 +9,10 @@ export default class NetworkManager {
   }
 
   async create(network, lid) {
+    network = network.map(n => ({
+      ...n,
+      ips: JSON.stringify(n.ips),
+    }));
     try {
       let networks;
       await this._db.transaction(async trx => {
@@ -47,6 +51,7 @@ export default class NetworkManager {
   }
 
   async update(id, network) {
+    network.ips = JSON.stringify(network.ips);
     try {
       let existing, updated;
       let exists = false;
@@ -141,11 +146,19 @@ export default class NetworkManager {
         }
       });
 
-    return rows || [];
+    return rows.map(r => {
+      if (r.ips) {
+        let ips = JSON.parse(r.ips);
+        delete r.ips;
+        return { ...r, ips: ips };
+      } else {
+        return r;
+      }
+    });
   }
 
   async findById(id, library) {
-    return this._db
+    const network = await this._db
       .table('networks')
       .select('*')
       .where({ id: parseInt(id) })
@@ -157,7 +170,13 @@ export default class NetworkManager {
             'library_networks.lid': this._db.raw('?', [library]),
           });
         }
-      });
+      })
+      .first();
+    if (network && network.ips) {
+      return { ...network, ips: JSON.parse(network.ips) };
+    } else {
+      return network;
+    }
   }
 
   async findAll() {

@@ -618,7 +618,9 @@ export default function Library(props) {
                                         IP Addresses of Custom DNS Servers
                                       </TableCell>
                                       <TableCell className={classes.tableCell}>
-                                        {network.ips}
+                                        {Array.isArray(network.ips)
+                                          ? network.ips.join(', ')
+                                          : network.ips}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>

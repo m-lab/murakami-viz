@@ -45,27 +45,14 @@ export default function controller(networks, thisUser) {
       lid = ctx.params.lid;
     }
 
-    const networkObj = Array.isArray(ctx.request.body.data)
-      ? ctx.request.body.data[0]
-      : ctx.request.body.data;
-    // the easiest way to validate IP addresses is to convert
-    // the string of IP addresses sent from the frontend into an array
-    // where the JOI validation can inspect each item of the array whether it's a string that's a valid IP address
-    const toValidate =
-      networkObj && networkObj.ips
-        ? { ...networkObj, ips: networkObj.ips.split(', ') }
-        : networkObj;
-
     try {
-      const data = await validateCreation(toValidate);
-      network = await networks.create(
-        [{ ...data[0], ips: data[0].ips.join(', ') }], // here we turn the IP address array into string because that's what the DB accepts
-        lid,
-      );
+      const data = await validateCreation(ctx.request.body.data);
+      network = await networks.create(data, lid);
     } catch (err) {
       log.error('HTTP 400 Error: ', err);
       ctx.throw(400, `Failed to add network: ${err}`);
     }
+    log.debug('network', network);
 
     ctx.response.body = { statusCode: 201, status: 'created', data: network };
     ctx.response.status = 201;
@@ -137,8 +124,12 @@ export default function controller(networks, thisUser) {
       ctx.throw(400, `Failed to parse query: ${err}`);
     }
 
-    if (network.length) {
-      ctx.response.body = { statusCode: 200, status: 'ok', data: network };
+    if (network) {
+      ctx.response.body = {
+        statusCode: 200,
+        status: 'ok',
+        data: Array.isArray(network) ? network : [network],
+      };
       ctx.response.status = 200;
     } else {
       log.error(
@@ -152,27 +143,15 @@ export default function controller(networks, thisUser) {
     log.debug(`Updating network ${ctx.params.id}.`);
     let created, updated;
 
-    // this is a workaround
-    const networkObj = Array.isArray(ctx.request.body.data)
-      ? ctx.request.body.data[0]
-      : ctx.request.body.data;
-
-    networkObj && networkObj['id'] ? delete networkObj['id'] : null;
-
-    const toValidate =
-      networkObj && networkObj.ips
-        ? { ...networkObj, ips: networkObj.ips.split(', ') }
-        : networkObj;
-
     try {
       if (ctx.params.lid) {
         await networks.addToLibrary(ctx.params.lid, ctx.params.id);
         updated = true;
       } else {
-        const [data] = await validateUpdate(toValidate);
+        const [data] = await validateUpdate(ctx.request.body.data);
         ({ exists: updated = false, ...created } = await networks.update(
           ctx.params.id,
-          { ...data, ips: data.ips.join(', ') }, // as with the POST route, this changes the array of IPs into a string of IPs to insert to the DB
+          data,
         ));
       }
     } catch (err) {

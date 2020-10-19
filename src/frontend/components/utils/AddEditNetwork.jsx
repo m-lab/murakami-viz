@@ -91,10 +91,10 @@ const useForm = (callback, validated, network) => {
   };
   const handleInputChange = event => {
     event.persist();
-      setInputs(inputs => ({
-        ...inputs,
-        [event.target.name]: event.target.value.trim(),
-      }));
+    setInputs(inputs => ({
+      ...inputs,
+      [event.target.name]: event.target.value.trim(),
+    }));
   };
 
   React.useEffect(() => {
@@ -176,7 +176,6 @@ export default function AddEditNetwork(props) {
 
   // submit network to api
   const submitData = inputs => {
-
     for (let key in inputs) {
       if (
         inputs[key] === null ||
@@ -185,29 +184,27 @@ export default function AddEditNetwork(props) {
         key === 'updated_at'
       )
         delete inputs[key];
+
+      if (key === 'ips' && typeof inputs[key] === 'string') {
+        inputs[key] = inputs[key].split(',').map(item => item.trim());
+      }
     }
 
-    let status;
-    let result;
-
+    const { id, ...data } = inputs;
     if (editMode) {
       fetch(`api/v1/networks/${network.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: inputs }),
+        body: JSON.stringify({ data: data }),
       })
         .then(response => {
-          status = response.status;
-          return !!status === 201 ? response.json() : null;
-        })
-        .then(result => {
-          if (status === 204) {
+          if (response.status === 204 || response.status === 201) {
             let updatedNetworks;
             if (networks) {
               updatedNetworks = networks.map(network =>
-                network.id === inputs['id'] ? inputs : network,
+                network.id === id ? inputs : network,
               );
             } else {
               updatedNetworks = [inputs];
@@ -217,7 +214,7 @@ export default function AddEditNetwork(props) {
             onClose();
             return;
           } else {
-            const error = processError(result);
+            const error = processError(response.json());
             throw new Error(`Error in response from server: ${error}`);
           }
         })
@@ -237,26 +234,24 @@ export default function AddEditNetwork(props) {
         body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
-          status = response.status;
-          return response.json();
+          if (response.status === 201) {
+            return response.json();
+          } else {
+            throw new Error('Failed to create network.');
+          }
         })
         .then(result => {
-          if (status === 201) {
-            let newNetwork = {
-              ...inputs,
-              id: result.data[0],
-            };
-            let updatedNetworks = networks
-              ? networks.concat(newNetwork)
-              : [newNetwork];
-            setNetworks(updatedNetworks);
-            alert('New network successfully added.')
-            onClose();
-            return;
-          } else {
-            const error = processError(result);
-            throw new Error(` in response from server: ${error}`);
-          }
+          let newNetwork = {
+            ...inputs,
+            id: result.data[0],
+          };
+          let updatedNetworks = networks
+            ? networks.concat(newNetwork)
+            : [newNetwork];
+          setNetworks(updatedNetworks);
+          alert('New network successfully added.');
+          onClose();
+          return;
         })
         .catch(error => {
           alert(
@@ -397,7 +392,7 @@ export default function AddEditNetwork(props) {
             defaultValue={
               network
                 ? Array.isArray(network.ips)
-                  ? network.ips.join(', ')
+                  ? network.ips.join(',')
                   : network.ips
                 : inputs.ips
             }

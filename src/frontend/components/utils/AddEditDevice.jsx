@@ -198,7 +198,7 @@ export default function AddEditDevice(props) {
       )
         delete inputs[key];
     }
-    
+
     if (editMode) {
       let updatedDevices;
 
@@ -210,22 +210,22 @@ export default function AddEditDevice(props) {
         body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
-          status = response.status;
-          // need to handle if status is 201 and the response needs to be .json()'d
-        })
-        .then(()=>{
-          if (status === 204 || status === 201) {
+          if (response.status === 204 || response.status === 201) {
             if (devices) {
               updatedDevices = devices.map(device =>
-                device.deviceid === inputs.deviceid ? inputs : device )
+                device.deviceid === inputs.deviceid ? inputs : device,
+              );
             } else {
-              updatedDevices = [inputs]
+              updatedDevices = [inputs];
             }
             setDevices(updatedDevices);
             alert('Device updated successfully');
             onClose();
+            return;
+          } else {
+            throw new Error(`Failed to update device ${device.id}`);
           }
-        })        
+        })
         .catch(error => {
           alert(
             `An error occurred. Please try again or contact an administrator. ${
@@ -243,27 +243,25 @@ export default function AddEditDevice(props) {
         body: JSON.stringify({ data: inputs }),
       })
         .then(response => {
-          status = response.status;
-          return response.json();
+          if (response.status === 201) {
+            return response.json();
+          } else {
+            throw new Error('Failed to create device.');
+          }
         })
         .then(result => {
-          if (status === 201) {
-            let newDevice = {
-              ...inputs,
-              id: result.data[0].id,
-              location: row.name,
-            };
-            let updatedDevices = devices
-              ? devices.concat(newDevice)
-              : [newDevice];
-            setDevices(updatedDevices);
-            alert('New device added successfully.')
-            onClose();
-            return;
-          } else {
-            const error = processError(result);
-            throw new Error(` in response from server: ${error}`);
-          }
+          let newDevice = {
+            ...inputs,
+            id: result.data[0].id,
+            location: row.name,
+          };
+          let updatedDevices = devices
+            ? devices.concat(newDevice)
+            : [newDevice];
+          setDevices(updatedDevices);
+          alert('New device added successfully.');
+          onClose();
+          return;
         })
         .catch(error => {
           alert(
