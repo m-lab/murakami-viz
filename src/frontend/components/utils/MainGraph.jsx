@@ -59,15 +59,17 @@ function handleGroupedData(runs, metric) {
   Object.entries(runs)
     .sort((a, b) => moment(a[0]).diff(moment(b[0])))
     .map(([date, run]) => {
+      let midpoint;
       const sorted = run.sort((a, b) =>
         moment(a.TestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
           moment(b.TestStartTime, 'YYYY-MM-DDThh:mm:ss'),
         ),
       );
-      const midpoint = Math.ceil(sorted.length / 2);
-      console.log('sorted: ', sorted);
-      console.log('midpoint: ', midpoint);
-      console.log('metric: ', metric);
+      if (sorted.length < 2) {
+        midpoint = 0;
+      } else {
+        midpoint = Math.ceil(sorted.length / 2);
+      }
       const median =
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
