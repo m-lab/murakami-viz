@@ -156,6 +156,7 @@ export default function MainGraph(props) {
         ]}
         layout={{
           autosize: true,
+          hovermode: 'closest',
           title: false,
           xaxis: {
             showgrid: false,
