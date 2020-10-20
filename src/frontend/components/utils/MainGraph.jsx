@@ -69,12 +69,8 @@ function handleGroupedData(runs, metric) {
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
           : sorted[midpoint - 1][metric];
-      console.log('sorted: ', sorted);
-      console.log('math: ', sorted.length % 2);
-      console.log('midpoint: ', midpoint);
-      console.log('median: ', median);
       xAxis.push(date.substr(0, 10));
-      yAxis.push(median.toFixed(2));
+      yAxis.push(parseFloat(median).toFixed(2));
     });
 }
 
