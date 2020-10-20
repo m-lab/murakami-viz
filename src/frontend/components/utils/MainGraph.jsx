@@ -145,7 +145,7 @@ export default function MainGraph(props) {
             x: xAxis,
             y: yAxis,
             type: 'scatter',
-            mode: 'lines+markers',
+            mode: 'markers',
             marker: { color: 'red' },
           },
         ]}

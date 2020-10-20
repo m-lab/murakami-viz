@@ -189,8 +189,6 @@ export default function Compare(props) {
               className={classes.grid}
               justify="space-between"
               spacing={2}
-              xs={12}
-              md={12}
             >
               <Grid container item spacing={3} xs={12}>
                 <Grid item xs={12} md={6}>
