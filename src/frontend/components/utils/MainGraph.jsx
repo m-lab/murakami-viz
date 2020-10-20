@@ -65,6 +65,9 @@ function handleGroupedData(runs, metric) {
         ),
       );
       const midpoint = Math.ceil(sorted.length / 2);
+      console.log('sorted: ', sorted);
+      console.log('midpoint: ', midpoint);
+      console.log('metric: ', metric);
       const median =
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
