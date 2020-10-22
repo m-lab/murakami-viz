@@ -1,4 +1,5 @@
 import { BadRequestError, NotFoundError } from '../../common/errors.js';
+import { isString } from '../../common/utils.js';
 import { getLogger } from '../log.js';
 
 const log = getLogger('backend:models:network');
@@ -147,7 +148,7 @@ export default class NetworkManager {
       });
 
     return rows.map(r => {
-      if (r.ips) {
+      if (r.ips && isString(r.ips)) {
         let ips = JSON.parse(r.ips);
         delete r.ips;
         return { ...r, ips: ips };
@@ -172,7 +173,7 @@ export default class NetworkManager {
         }
       })
       .first();
-    if (network && network.ips) {
+    if (network && network.ips && isString(network.ips)) {
       return { ...network, ips: JSON.parse(network.ips) };
     } else {
       return network;
