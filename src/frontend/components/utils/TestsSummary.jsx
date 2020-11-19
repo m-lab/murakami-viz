@@ -116,11 +116,16 @@ export default function TestsSummary(props) {
       setIsLoaded(true);
     }
 
-    if (summary == 'speedtest-cli-single-stream') {
-      setColor('orange');
-    } else {
+    if (
+      summary.toLowerCase() == 'ndt' ||
+      summary.toLowerCase() == 'ndt5' ||
+      summary.toLowerCase() == 'ndt7'
+    ) {
       setColor('red');
+    } else {
+      setColor('orange');
     }
+    console.log(color);
   }, [runs, summary]);
 
   if (!isLoaded) {
