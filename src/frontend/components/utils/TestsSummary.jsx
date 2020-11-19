@@ -125,7 +125,6 @@ export default function TestsSummary(props) {
     } else {
       setColor('orange');
     }
-    console.log(color);
   }, [runs, summary]);
 
   if (!isLoaded) {

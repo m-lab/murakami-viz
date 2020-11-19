@@ -78,6 +78,7 @@ export default function MainGraph(props) {
   const [testSummary, setTestSummary] = React.useState(null);
   const [titleText, setTitleText] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [color, setColor] = React.useState('red');
   const { lid, runs, connections, testTypes, metric, group, dateRange } = props;
 
   React.useEffect(() => {
@@ -96,6 +97,15 @@ export default function MainGraph(props) {
         if (testTypes.length) {
           if (!testTypes.includes(run.TestName)) {
             return false;
+          }
+          if (
+            run.TestName.toLowerCase() == 'ndt' ||
+            run.TestName.toLowerCase() == 'ndt5' ||
+            run.TestName.toLowerCase() == 'ndt7'
+          ) {
+            setColor('red');
+          } else {
+            setColor('orange');
           }
         }
         return connections.length && testTypes.length;
@@ -146,7 +156,7 @@ export default function MainGraph(props) {
             y: yAxis,
             type: 'scatter',
             mode: 'markers',
-            marker: { color: 'red' },
+            marker: { color: color },
           },
         ]}
         layout={{
