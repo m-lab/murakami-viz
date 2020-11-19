@@ -102,8 +102,8 @@ function handleData(runs) {
 
 export default function TestsSummary(props) {
   const classes = useStyles();
-  const [testSummary, setTestSummary] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [color, setColor] = React.useState('red');
   const { runs, summary } = props;
 
   React.useEffect(() => {
@@ -112,9 +112,14 @@ export default function TestsSummary(props) {
         return run.TestName === summary;
       });
 
-      setTestSummary(filteredRuns);
       handleData(filteredRuns);
       setIsLoaded(true);
+    }
+
+    if (summary == 'speedtest-cli-single-stream') {
+      setColor('orange');
+    } else {
+      setColor('red');
     }
   }, [runs, summary]);
 
@@ -152,7 +157,7 @@ export default function TestsSummary(props) {
                 y: yAxisWeek,
                 type: 'scatter',
                 mode: 'lines+markers',
-                marker: { color: 'rgb(52, 235, 107)' },
+                marker: { color: color },
                 hoverinfo: 'none',
               },
             ]}
@@ -207,7 +212,7 @@ export default function TestsSummary(props) {
                 y: yAxisDay,
                 type: 'scatter',
                 mode: 'lines+markers',
-                marker: { color: 'rgb(235, 64, 52)' },
+                marker: { color: color },
                 hoverinfo: 'none',
               },
             ]}
