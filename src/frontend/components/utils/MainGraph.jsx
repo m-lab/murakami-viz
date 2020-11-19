@@ -81,6 +81,23 @@ export default function MainGraph(props) {
   const [color, setColor] = React.useState('red');
   const { lid, runs, connections, testTypes, metric, group, dateRange } = props;
 
+  function formatHover(runs) {
+    return runs.map(run => {
+      return `<span>${moment(
+        run.TestStartTime,
+        'YYYY-MM-DDThh:mm:ss',
+      )}</span><br><span>${run.TestName} test</span><br><span>${
+        run.MurakamiConnectionType
+      } connection</span><br><span>${run.DownloadValue.toFixed(2)} ${
+        run.DownloadUnit
+      } download</span><br><span>${run.UploadValue.toFixed(2)} ${
+        run.UploadUnit
+      } upload</span><br><span>${run.MinRTTValue.toFixed(2)} ${
+        run.MinRTTUnit
+      } latency</span><br>`;
+    });
+  }
+
   React.useEffect(() => {
     if (runs) {
       const filteredRuns = runs.filter(run => {
@@ -157,6 +174,9 @@ export default function MainGraph(props) {
             type: 'scatter',
             mode: 'markers',
             marker: { color: color },
+            text: formatHover(runs),
+            hoverinfo: 'text',
+            hoverlabel: { bgcolor: '#41454c' },
           },
         ]}
         layout={{
