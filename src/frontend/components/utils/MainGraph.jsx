@@ -88,13 +88,13 @@ export default function MainGraph(props) {
         'YYYY-MM-DDThh:mm:ss',
       )}</span><br><span>${run.TestName} test</span><br><span>${
         run.MurakamiConnectionType
-      } connection</span><br><span>${parseFloat(run.DownloadValue).toFixed(2)} ${
-        run.DownloadUnit
-      } download</span><br><span>${(parseFloat(run.UploadValue).toFixed(2)} ${
-        run.UploadUnit
-      } upload</span><br><span>${parseFloat(run.MinRTTValue).toFixed(2)} ${
-        run.MinRTTUnit
-      } latency</span><br>`;
+      } connection</span><br><span>${parseFloat(run.DownloadValue).toFixed(
+        2,
+      )} ${run.DownloadUnit} download</span><br><span>${parseFloat(
+        run.UploadValue,
+      ).toFixed(2)} ${run.UploadUnit} upload</span><br><span>${parseFloat(
+        run.MinRTTValue,
+      ).toFixed(2)} ${run.MinRTTUnit} latency</span><br>`;
     });
   }
 
