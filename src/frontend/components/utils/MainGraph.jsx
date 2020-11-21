@@ -8,12 +8,9 @@ import moment from 'moment';
 import Loading from '../Loading.jsx';
 import { isString } from '../../../common/utils.js';
 
-let xAxis = [],
-  yAxis = [];
-
 function handleData(runs, metric) {
-  xAxis = [];
-  yAxis = [];
+  const xAxis = [];
+  const yAxis = [];
 
   runs.map(run => {
     xAxis.push(run.TestStartTime.substr(0, 10));
@@ -50,11 +47,13 @@ function handleData(runs, metric) {
       yAxis.push(Number(rate).toFixed(2));
     }
   });
+
+  return { xAxis: xAxis, yAxis: yAxis };
 }
 
 function handleGroupedData(runs, metric) {
-  xAxis = [];
-  yAxis = [];
+  const xAxis = [];
+  const yAxis = [];
 
   Object.entries(runs)
     .sort((a, b) => moment(a[0]).diff(moment(b[0])))
@@ -72,13 +71,17 @@ function handleGroupedData(runs, metric) {
       xAxis.push(date.substr(0, 10));
       yAxis.push(parseFloat(median).toFixed(2));
     });
+
+  return { xAxis: xAxis, yAxis: yAxis };
 }
 
 export default function MainGraph(props) {
-  const [testSummary, setTestSummary] = React.useState(null);
+  //const [testSummary, setTestSummary] = React.useState(null);
   const [titleText, setTitleText] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const [color, setColor] = React.useState('red');
+  //const [color, setColor] = React.useState('red');
+  const [ndt, setNdt] = React.useState({});
+  const [ookla, setOokla] = React.useState({});
   const { lid, runs, connections, testTypes, metric, group, dateRange } = props;
 
   function formatHover(runs) {
@@ -100,47 +103,62 @@ export default function MainGraph(props) {
 
   React.useEffect(() => {
     if (runs) {
-      const filteredRuns = runs.filter(run => {
+      const ndtRuns = [];
+      const ooklaRuns = [];
+      runs.forEach(run => {
         if (lid && lid.length) {
           if (!lid.includes(run.lid)) {
-            return false;
+            return;
           }
         }
         if (connections.length) {
           if (!connections.includes(run.MurakamiConnectionType)) {
-            return false;
+            return;
           }
         }
-        if (testTypes.length) {
-          if (!testTypes.includes(run.TestName)) {
-            return false;
-          }
-          if (
-            run.TestName.toLowerCase() == 'ndt' ||
-            run.TestName.toLowerCase() == 'ndt5' ||
-            run.TestName.toLowerCase() == 'ndt7'
-          ) {
-            setColor('red');
-          } else {
-            setColor('orange');
-          }
+        if (['ndt5', 'ndt7'].includes(run.TestName.toLowerCase())) {
+          ndtRuns.push(run);
+        } else if (
+          [
+            'speedtest-cli-single-stream',
+            'speedtest-cli-multi-stream',
+          ].includes(run.TestName.toLowerCase())
+        ) {
+          ooklaRuns.push(run);
         }
-        return connections.length && testTypes.length;
+        return;
       });
 
-      let groupedRuns;
+      let ndtCoords, ooklaCoords;
       if (group === 'daily') {
-        groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+        ndtCoords = handleGroupedData(
+          _.groupBy(ndtRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+          ),
+          metric,
         );
-        handleGroupedData(groupedRuns, metric);
+        ooklaCoords = handleGroupedData(
+          _.groupBy(ooklaRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+          ),
+          metric,
+        );
       } else if (group === 'hourly') {
-        groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+        ndtCoords = handleGroupedData(
+          _.groupBy(ndtRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+          ),
+          metric,
         );
-        handleGroupedData(groupedRuns, metric);
+        ooklaCoords = handleGroupedData(
+          _.groupBy(ooklaRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+          ),
+          metric,
+        );
       } else {
-        handleData(filteredRuns, metric);
+        ndtCoords = handleData(ndtRuns, metric);
+        ooklaCoords = handleData(ooklaRuns, metric);
       }
 
       if (metric === 'DownloadValue') {
@@ -151,11 +169,17 @@ export default function MainGraph(props) {
         setTitleText('Latency (ms)');
       }
 
-      if (groupedRuns) {
-        setTestSummary(groupedRuns);
-      } else {
-        setTestSummary(filteredRuns);
-      }
+      ndtCoords.text = formatHover(ndtRuns);
+      ooklaCoords.text = formatHover(ooklaRuns);
+
+      setNdt(ndtCoords);
+      setOokla(ooklaCoords);
+
+      //if (groupedRuns) {
+      //  setTestSummary(groupedRuns);
+      //} else {
+      //  setTestSummary(filteredRuns);
+      //}
     }
     setIsLoaded(true);
   }, [connections, testTypes, metric, group, runs, lid]);
@@ -169,23 +193,36 @@ export default function MainGraph(props) {
       <Plot
         data={[
           {
-            x: xAxis,
-            y: yAxis,
+            x: ndt.xAxis,
+            y: ndt.yAxis,
             type: 'scatter',
             mode: 'markers',
-            marker: { color: color },
-            text: formatHover(runs),
+            marker: { color: 'red' },
+            text: ndt.text,
             hoverinfo: 'text',
             hoverlabel: { bgcolor: '#41454c' },
+            visible: testTypes.includes('ndt5'),
+          },
+          {
+            x: ookla.xAxis,
+            y: ookla.yAxis,
+            type: 'scatter',
+            mode: 'markers',
+            marker: { color: 'orange' },
+            text: ookla.text,
+            hoverinfo: 'text',
+            hoverlabel: { bgcolor: '#41454c' },
+            visible: testTypes.includes('speedtest-cli-single-stream'),
           },
         ]}
         layout={{
-          autosize: true,
+          autosize: false,
           hovermode: 'closest',
           title: false,
           xaxis: {
             showgrid: false,
             range: [dateRange.startDate, dateRange.endDate],
+            autorange: false,
           },
           yaxis: {
             showgrid: false,
