@@ -13,7 +13,7 @@ function handleData(runs, metric) {
   const yAxis = [];
 
   runs.map(run => {
-    xAxis.push(run.TestStartTime.substr(0, 10));
+    xAxis.push(moment(run.TestStartTime).format('YYYY-MM-DDThh:mm:ss'));
 
     // workaround for the different parameters across tests
     if (metric === 'MinRTTValue') {
@@ -68,7 +68,7 @@ function handleGroupedData(runs, metric) {
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
           : sorted[midpoint - 1][metric];
-      xAxis.push(date.substr(0, 10));
+      xAxis.push(moment(date).format('YYYY-MM-DDThh:mm:ss'));
       yAxis.push(parseFloat(median).toFixed(2));
     });
 
@@ -193,6 +193,7 @@ export default function MainGraph(props) {
       <Plot
         data={[
           {
+            name: 'NDT',
             x: ndt.xAxis,
             y: ndt.yAxis,
             type: 'scatter',
@@ -204,6 +205,7 @@ export default function MainGraph(props) {
             visible: testTypes.includes('ndt5'),
           },
           {
+            name: 'Ookla',
             x: ookla.xAxis,
             y: ookla.yAxis,
             type: 'scatter',
@@ -220,6 +222,7 @@ export default function MainGraph(props) {
           hovermode: 'closest',
           title: false,
           xaxis: {
+            type: 'date',
             showgrid: false,
             range: [dateRange.startDate, dateRange.endDate],
             autorange: false,
