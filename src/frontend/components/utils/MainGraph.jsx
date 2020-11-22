@@ -52,12 +52,15 @@ function handleData(runs, metric) {
 }
 
 function handleGroupedData(runs, metric) {
+  console.log('***handleGroupedData runs***:', runs);
   const xAxis = [];
   const yAxis = [];
 
   Object.entries(runs)
     .sort((a, b) => moment(a[0]).diff(moment(b[0])))
     .map(([date, run]) => {
+      console.log('***handleGroupedData date***:', date);
+      console.log('***handleGroupedData run***:', run);
       const sorted = run.sort((a, b) =>
         moment(a.TestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
           moment(b.TestStartTime, 'YYYY-MM-DDThh:mm:ss'),
