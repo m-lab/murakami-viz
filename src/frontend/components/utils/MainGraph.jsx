@@ -71,6 +71,7 @@ function handleGroupedData(runs, metric) {
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
           : sorted[midpoint - 1][metric];
+      console.log('***handleGroupedData median***:', median);
       xAxis.push(moment(date).format('YYYY-MM-DDThh:mm:ss'));
       yAxis.push(parseFloat(median).toFixed(2));
     });
