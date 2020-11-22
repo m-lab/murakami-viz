@@ -53,6 +53,7 @@ function handleData(runs, metric) {
 
 function handleGroupedData(runs, metric) {
   console.log('***handleGroupedData runs***:', runs);
+  console.log('***handleGroupedData metric***:', metric);
   const xAxis = [];
   const yAxis = [];
 
@@ -66,7 +67,9 @@ function handleGroupedData(runs, metric) {
           moment(b.TestStartTime, 'YYYY-MM-DDThh:mm:ss'),
         ),
       );
+      console.log('***handleGroupedData sorted***:', sorted);
       const midpoint = Math.ceil(sorted.length / 2);
+      console.log('***handleGroupedData midpoint***:', midpoint);
       const median =
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
