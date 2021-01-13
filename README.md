@@ -2,6 +2,8 @@
 
 A visualization service of Murakami tests using Koa and React.
 
+Murakami-Viz was developed in collaboration with US public libraries, Simmons University, and Internet2's Community Anchor program, as an accompanying service to [Murakami](https://github.com/m-lab/murakami), with support from the Institute for Museum and Library Services (IMLS) in IMLS Award [#LG-71-18-0110-18](https://www.imls.gov/grants/awarded/lg-71-18-0110-18). The application is a Docker-based web service that provides a basic data visualization and access service for tests collected by Murakami measurement devices. Though it's initial audience and user interfaces are somewhat public library focused, Murakami-Viz can be useful for any organization as a part of their measurement initiatives.
+
 ## Requirements
 
 - [Node.js](https://nodejs.org) of version `>=12`
@@ -111,6 +113,14 @@ docker-compose run murakami npm run db:seeds
 ```
 
 By default, it runs on [http://localhost:3000](http://localhost:3000), but you can place it behind a proxy such as [Nginx](https://nginx.com) in order to provide TLS support and other features.
+
+## Post Install Configuration
+
+Once installation is complete, you should proceed with configuring [Murakami-Viz](POST-INSTALL-CONFIG.md).
+
+## Using Murakami-Viz to Access Test Data
+
+Documentation on using Murakami-Viz can be found in: [USING-MURAKAMI-VIZ.md](USING-MURAKAMI-VIZ.md).
 
 ## License
 
