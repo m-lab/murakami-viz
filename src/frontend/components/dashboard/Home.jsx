@@ -439,7 +439,7 @@ export default function Home(props) {
                   <ToggleButton value="hourly" aria-label="By hour">
                     By hour
                   </ToggleButton>
-                  <ToggleButton value="daily" aria-label="By day">
+                  <ToggleButton value="daily" aria-label="By day" disabled>
                     By day
                   </ToggleButton>
                 </ToggleButtonGroup>

@@ -8,15 +8,12 @@ import moment from 'moment';
 import Loading from '../Loading.jsx';
 import { isString } from '../../../common/utils.js';
 
-let xAxis = [],
-  yAxis = [];
-
 function handleData(runs, metric) {
-  xAxis = [];
-  yAxis = [];
+  const xAxis = [];
+  const yAxis = [];
 
   runs.map(run => {
-    xAxis.push(run.TestStartTime.substr(0, 10));
+    xAxis.push(moment(run.TestStartTime).format('YYYY-MM-DDThh:mm:ss'));
 
     // workaround for the different parameters across tests
     if (metric === 'MinRTTValue') {
@@ -50,70 +47,125 @@ function handleData(runs, metric) {
       yAxis.push(Number(rate).toFixed(2));
     }
   });
+
+  return { xAxis: xAxis, yAxis: yAxis };
 }
 
 function handleGroupedData(runs, metric) {
-  xAxis = [];
-  yAxis = [];
+  console.log('***handleGroupedData runs***:', runs);
+  console.log('***handleGroupedData metric***:', metric);
+  const xAxis = [];
+  const yAxis = [];
 
   Object.entries(runs)
     .sort((a, b) => moment(a[0]).diff(moment(b[0])))
     .map(([date, run]) => {
+      console.log('***handleGroupedData date***:', date);
+      console.log('***handleGroupedData run***:', run);
       const sorted = run.sort((a, b) =>
         moment(a.TestStartTime, 'YYYY-MM-DDThh:mm:ss').diff(
           moment(b.TestStartTime, 'YYYY-MM-DDThh:mm:ss'),
         ),
       );
+      console.log('***handleGroupedData sorted***:', sorted);
       const midpoint = Math.ceil(sorted.length / 2);
+      console.log('***handleGroupedData midpoint***:', midpoint);
       const median =
         sorted.length % 2 === 0
           ? (sorted[midpoint][metric] + sorted[midpoint - 1][metric]) / 2
           : sorted[midpoint - 1][metric];
-      xAxis.push(date.substr(0, 10));
+      console.log('***handleGroupedData median***:', median);
+      xAxis.push(moment(date).format('YYYY-MM-DDThh:mm:ss'));
       yAxis.push(parseFloat(median).toFixed(2));
     });
+
+  return { xAxis: xAxis, yAxis: yAxis };
 }
 
 export default function MainGraph(props) {
-  const [testSummary, setTestSummary] = React.useState(null);
+  //const [testSummary, setTestSummary] = React.useState(null);
   const [titleText, setTitleText] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  //const [color, setColor] = React.useState('red');
+  const [ndt, setNdt] = React.useState({});
+  const [ookla, setOokla] = React.useState({});
   const { lid, runs, connections, testTypes, metric, group, dateRange } = props;
+
+  function formatHover(runs) {
+    return runs.map(run => {
+      return `<span>${moment(
+        run.TestStartTime,
+        'YYYY-MM-DDThh:mm:ss',
+      )}</span><br><span>${run.TestName} test</span><br><span>${
+        run.MurakamiConnectionType
+      } connection</span><br><span>${parseFloat(run.DownloadValue).toFixed(
+        2,
+      )} ${run.DownloadUnit} download</span><br><span>${parseFloat(
+        run.UploadValue,
+      ).toFixed(2)} ${run.UploadUnit} upload</span><br><span>${parseFloat(
+        run.MinRTTValue,
+      ).toFixed(2)} ${run.MinRTTUnit} latency</span><br>`;
+    });
+  }
 
   React.useEffect(() => {
     if (runs) {
-      const filteredRuns = runs.filter(run => {
+      const ndtRuns = [];
+      const ooklaRuns = [];
+      runs.forEach(run => {
         if (lid && lid.length) {
           if (!lid.includes(run.lid)) {
-            return false;
+            return;
           }
         }
         if (connections.length) {
           if (!connections.includes(run.MurakamiConnectionType)) {
-            return false;
+            return;
           }
         }
-        if (testTypes.length) {
-          if (!testTypes.includes(run.TestName)) {
-            return false;
-          }
+        if (['ndt5', 'ndt7'].includes(run.TestName.toLowerCase())) {
+          ndtRuns.push(run);
+        } else if (
+          [
+            'speedtest-cli-single-stream',
+            'speedtest-cli-multi-stream',
+          ].includes(run.TestName.toLowerCase())
+        ) {
+          ooklaRuns.push(run);
         }
-        return connections.length && testTypes.length;
+        return;
       });
 
-      let groupedRuns;
+      let ndtCoords, ooklaCoords;
       if (group === 'daily') {
-        groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+        ndtCoords = handleGroupedData(
+          _.groupBy(ndtRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+          ),
+          metric,
         );
-        handleGroupedData(groupedRuns, metric);
+        ooklaCoords = handleGroupedData(
+          _.groupBy(ooklaRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DD').startOf('day'),
+          ),
+          metric,
+        );
       } else if (group === 'hourly') {
-        groupedRuns = _.groupBy(filteredRuns, run =>
-          moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+        ndtCoords = handleGroupedData(
+          _.groupBy(ndtRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+          ),
+          metric,
         );
-        handleGroupedData(groupedRuns, metric);
+        ooklaCoords = handleGroupedData(
+          _.groupBy(ooklaRuns, run =>
+            moment(run.TestStartTime, 'YYYY-MM-DDThh:mm:ss').startOf('hour'),
+          ),
+          metric,
+        );
       } else {
-        handleData(filteredRuns, metric);
+        ndtCoords = handleData(ndtRuns, metric);
+        ooklaCoords = handleData(ooklaRuns, metric);
       }
 
       if (metric === 'DownloadValue') {
@@ -124,11 +176,17 @@ export default function MainGraph(props) {
         setTitleText('Latency (ms)');
       }
 
-      if (groupedRuns) {
-        setTestSummary(groupedRuns);
-      } else {
-        setTestSummary(filteredRuns);
-      }
+      ndtCoords.text = formatHover(ndtRuns);
+      ooklaCoords.text = formatHover(ooklaRuns);
+
+      setNdt(ndtCoords);
+      setOokla(ooklaCoords);
+
+      //if (groupedRuns) {
+      //  setTestSummary(groupedRuns);
+      //} else {
+      //  setTestSummary(filteredRuns);
+      //}
     }
     setIsLoaded(true);
   }, [connections, testTypes, metric, group, runs, lid]);
@@ -142,20 +200,39 @@ export default function MainGraph(props) {
       <Plot
         data={[
           {
-            x: xAxis,
-            y: yAxis,
+            name: 'NDT',
+            x: ndt.xAxis,
+            y: ndt.yAxis,
             type: 'scatter',
             mode: 'markers',
             marker: { color: 'red' },
+            text: ndt.text,
+            hoverinfo: 'text',
+            hoverlabel: { bgcolor: '#41454c' },
+            visible: testTypes.includes('ndt5'),
+          },
+          {
+            name: 'Ookla',
+            x: ookla.xAxis,
+            y: ookla.yAxis,
+            type: 'scatter',
+            mode: 'markers',
+            marker: { color: 'orange' },
+            text: ookla.text,
+            hoverinfo: 'text',
+            hoverlabel: { bgcolor: '#41454c' },
+            visible: testTypes.includes('speedtest-cli-single-stream'),
           },
         ]}
         layout={{
-          autosize: true,
+          autosize: false,
           hovermode: 'closest',
           title: false,
           xaxis: {
+            type: 'date',
             showgrid: false,
             range: [dateRange.startDate, dateRange.endDate],
+            autorange: false,
           },
           yaxis: {
             showgrid: false,
