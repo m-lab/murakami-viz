@@ -119,7 +119,7 @@
     "joi-phone-number": "^4.1.2",
     "js-cookie": "^2.2.1",
     "jwks-rsa": "^1.9.0",
-    "knex": "^0.21.5",
+    "knex": "^2.4.0",
     "knex-migrate": "^1.7.4",
     "koa": "2.7.0",
     "koa-404-handler": "0.0.2",
