@@ -1,10 +1,10 @@
 # Murakami Viz
 
-**Note**: This project is not actively maintained by the M-Lab team anymore.
-
 A visualization service of Murakami tests using Koa and React.
 
 Murakami-Viz was developed in collaboration with US public libraries, Simmons University, and Internet2's Community Anchor program, as an accompanying service to [Murakami](https://github.com/m-lab/murakami), with support from the Institute for Museum and Library Services (IMLS) in IMLS Award [#LG-71-18-0110-18](https://www.imls.gov/grants/awarded/lg-71-18-0110-18). The application is a Docker-based web service that provides a basic data visualization and access service for tests collected by Murakami measurement devices. Though it's initial audience and user interfaces are somewhat public library focused, Murakami-Viz can be useful for any organization as a part of their measurement initiatives.
+
+**Note**: After the conclusion of the IMLS project 2021, this repository is no longer actively maintained by the M-Lab team. Community contributions are welcome.
 
 ## Requirements
 
